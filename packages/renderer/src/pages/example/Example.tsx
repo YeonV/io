@@ -11,17 +11,10 @@ import reactRouter from '@/assets/reactrouter.svg';
 import styles from '@/styles/app.module.scss';
 import pkg from '../../../../../package.json';
 import { useEffect, useState } from 'react';
-import { Avatar, Button, Box, Chip, Input, Stack, Accordion, AccordionSummary, Typography, AccordionDetails, Card } from '@mui/material';
+import { Avatar, Box, Chip } from '@mui/material';
 import { useStore } from '../../store/useStore';
-
-import { useHotkeys } from 'react-hotkeys-hook';
 import Shortkey from '@/components/Shortkey';
-import { ExpandMore, Key, Keyboard } from '@mui/icons-material';
-import IoRow from '@/components/ioRow';
-
-
-
-
+import IoRow from '@/components/IoRow';
 
 const ipcRenderer = window.ipcRenderer || false;
 
