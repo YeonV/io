@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, Input, MenuItem, Select, Stack } from '@mui/material';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Keyboard } from '@mui/icons-material';
@@ -18,19 +18,36 @@ const Shortkey = ({
   const [shift, setShift] = useState(false)
   const [win, setWin] = useState(false)
   const [key, setKey] = useState('')
+  const [outputType, setOutputType] = useState('alert')
   const isMac = navigator.userAgent.includes('Mac');
 
   useHotkeys(keystring, () => trigger()) 
   
+  useEffect(() => {
+    if (outputType === 'wled') {
+      setMessage('http://192.168.1.170/win&T=2')  
+    }
+    if (outputType === 'http') {
+      setMessage('http://192.168.1.170/win&T=2')  
+    }
+    if (outputType === 'alert') {
+      setMessage('Hacked by Blade')  
+    }
+  }, [outputType])
+  
+
   return edit ? (<>
     <Stack direction={"row"} gap={2} style={{ position: 'relative', width: '100%', margin: '10px'}}>
-    <Select
-        defaultValue={'keyboard'}
-        disabled
-        sx={{ '& > div': { paddingTop: 0,  paddingBottom: 0}}} 
-      >
-        <MenuItem 
-        value={'keyboard'}><Keyboard fontSize={'large'} /></MenuItem>
+      <Select
+          defaultValue={'keyboard'}
+          sx={{ '& > div': { paddingTop: 0,  paddingBottom: 0}}} 
+        >
+        <MenuItem value={'keyboard'}><Keyboard fontSize={'large'} /></MenuItem>
+        <MenuItem disabled value={'rest'}>HTTP (rest)</MenuItem>
+        <MenuItem disabled value={'mqtt'}>MQTT</MenuItem>
+        <MenuItem disabled value={'websocket'}>Websocket</MenuItem>
+        <MenuItem disabled value={'hass'}>HomeAssistant</MenuItem>
+        <MenuItem disabled value={'hass'}>Spotify</MenuItem>
       </Select>
       
       <Input
@@ -81,14 +98,34 @@ const Shortkey = ({
       </Stack>
       <Stack direction={"row"} gap={2} style={{ flexBasis: '50%'}}>
       <Select
-        defaultValue={'alert'}
-        disabled
+        value={outputType}
+        onChange={(e) => setOutputType(e.target.value)}
       >
         <MenuItem value={'alert'}>Alert</MenuItem>
+        <MenuItem value={'wled'}>Wled</MenuItem>
+        <MenuItem value={'http'}>HTTP (rest)</MenuItem>
+        <MenuItem value={'speak'}>Speak</MenuItem>
+        <MenuItem disabled value={'mqtt'}>MQTT</MenuItem>
+        <MenuItem disabled value={'websocket'}>Websocket</MenuItem>
+        <MenuItem disabled value={'ledfx-scene'}>LedFx - Scene Selector</MenuItem>
+        <MenuItem disabled value={'hass'}>HomeAssistant</MenuItem>
       </Select>
-        <Input style={{ width: '100%'}} value={message} onChange={(e) => setMessage(e.target.value)} />
+        { outputType === 'alert' && <Input style={{ width: '100%'}} value={message} onChange={(e) => setMessage(e.target.value)} />}
+        { outputType === 'http' && <Select
+          label="Method"
+          defaultValue={'GET'}
+          sx={{ '& > div': { paddingTop: 0,  paddingBottom: 0}}} 
+        >
+        <MenuItem value={'GET'}>GET</MenuItem>
+        <MenuItem disabled value={'PUT'}>PUT</MenuItem>
+        <MenuItem disabled value={'POST'}>POST</MenuItem>
+        <MenuItem disabled value={'DELETE'}>DELETE</MenuItem>
+      </Select>}
+        { outputType === 'http' && <Input style={{ width: '100%'}} value={message} onChange={(e) => setMessage(e.target.value)} />}
+        { outputType === 'wled' && <Input style={{ width: '100%'}} value={message} onChange={(e) => setMessage(e.target.value)} />}
+        { outputType === 'speak' && <Input style={{ width: '100%'}} value={message} onChange={(e) => setMessage(e.target.value)} />}
         <Button variant='contained' disabled={exists?.map((s: any)=>s.shortkey).indexOf(shortcut.toLowerCase()) > -1} onClick={() => {
-          addShortcut(shortcut.toLowerCase(), message)
+          addShortcut(shortcut.toLowerCase(), message, outputType)
           onSave()
           }} >Save</Button>
       </Stack>

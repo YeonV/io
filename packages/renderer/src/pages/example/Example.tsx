@@ -94,7 +94,7 @@ const Example = () => {
         
         
         {shortcuts.map((s: any,i: number) =>            
-          <IoRow input_payload={s.shortkey} ouput_payload={s.action} key={s.shortkey} />          
+          <IoRow input_payload={s.shortkey} output_type={s.type} output_payload={s.action} key={s.shortkey} />          
         )  }
         {!add && <Button variant="contained" onClick={()=>setAdd(true)} style={{ margin: 10}}><Add /></Button>} 
         {add && <Shortkey keystring={shortcut} edit addShortcut={addShortcut} onSave={()=>setAdd(false)} exists={shortcuts} />} 
