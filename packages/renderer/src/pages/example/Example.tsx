@@ -11,21 +11,24 @@ import reactRouter from '@/assets/reactrouter.svg';
 import styles from '@/styles/app.module.scss';
 import pkg from '../../../../../package.json';
 import { useEffect, useState } from 'react';
-import { Avatar, Box, Chip } from '@mui/material';
+import { Avatar, Box, Button, Chip, IconButton } from '@mui/material';
 import { useStore } from '../../store/useStore';
 import Shortkey from '@/components/Shortkey';
 import IoRow from '@/components/IoRow';
+import { Add } from '@mui/icons-material';
+import Chips from '@/components/Chips';
 
 const ipcRenderer = window.ipcRenderer || false;
 
 const Example = () => {
   const [message, setMessage] = useState('hacked by Blade');
   const [data, setData] = useState(0);
+  const [add, setAdd] = useState(false);
   const { darkMode, setDarkMode } = useStore((state) => state.ui);
   const [shortcut, setShortcut] = useState('ctrl+alt+y');
   const shortcuts = useStore((state) => state.shortcuts);
   const addShortcut = useStore((state) => state.addShortcut);
-  console.log(shortcuts)
+  console.log(shortcuts.map((s: any)=>s.shortkey).indexOf(shortcut), shortcut)
   
   const [expanded, setExpanded] = useState<string | false>(false);
 
@@ -73,6 +76,8 @@ const Example = () => {
       <header
         className={styles.appHeader}
         style={{
+          maxWidth: 960,
+          margin: '0 auto',
           minHeight:
             ipcRenderer && pkg.env.VITRON_CUSTOM_TITLEBAR
               ? 'calc(100vh - 30px)'
@@ -85,39 +90,14 @@ const Example = () => {
           </div>
         </div>
 
-        <Box sx={{ mb: 5, mt: 2.5, maxWidth: 500 }}>
-          {ipcRenderer && (
-            <Chip
-              avatar={<Avatar alt='Electron' src={electronImg} />}
-              label='Electron'
-            />
-          )}
-          <Chip avatar={<Avatar alt='Vite' src={vite} />} label='Vite' />
-          <Chip avatar={<Avatar alt='React' src={react} />} label='React' />
-          <Chip
-            avatar={<Avatar alt='Typescript' src={typescript} />}
-            label='Typescript'
-          />
-          <Chip
-            avatar={<Avatar alt='Material UI' src={muiImg} />}
-            label='Material UI'
-          />
-          <Chip
-            avatar={<Avatar alt='Zustand' src={zustand} />}
-            label='Zustand'
-          />
-          <Chip avatar={<Avatar alt='Immer' src={immer} />} label='Immer' />
-          <Chip
-            avatar={<Avatar alt='React Router' src={reactRouter} />}
-            label='React Router'
-          />
-        </Box>
-        <IoRow input_type="keyboard" input_payload="ctrl+alt+g" output_type="alert" ouput_payload="hacked" />
+        {false && <Chips />}
+        
         
         {shortcuts.map((s: any,i: number) =>            
           <IoRow input_payload={s.shortkey} ouput_payload={s.action} key={s.shortkey} />          
         )  }
-        <Shortkey keystring={shortcut} edit addShortcut={addShortcut} /> 
+        {!add && <Button variant="contained" onClick={()=>setAdd(true)} style={{ margin: 10}}><Add /></Button>} 
+        {add && <Shortkey keystring={shortcut} edit addShortcut={addShortcut} onSave={()=>setAdd(false)} exists={shortcuts} />} 
         
       </header>
     </Box>

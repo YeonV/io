@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Input, Stack, Accordion, AccordionSummary, Typography, AccordionDetails, Card } from '@mui/material';
+import { Input, Stack, Accordion, AccordionSummary, Typography, AccordionDetails, Card, Button } from '@mui/material';
 
 import Shortkey from '@/components/Shortkey';
 import { ExpandMore, Keyboard } from '@mui/icons-material';
@@ -38,8 +38,9 @@ const IoRow = ({
               </Typography>
             </AccordionDetails>
           </Accordion>
-          <Card style={{ flexBasis: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-            <Typography variant='caption'>{ouput_payload}</Typography>
+          <Card style={{ flexBasis: '50%', display: 'flex', alignItems: 'center'}}>
+            <Button variant='outlined' disabled size='small' sx={{ mr: 2}}>ALERT</Button>
+            <Typography variant='button'>{ouput_payload}</Typography>
           </Card>
         </Stack> 
   );
