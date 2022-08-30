@@ -2,8 +2,8 @@
   "name": "io",
   "productName": "io",
   "private": true,
-  "version": "0.0.1",
-  "description": "io v0.0.1 - supercharged with Vitron (by Blade)",
+  "version": "0.0.2",
+  "description": "io v0.0.2 - supercharged with Vitron (by Blade)",
   "author": "Yeon a.k.a Blade <dev@yeonv.com>",
   "repository": {
     "url": "https://github.com/YeonV/io"
