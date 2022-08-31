@@ -44,17 +44,25 @@ const Example = () => {
   function onEnabled() {
 
     // Inputs
-    WebMidi.inputs.forEach(input => console.log(input.manufacturer, input.name));
+    WebMidi.inputs.forEach(input => {
+      const myInput = WebMidi.getInputByName(input.name);
+      if (myInput) [
+        myInput.addListener("noteon", e => {
+          console.log(e.note.identifier);
+        })
+      ]
+      return console.log(input.manufacturer, input.name)
+    });
 
     // Outputs
     WebMidi.outputs.forEach(output => console.log(output.manufacturer, output.name));
 
-    const myInput = WebMidi.getInputByName("Microsoft Corporation 2- Launchpad S 16");
-    if (myInput) [
-      myInput.addListener("noteon", e => {
-        console.log(e.note.identifier);
-      })
-    ]
+    // const myInput = WebMidi.getInputByName("Microsoft Corporation 2- Launchpad S 16");
+    // if (myInput) [
+    //   myInput.addListener("noteon", e => {
+    //     console.log(e.note.identifier);
+    //   })
+    // ]
   }
 
   const [expanded, setExpanded] = useState<string | false>(false);
