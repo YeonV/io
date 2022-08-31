@@ -49,7 +49,14 @@ const Example = () => {
     // Outputs
     WebMidi.outputs.forEach(output => console.log(output.manufacturer, output.name));
 
+    const myInput = WebMidi.getInputByName("Microsoft Corporation 2- Launchpad S 16");
+    if (myInput) [
+      myInput.addListener("noteon", e => {
+        console.log(e.note.identifier);
+      })
+    ]
   }
+
   const [expanded, setExpanded] = useState<string | false>(false);
 
   const handleChange =
