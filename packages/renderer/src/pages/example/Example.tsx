@@ -17,6 +17,8 @@ import Shortkey from '@/components/Shortkey';
 import IoRow from '@/components/IoRow';
 import { Add } from '@mui/icons-material';
 import Chips from '@/components/Chips';
+import { WebMidi } from "webmidi";
+
 
 const ipcRenderer = window.ipcRenderer || false;
 
@@ -28,8 +30,26 @@ const Example = () => {
   const [shortcut, setShortcut] = useState('ctrl+alt+y');
   const shortcuts = useStore((state) => state.shortcuts);
   const addShortcut = useStore((state) => state.addShortcut);
-  console.log(shortcuts.map((s: any)=>s.shortkey).indexOf(shortcut), shortcut)
-  
+  console.log(shortcuts.map((s: any) => s.shortkey).indexOf(shortcut), shortcut)
+  WebMidi
+    .enable({ sysex: true })
+    .then(() => console.log("WebMidi with sysex enabled!"))
+    .catch(err => alert(err));
+
+  WebMidi
+    .enable()
+    .then(onEnabled)
+    .catch(err => alert(err));
+
+  function onEnabled() {
+
+    // Inputs
+    WebMidi.inputs.forEach(input => console.log(input.manufacturer, input.name));
+
+    // Outputs
+    WebMidi.outputs.forEach(output => console.log(output.manufacturer, output.name));
+
+  }
   const [expanded, setExpanded] = useState<string | false>(false);
 
   const handleChange =
@@ -47,7 +67,7 @@ const Example = () => {
   };
 
   useEffect(() => {
-    if (ipcRenderer) {     
+    if (ipcRenderer) {
       ipcRenderer.on('get', (event: any, data: any) => {
         setData(data.count);
       });
@@ -84,21 +104,21 @@ const Example = () => {
               : '100vh',
         }}>
         <div className={styles.logos}>
-            <img src={logo} style={{ width: '100px', filter: 'invert(0)' }} alt='Vitron' />
+          <img src={logo} style={{ width: '100px', filter: 'invert(0)' }} alt='Vitron' />
           <div className={styles.imgBox}>
             <img src={logoTitle} style={{ width: '480px', filter: 'invert(0)' }} alt='Vitron' />
           </div>
         </div>
 
         {false && <Chips />}
-        
-        
-        {shortcuts.map((s: any,i: number) =>            
-          <IoRow input_payload={s.shortkey} output_type={s.type} output_payload={s.action} key={s.shortkey} />          
-        )  }
-        {!add && <Button variant="contained" onClick={()=>setAdd(true)} style={{ margin: 10}}><Add /></Button>} 
-        {add && <Shortkey keystring={shortcut} edit addShortcut={addShortcut} onSave={()=>setAdd(false)} exists={shortcuts} />} 
-        
+
+
+        {shortcuts.map((s: any, i: number) =>
+          <IoRow input_payload={s.shortkey} output_type={s.type} output_payload={s.action} key={s.shortkey} />
+        )}
+        {!add && <Button variant="contained" onClick={() => setAdd(true)} style={{ margin: 10 }}><Add /></Button>}
+        {add && <Shortkey keystring={shortcut} edit addShortcut={addShortcut} onSave={() => setAdd(false)} exists={shortcuts} />}
+
       </header>
     </Box>
   );
