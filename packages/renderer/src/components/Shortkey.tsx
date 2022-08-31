@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Button, Input, MenuItem, Select, Stack } from '@mui/material';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { Keyboard } from '@mui/icons-material';
+import { Keyboard, Piano } from '@mui/icons-material';
+import { useStore } from '@/store/useStore';
 
 const Shortkey = ({
   addShortcut = (s: any, t: any) => { },
@@ -19,7 +20,9 @@ const Shortkey = ({
   const [win, setWin] = useState(false)
   const [key, setKey] = useState('')
   const [outputType, setOutputType] = useState('alert')
+  const [inputType, setInputType] = useState('keyboard')
   const isMac = navigator.userAgent.includes('Mac');
+  const midi = useStore((state) => state.inputs.midi);
 
   useHotkeys(keystring, () => trigger()) 
   
@@ -33,16 +36,33 @@ const Shortkey = ({
     if (outputType === 'alert') {
       setMessage('Hacked by Blade')  
     }
+    if (outputType === 'midi') {
+      setMessage('')  
+    }
   }, [outputType])
+
+  useEffect(() => {
+    if (inputType === 'keyboard') {
+      setShortcut('ctrl+alt+y')  
+    }
+    if (inputType === 'midi') {
+      setShortcut('YZ')  
+    }
+  }, [inputType])
   
 
   return edit ? (<>
     <Stack direction={"row"} gap={2} style={{ position: 'relative', width: '100%', margin: '10px'}}>
       <Select
-          defaultValue={'keyboard'}
-          sx={{ '& > div': { paddingTop: 0,  paddingBottom: 0}}} 
+          value={inputType}
+          onChange={(e) => setInputType(e.target.value)}
+          sx={{ '& > div': { paddingTop: 0,  paddingBottom: 0}}}  
         >
-        <MenuItem value={'keyboard'}><Keyboard fontSize={'large'} /></MenuItem>
+        <MenuItem value={'keyboard'}>
+          <Keyboard fontSize={'large'} /> 
+          {/* <div style={{ margin: '5px'}}>HID</div> */}
+        </MenuItem>
+        <MenuItem disabled={!midi} value={'midi'}><Piano fontSize={'large'} /> </MenuItem>
         <MenuItem disabled value={'rest'}>HTTP (rest)</MenuItem>
         <MenuItem disabled value={'mqtt'}>MQTT</MenuItem>
         <MenuItem disabled value={'websocket'}>Websocket</MenuItem>
@@ -125,7 +145,7 @@ const Shortkey = ({
         { outputType === 'wled' && <Input style={{ width: '100%'}} value={message} onChange={(e) => setMessage(e.target.value)} />}
         { outputType === 'speak' && <Input style={{ width: '100%'}} value={message} onChange={(e) => setMessage(e.target.value)} />}
         <Button variant='contained' disabled={exists?.map((s: any)=>s.shortkey).indexOf(shortcut.toLowerCase()) > -1} onClick={() => {
-          addShortcut(shortcut.toLowerCase(), message, outputType)
+          addShortcut(shortcut.toLowerCase(), message, inputType, outputType)
           onSave()
           }} >Save</Button>
       </Stack>

@@ -18,6 +18,7 @@ import IoRow from '@/components/IoRow';
 import { Add } from '@mui/icons-material';
 import Chips from '@/components/Chips';
 import { WebMidi } from "webmidi";
+import Settings from '@/components/Settings';
 
 
 const ipcRenderer = window.ipcRenderer || false;
@@ -30,46 +31,7 @@ const Example = () => {
   const [shortcut, setShortcut] = useState('ctrl+alt+y');
   const shortcuts = useStore((state) => state.shortcuts);
   const addShortcut = useStore((state) => state.addShortcut);
-  console.log(shortcuts.map((s: any) => s.shortkey).indexOf(shortcut), shortcut)
-  WebMidi
-    .enable({ sysex: true })
-    .then(() => console.log("WebMidi with sysex enabled!"))
-    .catch(err => alert(err));
-
-  WebMidi
-    .enable()
-    .then(onEnabled)
-    .catch(err => alert(err));
-
-  function onEnabled() {
-    const spk = new SpeechSynthesisUtterance()
-
-    const speechHandler = (spk: SpeechSynthesisUtterance, text: string) => {
-      spk.text = text
-      window.speechSynthesis.speak(spk)
-    }
-    // Inputs
-    WebMidi.inputs.forEach(input => {
-      const myInput = WebMidi.getInputByName(input.name);
-      if (myInput) [
-        myInput.addListener("noteon", e => {
-          console.log(e.note.identifier);
-          speechHandler(spk, e.note.identifier)
-        })
-      ]
-      return console.log(input.manufacturer, input.name)
-    });
-
-    // Outputs
-    WebMidi.outputs.forEach(output => console.log(output.manufacturer, output.name));
-
-    // const myInput = WebMidi.getInputByName("Microsoft Corporation 2- Launchpad S 16");
-    // if (myInput) [
-    //   myInput.addListener("noteon", e => {
-    //     console.log(e.note.identifier);
-    //   })
-    // ]
-  }
+  const midi = useStore((state) => state.inputs.midi);
 
   const [expanded, setExpanded] = useState<string | false>(false);
 
@@ -106,6 +68,44 @@ const Example = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (midi) {
+      WebMidi
+      .enable({ sysex: true })
+      .then(() => console.log("WebMidi with sysex enabled!"))
+      .catch(err => alert(err));
+  
+      WebMidi
+        .enable()
+        .then(onEnabled)
+        .catch(err => alert(err));
+  
+      function onEnabled() {
+        // const spk = new SpeechSynthesisUtterance()
+  
+        // const speechHandler = (spk: SpeechSynthesisUtterance, text: string) => {
+        //   spk.text = text
+        //   window.speechSynthesis.speak(spk)
+        // }
+        // Inputs
+        WebMidi.inputs.forEach(input => {
+          const myInput = WebMidi.getInputByName(input.name);
+          if (myInput) [
+            myInput.addListener("noteon", e => {
+              console.log(e.note.identifier);
+              // speechHandler(spk, e.note.identifier)
+              setShortcut(e.note.identifier)
+            })
+          ]
+          return console.log(input.manufacturer, input.name)
+        });
+  
+        // Outputs
+        WebMidi.outputs.forEach(output => console.log(output.manufacturer, output.name));
+      }
+    } 
+  }, [midi])
+
   return (
     <Box
       sx={{
@@ -132,7 +132,7 @@ const Example = () => {
         </div>
 
         {false && <Chips />}
-
+        <Settings />
 
         {shortcuts.map((s: any, i: number) =>
           <IoRow input_payload={s.shortkey} output_type={s.type} output_payload={s.action} key={s.shortkey} />
