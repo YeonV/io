@@ -42,13 +42,19 @@ const Example = () => {
     .catch(err => alert(err));
 
   function onEnabled() {
+    const spk = new SpeechSynthesisUtterance()
 
+    const speechHandler = (spk: SpeechSynthesisUtterance, text: string) => {
+      spk.text = text
+      window.speechSynthesis.speak(spk)
+    }
     // Inputs
     WebMidi.inputs.forEach(input => {
       const myInput = WebMidi.getInputByName(input.name);
       if (myInput) [
         myInput.addListener("noteon", e => {
           console.log(e.note.identifier);
+          speechHandler(spk, e.note.identifier)
         })
       ]
       return console.log(input.manufacturer, input.name)
