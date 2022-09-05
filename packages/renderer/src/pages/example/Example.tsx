@@ -19,6 +19,7 @@ import { Add } from '@mui/icons-material';
 import Chips from '@/components/Chips';
 import { WebMidi } from "webmidi";
 import Settings from '@/components/Settings';
+import actions from '@/components/Actions';
 
 
 const ipcRenderer = window.ipcRenderer || false;
@@ -71,39 +72,62 @@ const Example = () => {
   useEffect(() => {
     if (midi) {
       WebMidi
-      .enable({ sysex: true })
-      .then(() => console.log("WebMidi with sysex enabled!"))
-      .catch(err => alert(err));
-  
+        .enable({ sysex: true })
+        .then(() => console.log("WebMidi with sysex enabled!"))
+        .catch(err => alert(err));
+
       WebMidi
         .enable()
         .then(onEnabled)
         .catch(err => alert(err));
-  
+
       function onEnabled() {
-        // const spk = new SpeechSynthesisUtterance()
-  
-        // const speechHandler = (spk: SpeechSynthesisUtterance, text: string) => {
-        //   spk.text = text
-        //   window.speechSynthesis.speak(spk)
-        // }
-        // Inputs
         WebMidi.inputs.forEach(input => {
           const myInput = WebMidi.getInputByName(input.name);
+          setShortcut("YO")
           if (myInput) [
             myInput.addListener("noteon", e => {
-              console.log(e.note.identifier);
-              // speechHandler(spk, e.note.identifier)
+              const check = shortcuts.find((s: any) => s.input_type === 'midi' && s.shortkey === e.note.identifier.toLowerCase())
+              if (check) {
+                console.log("AAAA", check)
+                actions(check.output_type, check.action)
+              }
               setShortcut(e.note.identifier)
             })
           ]
           return console.log(input.manufacturer, input.name)
         });
-  
+
         // Outputs
         WebMidi.outputs.forEach(output => console.log(output.manufacturer, output.name));
       }
-    } 
+    }
+    return () => {
+      if (midi) {
+        WebMidi
+          .enable({ sysex: true })
+          .then(() => console.log("WebMidi with sysex enabled!"))
+          .catch(err => alert(err));
+
+        WebMidi
+          .enable()
+          .then(onEnabled)
+          .catch(err => alert(err));
+
+        function onEnabled() {
+          WebMidi.inputs.forEach(input => {
+            const myInput = WebMidi.getInputByName(input.name);
+            if (myInput) [
+              myInput.removeListener("noteon")
+            ]
+            return console.log(input.manufacturer, input.name)
+          });
+
+          // Outputs
+
+        }
+      }
+    }
   }, [midi])
 
   return (
@@ -135,10 +159,10 @@ const Example = () => {
         <Settings />
 
         {shortcuts.map((s: any, i: number) =>
-          <IoRow input_payload={s.shortkey} output_type={s.type} output_payload={s.action} key={s.shortkey} />
+          <IoRow input_payload={s.shortkey} input_type={s.input_type} output_type={s.output_type} output_payload={s.action} key={s.shortkey} />
         )}
         {!add && <Button variant="contained" onClick={() => setAdd(true)} style={{ margin: 10 }}><Add /></Button>}
-        {add && <Shortkey keystring={shortcut} edit addShortcut={addShortcut} onSave={() => setAdd(false)} exists={shortcuts} />}
+        {add && <Shortkey keystring={shortcut} edit shortc={shortcut} setShortc={setShortcut} addShortcut={addShortcut} onSave={() => setAdd(false)} exists={shortcuts} />}
 
       </header>
     </Box>

@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Input, Stack, Accordion, AccordionSummary, Typography, AccordionDetails, Card, Button, IconButton } from '@mui/material';
 
 import Shortkey from '@/components/Shortkey';
-import { Delete, Edit, ExpandMore, Keyboard } from '@mui/icons-material';
+import { Delete, Edit, ExpandMore, Help, Keyboard, Piano } from '@mui/icons-material';
 import { useStore } from '@/store/useStore';
+import actions from './Actions';
+import ShortMidi from './ShortMidi';
 
 
 const IoRow = ({
@@ -21,29 +23,6 @@ const IoRow = ({
       setExpanded(isExpanded ? panel : false);
     };
 
-  const actions = async() => {
-    if (output_type === 'wled') {      
-      const call = await fetch(output_payload)
-      call && console.log("wled", call)
-    } 
-    else if (output_type === 'http') {      
-      const call = await fetch(output_payload)
-      call && console.log("http", call)
-    } 
-    else if (output_type === 'speak') {      
-      speechHandler(spk, output_payload)      
-    } 
-    else {
-      alert(output_payload)
-    }
-  }
-
-  const spk = new SpeechSynthesisUtterance()
-
-  const speechHandler = (spk: SpeechSynthesisUtterance, text: string) => {
-    spk.text = text
-    window.speechSynthesis.speak(spk)
-  }
   return (
     <Stack direction={"row"} style={{ borderTop: '1px solid #bbb', width: '100%' }} {...props}>
       <Accordion style={{ flexBasis: '50%', marginBottom: 0 }} expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
@@ -53,14 +32,16 @@ const IoRow = ({
           id="panel1bh-header"
         >
           <Stack direction={"row"} gap={2}>
-            <Keyboard fontSize={'large'} />
-            <Shortkey keystring={input_payload} trigger={() => actions()} />
+            {input_type === 'keyboard' ? <><Keyboard fontSize={'large'} /><Shortkey keystring={input_payload} trigger={() => actions(output_type, output_payload)} /></> : input_type === 'midi' ? <><Piano fontSize='large' /><ShortMidi keystring={input_payload} trigger={() => actions(output_type, output_payload)} /></> : <Help fontSize='large' />}
+
+
+
           </Stack>
         </AccordionSummary>
         <AccordionDetails>
           <Typography>
-          <Button size='small' sx={{ mr: 2 }} onClick={()=>removeShortcut(input_payload, input_type)}><Delete />Delete</Button>
-          <Button disabled size='small' sx={{ mr: 2 }}><Edit />Edit</Button>
+            <Button size='small' sx={{ mr: 2 }} onClick={() => removeShortcut(input_payload, input_type)}><Delete />Delete</Button>
+            <Button disabled size='small' sx={{ mr: 2 }}><Edit />Edit</Button>
           </Typography>
         </AccordionDetails>
       </Accordion>

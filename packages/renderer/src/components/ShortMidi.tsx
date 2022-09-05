@@ -4,7 +4,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { Keyboard, Piano } from '@mui/icons-material';
 import { useStore } from '@/store/useStore';
 
-const Shortkey = ({
+const ShortMidi = ({
   addShortcut = (s: any, t: any) => { },
   keystring = "ctrl+alt+y",
   trigger = () => alert('Boom'),
@@ -22,37 +22,16 @@ const Shortkey = ({
   const [win, setWin] = useState(false)
   const [key, setKey] = useState('')
   const [outputType, setOutputType] = useState('alert')
-  const [inputType, setInputType] = useState('keyboard')
+  const [inputType, setInputType] = useState('midi')
   const isMac = navigator.userAgent.includes('Mac');
   const midi = useStore((state) => state.inputs.midi);
 
-  useHotkeys(keystring, () => trigger())
-
   useEffect(() => {
-    if (outputType === 'wled') {
-      setMessage('http://192.168.1.170/win&T=2')
-    }
-    if (outputType === 'http') {
-      setMessage('http://192.168.1.170/win&T=2')
-    }
-    if (outputType === 'alert') {
-      setMessage('Hacked by Blade')
-    }
     if (outputType === 'midi') {
       setMessage('')
     }
   }, [outputType])
 
-  useEffect(() => {
-    if (inputType === 'keyboard') {
-      if (shortc && setShortc) {
-        setShortc('ctrl+alt+y')
-      } else {
-        setShortcut('ctrl+alt+y')
-      }
-
-    }
-  }, [inputType])
 
   useEffect(() => {
     if (inputType === 'midi' && shortc !== undefined) {
@@ -169,4 +148,4 @@ const Shortkey = ({
 
 
 
-export default Shortkey;
+export default ShortMidi;
