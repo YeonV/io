@@ -19,13 +19,13 @@ export const useStore = create(
     ,
     {
       name: 'io-storage',
-      // partialize: (state) =>
-      //   Object.fromEntries(
-      //     Object.entries(state).filter(
-      //       ([key]) =>
-      //         !['dialogs', 'disconnected', 'ui', 'spotify'].includes(key)
-      //     )
-      //   ),
+      partialize: (state) =>
+        Object.fromEntries(
+          Object.entries(state).filter(
+            ([key]) =>
+              !['inputs', 'outputs',].includes(key)
+          )
+        ),
     }
     )
   )

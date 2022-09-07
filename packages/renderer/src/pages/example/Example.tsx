@@ -20,8 +20,17 @@ import Chips from '@/components/Chips';
 import { WebMidi } from "webmidi";
 import Settings from '@/components/Settings';
 import actions from '@/components/Actions';
-
-
+import { HandsEstimator } from "../../core/hands-estimator";
+import { detectGesture, Gesture } from "../../core/gesture-detector";
+import { LandmarkList, Results } from "@mediapipe/hands";
+import { VideoScene } from "../../video/video-scene";
+import useRequestAnimationFrame from "use-request-animation-frame"
+import * as mqtt from 'mqtt/dist/mqtt.min';
+// const mqtt = require('mqtt')
+// import * as mqtt from "mqtt"
+// import mqtt from "mqtt"
+// import mqtt from "mqtt/dist/mqtt";
+let client = null as any
 const ipcRenderer = window.ipcRenderer || false;
 
 const Example = () => {
@@ -33,7 +42,13 @@ const Example = () => {
   const shortcuts = useStore((state) => state.shortcuts);
   const addShortcut = useStore((state) => state.addShortcut);
   const midi = useStore((state) => state.inputs.midi);
-
+  const cam = useStore((state) => state.inputs.cam);
+  const setInput = useStore((state) => state.setInput);
+  const setOutput = useStore((state) => state.setOutput);
+  const mqttData = useStore((state) => state.mqttData);
+  const inMqtt = useStore((state) => state.inputs.mqtt);
+  const outMqtt = useStore((state) => state.outputs.mqtt);
+  const useMqtt = inMqtt && outMqtt
   const [expanded, setExpanded] = useState<string | false>(false);
 
   const handleChange =
@@ -49,6 +64,37 @@ const Example = () => {
       setDarkMode(!darkMode);
     }
   };
+
+  useEffect(() => {
+    if (useMqtt && !client) {
+      client = mqtt.connect(mqttData.host, {
+        clientId: "gestures",
+        username: mqttData.username,
+        password: mqttData.password,
+        clean: true
+      })
+    }
+    if (useMqtt && client) {
+      client.on('connect', function () {
+        client.subscribe(mqttData.topic, function (err: any) {
+          if (!err) {
+            client.publish(mqttData.topic, 'IO connected')
+          }
+        })
+      })
+    }
+    if (!useMqtt && client) {
+      client.publish(mqttData.topic, 'IO disconnected')
+      client.unsubscribe(mqttData.topic)      
+    }
+
+    return () => {
+      if (useMqtt && client) {
+        client.publish(mqttData.topic, 'IO disconnected')
+        client.unsubscribe(mqttData.topic)
+      }
+    }
+  }, [useMqtt])
 
   useEffect(() => {
     if (ipcRenderer) {
@@ -130,6 +176,75 @@ const Example = () => {
     }
   }, [midi])
 
+
+  const videoCanvas = document.getElementById('video-canvas') as HTMLCanvasElement;
+  const videoScene = new VideoScene(videoCanvas);
+  var i: number = 0;
+
+  useEffect(() => {
+    const listener = (r: any) => {
+      results = r;
+      const landmarks = r?.multiHandLandmarks[0];
+      if (landmarks) {
+        hand = landmarks;
+        const gesture = detectGesture(landmarks);
+        if (gesture === currentGesture) {
+          i++
+          if (i === 10) {
+            const check = shortcuts.find((s: any) => s.input_type === 'cam' && s.shortkey === Gesture[gesture].toLowerCase())
+            if (check) {
+              console.log(inMqtt)
+              if (inMqtt) {
+                actions(check.output_type, check.action, client)
+              } else {
+                actions(check.output_type, check.action)
+              }
+            } else {
+              setShortcut(Gesture[gesture].toLowerCase());
+            }
+          }
+        } else {
+          currentGesture = gesture
+          i = 0;
+        }
+      }
+    }
+
+
+
+
+    const handsEstimator = new HandsEstimator();
+
+
+    if (cam) {
+      handsEstimator.addListener(listener);
+      handsEstimator.start();
+      videoCanvas.style.display = 'block'
+    } else {
+      handsEstimator.stop();
+      handsEstimator.removeListener(listener);
+      videoCanvas.style.display = 'none'
+    }
+
+    return () => {
+      handsEstimator.stop();
+      handsEstimator.removeListener(listener);
+      // videoScene.stop()
+      videoCanvas.style.display = 'none'
+    }
+
+  }, [cam, inMqtt])
+
+
+  var currentGesture: Gesture | null = null;
+  var results: Results | null = null;
+  var hand: LandmarkList | null = null;
+
+
+  useRequestAnimationFrame((e: any) => {
+    if (results) videoScene.update(results);
+  }, { duration: undefined, shouldAnimate: cam });
+
   return (
     <Box
       sx={{
@@ -165,6 +280,7 @@ const Example = () => {
         {add && <Shortkey keystring={shortcut} edit shortc={shortcut} setShortc={setShortcut} addShortcut={addShortcut} onSave={() => setAdd(false)} exists={shortcuts} />}
 
       </header>
+      {/* {cam && <canvas style={{height: '50px', width: '50px'}} id="video-canvas"></canvas>} */}
     </Box>
   );
 };

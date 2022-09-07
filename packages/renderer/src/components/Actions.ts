@@ -1,4 +1,4 @@
-const actions = async (otype: string, opayload: any) => {
+const actions = async (otype: string, opayload: any, client?: any) => {
   if (otype === 'wled') {
     const call = await fetch(opayload)
     call && console.log("wled", call)
@@ -9,6 +9,11 @@ const actions = async (otype: string, opayload: any) => {
   }
   else if (otype === 'speak') {
     speechHandler(spk, opayload)
+  }
+  else if (otype === 'mqtt') {
+    if (client) {
+      client.publish('blade/gestures', opayload);
+    }
   }
   else {
     alert(opayload)

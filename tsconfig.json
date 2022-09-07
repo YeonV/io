@@ -10,6 +10,7 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "strict": true,
+    "allowSyntheticDefaultImports": true,
     "jsx": "react-jsx"
   },
   "exclude": [

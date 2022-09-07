@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Input, Stack, Accordion, AccordionSummary, Typography, AccordionDetails, Card, Button, IconButton } from '@mui/material';
 
 import Shortkey from '@/components/Shortkey';
-import { Delete, Edit, ExpandMore, Help, Keyboard, Piano } from '@mui/icons-material';
+import { Delete, Edit, ExpandMore, Help, Keyboard, Piano, Videocam } from '@mui/icons-material';
 import { useStore } from '@/store/useStore';
 import actions from './Actions';
 import ShortMidi from './ShortMidi';
@@ -12,8 +12,9 @@ const IoRow = ({
   input_type = "keyboard",
   input_payload = "ctrl+alt+y",
   output_type = "alert",
-  output_payload = "boom"
-}, ...props: any) => {
+  output_payload = "boom",
+  style = {}
+}) => {
   const [msg, setMsg] = useState('hacked by Blade');
   const [expanded, setExpanded] = useState<string | false>(false);
   const removeShortcut = useStore((state) => state.removeShortcut);
@@ -24,7 +25,7 @@ const IoRow = ({
     };
 
   return (
-    <Stack direction={"row"} style={{ borderTop: '1px solid #bbb', width: '100%' }} {...props}>
+    <Stack direction={"row"} style={{ borderTop: '1px solid #bbb', width: '100%', ...style }} >
       <Accordion style={{ flexBasis: '50%', marginBottom: 0 }} expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
         <AccordionSummary
           expandIcon={<ExpandMore />}
@@ -32,7 +33,10 @@ const IoRow = ({
           id="panel1bh-header"
         >
           <Stack direction={"row"} gap={2}>
-            {input_type === 'keyboard' ? <><Keyboard fontSize={'large'} /><Shortkey keystring={input_payload} trigger={() => actions(output_type, output_payload)} /></> : input_type === 'midi' ? <><Piano fontSize='large' /><ShortMidi keystring={input_payload} trigger={() => actions(output_type, output_payload)} /></> : <Help fontSize='large' />}
+            {input_type === 'keyboard' ? <><Keyboard fontSize={'large'} /><Shortkey keystring={input_payload} trigger={() => actions(output_type, output_payload)} /></> 
+              : input_type === 'midi' ? <><Piano fontSize='large' /><ShortMidi keystring={input_payload} trigger={() => actions(output_type, output_payload)} /></> 
+              : input_type === 'cam' ? <><Videocam fontSize='large' /><ShortMidi keystring={input_payload} trigger={() => actions(output_type, output_payload)} /></> 
+              : <Help fontSize='large' />}
 
 
 

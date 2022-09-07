@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Button, Input, MenuItem, Select, Stack } from '@mui/material';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { Keyboard, Piano } from '@mui/icons-material';
+import { Keyboard, Piano, Videocam } from '@mui/icons-material';
 import { useStore } from '@/store/useStore';
 
 const Shortkey = ({
@@ -25,6 +25,9 @@ const Shortkey = ({
   const [inputType, setInputType] = useState('keyboard')
   const isMac = navigator.userAgent.includes('Mac');
   const midi = useStore((state) => state.inputs.midi);
+  const cam = useStore((state) => state.inputs.cam);
+  const mqtt = useStore((state) => state.inputs.mqtt);
+  const mqttout = useStore((state) => state.outputs.mqtt);
 
   useHotkeys(keystring, () => trigger())
 
@@ -55,7 +58,7 @@ const Shortkey = ({
   }, [inputType])
 
   useEffect(() => {
-    if (inputType === 'midi' && shortc !== undefined) {
+    if ((inputType === 'midi' || inputType === 'cam') && shortc !== undefined) {
       setShortcut(shortc.toLowerCase())
     }
   }, [shortc])
@@ -73,8 +76,9 @@ const Shortkey = ({
           {/* <div style={{ margin: '5px'}}>HID</div> */}
         </MenuItem>
         <MenuItem disabled={!midi} value={'midi'}><Piano fontSize={'large'} /> </MenuItem>
+        <MenuItem disabled={!cam} value={'cam'}><Videocam fontSize={'large'} /> </MenuItem>
         <MenuItem disabled value={'rest'}>HTTP (rest)</MenuItem>
-        <MenuItem disabled value={'mqtt'}>MQTT</MenuItem>
+        <MenuItem disabled={!mqtt} value={'mqtt'}>MQTT</MenuItem>
         <MenuItem disabled value={'websocket'}>Websocket</MenuItem>
         <MenuItem disabled value={'hass'}>HomeAssistant</MenuItem>
         <MenuItem disabled value={'hass'}>Spotify</MenuItem>
@@ -134,7 +138,7 @@ const Shortkey = ({
           <MenuItem value={'wled'}>Wled</MenuItem>
           <MenuItem value={'http'}>HTTP (rest)</MenuItem>
           <MenuItem value={'speak'}>Speak</MenuItem>
-          <MenuItem disabled value={'mqtt'}>MQTT</MenuItem>
+          <MenuItem disabled={!mqttout} value={'mqtt'}>MQTT</MenuItem>
           <MenuItem disabled value={'websocket'}>Websocket</MenuItem>
           <MenuItem disabled value={'ledfx-scene'}>LedFx - Scene Selector</MenuItem>
           <MenuItem disabled value={'hass'}>HomeAssistant</MenuItem>
@@ -153,6 +157,7 @@ const Shortkey = ({
         {outputType === 'http' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
         {outputType === 'wled' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
         {outputType === 'speak' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
+        {outputType === 'mqtt' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
         <Button variant='contained' disabled={exists?.map((s: any) => s.shortkey).indexOf(shortcut.toLowerCase()) > -1} onClick={() => {
           console.log(shortcut)
           addShortcut(shortcut.toLowerCase(), message, inputType, outputType)
