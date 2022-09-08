@@ -1,17 +1,9 @@
-import electronImg from '@/assets/electron.png';
-import muiImg from '@/assets/mui.png';
-import react from '@/assets/react.svg';
-import vite from '@/assets/vite.svg';
-import zustand from '@/assets/zustand.png';
 import logoTitle from '@/assets/logo-cropped.svg';
 import logo from '@/assets/icon.png';
-import typescript from '@/assets/typescript.svg';
-import immer from '@/assets/immer.svg';
-import reactRouter from '@/assets/reactrouter.svg';
 import styles from '@/styles/app.module.scss';
 import pkg from '../../../../../package.json';
-import { useEffect, useState } from 'react';
-import { Avatar, Box, Button, Chip, IconButton } from '@mui/material';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { Box, Button, Chip, IconButton } from '@mui/material';
 import { useStore } from '../../store/useStore';
 import Shortkey from '@/components/Shortkey';
 import IoRow from '@/components/IoRow';
@@ -22,18 +14,21 @@ import Settings from '@/components/Settings';
 import actions from '@/components/Actions';
 import { HandsEstimator } from "../../core/hands-estimator";
 import { detectGesture, Gesture } from "../../core/gesture-detector";
-import { LandmarkList, Results } from "@mediapipe/hands";
+import Hands from "@mediapipe/hands";
 import { VideoScene } from "../../video/video-scene";
-import useRequestAnimationFrame from "use-request-animation-frame"
+import useRequestAnimationFrame from "use-request-animation-frame/dist"
 import * as mqtt from 'mqtt/dist/mqtt.min';
-// const mqtt = require('mqtt')
-// import * as mqtt from "mqtt"
+import mqttService from '@/components/mqttService';
 // import mqtt from "mqtt"
-// import mqtt from "mqtt/dist/mqtt";
-let client = null as any
+
+var client = null as any
+
 const ipcRenderer = window.ipcRenderer || false;
 
+export const MqttContext = createContext<any>(client);
+
 const Example = () => {
+  const [theClient, setTheClient] = useState<any>(client)
   const [message, setMessage] = useState('hacked by Blade');
   const [data, setData] = useState(0);
   const [add, setAdd] = useState(false);
@@ -65,36 +60,90 @@ const Example = () => {
     }
   };
 
-  useEffect(() => {
-    if (useMqtt && !client) {
-      client = mqtt.connect(mqttData.host, {
-        clientId: "gestures",
-        username: mqttData.username,
-        password: mqttData.password,
-        clean: true
-      })
-    }
-    if (useMqtt && client) {
-      client.on('connect', function () {
-        client.subscribe(mqttData.topic, function (err: any) {
-          if (!err) {
-            client.publish(mqttData.topic, 'IO connected')
-          }
-        })
-      })
-    }
-    if (!useMqtt && client) {
-      client.publish(mqttData.topic, 'IO disconnected')
-      client.unsubscribe(mqttData.topic)      
-    }
+  // useEffect(() => {
+  //   if (useMqtt && !client) {
+  //     console.log("start")
+  //     setTheClient(mqtt.connect(mqttData.host, {
+  //       clientId: "gestures",
+  //       username: mqttData.username,
+  //       password: mqttData.password,
+  //       clean: true
+  //     }))
+  //   }
+  //   if (useMqtt && client) {
+  //     client.on('connect', function () {
+  //       console.log("connecting")
+  //       client.subscribe(mqttData.topic, function (err: any) {
+  //         if (!err) {
+  //           console.log("connected")
+  //           client.publish(mqttData.topic, 'IO connected')
+  //           client.publish('homeassistant/sensor/gesturesensor/config', JSON.stringify({
+  //             "~": "homeassistant/sensor/gesturesensor",
+  //             "name": "Hand Gestures",
+  //             "unique_id": "gesturesensor",
+  //             "entity_category": "diagnostic",
+  //             "cmd_t": "~/set",
+  //             "stat_t": "~/state",
+  //             "icon": "mdi:hand-back-right",
+  //             "device": {
+  //               "identifiers": ["yzlights"],
+  //               "configuration_url": "https://yeonv.github.io/io/",
+  //               "name": "A.I. Gesture Recognition",
+  //               "model": "BladeAI",
+  //               "manufacturer": "Yeon",
+  //               "sw_version": "0.0.1",
+  //             },
+  //           }))
+  //         }
+  //       })
+  //     })
+  //   }
+  //   if (!useMqtt && client) {
+  //     client.publish(mqttData.topic, 'IO disconnected')
+  //     client.unsubscribe(mqttData.topic)
+  //   }
 
-    return () => {
-      if (useMqtt && client) {
-        client.publish(mqttData.topic, 'IO disconnected')
-        client.unsubscribe(mqttData.topic)
-      }
-    }
-  }, [useMqtt])
+  //   return () => {
+  //     if (useMqtt && client) {
+  //       client.publish(mqttData.topic, 'IO disconnected')
+  //       client.unsubscribe(mqttData.topic)
+  //     }
+  //   }
+  // }, [useMqtt, client])
+
+  useEffect(() => {
+    const client = mqttService.getClient(console.log);
+    setTheClient(client);
+    const callBack = (mqttMessage: any) => console.log(mqttMessage);
+    client.on('connect', function () {
+      console.log("connecting")
+      client.subscribe(mqttData.topic, function (err: any) {
+        if (!err) {
+          console.log("connected")
+          client.publish(mqttData.topic, 'IO connected')
+          client.publish('homeassistant/sensor/gesturesensor/config', JSON.stringify({
+            "~": "homeassistant/sensor/gesturesensor",
+            "name": "Hand Gestures",
+            "unique_id": "gesturesensor",
+            "entity_category": "diagnostic",
+            "cmd_t": "~/set",
+            "stat_t": "~/state",
+            "icon": "mdi:hand-back-right",
+            "device": {
+              "identifiers": ["yzlights"],
+              "configuration_url": "https://yeonv.github.io/io/",
+              "name": "A.I. Gesture Recognition",
+              "model": "BladeAI",
+              "manufacturer": "Yeon",
+              "sw_version": "0.0.1",
+            },
+          }))
+        }
+      })
+    })
+    mqttService.onMessage(client, callBack);
+    return () => mqttService.closeConnection(client);
+  }, []);
 
   useEffect(() => {
     if (ipcRenderer) {
@@ -193,9 +242,12 @@ const Example = () => {
           if (i === 10) {
             const check = shortcuts.find((s: any) => s.input_type === 'cam' && s.shortkey === Gesture[gesture].toLowerCase())
             if (check) {
-              console.log(inMqtt)
               if (inMqtt) {
-                actions(check.output_type, check.action, client)
+                // actions(check.output_type, check.action)
+                actions(check.output_type, check.action)
+                // if (check.output_type === 'mqtt') {
+                //   client.publish('homeassistant/sensor/gesturesensor/state', check.action);
+                // }
               } else {
                 actions(check.output_type, check.action)
               }
@@ -237,13 +289,14 @@ const Example = () => {
 
 
   var currentGesture: Gesture | null = null;
-  var results: Results | null = null;
-  var hand: LandmarkList | null = null;
+  var results: Hands.Results | null = null;
+  var hand: Hands.LandmarkList | null = null;
 
 
   useRequestAnimationFrame((e: any) => {
     if (results) videoScene.update(results);
   }, { duration: undefined, shouldAnimate: cam });
+
 
   return (
     <Box
@@ -274,7 +327,7 @@ const Example = () => {
         <Settings />
 
         {shortcuts.map((s: any, i: number) =>
-          <IoRow input_payload={s.shortkey} input_type={s.input_type} output_type={s.output_type} output_payload={s.action} key={s.shortkey} />
+          <IoRow input_payload={s.shortkey} input_type={s.input_type} output_type={s.output_type} output_payload={s.action} key={s.shortkey} theClient={theClient || client} />
         )}
         {!add && <Button variant="contained" onClick={() => setAdd(true)} style={{ margin: 10 }}><Add /></Button>}
         {add && <Shortkey keystring={shortcut} edit shortc={shortcut} setShortc={setShortcut} addShortcut={addShortcut} onSave={() => setAdd(false)} exists={shortcuts} />}

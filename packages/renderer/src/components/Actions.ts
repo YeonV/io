@@ -1,4 +1,11 @@
+// import { MqttContext } from "@/pages/example/Example";
+// import { useContext } from "react";
+
+import mqttService from "./mqttService";
+
 const actions = async (otype: string, opayload: any, client?: any) => {
+  // const client = useContext(MqttContext);
+  // const theClient = mqttService.getClient("msg");
   if (otype === 'wled') {
     const call = await fetch(opayload)
     call && console.log("wled", call)
@@ -11,8 +18,11 @@ const actions = async (otype: string, opayload: any, client?: any) => {
     speechHandler(spk, opayload)
   }
   else if (otype === 'mqtt') {
+    console.log("client", client)
     if (client) {
-      client.publish('blade/gestures', opayload);
+      console.log("payload", opayload)
+      client.publish('homeassistant/sensor/gesturesensor/state', opayload);
+      // client.publish('blade/gestures', opayload);
     }
   }
   else {

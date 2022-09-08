@@ -25,7 +25,7 @@ const App = () => {
                 m: 0.3
               }
             },
-            
+
           },
         },
         palette: {
@@ -41,7 +41,7 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <HashRouter>
         <Routes>
-          <Route path="/" element={<Example />} />        
+          <Route path="/" element={<Example />} />
         </Routes>
       </HashRouter>
     </ThemeProvider>

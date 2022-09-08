@@ -33,10 +33,11 @@
     "electron-devtools-installer": "^3.2.0",
     "electron-store": "^8.0.2",
     "immer": "^9.0.14",
-    "mqtt": "^4.3.7",
+    "mqtt-react-hooks": "^3.0.0-alpha.2",
     "react-hotkeys-hook": "^3.4.7",
     "react-router-dom": "6",
     "styled-components": "5.3.5",
+    "url": "^0.11.0",
     "use-request-animation-frame": "^0.1.2",
     "webmidi": "^3.0.21",
     "zustand": "^4.0.0-rc.1"
