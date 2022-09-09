@@ -64,10 +64,8 @@ const Example = () => {
     if (useMqtt && client && !client.connected) {
       setTheClient(client);
       client.on('connect', function () {
-        console.log("connecting", useMqtt, inMqtt, client)
         client.subscribe(mqttData.topic, function (err: any) {
           if (!err) {
-            console.log("connected")
             client.publish(mqttData.topic, 'IO connected')
             client.publish('homeassistant/sensor/gesturesensor/config', JSON.stringify({
               "~": "homeassistant/sensor/gesturesensor",
