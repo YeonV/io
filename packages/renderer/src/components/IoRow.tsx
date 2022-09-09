@@ -7,9 +7,9 @@ import { useStore } from '@/store/useStore';
 import actions from './Actions';
 import ShortMidi from './ShortMidi';
 
-import { MqttContext } from "@/pages/example/Example";
-import { useContext } from "react";
-import mqttService from './mqttService';
+// import { MqttContext } from "@/pages/example/Example";
+// import { useContext } from "react";
+// import mqttService from './mqttService';
 
 const IoRow = ({
   input_type = "keyboard",
@@ -17,20 +17,19 @@ const IoRow = ({
   output_type = "alert",
   output_payload = "boom",
   style = {},
-  theClient,
-  useMqtt = false
+  // theClient,
 }: any) => {
   const [expanded, setExpanded] = useState<string | false>(false);
   const removeShortcut = useStore((state) => state.removeShortcut);
   // const client = useContext(MqttContext);
-  const client = theClient || mqttService.getClient(console.log);
+  // const client = theClient || mqttService.getClient(console.log);
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? panel : false);
     };
 
-  const handleActions = () => actions(output_type, output_payload, client)
+  const handleActions = () => actions(output_type, output_payload)
 
   return (
     <Stack direction={"row"} style={{ borderTop: '1px solid #bbb', width: '100%', ...style }} >

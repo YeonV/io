@@ -19,15 +19,15 @@ import { VideoScene } from "../../video/video-scene";
 import useRequestAnimationFrame from "use-request-animation-frame/dist"
 import mqttService from '@/components/mqttService';
 
-var client = null as any
+// var client = null as any
 
 const ipcRenderer = window.ipcRenderer || false;
 
-export const MqttContext = createContext<any>(client);
+// export const MqttContext = createContext<any>(client);
 
 const Example = () => {
-  const [theClient, setTheClient] = useState<any>(client)
-  const [message, setMessage] = useState('hacked by Blade');
+  // const [theClient, setTheClient] = useState<any>(client)
+  // const [message, setMessage] = useState('hacked by Blade');
   const [data, setData] = useState(0);
   const [add, setAdd] = useState(false);
   const { darkMode, setDarkMode } = useStore((state) => state.ui);
@@ -62,7 +62,7 @@ const Example = () => {
     const client = useMqtt ? mqttService.getClient(console.log) : null;
     const callBack = (mqttMessage: any) => console.log(mqttMessage);
     if (useMqtt && client && !client.connected) {
-      setTheClient(client);
+      // setTheClient(client);
       client.on('connect', function () {
         client.subscribe(mqttData.topic, function (err: any) {
           if (!err) {
@@ -197,15 +197,7 @@ const Example = () => {
           if (i === 10) {
             const check = shortcuts.find((s: any) => s.input_type === 'cam' && s.shortkey === Gesture[gesture].toLowerCase())
             if (check) {
-              if (inMqtt) {
-                // actions(check.output_type, check.action)
-                actions(check.output_type, check.action)
-                // if (check.output_type === 'mqtt') {
-                //   client.publish('homeassistant/sensor/gesturesensor/state', check.action);
-                // }
-              } else {
-                actions(check.output_type, check.action)
-              }
+              actions(check.output_type, check.action)
             } else {
               setShortcut(Gesture[gesture].toLowerCase());
             }
@@ -272,7 +264,7 @@ const Example = () => {
         <Settings />
 
         {shortcuts.map((s: any, i: number) =>
-          <IoRow input_payload={s.shortkey} input_type={s.input_type} output_type={s.output_type} output_payload={s.action} key={s.shortkey} theClient={theClient || client} useMqtt={useMqtt} />
+          <IoRow input_payload={s.shortkey} input_type={s.input_type} output_type={s.output_type} output_payload={s.action} key={s.shortkey} />
         )}
         {!add && <Button variant="contained" onClick={() => setAdd(true)} style={{ margin: 10 }}><Add /></Button>}
         {add && <Shortkey keystring={shortcut} edit shortc={shortcut} setShortc={setShortcut} addShortcut={addShortcut} onSave={() => setAdd(false)} exists={shortcuts} />}
