@@ -3,7 +3,7 @@ import logo from '@/assets/icon.png';
 import styles from '@/styles/app.module.scss';
 import pkg from '../../../../../package.json';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { Box, Button, Chip, IconButton } from '@mui/material';
+import { Box, Button, Chip, IconButton, Typography } from '@mui/material';
 import { useStore } from '../../store/useStore';
 import Shortkey from '@/components/Shortkey';
 import IoRow from '@/components/IoRow';
@@ -115,35 +115,37 @@ const Example = () => {
     const client = mqttService.getClient(console.log);
     setTheClient(client);
     const callBack = (mqttMessage: any) => console.log(mqttMessage);
-    client.on('connect', function () {
-      console.log("connecting")
-      client.subscribe(mqttData.topic, function (err: any) {
-        if (!err) {
-          console.log("connected")
-          client.publish(mqttData.topic, 'IO connected')
-          client.publish('homeassistant/sensor/gesturesensor/config', JSON.stringify({
-            "~": "homeassistant/sensor/gesturesensor",
-            "name": "Hand Gestures",
-            "unique_id": "gesturesensor",
-            "entity_category": "diagnostic",
-            "cmd_t": "~/set",
-            "stat_t": "~/state",
-            "icon": "mdi:hand-back-right",
-            "device": {
-              "identifiers": ["yzlights"],
-              "configuration_url": "https://yeonv.github.io/io/",
-              "name": "A.I. Gesture Recognition",
-              "model": "BladeAI",
-              "manufacturer": "Yeon",
-              "sw_version": "0.0.1",
-            },
-          }))
-        }
+    if (useMqtt && client && !client.connected) {
+      client.on('connect', function () {
+        console.log("connecting", useMqtt, inMqtt, client)
+        client.subscribe(mqttData.topic, function (err: any) {
+          if (!err) {
+            console.log("connected")
+            client.publish(mqttData.topic, 'IO connected')
+            client.publish('homeassistant/sensor/gesturesensor/config', JSON.stringify({
+              "~": "homeassistant/sensor/gesturesensor",
+              "name": "Hand Gestures",
+              "unique_id": "gesturesensor",
+              "entity_category": "diagnostic",
+              "cmd_t": "~/set",
+              "stat_t": "~/state",
+              "icon": "mdi:hand-back-right",
+              "device": {
+                "identifiers": ["yzlights"],
+                "configuration_url": "https://yeonv.github.io/io/",
+                "name": "A.I. Gesture Recognition",
+                "model": "BladeAI",
+                "manufacturer": "Yeon",
+                "sw_version": "0.0.1",
+              },
+            }))
+          }
+        })
       })
-    })
+    }
     mqttService.onMessage(client, callBack);
     return () => mqttService.closeConnection(client);
-  }, []);
+  }, [useMqtt]);
 
   useEffect(() => {
     if (ipcRenderer) {
@@ -331,6 +333,11 @@ const Example = () => {
         )}
         {!add && <Button variant="contained" onClick={() => setAdd(true)} style={{ margin: 10 }}><Add /></Button>}
         {add && <Shortkey keystring={shortcut} edit shortc={shortcut} setShortc={setShortcut} addShortcut={addShortcut} onSave={() => setAdd(false)} exists={shortcuts} />}
+
+        <Typography variant='body2' color="#666" sx={{ mt: 5 }}>
+          If you are accessing this site via httpS, but want to communicate with your local network (mqtt, http, ws), you need to allow insecure content in your browser's site settings either via lock icon next to the url or copy:<br />
+          <code>{`chrome://settings/content/siteDetails?site=${encodeURIComponent(window.location.href.replace(/\/+$/, ''))}`}</code>
+        </Typography>
 
       </header>
       {/* {cam && <canvas style={{height: '50px', width: '50px'}} id="video-canvas"></canvas>} */}

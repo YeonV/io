@@ -23,21 +23,25 @@ export default defineConfig({
        *   'electron-store': 'const Store = require("electron-store"); export default Store;',
        * }
        */
-      
+
       {
         'electron-store': 'const Store = require("electron-store"); export default Store;',
       }
     ),
   ],
-  base: process.env.GHPAGES==="TRUE" ?'/io/':'./',
+  base: process.env.GHPAGES === "TRUE" ? '/io/' : './',
   build: {
     sourcemap: true,
     outDir: '../../dist/renderer',
+    commonjsOptions: { include: [] }
   },
   resolve: {
     alias: {
       '@': join(__dirname, 'src'),
     },
+  },
+  optimizeDeps: {
+    disabled: false
   },
   server: {
     host: pkg.env.VITE_DEV_SERVER_HOST,
@@ -49,7 +53,7 @@ export default defineConfig({
  * For usage of Electron and NodeJS APIs in the Renderer process
  * @see https://github.com/caoxiemeihao/electron-vue-vite/issues/52
  */
- export function resolveElectron(
+export function resolveElectron(
   entries: Parameters<typeof optimizer>[0] = {}
 ): Plugin {
   const builtins = builtinModules.filter((t) => !t.startsWith('_'))
