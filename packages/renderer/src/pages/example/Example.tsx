@@ -17,9 +17,7 @@ import { detectGesture, Gesture } from "../../core/gesture-detector";
 import Hands from "@mediapipe/hands";
 import { VideoScene } from "../../video/video-scene";
 import useRequestAnimationFrame from "use-request-animation-frame/dist"
-import * as mqtt from 'mqtt/dist/mqtt.min';
 import mqttService from '@/components/mqttService';
-// import mqtt from "mqtt"
 
 var client = null as any
 
@@ -59,57 +57,6 @@ const Example = () => {
       setDarkMode(!darkMode);
     }
   };
-
-  // useEffect(() => {
-  //   if (useMqtt && !client) {
-  //     console.log("start")
-  //     setTheClient(mqtt.connect(mqttData.host, {
-  //       clientId: "gestures",
-  //       username: mqttData.username,
-  //       password: mqttData.password,
-  //       clean: true
-  //     }))
-  //   }
-  //   if (useMqtt && client) {
-  //     client.on('connect', function () {
-  //       console.log("connecting")
-  //       client.subscribe(mqttData.topic, function (err: any) {
-  //         if (!err) {
-  //           console.log("connected")
-  //           client.publish(mqttData.topic, 'IO connected')
-  //           client.publish('homeassistant/sensor/gesturesensor/config', JSON.stringify({
-  //             "~": "homeassistant/sensor/gesturesensor",
-  //             "name": "Hand Gestures",
-  //             "unique_id": "gesturesensor",
-  //             "entity_category": "diagnostic",
-  //             "cmd_t": "~/set",
-  //             "stat_t": "~/state",
-  //             "icon": "mdi:hand-back-right",
-  //             "device": {
-  //               "identifiers": ["yzlights"],
-  //               "configuration_url": "https://yeonv.github.io/io/",
-  //               "name": "A.I. Gesture Recognition",
-  //               "model": "BladeAI",
-  //               "manufacturer": "Yeon",
-  //               "sw_version": "0.0.1",
-  //             },
-  //           }))
-  //         }
-  //       })
-  //     })
-  //   }
-  //   if (!useMqtt && client) {
-  //     client.publish(mqttData.topic, 'IO disconnected')
-  //     client.unsubscribe(mqttData.topic)
-  //   }
-
-  //   return () => {
-  //     if (useMqtt && client) {
-  //       client.publish(mqttData.topic, 'IO disconnected')
-  //       client.unsubscribe(mqttData.topic)
-  //     }
-  //   }
-  // }, [useMqtt, client])
 
   useEffect(() => {
     const client = useMqtt ? mqttService.getClient(console.log) : null;
@@ -231,6 +178,9 @@ const Example = () => {
   const videoCanvas = document.getElementById('video-canvas') as HTMLCanvasElement;
   const videoScene = new VideoScene(videoCanvas);
   var i: number = 0;
+  var currentGesture: Gesture | null = null;
+  var results: Hands.Results | null = null;
+  var hand: Hands.LandmarkList | null = null;
 
   useEffect(() => {
     const listener = (r: any) => {
@@ -264,11 +214,7 @@ const Example = () => {
       }
     }
 
-
-
-
     const handsEstimator = new HandsEstimator();
-
 
     if (cam) {
       handsEstimator.addListener(listener);
@@ -288,12 +234,6 @@ const Example = () => {
     }
 
   }, [cam, inMqtt])
-
-
-  var currentGesture: Gesture | null = null;
-  var results: Hands.Results | null = null;
-  var hand: Hands.LandmarkList | null = null;
-
 
   useRequestAnimationFrame((e: any) => {
     if (results) videoScene.update(results);
@@ -340,7 +280,6 @@ const Example = () => {
         </Typography>
 
       </header>
-      {/* {cam && <canvas style={{height: '50px', width: '50px'}} id="video-canvas"></canvas>} */}
     </Box>
   );
 };
