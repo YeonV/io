@@ -31,7 +31,7 @@ export default defineConfig({
   ],
   base: process.env.GHPAGES === "TRUE" ? '/io/' : './',
   build: {
-    sourcemap: true,
+    sourcemap: false,
     outDir: '../../dist/renderer',
     commonjsOptions: { include: [] }
   },
