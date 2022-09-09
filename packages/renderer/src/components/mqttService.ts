@@ -1,11 +1,12 @@
 import * as mqtt from 'mqtt/dist/mqtt.min';
 
-const mqttData = {
+const mqttData = window.localStorage.getItem("io_mqtt_data") ? JSON.parse(window.localStorage.getItem("io_mqtt_data") || "") : {
   host: 'ws://192.168.1.47:1884',
   username: 'blade',
   password: '',
   topic: 'homeassistant/sensor/gesturesensor'
 }
+
 
 function getClient(errorHandler: any) {
   const client = mqtt.connect(mqttData.host, {

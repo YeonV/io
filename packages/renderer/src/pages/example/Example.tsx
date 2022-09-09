@@ -93,6 +93,11 @@ const Example = () => {
   }, [useMqtt]);
 
   useEffect(() => {
+    window.localStorage.setItem("io_mqtt_data", JSON.stringify(mqttData))
+  }, [mqttData])
+
+
+  useEffect(() => {
     if (ipcRenderer) {
       ipcRenderer.on('get', (event: any, data: any) => {
         setData(data.count);
