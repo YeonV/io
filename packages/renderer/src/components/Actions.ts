@@ -4,8 +4,6 @@
 import mqttService from "./mqttService";
 
 const actions = async (otype: string, opayload: any, client?: any) => {
-  // const client = useContext(MqttContext);
-  // const theClient = mqttService.getClient("msg");
   if (otype === 'wled') {
     const call = await fetch(opayload)
     call && console.log("wled", call)

@@ -329,7 +329,7 @@ const Example = () => {
         <Settings />
 
         {shortcuts.map((s: any, i: number) =>
-          <IoRow input_payload={s.shortkey} input_type={s.input_type} output_type={s.output_type} output_payload={s.action} key={s.shortkey} theClient={theClient || client} />
+          <IoRow input_payload={s.shortkey} input_type={s.input_type} output_type={s.output_type} output_payload={s.action} key={s.shortkey} theClient={theClient || client} useMqtt={useMqtt} />
         )}
         {!add && <Button variant="contained" onClick={() => setAdd(true)} style={{ margin: 10 }}><Add /></Button>}
         {add && <Shortkey keystring={shortcut} edit shortc={shortcut} setShortc={setShortcut} addShortcut={addShortcut} onSave={() => setAdd(false)} exists={shortcuts} />}

@@ -17,12 +17,13 @@ const IoRow = ({
   output_type = "alert",
   output_payload = "boom",
   style = {},
-  theClient
+  theClient,
+  useMqtt = false
 }: any) => {
   const [expanded, setExpanded] = useState<string | false>(false);
   const removeShortcut = useStore((state) => state.removeShortcut);
   // const client = useContext(MqttContext);
-  const client = theClient || mqttService.getClient(console.log);
+  const client = theClient || (useMqtt && mqttService.getClient(console.log));
 
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {

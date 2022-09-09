@@ -69,4 +69,5 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK }}
         with:
           args: |
-            [New Web Release](https://yeonv.github.io/io/)
+            New Web Release
+            [IO](https://yeonv.github.io/io/)
