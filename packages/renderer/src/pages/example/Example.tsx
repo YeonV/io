@@ -112,10 +112,10 @@ const Example = () => {
   // }, [useMqtt, client])
 
   useEffect(() => {
-    const client = mqttService.getClient(console.log);
-    setTheClient(client);
+    const client = useMqtt ? mqttService.getClient(console.log) : null;
     const callBack = (mqttMessage: any) => console.log(mqttMessage);
     if (useMqtt && client && !client.connected) {
+      setTheClient(client);
       client.on('connect', function () {
         console.log("connecting", useMqtt, inMqtt, client)
         client.subscribe(mqttData.topic, function (err: any) {
