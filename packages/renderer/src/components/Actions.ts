@@ -1,7 +1,7 @@
 // import { MqttContext } from "@/pages/example/Example";
 // import { useContext } from "react";
 
-import mqttService from "./mqttService";
+// import mqttService from "./mqttService";
 
 const actions = async (otype: string, opayload: any, client?: any) => {
   if (otype === 'wled') {
@@ -19,7 +19,7 @@ const actions = async (otype: string, opayload: any, client?: any) => {
     console.log("client", client)
     if (client) {
       console.log("payload", opayload)
-      client.publish('homeassistant/sensor/gesturesensor/state', opayload);
+      client.publish('homeassistant/sensor/gesturesensor/set', opayload);
       // client.publish('blade/gestures', opayload);
     }
   }
