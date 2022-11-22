@@ -26,6 +26,7 @@
     "@mediapipe/control_utils": "^0.6.1629159505",
     "@mediapipe/drawing_utils": "^0.3.1620248257",
     "@mediapipe/hands": "^0.4.1646424915",
+    "@mediapipe/holistic": "^0.5.1635989137",
     "@mui/icons-material": "^5.10.3",
     "@mui/material": "^5.10.4",
     "@mui/x-data-grid": "^5.17.1",

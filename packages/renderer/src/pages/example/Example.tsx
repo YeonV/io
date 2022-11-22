@@ -13,8 +13,10 @@ import { WebMidi } from "webmidi";
 import Settings from '@/components/Settings';
 import actions from '@/components/Actions';
 import { HandsEstimator } from "../../core/hands-estimator";
+// import { HolisticEstimator } from "../../core/holistic-estimator";
 import { detectGesture, Gesture } from "../../core/gesture-detector";
 import Hands from "@mediapipe/hands";
+import Holistic from "@mediapipe/holistic";
 import { VideoScene } from "../../video/video-scene";
 import useRequestAnimationFrame from "use-request-animation-frame/dist"
 import mqttService from '@/components/mqttService';
@@ -182,8 +184,8 @@ const Example = () => {
   const videoScene = new VideoScene(videoCanvas);
   var i: number = 0;
   var currentGesture: Gesture | null = null;
-  var results: Hands.Results | null = null;
-  var hand: Hands.LandmarkList | null = null;
+  var results: Hands.Results | Holistic.Results | null = null;
+  var hand: Hands.LandmarkList | Holistic.LandmarkList | null = null;
 
   useEffect(() => {
     const listener = (r: any) => {
@@ -210,20 +212,34 @@ const Example = () => {
     }
 
     const handsEstimator = new HandsEstimator();
+    // // const holisticEstimator = new HolisticEstimator();
 
     if (cam) {
+
       handsEstimator.addListener(listener);
       handsEstimator.start();
+
+      // holisticEstimator.addListener(listener);
+      // holisticEstimator.start();
+
+
       videoCanvas.style.display = 'block'
     } else {
       handsEstimator.stop();
       handsEstimator.removeListener(listener);
+
+      // holisticEstimator.stop();
+      // holisticEstimator.removeListener(listener);
+
       videoCanvas.style.display = 'none'
     }
 
     return () => {
       handsEstimator.stop();
       handsEstimator.removeListener(listener);
+
+      // holisticEstimator.stop();
+      // holisticEstimator.removeListener(listener);
       // videoScene.stop()
       videoCanvas.style.display = 'none'
     }
@@ -231,7 +247,7 @@ const Example = () => {
   }, [cam, inMqtt])
 
   useRequestAnimationFrame((e: any) => {
-    if (results) videoScene.update(results);
+    if (results) videoScene.update(results as any);
   }, { duration: undefined, shouldAnimate: cam });
 
 
