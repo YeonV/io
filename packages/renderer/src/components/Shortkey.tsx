@@ -4,8 +4,6 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { Keyboard, Piano, Videocam } from '@mui/icons-material';
 import { useStore } from '@/store/useStore';
 import RestEditor from './RestEditor';
-import JSONInput from 'react-json-editor-ajrm';
-import locale    from 'react-json-editor-ajrm/locale/en';
 
 const Shortkey = ({
   addShortcut = (s: any, t: any) => { },
@@ -31,13 +29,6 @@ const Shortkey = ({
   const cam = useStore((state) => state.inputs.cam);
   const mqtt = useStore((state) => state.inputs.mqtt);
   const mqttout = useStore((state) => state.outputs.mqtt);
-  const [apiType, setApiType] = useState(' Hacked by Mattallmighty')
-  const [payload, setPayload] = useState(' Hacked by Mattallmighty')
-
-  let placeholder = {
-    "id": "red",
-    "action": "activate"
-}
 
   useHotkeys(keystring, () => trigger())
 
@@ -47,7 +38,6 @@ const Shortkey = ({
     }
     if (outputType === 'http') {
       setMessage('http://127.0.0.1:8888/api/scenes')
-      setPayload('{"id":"red","action":"activate"}')
     }
     if (outputType === 'alert') {
       setMessage('Hacked by Blade')
@@ -156,36 +146,11 @@ const Shortkey = ({
           <MenuItem disabled value={'hass'}>HomeAssistant</MenuItem>
         </Select>
         {outputType === 'alert' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
-        {outputType === '!!http' && <Select
-          value={apiType} 
-          onChange={(e) => setApiType(e.target.value)}
-          label="Method"
-          defaultValue={'GET'}
-          sx={{ '& > div': { paddingTop: 0, paddingBottom: 0 } }}
-        >
-          <MenuItem value={'GET'}>GET</MenuItem>
-          <MenuItem value={'PUT'}>PUT</MenuItem>
-          <MenuItem disabled value={'POST'}>POST</MenuItem>
-          <MenuItem disabled value={'DELETE'}>DELETE</MenuItem>
-        </Select>}
         {outputType === 'http' && <RestEditor />}
         {outputType === '!!http' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
         {outputType === 'wled' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
         {outputType === 'speak' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
         {outputType === 'mqtt' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
-        {// outputType === 'http' && apiType === 'PUT' && <Input style={{ width: '100%' }} value={payload} onChange={(e) => setPayload(e.target.value)} />
-        }
-        {outputType === 'http' && apiType === 'PUT' && 
-        <Stack style={{marginLeft: '1rem' }} direction={"column-reverse"}>
-        <JSONInput
-        id          = 'a_unique_id'
-        placeholder = { placeholder }
-        locale      = { locale }
-        height      = '100px'
-        width='200px'
-
-    /></Stack>
-      }
         <Button variant='contained' disabled={exists?.map((s: any) => s.shortkey).indexOf(shortcut.toLowerCase()) > -1} onClick={() => {
           console.log(shortcut)
           addShortcut(shortcut.toLowerCase(), message, inputType, outputType)
