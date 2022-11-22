@@ -3,6 +3,7 @@ import { Button, Input, MenuItem, Select, Stack } from '@mui/material';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { Keyboard, Piano, Videocam } from '@mui/icons-material';
 import { useStore } from '@/store/useStore';
+import RestEditor from './RestEditor';
 
 const Shortkey = ({
   addShortcut = (s: any, t: any) => { },
@@ -144,7 +145,7 @@ const Shortkey = ({
           <MenuItem disabled value={'hass'}>HomeAssistant</MenuItem>
         </Select>
         {outputType === 'alert' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
-        {outputType === 'http' && <Select
+        {outputType === '!!http' && <Select
           label="Method"
           defaultValue={'GET'}
           sx={{ '& > div': { paddingTop: 0, paddingBottom: 0 } }}
@@ -154,7 +155,8 @@ const Shortkey = ({
           <MenuItem disabled value={'POST'}>POST</MenuItem>
           <MenuItem disabled value={'DELETE'}>DELETE</MenuItem>
         </Select>}
-        {outputType === 'http' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
+        {outputType === 'http' && <RestEditor />}
+        {outputType === '!!http' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
         {outputType === 'wled' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
         {outputType === 'speak' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
         {outputType === 'mqtt' && <Input style={{ width: '100%' }} value={message} onChange={(e) => setMessage(e.target.value)} />}
