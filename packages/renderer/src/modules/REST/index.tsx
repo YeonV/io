@@ -1,3 +1,4 @@
+import RestEditor from '@/components/RestEditor'
 import Shortkey from '@/components/Shortkey'
 import type { ModuleConfig, OutputData, Row } from '@/mock-store'
 import { useMainStore } from '@/mock-store'
@@ -5,17 +6,17 @@ import { Keyboard, RecordVoiceOver } from '@mui/icons-material'
 import { Button, Icon, Input, TextField } from '@mui/material'
 import { FC, useEffect } from 'react'
 
-type SayConfigExample = {}
+type RestConfigExample = {}
 
-export const id = 'say-module'
+export const id = 'rest-module'
 
-export const moduleConfig: ModuleConfig<SayConfigExample> = {
-  menuLabel: 'Say',
+export const moduleConfig: ModuleConfig<RestConfigExample> = {
+  menuLabel: 'Webhook (Rest)',
   inputs: [],
   outputs: [
     {
-      name: 'say',
-      icon: 'record_voice_over',
+      name: 'rest',
+      icon: 'webhook',
     },
   ],
   config: {
@@ -42,24 +43,7 @@ export const OutputEdit: FC<{
   output: OutputData
   onChange: (data: Record<string, any>) => void
 }> = ({ output, onChange }) => {
-  //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
-  return (
-    <TextField
-      fullWidth
-      value={output.data.text ?? 'Hello by Blade'}
-      onChange={(e) => {
-        onChange({ text: e.target.value })
-      }}
-      sx={{ mt: 2 }}
-      inputProps={{
-        style: {
-          height: '50px',
-          paddingLeft: '10px',
-        },
-      }}
-      variant='standard'
-    />
-  )
+  return <RestEditor onChange={onChange} />
 }
 
 export const useOutputActions = (row: Row) => {

@@ -1,4 +1,4 @@
-import { Autocomplete, Button, Card, Stack, TextField } from "@mui/material";
+import { Autocomplete, Button, Card, Stack, TextField, Icon } from "@mui/material";
 import produce from "immer";
 import React, { FC, useEffect, useMemo, useState } from "react";
 import create from "zustand";
@@ -143,19 +143,26 @@ export const InputSelector = ({
       options={modulesAsArray.flatMap((mod) => {
         return mod.moduleConfig.inputs.map((inp) => ({
           id: inp.name,
+          icon: inp.icon,
           label: inp.name,
           group: mod.moduleConfig.menuLabel,
           groupId: mod.id,
           moduleEnabled: mod.moduleConfig.config.enabled,
         }));
       })}
+      disableClearable
+      renderOption={(props,option) => <li style={{display: 'flex', padding: '5px 15px', minWidth: '100px'}} {...props}><Icon sx={{mr:2}}>{option.icon}</Icon>{option.label}</li>}
       isOptionEqualToValue={(opt, value) => opt.id === value.id}
       getOptionDisabled={(opt) => !opt.moduleEnabled}
       groupBy={(option) => option.group}
-      getOptionLabel={(option) => option.label}
-      sx={{ width: 300 }}
+      sx={{ width: 200 }}
       renderInput={(params) => {
-        return <TextField {...params} label="Select Input" />;
+        return <TextField {...params} label="Select Input" InputProps={
+          { 
+            ...params.InputProps,
+            startAdornment: <Icon sx={{mr:1}}>{params.inputProps.value}</Icon> // TODO @monestereo: need icon string here
+          }
+        } />;
       }}
       onChange={(_, value) => {
         console.log(value);
@@ -188,21 +195,31 @@ export const OutputSelector = ({
     <Autocomplete
       id={`new-row-input-select`}
       options={modulesAsArray.flatMap((mod) => {
+        console.log("Y", mod.moduleConfig.outputs)
         return mod.moduleConfig.outputs.map((output) => ({
-          id: output.name,
+          id: output.name,          
+          icon: output.icon,
           label: output.name,
           group: mod.moduleConfig.menuLabel,
           groupId: mod.id,
           moduleEnabled: mod.moduleConfig.config.enabled,
         }));
       })}
+      disableClearable
       isOptionEqualToValue={(opt, value) => opt.id === value.id}
       getOptionDisabled={(opt) => !opt.moduleEnabled}
       groupBy={(option) => option.group}
-      getOptionLabel={(option) => option.label}
-      sx={{ width: 300 }}
+      renderOption={(props,option) => <li style={{display: 'flex', padding: '5px 15px', minWidth: '100px'}} {...props}><Icon sx={{mr:2}}>{option.icon}</Icon>{option.label}</li>}
+      sx={{ width: 200 }}
       renderInput={(params) => {
-        return <TextField {...params} label="Select Output" />;
+        const InputProps = { ...params.InputProps };
+        InputProps.endAdornment = null;
+        return <TextField {...params} label="Select Output" InputProps={
+          { 
+            ...params.InputProps,
+            startAdornment: <Icon sx={{mr:1}}>{params.inputProps.value}</Icon> // TODO @monestereo: need icon string here
+          }
+        } />;
       }}
       onChange={(_, value) => {
         console.log(value);
@@ -253,12 +270,14 @@ export const NewRow = ({ onComplete }: { onComplete: () => void }) => {
   }, [selectedOutputModule]);
 
   return (
+    <>
     <Stack
       direction={"row"}
-      style={{ borderTop: "1px solid #bbb", width: "100%" }}
+      sx={{ borderTop: "1px solid #bbb", width: "100%", justifyContent: 'space-between', mt:2, pt: 2, pb: 2 }}
     >
-      <InputSelector
-        onSelect={(modId, inp) => {
+
+      <div style={{ flexBasis: '50%', borderRight: '1px dashed #666'}}>
+        <InputSelector onSelect={(modId, inp) => {
           setRow((row) => {
             return {
               ...row,
@@ -270,7 +289,7 @@ export const NewRow = ({ onComplete }: { onComplete: () => void }) => {
             };
           });
         }}
-      ></InputSelector>
+      />
       {templateRow.input && SelectedModuleInputEdit ? (
         <SelectedModuleInputEdit
           input={templateRow.input}
@@ -287,7 +306,8 @@ export const NewRow = ({ onComplete }: { onComplete: () => void }) => {
       ) : (
         <></>
       )}
-      {templateRow.input && SelectedModuleInputEdit ? (
+      </div>
+      <div style={{ flexBasis: '50%', marginLeft: '10px', textAlign: 'left'}}>
         <>
           <OutputSelector
             onSelect={(modId, output) => {
@@ -318,12 +338,10 @@ export const NewRow = ({ onComplete }: { onComplete: () => void }) => {
             ></SelectedModuleOutputEdit>
           )}
         </>
-      ) : (
-        <></>
-      )}
-      <Card style={{ flexBasis: "50%", display: "flex", alignItems: "center" }}>
+      </div>
+    </Stack>
         <Button
-          variant="outlined"
+          variant="contained"
           size="small"
           sx={{ mr: 2 }}
           disabled={
@@ -352,7 +370,6 @@ export const NewRow = ({ onComplete }: { onComplete: () => void }) => {
         >
           save
         </Button>
-      </Card>
-    </Stack>
+    </>
   );
 };

@@ -43,14 +43,10 @@ const Shortkey = ({
 
   return edit ? (
     <>
-      <Stack
-        direction={"row"}
-        gap={2}
-        style={{ position: "relative", width: "100%", margin: "10px" }}
-      >
+      <div style={{ position: "relative", flexGrow: 1, marginTop: "20px", marginRight: "10px" }}>
         <Input
           value={""}
-          style={{ width: 400 }}
+          style={{ width: '100%', height: 46 }}
           onKeyDown={(e) => {
             e.preventDefault();
             if (e.ctrlKey) {
@@ -107,7 +103,7 @@ const Shortkey = ({
         <Stack
           direction={"row"}
           gap={2}
-          style={{ position: "absolute", left: 100 }}
+          style={{ position: "absolute", left: 0, top: -7 }}
         >
           {shortcut.split("+").map((s: any, i: number) => (
             <Button
@@ -128,7 +124,7 @@ const Shortkey = ({
             </Button>
           ))}
         </Stack>
-      </Stack>
+      </div>
     </>
   ) : (
     <Stack direction={"row"} gap={2}>

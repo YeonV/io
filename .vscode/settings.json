@@ -10,4 +10,5 @@
       "*.tsx":  "Typescript",
       "*.interface.tsx":  "Typescript-def",
   },
+  "editor.formatOnSave": true,
 }

@@ -15,13 +15,13 @@ export const moduleConfig: ModuleConfig<MqttConfigExample> = {
   menuLabel: "MQTT",
   inputs: [
     {
-      icon: "letter-closed",
+      icon: "mail",
       name: "mqtt",
     },
   ],
   outputs: [
     {
-      icon: "letter-open",
+      icon: "mail",
       name: "mqtt",
     },
   ],

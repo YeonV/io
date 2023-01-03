@@ -1,6 +1,7 @@
 import Shortkey from "@/components/Shortkey";
 import type { ModuleConfig, InputData, Row } from "@/mock-store";
-import { Keyboard } from "@mui/icons-material";
+import { camelToSnake } from '@/utils'
+import { Icon } from '@mui/material'
 import { FC } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
@@ -29,7 +30,6 @@ export const InputEdit: FC<{
   //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
   return (
     <>
-      <Keyboard fontSize={"large"} />
       <Shortkey
         value={input.data.value}
         onChange={(value) => {
@@ -42,10 +42,11 @@ export const InputEdit: FC<{
 };
 
 export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
+  console.log(input)
   return (
     <>
       {" "}
-      <Keyboard fontSize={"large"} />
+      <Icon >{camelToSnake(input.icon)}</Icon>
       <Shortkey
         value={input.data.value}
         trigger={() => {
