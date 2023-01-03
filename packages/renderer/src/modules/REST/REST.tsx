@@ -1,5 +1,5 @@
 import RestEditor from '@/components/OLD/RestEditor/RestEditor'
-import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
+import type { InputData, ModuleConfig, OutputData, Row } from '@/store/mainStore'
 import { Button, Icon } from '@mui/material'
 import { FC, useEffect } from 'react'
 
@@ -8,11 +8,16 @@ type RestConfigExample = {}
 export const id = 'rest-module'
 
 export const moduleConfig: ModuleConfig<RestConfigExample> = {
-  menuLabel: 'Webhook (Rest)',
-  inputs: [],
+  menuLabel: 'Network',
+  inputs: [
+    {
+      name: 'Webhook (Rest)',
+      icon: 'webhook',
+    },
+  ],
   outputs: [
     {
-      name: 'rest',
+      name: 'Webhook (Rest)',
       icon: 'webhook',
     },
   ],
@@ -58,4 +63,31 @@ export const useOutputActions = (row: Row) => {
       window.removeEventListener('io_input', listener)
     }
   }, [row.output.data.text])
+}
+
+export const InputDisplay: FC<{
+  output: InputData
+}> = ({ output }) => {
+  //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
+  return (
+    <>
+      <Button disabled variant='outlined' sx={{ mr: 2 }}>
+        <Icon style={{ marginRight: '10px' }}>{output.icon}</Icon>
+        {moduleConfig.menuLabel}
+      </Button>
+      {output.data.text}
+    </>
+  )
+}
+
+export const InputEdit: FC<{
+  output: InputData
+  onChange: (data: Record<string, any>) => void
+}> = ({ output, onChange }) => {
+  return <RestEditor onChange={onChange} />
+}
+
+export const useInputActions = (row: Row) => {
+  console.log('hotkey triggered', row.id)
+  window.dispatchEvent(new CustomEvent(`io_input`, { detail: row.id }))
 }

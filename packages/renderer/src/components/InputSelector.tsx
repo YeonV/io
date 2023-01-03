@@ -1,4 +1,5 @@
-import { ModuleId, Input, useMainStore } from '@/store/mainStore'
+import type { ModuleId, Input } from '@/store/mainStore'
+import { useMainStore } from '@/store/mainStore'
 import { Autocomplete, Icon, TextField } from '@mui/material'
 
 export const InputSelector = ({
@@ -8,10 +9,10 @@ export const InputSelector = ({
 }) => {
   const modulesAsArray = useMainStore((state) => Object.values(state.modules))
   const modules = useMainStore((state) => state.modules)
-
+  const fixId = 'new-row-input-select'
   return (
     <Autocomplete
-      id={`new-row-input-select`}
+      id={fixId}
       options={modulesAsArray.flatMap((mod) => {
         return mod.moduleConfig.inputs.map((inp) => ({
           id: inp.name,
@@ -35,7 +36,7 @@ export const InputSelector = ({
       isOptionEqualToValue={(opt, value) => opt.id === value.id}
       getOptionDisabled={(opt) => !opt.moduleEnabled}
       groupBy={(option) => option.group}
-      sx={{ width: 200 }}
+      sx={{ width: 250 }}
       renderInput={(params) => {
         return (
           <TextField
@@ -44,8 +45,11 @@ export const InputSelector = ({
             InputProps={{
               ...params.InputProps,
               startAdornment: (
-                <Icon sx={{ mr: 1 }}>{params.inputProps.value}</Icon>
-              ), // TODO @monestereo: need icon string here
+                <>
+                  <Icon sx={{ mr: 1, ml: 1 }}>
+                    {modulesAsArray.flatMap((mod) => mod.moduleConfig.outputs).find(o => o.name === params.inputProps.value)?.icon}
+                  </Icon></>
+              ),
             }}
           />
         )

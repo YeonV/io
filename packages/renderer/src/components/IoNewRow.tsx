@@ -12,7 +12,7 @@ export const IoNewRow = ({ onComplete }: { onComplete: () => void }) => {
   const [templateRow, setRow] = useState<Partial<Row> & Pick<Row, 'id'>>({
     id: uuidv4(),
   })
-  console.log(templateRow)
+  // console.log(templateRow)
   const modules = useMainStore((state) => state.modules)
   const selectedInputModule = useMemo(() => {
     if (!templateRow.input || !templateRow.inputModule) {
@@ -49,7 +49,7 @@ export const IoNewRow = ({ onComplete }: { onComplete: () => void }) => {
           pb: 2,
         }}
       >
-        <div style={{ flexBasis: '50%', borderRight: '1px dashed #666' }}>
+        <div style={{ flexBasis: '50%', borderRight: '1px dashed #666', textAlign: 'left' }}>
           <InputSelector
             onSelect={(modId, inp) => {
               setRow((row) => {

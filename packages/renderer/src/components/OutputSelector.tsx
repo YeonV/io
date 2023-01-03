@@ -13,7 +13,6 @@ export const OutputSelector = ({
     <Autocomplete
       id={`new-row-input-select`}
       options={modulesAsArray.flatMap((mod) => {
-        console.log('Y', mod.moduleConfig.outputs)
         return mod.moduleConfig.outputs.map((output) => ({
           id: output.name,
           icon: output.icon,
@@ -36,8 +35,9 @@ export const OutputSelector = ({
           {option.label}
         </li>
       )}
-      sx={{ width: 200 }}
+      sx={{ width: 250 }}
       renderInput={(params) => {
+        console.log(params)
         const InputProps = { ...params.InputProps }
         InputProps.endAdornment = null
         return (
@@ -47,14 +47,16 @@ export const OutputSelector = ({
             InputProps={{
               ...params.InputProps,
               startAdornment: (
-                <Icon sx={{ mr: 1 }}>{params.inputProps.value}</Icon>
-              ), // TODO @monestereo: need icon string here
+                <>
+                  <Icon sx={{ mr: 1, ml: 1 }}>
+                    {modulesAsArray.flatMap((mod) => mod.moduleConfig.outputs).find(o => o.name === params.inputProps.value)?.icon}
+                  </Icon></>
+              ),
             }}
           />
         )
       }}
       onChange={(_, value) => {
-        console.log(value)
         if (!value) {
           return
         }

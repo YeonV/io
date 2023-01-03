@@ -5,16 +5,16 @@ import { Icon } from '@mui/material'
 import { FC } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
-type KeyboardConfigExample = {}
+type MidiConfigExample = {}
 
-export const id = 'keyboard-module'
+export const id = 'midi-module'
 
-export const moduleConfig: ModuleConfig<KeyboardConfigExample> = {
+export const moduleConfig: ModuleConfig<MidiConfigExample> = {
   menuLabel: 'Input Device',
   inputs: [
     {
-      name: 'Keyboard',
-      icon: 'keyboard',
+      name: 'Midi',
+      icon: 'piano',
     },
   ],
   outputs: [],

@@ -12,7 +12,7 @@ type MqttConfigExample = {
 export const id = 'mqtt-module'
 
 export const moduleConfig: ModuleConfig<MqttConfigExample> = {
-  menuLabel: 'MQTT',
+  menuLabel: 'Network',
   inputs: [
     {
       icon: 'mail',

@@ -157,68 +157,68 @@ const Home = () => {
     }
   }, [midi])
 
-  const videoCanvas = document.getElementById(
-    'video-canvas'
-  ) as HTMLCanvasElement
-  const videoScene = new VideoScene(videoCanvas)
-  var i: number = 0
-  var currentGesture: Gesture | null = null
-  var results: Hands.Results | Holistic.Results | null = null
-  var hand: Hands.LandmarkList | Holistic.LandmarkList | null = null
+  // const videoCanvas = document.getElementById(
+  //   'video-canvas'
+  // ) as HTMLCanvasElement
+  // const videoScene = new VideoScene(videoCanvas)
+  // var i: number = 0
+  // var currentGesture: Gesture | null = null
+  // var results: Hands.Results | Holistic.Results | null = null
+  // var hand: Hands.LandmarkList | Holistic.LandmarkList | null = null
 
-  useEffect(() => {
-    const listener = (r: any) => {
-      results = r
-      const landmarks = r?.multiHandLandmarks[0]
-      if (landmarks) {
-        hand = landmarks
-        const gesture = detectGesture(landmarks)
-        if (gesture === currentGesture) {
-          i++
-          if (i === 10) {
-            const check = shortcuts.find(
-              (s: any) =>
-                s.input_type === 'cam' &&
-                s.shortkey === Gesture[gesture].toLowerCase()
-            )
-            if (check) {
-              actions(check.output_type, check.action)
-            } else {
-              setShortcut(Gesture[gesture].toLowerCase())
-            }
-          }
-        } else {
-          currentGesture = gesture
-          i = 0
-        }
-      }
-    }
+  // useEffect(() => {
+  //   const listener = (r: any) => {
+  //     results = r
+  //     const landmarks = r?.multiHandLandmarks[0]
+  //     if (landmarks) {
+  //       hand = landmarks
+  //       const gesture = detectGesture(landmarks)
+  //       if (gesture === currentGesture) {
+  //         i++
+  //         if (i === 10) {
+  //           const check = shortcuts.find(
+  //             (s: any) =>
+  //               s.input_type === 'cam' &&
+  //               s.shortkey === Gesture[gesture].toLowerCase()
+  //           )
+  //           if (check) {
+  //             actions(check.output_type, check.action)
+  //           } else {
+  //             setShortcut(Gesture[gesture].toLowerCase())
+  //           }
+  //         }
+  //       } else {
+  //         currentGesture = gesture
+  //         i = 0
+  //       }
+  //     }
+  //   }
 
-    const handsEstimator = new HandsEstimator()
+  //   const handsEstimator = new HandsEstimator()
 
-    if (cam) {
-      handsEstimator.addListener(listener)
-      handsEstimator.start()
-      videoCanvas.style.display = 'block'
-    } else {
-      handsEstimator.stop()
-      handsEstimator.removeListener(listener)
-      videoCanvas.style.display = 'none'
-    }
+  //   if (cam) {
+  //     handsEstimator.addListener(listener)
+  //     handsEstimator.start()
+  //     videoCanvas.style.display = 'block'
+  //   } else {
+  //     handsEstimator.stop()
+  //     handsEstimator.removeListener(listener)
+  //     videoCanvas.style.display = 'none'
+  //   }
 
-    return () => {
-      handsEstimator.stop()
-      handsEstimator.removeListener(listener)
-      videoCanvas.style.display = 'none'
-    }
-  }, [cam, inMqtt])
+  //   return () => {
+  //     handsEstimator.stop()
+  //     handsEstimator.removeListener(listener)
+  //     videoCanvas.style.display = 'none'
+  //   }
+  // }, [cam, inMqtt])
 
-  useRequestAnimationFrame(
-    (e: any) => {
-      if (results) videoScene.update(results as any)
-    },
-    { duration: undefined, shouldAnimate: cam }
-  )
+  // useRequestAnimationFrame(
+  //   (e: any) => {
+  //     if (results) videoScene.update(results as any)
+  //   },
+  //   { duration: undefined, shouldAnimate: cam }
+  // )
 
   const rows = useMainStore((state) => state.rows)
 

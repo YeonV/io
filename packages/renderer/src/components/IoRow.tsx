@@ -13,7 +13,7 @@ import { Row, useMainStore } from '@/store/mainStore'
 
 const IoRow = ({ row }: { row: Row }) => {
   const [expanded, setExpanded] = useState<string | false>(false)
-  //   const removeShortcut = useStore((state) => state.removeShortcut);
+  // const removeShortcut = useStore((state) => state.removeShortcut);
   // const client = useContext(MqttContext);
   // const client = theClient || mqttService.getClient(console.log);
   const modules = useMainStore((state) => state.modules)
