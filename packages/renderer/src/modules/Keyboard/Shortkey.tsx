@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Button, Input, MenuItem, Select, Stack } from '@mui/material'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { Keyboard, Piano, Videocam } from '@mui/icons-material'
-import { useStore } from '@/store/useStore'
-import RestEditor from '../../components/OLD/RestEditor/RestEditor'
 
 const Shortkey = ({
   trigger = () => {},

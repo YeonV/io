@@ -1,5 +1,5 @@
 import Shortkey from '@/modules/Keyboard/Shortkey'
-import type { ModuleConfig, InputData, Row } from '@/mock-store'
+import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
 import { camelToSnake } from '@/utils'
 import { Icon } from '@mui/material'
 import { FC } from 'react'

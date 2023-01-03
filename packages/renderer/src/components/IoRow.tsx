@@ -9,7 +9,7 @@ import {
   Button,
 } from '@mui/material'
 import { Delete, Edit, ExpandMore, Help } from '@mui/icons-material'
-import { Row, useMainStore } from '@/mock-store'
+import { Row, useMainStore } from '@/store/mainStore'
 
 const IoRow = ({ row }: { row: Row }) => {
   const [expanded, setExpanded] = useState<string | false>(false)

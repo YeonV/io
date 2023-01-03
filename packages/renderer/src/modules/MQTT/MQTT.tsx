@@ -1,35 +1,35 @@
-import type { ModuleConfig } from "@/mock-store";
+import type { ModuleConfig } from '@/store/mainStore'
 
 type MqttConnection = {
-  host: string;
-  id: string;
-};
+  host: string
+  id: string
+}
 
 type MqttConfigExample = {
-  connections: MqttConnection[];
-};
+  connections: MqttConnection[]
+}
 
-export const id = "mqtt-module";
+export const id = 'mqtt-module'
 
 export const moduleConfig: ModuleConfig<MqttConfigExample> = {
-  menuLabel: "MQTT",
+  menuLabel: 'MQTT',
   inputs: [
     {
-      icon: "mail",
-      name: "mqtt",
+      icon: 'mail',
+      name: 'mqtt',
     },
   ],
   outputs: [
     {
-      icon: "mail",
-      name: "mqtt",
+      icon: 'mail',
+      name: 'mqtt',
     },
   ],
   config: {
     enabled: true,
     connections: [
-      { id: "mqtt-local", host: "mqqt://localhost:1883" },
-      { id: "remote-hass", host: "mqtt://hass.blade.io:1883" },
+      { id: 'mqtt-local', host: 'mqqt://localhost:1883' },
+      { id: 'remote-hass', host: 'mqtt://hass.blade.io:1883' },
     ],
   },
-};
+}

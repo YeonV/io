@@ -4,7 +4,7 @@ import styles from '@/styles/app.module.scss'
 import pkg from '../../../../package.json'
 import { useEffect, useState } from 'react'
 import { Box, Button, Typography } from '@mui/material'
-import { useStore } from '../store/useStore'
+import { useStore } from '../store/OLD/useStore'
 import IoRow from '@/components/IoRow'
 import { Add } from '@mui/icons-material'
 import { WebMidi } from 'webmidi'
@@ -20,7 +20,8 @@ import Holistic from '@mediapipe/holistic'
 import { VideoScene } from '../modules/Mediapipe/Old/video/video-scene'
 import useRequestAnimationFrame from 'use-request-animation-frame/dist'
 import mqttService from '@/components/OLD/MQTT/mqttService'
-import { NewRow, useMainStore } from '@/mock-store'
+import { useMainStore } from '@/store/mainStore'
+import { IoNewRow } from '@/components/IoNewRow'
 
 // var client = null as any
 
@@ -269,7 +270,7 @@ const Home = () => {
             <Add />
           </Button>
         ) : (
-          <NewRow
+          <IoNewRow
             onComplete={() => {
               setAdd(false)
             }}

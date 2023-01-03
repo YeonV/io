@@ -1,5 +1,5 @@
 import RestEditor from '@/components/OLD/RestEditor/RestEditor'
-import type { ModuleConfig, OutputData, Row } from '@/mock-store'
+import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
 import { Button, Icon } from '@mui/material'
 import { FC, useEffect } from 'react'
 

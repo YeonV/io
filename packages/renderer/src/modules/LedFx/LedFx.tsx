@@ -1,5 +1,4 @@
-import type { ModuleConfig, OutputData, Row } from '@/mock-store'
-import { useMainStore } from '@/mock-store'
+import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
 import {
   Button,
   Icon,

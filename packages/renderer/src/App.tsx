@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import Home from './pages/Home'
-import { useStore } from './store/useStore'
+import { useStore } from './store/OLD/useStore'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import pkg from '../../../package.json'

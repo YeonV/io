@@ -1,4 +1,4 @@
-import type { ModuleConfig, OutputData, Row } from '@/mock-store'
+import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
 import { Button, Icon, TextField } from '@mui/material'
 import { FC, useEffect } from 'react'
 
