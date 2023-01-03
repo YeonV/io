@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
-  Input,
   Stack,
   Accordion,
   AccordionSummary,
@@ -8,24 +7,9 @@ import {
   AccordionDetails,
   Card,
   Button,
-  IconButton,
 } from '@mui/material'
-
-import Shortkey from '@/components/Shortkey'
-import {
-  Delete,
-  Edit,
-  ExpandMore,
-  Help,
-  Keyboard,
-  Piano,
-  Videocam,
-} from '@mui/icons-material'
-import { useStore } from '@/store/useStore'
-import actions from './Actions'
-import ShortMidi from './ShortMidi'
+import { Delete, Edit, ExpandMore, Help } from '@mui/icons-material'
 import { Row, useMainStore } from '@/mock-store'
-import { InputDisplay } from '@/modules/Keyboard'
 
 const IoRow = ({ row }: { row: Row }) => {
   const [expanded, setExpanded] = useState<string | false>(false)

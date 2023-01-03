@@ -1,31 +1,31 @@
-import Shortkey from "@/components/Shortkey";
-import type { ModuleConfig, InputData, Row } from "@/mock-store";
+import Shortkey from '@/modules/Keyboard/Shortkey'
+import type { ModuleConfig, InputData, Row } from '@/mock-store'
 import { camelToSnake } from '@/utils'
 import { Icon } from '@mui/material'
-import { FC } from "react";
-import { useHotkeys } from "react-hotkeys-hook";
+import { FC } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 
-type KeyboardConfigExample = {};
+type KeyboardConfigExample = {}
 
-export const id = "keyboard-module";
+export const id = 'keyboard-module'
 
 export const moduleConfig: ModuleConfig<KeyboardConfigExample> = {
-  menuLabel: "Keyboard",
+  menuLabel: 'Keyboard',
   inputs: [
     {
-      name: "key event",
-      icon: "keyboard",
+      name: 'key event',
+      icon: 'keyboard',
     },
   ],
   outputs: [],
   config: {
     enabled: true,
   },
-};
+}
 
 export const InputEdit: FC<{
-  input: InputData;
-  onChange: (data: Record<string, any>) => void;
+  input: InputData
+  onChange: (data: Record<string, any>) => void
 }> = ({ input, onChange }) => {
   //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
   return (
@@ -33,39 +33,39 @@ export const InputEdit: FC<{
       <Shortkey
         value={input.data.value}
         onChange={(value) => {
-          onChange({ value });
+          onChange({ value })
         }}
         edit
       />
     </>
-  );
-};
+  )
+}
 
 export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   console.log(input)
   return (
     <>
-      {" "}
-      <Icon >{camelToSnake(input.icon)}</Icon>
+      {' '}
+      <Icon>{camelToSnake(input.icon)}</Icon>
       <Shortkey
         value={input.data.value}
         trigger={() => {
-          console.log("SHORTKEY;");
+          console.log('SHORTKEY;')
         }}
       />
     </>
-  );
-};
+  )
+}
 
 export const useInputActions = (row: Row) => {
   useHotkeys(
     row.input.data.value,
     () => {
       // dispatch event on global event emitter
-      console.log("hotkey triggered", row.id);
-      window.dispatchEvent(new CustomEvent(`io_input`, { detail: row.id }));
+      console.log('hotkey triggered', row.id)
+      window.dispatchEvent(new CustomEvent(`io_input`, { detail: row.id }))
     },
     {},
     [row.input.data.value]
-  );
-};
+  )
+}

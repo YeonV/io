@@ -1,8 +1,5 @@
-import Shortkey from '@/components/Shortkey'
 import type { ModuleConfig, OutputData, Row } from '@/mock-store'
-import { useMainStore } from '@/mock-store'
-import { Keyboard, RecordVoiceOver } from '@mui/icons-material'
-import { Button, Icon, Input, TextField } from '@mui/material'
+import { Button, Icon, TextField } from '@mui/material'
 import { FC, useEffect } from 'react'
 
 type SayConfigExample = {}

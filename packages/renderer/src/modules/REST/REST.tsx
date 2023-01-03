@@ -1,9 +1,6 @@
-import RestEditor from '@/components/RestEditor'
-import Shortkey from '@/components/Shortkey'
+import RestEditor from '@/components/OLD/RestEditor/RestEditor'
 import type { ModuleConfig, OutputData, Row } from '@/mock-store'
-import { useMainStore } from '@/mock-store'
-import { Keyboard, RecordVoiceOver } from '@mui/icons-material'
-import { Button, Icon, Input, TextField } from '@mui/material'
+import { Button, Icon } from '@mui/material'
 import { FC, useEffect } from 'react'
 
 type RestConfigExample = {}

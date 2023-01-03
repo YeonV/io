@@ -1,7 +1,7 @@
 // import { MqttContext } from "@/pages/example/Example";
 // import { useContext } from "react";
 
-import mqttService from "./mqttService";
+import mqttService from "./MQTT/mqttService";
 
 const actions = async (otype: string, opayload: any, clienta?: any) => {
   if (otype === 'wled') {
