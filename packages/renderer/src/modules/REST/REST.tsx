@@ -1,11 +1,17 @@
 import RestEditor from '@/components/OLD/RestEditor/RestEditor'
-import type { InputData, ModuleConfig, OutputData, Row } from '@/store/mainStore'
+import type {
+  InputData,
+  ModuleConfig,
+  OutputData,
+  Row,
+} from '@/store/mainStore'
 import { Button, Icon } from '@mui/material'
 import { FC, useEffect } from 'react'
 
 type RestConfigExample = {}
 
 export const id = 'rest-module'
+export const groupId = 'Network'
 
 export const moduleConfig: ModuleConfig<RestConfigExample> = {
   menuLabel: 'Network',
@@ -66,24 +72,24 @@ export const useOutputActions = (row: Row) => {
 }
 
 export const InputDisplay: FC<{
-  output: InputData
-}> = ({ output }) => {
+  input: InputData
+}> = ({ input }) => {
   //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
   return (
     <>
       <Button disabled variant='outlined' sx={{ mr: 2 }}>
-        <Icon style={{ marginRight: '10px' }}>{output.icon}</Icon>
+        <Icon style={{ marginRight: '10px' }}>{input.icon}</Icon>
         {moduleConfig.menuLabel}
       </Button>
-      {output.data.text}
+      {input.data.text}
     </>
   )
 }
 
 export const InputEdit: FC<{
-  output: InputData
+  input: InputData
   onChange: (data: Record<string, any>) => void
-}> = ({ output, onChange }) => {
+}> = ({ input, onChange }) => {
   return <RestEditor onChange={onChange} />
 }
 

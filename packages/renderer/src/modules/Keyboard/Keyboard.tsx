@@ -42,7 +42,7 @@ export const InputEdit: FC<{
 }
 
 export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
-  console.log(input)
+  // console.log(input)
   return (
     <>
       {' '}
@@ -50,7 +50,7 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
       <Shortkey
         value={input.data.value}
         trigger={() => {
-          console.log('SHORTKEY;')
+          // console.log('SHORTKEY;')
         }}
       />
     </>

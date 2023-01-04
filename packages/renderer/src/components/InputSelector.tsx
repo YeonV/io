@@ -51,7 +51,7 @@ export const InputSelector = ({
                   <Icon sx={{ mr: 1, ml: 1 }}>
                     {
                       modulesAsArray
-                        .flatMap((mod) => mod.moduleConfig.outputs)
+                        .flatMap((mod) => mod.moduleConfig.inputs)
                         .find((o) => o.name === params.inputProps.value)?.icon
                     }
                   </Icon>

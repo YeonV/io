@@ -41,9 +41,6 @@ export const OutputSelector = ({
       }}
       sx={{ width: 250 }}
       renderInput={(params) => {
-        // console.log(params)
-        const InputProps = { ...params.InputProps }
-        InputProps.endAdornment = null
         return (
           <TextField
             {...params}

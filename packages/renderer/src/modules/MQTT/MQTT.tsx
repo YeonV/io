@@ -1,5 +1,6 @@
-import type { ModuleConfig } from '@/store/mainStore'
-
+import type { InputData, ModuleConfig, OutputData } from '@/store/mainStore'
+import { TextField } from '@mui/material'
+import { FC, useEffect, useState } from 'react'
 type MqttConnection = {
   host: string
   id: string
@@ -10,6 +11,8 @@ type MqttConfigExample = {
 }
 
 export const id = 'mqtt-module'
+
+export const groupId = 'Network'
 
 export const moduleConfig: ModuleConfig<MqttConfigExample> = {
   menuLabel: 'Network',
@@ -28,8 +31,180 @@ export const moduleConfig: ModuleConfig<MqttConfigExample> = {
   config: {
     enabled: true,
     connections: [
-      { id: 'mqtt-local', host: 'mqqt://localhost:1883' },
+      { id: 'mqtt-local', host: 'mqtt://localhost:1883' },
       { id: 'remote-hass', host: 'mqtt://hass.blade.io:1883' },
     ],
   },
+}
+
+export const InputEdit: FC<{
+  input: InputData
+  onChange: (data: Record<string, any>) => void
+}> = ({ input, onChange }) => {
+  return (
+    <>
+      <TextField
+        fullWidth
+        label='Host:Port'
+        value={input.data.host ?? 'mqtt://localhost:1883'}
+        onBlur={async (e) => {
+          // Connect to mqtt?
+        }}
+        onChange={(e) => {
+          onChange({ host: e.target.value })
+        }}
+        sx={{ mt: 2 }}
+        inputProps={{
+          style: {
+            height: '50px',
+            paddingLeft: '10px',
+          },
+        }}
+        variant='outlined'
+      />
+      <TextField
+        fullWidth
+        label='Username'
+        defaultValue={'blade'}
+        onBlur={async (e) => {
+          // Connect to mqtt?
+        }}
+        onChange={(e) => {
+          // onChange({ host: e.target.value })
+        }}
+        sx={{ mt: 2 }}
+        inputProps={{
+          style: {
+            height: '50px',
+            paddingLeft: '10px',
+          },
+        }}
+        variant='outlined'
+      />
+      <TextField
+        fullWidth
+        label='Password'
+        defaultValue={'ledfx'}
+        onBlur={async (e) => {
+          // Connect to mqtt?
+        }}
+        onChange={(e) => {
+          // onChange({ host: e.target.value })
+        }}
+        sx={{ mt: 2 }}
+        inputProps={{
+          style: {
+            height: '50px',
+            paddingLeft: '10px',
+          },
+        }}
+        variant='outlined'
+      />
+      <TextField
+        fullWidth
+        label='topic'
+        defaultValue={'blade/ledfx'}
+        onBlur={async (e) => {
+          // Connect to mqtt?
+        }}
+        onChange={(e) => {
+          // onChange({ host: e.target.value })
+        }}
+        sx={{ mt: 2 }}
+        inputProps={{
+          style: {
+            height: '50px',
+            paddingLeft: '10px',
+          },
+        }}
+        variant='outlined'
+      />
+    </>
+  )
+}
+
+export const OutputEdit: FC<{
+  output: OutputData
+  onChange: (data: Record<string, any>) => void
+}> = ({ output, onChange }) => {
+  return (
+    <>
+      <TextField
+        fullWidth
+        label='Host:Port'
+        value={output.data.host ?? 'mqtt://localhost:1883'}
+        onBlur={async (e) => {
+          // Connect to mqtt?
+        }}
+        onChange={(e) => {
+          onChange({ host: e.target.value })
+        }}
+        sx={{ mt: 2 }}
+        inputProps={{
+          style: {
+            height: '50px',
+            paddingLeft: '10px',
+          },
+        }}
+        variant='outlined'
+      />
+      <TextField
+        fullWidth
+        label='Username'
+        defaultValue={'blade'}
+        onBlur={async (e) => {
+          // Connect to mqtt?
+        }}
+        onChange={(e) => {
+          // onChange({ host: e.target.value })
+        }}
+        sx={{ mt: 2 }}
+        inputProps={{
+          style: {
+            height: '50px',
+            paddingLeft: '10px',
+          },
+        }}
+        variant='outlined'
+      />
+      <TextField
+        fullWidth
+        label='Password'
+        defaultValue={'ledfx'}
+        onBlur={async (e) => {
+          // Connect to mqtt?
+        }}
+        onChange={(e) => {
+          // onChange({ host: e.target.value })
+        }}
+        sx={{ mt: 2 }}
+        inputProps={{
+          style: {
+            height: '50px',
+            paddingLeft: '10px',
+          },
+        }}
+        variant='outlined'
+      />
+      <TextField
+        fullWidth
+        label='topic'
+        defaultValue={'homeassistant'}
+        onBlur={async (e) => {
+          // Connect to mqtt?
+        }}
+        onChange={(e) => {
+          // onChange({ host: e.target.value })
+        }}
+        sx={{ mt: 2 }}
+        inputProps={{
+          style: {
+            height: '50px',
+            paddingLeft: '10px',
+          },
+        }}
+        variant='outlined'
+      />
+    </>
+  )
 }
