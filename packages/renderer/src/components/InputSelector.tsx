@@ -13,16 +13,18 @@ export const InputSelector = ({
   return (
     <Autocomplete
       id={fixId}
-      options={modulesAsArray.flatMap((mod) => {
-        return mod.moduleConfig.inputs.map((inp) => ({
-          id: inp.name,
-          icon: inp.icon,
-          label: inp.name,
-          group: mod.moduleConfig.menuLabel,
-          groupId: mod.id,
-          moduleEnabled: mod.moduleConfig.config.enabled,
-        }))
-      })}
+      options={modulesAsArray
+        .flatMap((mod) => {
+          return mod.moduleConfig.inputs.map((inp) => ({
+            id: inp.name,
+            icon: inp.icon,
+            label: inp.name,
+            group: mod.moduleConfig.menuLabel,
+            groupId: mod.id,
+            moduleEnabled: mod.moduleConfig.config.enabled,
+          }))
+        })
+        .sort((a, b) => a.group.localeCompare(b.group))}
       disableClearable
       renderOption={(props, option) => (
         <li
@@ -47,8 +49,13 @@ export const InputSelector = ({
               startAdornment: (
                 <>
                   <Icon sx={{ mr: 1, ml: 1 }}>
-                    {modulesAsArray.flatMap((mod) => mod.moduleConfig.outputs).find(o => o.name === params.inputProps.value)?.icon}
-                  </Icon></>
+                    {
+                      modulesAsArray
+                        .flatMap((mod) => mod.moduleConfig.outputs)
+                        .find((o) => o.name === params.inputProps.value)?.icon
+                    }
+                  </Icon>
+                </>
               ),
             }}
           />

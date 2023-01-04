@@ -11,33 +11,37 @@ export const OutputSelector = ({
 
   return (
     <Autocomplete
-      id={`new-row-input-select`}
-      options={modulesAsArray.flatMap((mod) => {
-        return mod.moduleConfig.outputs.map((output) => ({
-          id: output.name,
-          icon: output.icon,
-          label: output.name,
-          group: mod.moduleConfig.menuLabel,
-          groupId: mod.id,
-          moduleEnabled: mod.moduleConfig.config.enabled,
-        }))
-      })}
+      id={`new-row-output-select`}
+      options={modulesAsArray
+        .flatMap((mod) => {
+          return mod.moduleConfig.outputs.map((output) => ({
+            id: output.name,
+            icon: output.icon,
+            label: output.name,
+            group: mod.moduleConfig.menuLabel,
+            groupId: mod.id,
+            moduleEnabled: mod.moduleConfig.config.enabled,
+          }))
+        })
+        .sort((a, b) => a.group.localeCompare(b.group))}
       disableClearable
       isOptionEqualToValue={(opt, value) => opt.id === value.id}
       getOptionDisabled={(opt) => !opt.moduleEnabled}
       groupBy={(option) => option.group}
-      renderOption={(props, option) => (
-        <li
-          style={{ display: 'flex', padding: '5px 15px', minWidth: '100px' }}
-          {...props}
-        >
-          <Icon sx={{ mr: 2 }}>{option.icon}</Icon>
-          {option.label}
-        </li>
-      )}
+      renderOption={(props, option) => {
+        return (
+          <li
+            style={{ display: 'flex', padding: '5px 15px', minWidth: '100px' }}
+            {...props}
+          >
+            <Icon sx={{ mr: 2 }}>{option.icon}</Icon>
+            {option.label}
+          </li>
+        )
+      }}
       sx={{ width: 250 }}
       renderInput={(params) => {
-        console.log(params)
+        // console.log(params)
         const InputProps = { ...params.InputProps }
         InputProps.endAdornment = null
         return (
@@ -49,8 +53,13 @@ export const OutputSelector = ({
               startAdornment: (
                 <>
                   <Icon sx={{ mr: 1, ml: 1 }}>
-                    {modulesAsArray.flatMap((mod) => mod.moduleConfig.outputs).find(o => o.name === params.inputProps.value)?.icon}
-                  </Icon></>
+                    {
+                      modulesAsArray
+                        .flatMap((mod) => mod.moduleConfig.outputs)
+                        .find((o) => o.name === params.inputProps.value)?.icon
+                    }
+                  </Icon>
+                </>
               ),
             }}
           />
