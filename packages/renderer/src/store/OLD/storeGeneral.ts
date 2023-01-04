@@ -1,8 +1,11 @@
 /* eslint-disable no-param-reassign */
+import type { VideoScene } from '@/modules/Mediapipe/Old/video/video-scene'
 import produce from 'immer';
 
 
 const storeGeneral = (set: any) => ({
+  videoCanvas: null as React.MutableRefObject<HTMLCanvasElement> | null,
+  videoScene: null as React.MutableRefObject<VideoScene> | null,
   shortcuts: [
     { shortkey: "ctrl+alt+y", action: "Hacked by Blade", input_type: "keyboard", output_type: "alert" }
   ] as any,
@@ -19,7 +22,9 @@ const storeGeneral = (set: any) => ({
     username: 'blade',
     password: '',
     topic: 'homeassistant/sensor/gesturesensor'
-  },
+  },  
+  setVideoCanvas: (canvas: HTMLCanvasElement): void => set(produce((state: any) => { state.videoCanvas = canvas }), false, "set/canvas"),  
+  setVideoScene: (videoScene: VideoScene): void => set(produce((state: any) => { state.videoScene = videoScene }), false, "set/scene"),
   toggleInput: (type: string): void => set(produce((state: any) => { state.inputs[type] = !state.inputs[type] }), false, "toggle/input"),
   setInput: (type: string, val: boolean): void => set(produce((state: any) => { state.inputs[type] = val }), false, "set/output"),
   toggleOutput: (type: string): void => set(produce((state: any) => { state.outputs[type] = !state.outputs[type] }), false, "toggle/output"),
