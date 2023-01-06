@@ -38,6 +38,7 @@
     "react-hotkeys-hook": "^3.4.7",
     "react-json-editor-ajrm": "^2.5.13",
     "react-router-dom": "6",
+    "react-webcam": "^7.0.1",
     "serve": "^14.0.1",
     "styled-components": "5.3.5",
     "url": "^0.11.0",

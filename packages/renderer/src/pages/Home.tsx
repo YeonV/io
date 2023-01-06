@@ -11,6 +11,7 @@ import Settings from '@/components/OLD/Settings'
 import mqttService from '@/components/OLD/MQTT/mqttService'
 import { useMainStore } from '@/store/mainStore'
 import { IoNewRow } from '@/components/IoNewRow'
+import { Widget } from '@/modules/Mediapipe/Hands'
 
 // var client = null as any
 
@@ -150,6 +151,7 @@ const Home = () => {
           )}`}</code>
         </Typography>
       </header>
+      <Widget />
     </Box>
   )
 }

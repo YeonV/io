@@ -2,60 +2,190 @@ import Shortkey from '@/modules/Keyboard/Shortkey'
 import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
 import { camelToSnake } from '@/utils'
 import { Button, Icon } from '@mui/material'
-import { FC } from 'react'
+import { FC, useEffect } from 'react'
+// import Hands from '@mediapipe/hands'
+import Holistic from '@mediapipe/holistic'
+import {
+  detectGesture,
+  Gesture,
+} from '../../modules/Mediapipe/Old/core/gesture-detector'
+import { VideoScene } from './Old/video/video-scene'
+import { useStore } from '@/store/OLD/useStore'
+import useRequestAnimationFrame from 'use-request-animation-frame'
+import { HolisticEstimator } from './Old/core/holistic-estimator'
 
 type HolisticConfigExample = {}
 
 export const id = 'holistic-module'
 
 export const moduleConfig: ModuleConfig<HolisticConfigExample> = {
-    menuLabel: 'A.I.',
-    inputs: [
-        {
-            name: 'Holistic',
-            icon: 'man2',
-        },
-    ],
-    outputs: [],
-    config: {
-        enabled: false,
+  menuLabel: 'A.I.',
+  inputs: [
+    {
+      name: 'Holistic',
+      icon: 'sign_language',
     },
+  ],
+  outputs: [],
+  config: {
+    enabled: true,
+  },
 }
 
 export const InputEdit: FC<{
-    input: InputData
-    onChange: (data: Record<string, any>) => void
+  input: InputData
+  onChange: (data: Record<string, any>) => void
 }> = ({ input, onChange }) => {
-    return (
-        <div style={{ textAlign: 'left', marginTop: '10px' }}>
-            <Button variant='outlined'>
-                {input?.data?.data?.value || ''}
-            </Button>
-        </div>
-    )
+  const cam = useStore((state) => state.inputs.cam)
+  //   const videoCanvas = useStore((state) => state.videoCanvas)
+  //   const videoScene = useStore((state) => state.videoScene)
+
+  const videoCanvas = document.getElementById(
+    'video-canvas'
+  ) as HTMLCanvasElement
+  const videoScene = new VideoScene(videoCanvas)
+  var i: number = 0
+  var currentGesture: Gesture | null = null
+  var results: Holistic.Results | Holistic.Results | null = null
+  var holistic: Holistic.LandmarkList | Holistic.LandmarkList | null = null
+  useEffect(() => {
+    const listener = (r: any) => {
+      results = r
+    }
+
+    const holisticEstimator = new HolisticEstimator()
+
+    if (videoCanvas) {
+      if (cam) {
+        holisticEstimator.addListener(listener)
+        holisticEstimator.start()
+        videoCanvas.style.display = 'block'
+      } else {
+        holisticEstimator.stop()
+        holisticEstimator.removeListener(listener)
+        videoCanvas.style.display = 'none'
+      }
+    }
+
+    return () => {
+      holisticEstimator.stop()
+      holisticEstimator.removeListener(listener)
+      if (videoCanvas) {
+        videoCanvas.style.display = 'none'
+      }
+    }
+  }, [cam])
+
+  useRequestAnimationFrame(
+    (e: any) => {
+      if (results && videoScene) videoScene.update(results as any)
+    },
+    { duration: undefined, shouldAnimate: cam }
+  )
+  return (
+    <div style={{ textAlign: 'left', marginTop: '10px' }}>
+      <Button variant='outlined'>{input?.data?.data?.value || ''}</Button>
+    </div>
+  )
 }
 
 export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
-    console.log("HERE", input)
-    return (
-        <>
-            {' '}
-            <Icon>{camelToSnake(input.icon)}</Icon>
-            <Shortkey
-                value={input.data.data.value}
-                trigger={() => {
-                    console.log('SHORTKEY;')
-                }}
-            />
-        </>
-    )
+  console.log('HERE', input)
+  return (
+    <>
+      {' '}
+      <Icon>{camelToSnake(input.icon)}</Icon>
+      <Shortkey
+        value={input.data.data.value}
+        trigger={() => {
+          console.log('SHORTKEY;')
+        }}
+      />
+    </>
+  )
 }
 
 export const useInputActions = (
-    row: Row,
-    // onChange: (data: Record<string, any>) => void
+  row: Row
+  // onChange: (data: Record<string, any>) => void
 ) => {
+  const cam = useStore((state) => state.inputs.cam)
+  const inMqtt = useStore((state) => state.inputs.mqtt)
 
-    console.log("Holistic", row)
+  //   const videoCanvas = useStore((state) => state.videoCanvas)
+  //   const videoScene = useStore((state) => state.videoScene)
+  const videoCanvas = document.getElementById(
+    'video-canvas'
+  ) as HTMLCanvasElement
+  const videoScene = new VideoScene(videoCanvas)
+  var i: number = 0
+  var currentGesture: Gesture | null = null
+  var results: Holistic.Results | Holistic.Results | null = null
+  var holistic: Holistic.LandmarkList | Holistic.LandmarkList | null = null
 
+  console.log('WHY0', row)
+  useEffect(() => {
+    console.log('WHY')
+    const listener = (r: any) => {
+      results = r
+      const landmarks = r?.multiHandLandmarks[0]
+      if (landmarks) {
+        console.log('YOOO')
+        // holistic = landmarks
+        // const gesture = detectGesture(landmarks)
+        // if (gesture === currentGesture) {
+        //   // onChange({ currentGesture })
+        //   i++
+        //   if (i === 10) {
+        //     window.dispatchEvent(
+        //       new CustomEvent(`io_input`, { detail: row.id })
+        //     )
+
+        //     // const check = shortcuts.find(
+        //     //     (s: any) =>
+        //     //         s.input_type === 'cam' &&
+        //     //         s.shortkey === Gesture[gesture].toLowerCase()
+        //     // )
+        //     // if (check) {
+        //     //     window.dispatchEvent(new CustomEvent(`io_input`, { detail: row.id }))
+        //     //     //   actions(check.output_type, check.action)
+        //     // } else {
+        //     //     setShortcut(Gesture[gesture].toLowerCase())
+        //     // }
+        //   }
+        // } else {
+        //   currentGesture = gesture
+        //   i = 0
+        // }
+      }
+    }
+
+    const holisticEstimator = new HolisticEstimator()
+    if (videoCanvas) {
+      if (inMqtt) {
+        holisticEstimator.addListener(listener)
+        holisticEstimator.start()
+        videoCanvas.style.display = 'block'
+      } else {
+        holisticEstimator.stop()
+        holisticEstimator.removeListener(listener)
+        videoCanvas.style.display = 'none'
+      }
+    }
+
+    return () => {
+      holisticEstimator.stop()
+      holisticEstimator.removeListener(listener)
+      if (videoCanvas) {
+        videoCanvas.style.display = 'none'
+      }
+    }
+  }, [cam, inMqtt])
+
+  useRequestAnimationFrame(
+    (e: any) => {
+      if (results && videoScene) videoScene.update(results as any)
+    },
+    { duration: undefined, shouldAnimate: cam }
+  )
 }
