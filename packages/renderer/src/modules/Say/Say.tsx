@@ -29,7 +29,7 @@ export const OutputDisplay: FC<{
     <>
       <Button disabled variant='outlined' sx={{ mr: 2 }}>
         <Icon style={{ marginRight: '10px' }}>{output.icon}</Icon>
-        {moduleConfig.menuLabel}
+        {output.name}
       </Button>
       {output.data.text}
     </>

@@ -2,6 +2,7 @@
 import type { VideoScene } from '@/modules/Mediapipe/Old/video/video-scene'
 import produce from 'immer';
 
+const ipcRenderer = window.ipcRenderer || false
 
 const storeGeneral = (set: any) => ({
   videoCanvas: null as React.MutableRefObject<HTMLCanvasElement> | null,
@@ -10,7 +11,7 @@ const storeGeneral = (set: any) => ({
     { shortkey: "ctrl+alt+y", action: "Hacked by Blade", input_type: "keyboard", output_type: "alert" }
   ] as any,
   inputs: {
-    midi: false,
+    midi: !!ipcRenderer,
     cam: false,
     mqtt: false
   },

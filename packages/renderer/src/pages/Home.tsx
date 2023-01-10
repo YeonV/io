@@ -76,7 +76,7 @@ const Home = () => {
     if (ipcRenderer) {
       ipcRenderer.on('get', (event: any, data: any) => {
         setData(data.count)
-      })      
+      })
     }
     return () => {
       if (ipcRenderer) {
@@ -122,7 +122,6 @@ const Home = () => {
           </div>
         </div>
 
-        <Settings />
         {Object.values(rows).map((row) => {
           return <IoRow key={row.id} row={row} />
         })}
@@ -141,17 +140,18 @@ const Home = () => {
             }}
           />
         )}
-       {JSON.stringify(!!ipcRenderer)}
-        <Typography variant='body2' color='#666' sx={{ mt: 5 }}>
-          If you are accessing this site via httpS, but want to communicate with
-          your local network (mqtt, http, ws), you need to allow insecure
-          content in your browser's site settings either via lock icon next to
-          the url or copy:
-          <br />
-          <code>{`chrome://settings/content/siteDetails?site=${encodeURIComponent(
-            window.location.href.replace(/\/+$/, '')
-          )}`}</code>
-        </Typography>
+        {!ipcRenderer && (
+          <Typography variant='body2' color='#666' sx={{ mt: 5 }}>
+            If you are accessing this site via httpS, but want to communicate
+            with your local network (mqtt, http, ws), you need to allow insecure
+            content in your browser's site settings either via lock icon next to
+            the url or copy:
+            <br />
+            <code>{`chrome://settings/content/siteDetails?site=${encodeURIComponent(
+              window.location.href.replace(/\/+$/, '')
+            )}`}</code>
+          </Typography>
+        )}
       </header>
       {/* <Widget /> */}
     </Box>
