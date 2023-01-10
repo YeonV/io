@@ -10,6 +10,8 @@ import * as faceDetectModule from "@/modules/Mediapipe/FaceDetect";
 import * as faceMeshModule from "@/modules/Mediapipe/FaceMesh";
 import * as holisticModule from "@/modules/Mediapipe/Holistic";
 import * as objectronModule from "@/modules/Mediapipe/Objectron";
+// import * as alexaModule from "@/modules/Alexa/Alexa";
+import * as shellModule from "@/modules/Shell/Shell";
 
 export default {
     [keyboardModule.id]: keyboardModule,
@@ -23,5 +25,8 @@ export default {
     [faceMeshModule.id]: faceMeshModule,
     [holisticModule.id]: holisticModule,
     [objectronModule.id]: objectronModule,
-    [pianoModule.id]: pianoModule
+    [pianoModule.id]: pianoModule,
+    // [alexaModule.id]: alexaModule,
+    [shellModule.id]: shellModule
 }
+   

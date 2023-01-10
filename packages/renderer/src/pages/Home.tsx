@@ -11,6 +11,7 @@ import Settings from '@/components/OLD/Settings'
 import mqttService from '@/components/OLD/MQTT/mqttService'
 import { useMainStore } from '@/store/mainStore'
 import { IoNewRow } from '@/components/IoNewRow'
+// import { Widget } from '@/modules/Mediapipe/Hands'
 
 // var client = null as any
 
@@ -72,11 +73,10 @@ const Home = () => {
     if (ipcRenderer) {
       ipcRenderer.on('get', (event: any, data: any) => {
         setData(data.count)
-      })
+      })      
     }
     return () => {
       if (ipcRenderer) {
-        ipcRenderer.removeAllListeners('ping-pong')
         ipcRenderer.removeAllListeners('get')
       }
     }
@@ -138,7 +138,7 @@ const Home = () => {
             }}
           />
         )}
-
+       {JSON.stringify(!!ipcRenderer)}
         <Typography variant='body2' color='#666' sx={{ mt: 5 }}>
           If you are accessing this site via httpS, but want to communicate with
           your local network (mqtt, http, ws), you need to allow insecure
@@ -150,6 +150,7 @@ const Home = () => {
           )}`}</code>
         </Typography>
       </header>
+      {/* <Widget /> */}
     </Box>
   )
 }
