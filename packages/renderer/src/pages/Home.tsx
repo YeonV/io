@@ -99,7 +99,6 @@ const Home = () => {
       <div
         className={styles.appWrapper}
         style={{
-          maxWidth: 960,
           margin: '0 auto',
           minHeight:
             ipcRenderer && pkg.env.VITRON_CUSTOM_TITLEBAR
@@ -121,7 +120,7 @@ const Home = () => {
             />
           </div>
         </header>
-        <main style={{ width: '100%' }}>
+        <main style={{ width: '100%', maxWidth: 960 }}>
           {Object.values(rows).map((row) => {
             return <IoRow key={row.id} row={row} />
           })}

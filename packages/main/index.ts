@@ -43,8 +43,8 @@ async function createWindow() {
     titleBarStyle: pkg.env.VITRON_CUSTOM_TITLEBAR ? "hidden" : "default",
     x: windowState?.x || 0,
     y: windowState?.y || 0,
-    width: windowState?.width || 960,
-    height: windowState?.height || 850,    
+    width: windowState?.width || 1000,
+    height: windowState?.height || 600,    
     webPreferences: {
       nodeIntegration: true,
       preload: join(__dirname, '../preload/index.cjs'),
