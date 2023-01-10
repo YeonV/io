@@ -1,10 +1,7 @@
 import { useMemo, useState } from 'react'
 import {
   Stack,
-  Accordion,
-  AccordionSummary,
-  Typography,
-  AccordionDetails,
+  IconButton,
   Card,
   Button,
   Dialog,
@@ -13,7 +10,7 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material'
-import { Delete, Edit, ExpandMore, Help } from '@mui/icons-material'
+import { Delete, Edit, ExpandMore, Help, PlayArrow } from '@mui/icons-material'
 import { Row, useMainStore } from '@/store/mainStore'
 
 const IoRow = ({ row }: { row: Row }) => {
@@ -103,14 +100,26 @@ const IoRow = ({ row }: { row: Row }) => {
             <Help fontSize='large' />
           )}
         </div>
-        <Button
-          sx={{ mr: 1 }}
-          variant='text'
-          color='inherit'
-          onClick={handlePopupClickOpen}
-        >
-          <Delete />
-        </Button>
+        <div>
+          <IconButton
+            sx={{ mr: 1 }}
+            color='inherit'
+            onClick={handlePopupClickOpen}
+          >
+            <Delete />
+          </IconButton>
+          <IconButton
+            sx={{ mr: 1 }}
+            color='inherit'
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent(`io_input`, { detail: row.id })
+              )
+            }
+          >
+            <PlayArrow />
+          </IconButton>
+        </div>
         <Dialog
           open={open}
           onClose={handlePopupClose}

@@ -39,7 +39,7 @@ async function createWindow() {
   win = new BrowserWindow({
     title: 'io',
     show: false,
-    autoHideMenuBar: pkg.env.VITRON_CUSTOM_TITLEBAR,
+    autoHideMenuBar: true,
     titleBarStyle: pkg.env.VITRON_CUSTOM_TITLEBAR ? "hidden" : "default",
     x: windowState?.x || 0,
     y: windowState?.y || 0,

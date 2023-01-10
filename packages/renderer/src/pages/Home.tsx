@@ -96,8 +96,8 @@ const Home = () => {
       }}
       className={styles.app}
     >
-      <header
-        className={styles.appHeader}
+      <div
+        className={styles.appWrapper}
         style={{
           maxWidth: 960,
           margin: '0 auto',
@@ -107,7 +107,7 @@ const Home = () => {
               : '100vh',
         }}
       >
-        <div className={styles.logos}>
+        <header className={styles.logos}>
           <img
             src={logo}
             style={{ width: '100px', filter: 'invert(0)' }}
@@ -120,39 +120,41 @@ const Home = () => {
               alt='InputOutput'
             />
           </div>
-        </div>
-
-        {Object.values(rows).map((row) => {
-          return <IoRow key={row.id} row={row} />
-        })}
-        {!add ? (
-          <Button
-            variant='contained'
-            onClick={() => setAdd(true)}
-            style={{ margin: 10 }}
-          >
-            <Add />
-          </Button>
-        ) : (
-          <IoNewRow
-            onComplete={() => {
-              setAdd(false)
-            }}
-          />
-        )}
-        {!ipcRenderer && (
-          <Typography variant='body2' color='#666' sx={{ mt: 5 }}>
-            If you are accessing this site via httpS, but want to communicate
-            with your local network (mqtt, http, ws), you need to allow insecure
-            content in your browser's site settings either via lock icon next to
-            the url or copy:
-            <br />
-            <code>{`chrome://settings/content/siteDetails?site=${encodeURIComponent(
-              window.location.href.replace(/\/+$/, '')
-            )}`}</code>
-          </Typography>
-        )}
-      </header>
+        </header>
+        <main style={{ width: '100%' }}>
+          {Object.values(rows).map((row) => {
+            return <IoRow key={row.id} row={row} />
+          })}
+          {!add ? (
+            <Button
+              variant='contained'
+              onClick={() => setAdd(true)}
+              style={{ margin: 10 }}
+            >
+              <Add />
+            </Button>
+          ) : (
+            <IoNewRow
+              onComplete={() => {
+                setAdd(false)
+              }}
+            />
+          )}
+          {!ipcRenderer && (
+            <Typography variant='body2' color='#666' sx={{ mt: 5 }}>
+              If you are accessing this site via httpS, but want to communicate
+              with your local network (mqtt, http, ws), you need to allow
+              insecure content in your browser's site settings either via lock
+              icon next to the url or copy:
+              <br />
+              <code>{`chrome://settings/content/siteDetails?site=${encodeURIComponent(
+                window.location.href.replace(/\/+$/, '')
+              )}`}</code>
+            </Typography>
+          )}
+        </main>
+        <footer>hacked by Blade</footer>
+      </div>
       {/* <Widget /> */}
     </Box>
   )
