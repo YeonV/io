@@ -25,6 +25,9 @@ export default function RestEditor({
   onChange: (e: any) => void
 }) {
   const [open, setOpen] = useState(false)
+  const [name, setName] = useState('UniqueName')
+  const [bodyExpanded, setBodyExpanded] = useState(false)
+  const [headerExpanded, setHeaderExpanded] = useState(false)
   const [message, setMessage] = useState('http://192.168.1.170')
   const [method, setMethod] = useState('GET')
   const placeholderHeader = {
@@ -34,12 +37,34 @@ export default function RestEditor({
     id: 'red',
     action: 'activate',
   }
+  const [header, setHeader] = useState(placeholderHeader)
+  const [body, setBody] = useState(placeholderBody)
   const handleClickOpen = () => {
     setOpen(true)
   }
 
   const handleClose = () => {
     setOpen(false)
+  }
+  const handleSave = () => {
+    onChange({
+      name,
+      host: message,
+      options: {
+        method: method,
+        ...(headerExpanded && { headers: header }),
+        ...(bodyExpanded && { body: JSON.stringify(body) }),
+      },
+    })
+    setOpen(false)
+  }
+
+  const testRest = async () => {
+    await fetch(message, {
+      method: method,
+      ...(headerExpanded && { headers: header }),
+      ...(bodyExpanded && { body: JSON.stringify(body) }),
+    })
   }
 
   return (
@@ -52,7 +77,8 @@ export default function RestEditor({
         <DialogContent>
           <TextField
             sx={{ width: '100%', bgcolor: '#1e1e1e' }}
-            defaultValue={'UniqueName'}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
           <Stack direction={'row'} sx={{ width: '550px', mt: 2 }}>
             <Select
@@ -73,7 +99,11 @@ export default function RestEditor({
               onChange={(e) => setMessage(e.target.value)}
             />
           </Stack>
-          <Accordion sx={{ border: '1px solid #555' }}>
+          <Accordion
+            sx={{ border: '1px solid #555' }}
+            expanded={bodyExpanded}
+            onChange={() => setBodyExpanded(!bodyExpanded)}
+          >
             <AccordionSummary
               expandIcon={<ToggleOff />}
               aria-controls='panel1a-content'
@@ -83,18 +113,22 @@ export default function RestEditor({
             </AccordionSummary>
             <AccordionDetails>
               <JSONInput
-                id='a_unique_id'
-                placeholder={placeholderHeader}
+                id='restheader'
+                placeholder={header}
                 locale={locale}
                 height='100px'
                 width='100%'
-                onChange={(e: any) => onChange(e)}
+                onBlur={(e: any) => setHeader(e.jsObject)}
               />
             </AccordionDetails>
           </Accordion>
 
           {(method === 'POST' || method === 'PUT') && (
-            <Accordion sx={{ border: '1px solid #555' }}>
+            <Accordion
+              sx={{ border: '1px solid #555' }}
+              expanded={headerExpanded}
+              onChange={() => setBodyExpanded(!headerExpanded)}
+            >
               <AccordionSummary
                 expandIcon={<ToggleOff />}
                 aria-controls='panel1a-content'
@@ -104,11 +138,12 @@ export default function RestEditor({
               </AccordionSummary>
               <AccordionDetails>
                 <JSONInput
-                  id='a_unique_id'
-                  placeholder={placeholderBody}
+                  id='restbody'
+                  placeholder={body}
                   locale={locale}
                   height='100px'
                   width='100%'
+                  onBlur={(e: any) => setBody(e.jsObject)}
                 />
               </AccordionDetails>
             </Accordion>
@@ -116,8 +151,8 @@ export default function RestEditor({
         </DialogContent>
         <DialogActions sx={{ m: 2 }}>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Test</Button>
-          <Button onClick={handleClose}>Save</Button>
+          <Button onClick={testRest}>Test</Button>
+          <Button onClick={handleSave}>Save</Button>
         </DialogActions>
       </Dialog>
     </div>

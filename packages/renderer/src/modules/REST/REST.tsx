@@ -42,7 +42,7 @@ export const OutputDisplay: FC<{
         <Icon style={{ marginRight: '10px' }}>{output.icon}</Icon>
         {moduleConfig.menuLabel}
       </Button>
-      {output.data.text}
+      {output.data.name}
     </>
   )
 }
@@ -56,12 +56,10 @@ export const OutputEdit: FC<{
 
 export const useOutputActions = (row: Row) => {
   useEffect(() => {
-    const listener = (e: any) => {
+    const listener = async (e: any) => {
       console.log('row output triggered', row, e.detail)
       if (e.detail === row.id) {
-        const spk = new SpeechSynthesisUtterance()
-        spk.text = row.output.data.text
-        window.speechSynthesis.speak(spk)
+        await fetch(row.output.data.host, row.output.data.options)
       }
     }
     window.addEventListener('io_input', listener)
