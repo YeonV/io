@@ -64,7 +64,7 @@ const IoRow = ({ row }: { row: Row }) => {
           aria-controls='panel1bh-content'
           id='panel1bh-header'
         >
-          <Stack direction={'row'} gap={2}>
+          <Stack direction={'row'} gap={2} sx={{ alignItems: 'center'}}>
             {SelectedModuleInputDisplay ? (
               <SelectedModuleInputDisplay
                 input={row.input}
