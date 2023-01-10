@@ -35,8 +35,8 @@ export const InputEdit: FC<{
       <TextField
         fullWidth
         value={input.data.value ?? ''}
-        onChange={(value: any) => {
-          onChange({ text: value.target.value })
+        onChange={(event: any) => {
+          onChange({ value: event.target.value })
         }}
         sx={{ mt: 2 }}
         inputProps={{

@@ -29,7 +29,7 @@ export const OutputDisplay: FC<{
     <>
       <Button disabled variant='outlined' sx={{ mr: 2 }}>
         <Icon style={{ marginRight: '10px' }}>{output.icon}</Icon>
-        {moduleConfig.menuLabel}
+        {output.name}
       </Button>
       {output.data.text}
     </>
@@ -63,10 +63,9 @@ export const OutputEdit: FC<{
 export const useOutputActions = (row: Row) => {
   useEffect(() => {
     const listener = (e: any) => {
-      
-      if (e.detail === row.id) {        
+      if (e.detail === row.id) {
         console.log('row output triggered', row, e.detail)
-        ipcRenderer.sendSync('run-shell', row.output.data.text )
+        ipcRenderer.sendSync('run-shell', row.output.data.text)
       }
     }
     ipcRenderer.on('run-shell-answer', (event: any, data: any) => {

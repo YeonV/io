@@ -17,13 +17,13 @@ export const moduleConfig: ModuleConfig<RestConfigExample> = {
   menuLabel: 'Network',
   inputs: [
     {
-      name: 'Webhook (Rest)',
+      name: 'REST',
       icon: 'webhook',
     },
   ],
   outputs: [
     {
-      name: 'Webhook (Rest)',
+      name: 'REST',
       icon: 'webhook',
     },
   ],
@@ -36,11 +36,12 @@ export const OutputDisplay: FC<{
   output: OutputData
 }> = ({ output }) => {
   //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
+  console.log(output)
   return (
     <>
       <Button disabled variant='outlined' sx={{ mr: 2 }}>
         <Icon style={{ marginRight: '10px' }}>{output.icon}</Icon>
-        {moduleConfig.menuLabel}
+        {output.name}
       </Button>
       {output.data.name}
     </>
@@ -51,7 +52,12 @@ export const OutputEdit: FC<{
   output: OutputData
   onChange: (data: Record<string, any>) => void
 }> = ({ output, onChange }) => {
-  return <RestEditor onChange={onChange} />
+  return (
+    <div style={{ display: 'flex' }}>
+      <RestEditor onChange={onChange} />
+      {output.data.name}
+    </div>
+  )
 }
 
 export const useOutputActions = (row: Row) => {
