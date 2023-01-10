@@ -1,6 +1,7 @@
 import produce from 'immer'
 import { FC } from 'react'
 import create from 'zustand'
+import omit from 'lodash-es/omit'
 
 import { devtools, persist } from 'zustand/middleware'
 import modules from '@/modules/modules'
@@ -65,6 +66,7 @@ type State = {
   modules: Record<ModuleId, IOModule>
   rows: Record<string, Row>
   addRow: (row: Row) => void
+  deleteRow: (row: Row) => void
 }
 
 export const useMainStore = create<State>()(
@@ -104,6 +106,20 @@ export const useMainStore = create<State>()(
                   ...state.rows,
                   [row.id]: row,
                 },
+              }
+            },
+            false,
+            'add row'
+          )
+        },
+        deleteRow: (row: Row) => {
+          console.log('add row', row)
+          set(
+            (state) => {
+              console.log('state', state)
+              return {
+                ...state,
+                rows: omit(state.rows, [row.id]),
               }
             },
             false,

@@ -29,7 +29,7 @@ export const moduleConfig: ModuleConfig<MqttConfigExample> = {
     },
   ],
   config: {
-    enabled: true,
+    enabled: false,
     connections: [
       { id: 'mqtt-local', host: 'mqtt://localhost:1883' },
       { id: 'remote-hass', host: 'mqtt://hass.blade.io:1883' },
