@@ -7,13 +7,13 @@ import pkg from '../../package.json'
 
 
 // Conditionally include the dev tools installer to load React Dev Tools
-let installExtension:any, REACT_DEVELOPER_TOOLS:any, REDUX_DEVTOOLS:any; // NEW!
+let installExtension:any, REDUX_DEVTOOLS:any; // NEW!
 if (!app.isPackaged) {
     const devTools = require("electron-devtools-installer");
     installExtension = devTools.default;
-    REACT_DEVELOPER_TOOLS = devTools.REACT_DEVELOPER_TOOLS;
     REDUX_DEVTOOLS = devTools.REDUX_DEVTOOLS;
 }
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 const { setupTitlebar, attachTitlebarToWindow } = require("custom-electron-titlebar/main");
 
@@ -43,7 +43,7 @@ async function createWindow() {
     titleBarStyle: pkg.env.VITRON_CUSTOM_TITLEBAR ? "hidden" : "default",
     x: windowState?.x || 0,
     y: windowState?.y || 0,
-    width: windowState?.width || 600,
+    width: windowState?.width || 960,
     height: windowState?.height || 850,    
     webPreferences: {
       nodeIntegration: true,
@@ -58,7 +58,7 @@ async function createWindow() {
     const url = `http://${process.env['VITE_DEV_SERVER_HOST']}:${process.env['VITE_DEV_SERVER_PORT']}`;
 
     win.loadURL(url);
-    if (!app.isPackaged) win.webContents.openDevTools({mode: 'detach'});
+    // win.webContents.openDevTools({mode: 'detach'});
   }
 
   // Test active push message to Renderer-process
@@ -95,7 +95,7 @@ let tray = null as any
 
 app.whenReady().then(createWindow).then(async () => {
   if (!app.isPackaged) {
-    await installExtension(REACT_DEVELOPER_TOOLS)
+    await installExtension(REDUX_DEVTOOLS)
         .then((name:any) => console.log(`Added Extension:  ${name}`))
         .catch((error:any) => console.log(`An error occurred: , ${error}`));
   }
@@ -160,9 +160,9 @@ ipcMain.on('ping-pong', async (event, arg) => {
 });
 const wemore = require('wemore')
 let device = null as any
-ipcMain.on('emulate-alexa-devices', (event, devices) => {
+ipcMain.on('emulate-alexa-devices', (event, devices) => {  
   devices.map((d:string, i:number) => {
-    if (device === null) {
+    // if (device === null) {
       device = wemore.Emulate({ friendlyName: d, port: 9001 + i })
       device.on('listening', function () {
         console.log(d + ' listening on', 9001 + i)
@@ -177,11 +177,17 @@ ipcMain.on('emulate-alexa-devices', (event, devices) => {
         win?.webContents.send('alexa-device', {device: d, state: 'off'});
         console.log(d + ' off')
       })
-    }
+    // }
    
   })
   event.returnValue = `[ipcMain] "${devices}" received synchronously.`;
 });
+
+process.on('uncaughtException', function (error) {
+  // Handle the error
+  if (!error.message.startsWith('listen EADDRINUSE: address already in use'))
+    console.log(error)
+})
 
 ipcMain.on('run-shell', (event, arg) => {
   const { exec } = require("child_process");

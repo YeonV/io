@@ -11,6 +11,7 @@ import Settings from '@/components/OLD/Settings'
 import mqttService from '@/components/OLD/MQTT/mqttService'
 import { useMainStore } from '@/store/mainStore'
 import { IoNewRow } from '@/components/IoNewRow'
+import { Widget } from '@/modules/Alexa/Alexa'
 // import { Widget } from '@/modules/Mediapipe/Hands'
 
 // var client = null as any
@@ -68,6 +69,8 @@ const Home = () => {
   useEffect(() => {
     window.localStorage.setItem('io_mqtt_data', JSON.stringify(mqttData))
   }, [mqttData])
+
+  Widget()
 
   useEffect(() => {
     if (ipcRenderer) {
