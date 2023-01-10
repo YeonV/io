@@ -44,8 +44,9 @@ async function createWindow() {
     x: windowState?.x || 0,
     y: windowState?.y || 0,
     width: windowState?.width || 600,
-    height: windowState?.height || 850,
+    height: windowState?.height || 850,    
     webPreferences: {
+      nodeIntegration: true,
       preload: join(__dirname, '../preload/index.cjs'),
     },
   });
@@ -94,7 +95,7 @@ let tray = null as any
 
 app.whenReady().then(createWindow).then(async () => {
   if (!app.isPackaged) {
-    await installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS], { loadExtensionOptions: { allowFileAccess: true }, forceDownload: false })
+    await installExtension(REACT_DEVELOPER_TOOLS)
         .then((name:any) => console.log(`Added Extension:  ${name}`))
         .catch((error:any) => console.log(`An error occurred: , ${error}`));
   }
@@ -157,7 +158,47 @@ ipcMain.on('get', async (event, arg) => {
 ipcMain.on('ping-pong', async (event, arg) => {
   event.sender.send('ping-pong', `[ipcMain] "${arg}" received asynchronously.`);
 });
+const wemore = require('wemore')
+let device = null as any
+ipcMain.on('emulate-alexa-devices', (event, devices) => {
+  devices.map((d:string, i:number) => {
+    if (device === null) {
+      device = wemore.Emulate({ friendlyName: d, port: 9001 + i })
+      device.on('listening', function () {
+        console.log(d + ' listening on', 9001 + i)
+      })
+    
+      device.on('on', function (_self:any, _sender:any) {
+        win?.webContents.send('alexa-device', {device: d, state: 'on'});
+        console.log(d + ' on')
+      })
+    
+      device.on('off', function (_self:any, _sender:any) {
+        win?.webContents.send('alexa-device', {device: d, state: 'off'});
+        console.log(d + ' off')
+      })
+    }
+   
+  })
+  event.returnValue = `[ipcMain] "${devices}" received synchronously.`;
+});
 
+ipcMain.on('run-shell', (event, arg) => {
+  const { exec } = require("child_process");
+  exec(arg, (error:any, stdout:any, stderr:any) => {
+      if (error) {
+          console.log(`error: ${error.message}`);
+          return;
+      }
+      if (stderr) {
+          console.log(`stderr: ${stderr}`);
+          return;
+      }
+      win?.webContents.send('run-shell-answer', {result: stdout});
+      console.log(`stdout: ${stdout}`);
+  });
+  event.returnValue = `[ipcMain] "${arg}" received synchronously.`;
+});
 ipcMain.on('ping-pong-sync', (event, arg) => {
   event.returnValue = `[ipcMain] "${arg}" received synchronously.`;
 });

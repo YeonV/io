@@ -1,13 +1,14 @@
 import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
 import { Button, Icon, TextField } from '@mui/material'
 import { FC, useEffect } from 'react'
+const ipcRenderer = window.ipcRenderer || false
 
 type SayConfigExample = {}
 
 export const id = 'say-module'
 
 export const moduleConfig: ModuleConfig<SayConfigExample> = {
-  menuLabel: 'Say',
+  menuLabel: 'Local',
   inputs: [],
   outputs: [
     {
@@ -43,7 +44,7 @@ export const OutputEdit: FC<{
   return (
     <TextField
       fullWidth
-      value={output.data.text ?? 'Hello by Blade'}
+      value={output.data.text ?? ''}
       onChange={(e) => {
         onChange({ text: e.target.value })
       }}

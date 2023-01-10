@@ -15,7 +15,7 @@ const ShortMidi = ({
   setShortc,
 }: any) => {
   const [shortcut, setShortcut] = useState(keystring)
-  const [message, setMessage] = useState('Hacked by Blade')
+  const [message, setMessage] = useState('')
   const [ctrl, setCtrl] = useState(false)
   const [alt, setAlt] = useState(false)
   const [shift, setShift] = useState(false)
