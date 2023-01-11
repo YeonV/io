@@ -101,8 +101,8 @@ export default function RestEditor({
           </Stack>
           <Accordion
             sx={{ border: '1px solid #555' }}
-            expanded={bodyExpanded}
-            onChange={() => setBodyExpanded(!bodyExpanded)}
+            expanded={headerExpanded}
+            onChange={() => setHeaderExpanded(!headerExpanded)}
           >
             <AccordionSummary
               expandIcon={<ToggleOff />}
@@ -126,8 +126,8 @@ export default function RestEditor({
           {(method === 'POST' || method === 'PUT') && (
             <Accordion
               sx={{ border: '1px solid #555' }}
-              expanded={headerExpanded}
-              onChange={() => setBodyExpanded(!headerExpanded)}
+              expanded={bodyExpanded}
+              onChange={() => setBodyExpanded(!bodyExpanded)}
             >
               <AccordionSummary
                 expandIcon={<ToggleOff />}
