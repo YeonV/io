@@ -69,7 +69,7 @@ export default function RestEditor({
 
   return (
     <div>
-      <Button variant='outlined' onClick={handleClickOpen}>
+      <Button size='large' variant='outlined' onClick={handleClickOpen}>
         RestEditor
       </Button>
       <Dialog onClose={handleClose} open={open}>

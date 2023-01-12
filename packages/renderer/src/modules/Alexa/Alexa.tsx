@@ -1,4 +1,4 @@
-import ModuleButton from '@/components/ModuleButton'
+import DisplayButtons from '@/components/DisplayButtons'
 import { ModuleConfig, InputData, Row, useMainStore } from '@/store/mainStore'
 import { camelToSnake } from '@/utils'
 import { Button, Icon, TextField } from '@mui/material'
@@ -56,7 +56,7 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   // console.log(input)
   return (
     <>
-      <ModuleButton data={input} />
+      <DisplayButtons data={input} />
       <Button
         variant='outlined'
         color={'inherit'}

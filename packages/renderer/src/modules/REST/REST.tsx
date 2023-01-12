@@ -1,4 +1,4 @@
-import ModuleButton from '@/components/ModuleButton'
+import DisplayButtons from '@/components/DisplayButtons'
 import RestEditor from '@/components/OLD/RestEditor/RestEditor'
 import type {
   InputData,
@@ -40,7 +40,7 @@ export const OutputDisplay: FC<{
   console.log(output)
   return (
     <>
-      <ModuleButton data={output} />
+      <DisplayButtons data={output} />
     </>
   )
 }
@@ -50,9 +50,25 @@ export const OutputEdit: FC<{
   onChange: (data: Record<string, any>) => void
 }> = ({ output, onChange }) => {
   return (
-    <div style={{ display: 'flex' }}>
+    <div style={{ display: 'flex', marginTop: '10px' }}>
       <RestEditor onChange={onChange} />
-      {output.data.text}
+      {output.data.text && (
+        <Button
+          size='small'
+          color='inherit'
+          variant='outlined'
+          sx={{
+            fontSize: 12,
+            textTransform: 'unset',
+            flexGrow: 1,
+            justifyContent: 'flex-start',
+            ml: 2,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {output.data.text?.slice(-31)}
+        </Button>
+      )}
     </div>
   )
 }
@@ -91,7 +107,29 @@ export const InputEdit: FC<{
   input: InputData
   onChange: (data: Record<string, any>) => void
 }> = ({ input, onChange }) => {
-  return <RestEditor onChange={onChange} />
+  return (
+    <div style={{ display: 'flex', marginTop: '10px' }}>
+      <RestEditor onChange={onChange} />
+      {input.data.text && (
+        <Button
+          size='small'
+          color='inherit'
+          variant='outlined'
+          disabled
+          sx={{
+            fontSize: 12,
+            textTransform: 'unset',
+            flexGrow: 1,
+            justifyContent: 'flex-start',
+            ml: 2,
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {input.data.text?.slice(-31)}
+        </Button>
+      )}
+    </div>
+  )
 }
 
 export const useInputActions = (row: Row) => {

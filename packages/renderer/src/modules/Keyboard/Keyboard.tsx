@@ -1,4 +1,4 @@
-import ModuleButton from '@/components/ModuleButton'
+import DisplayButtons from '@/components/DisplayButtons'
 import Shortkey from '@/modules/Keyboard/Shortkey'
 import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
 import { camelToSnake } from '@/utils'
@@ -46,7 +46,7 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   // console.log(input)
   return (
     <>
-      <ModuleButton data={input} />
+      <DisplayButtons data={input} />
       <Shortkey
         value={input.data.value}
         trigger={() => {

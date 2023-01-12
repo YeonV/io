@@ -3,7 +3,7 @@ import { camelToSnake } from '@/utils'
 import Button from '@mui/material/Button'
 import Icon from '@mui/material/Icon/Icon'
 
-const ModuleButton = ({ data }: { data: InputData | OutputData }) => {
+const DisplayButtons = ({ data }: { data: InputData | OutputData }) => {
   return (
     <>
       <Button
@@ -31,13 +31,16 @@ const ModuleButton = ({ data }: { data: InputData | OutputData }) => {
             flexGrow: 1,
             justifyContent: 'flex-start',
             mr: 2,
+            maxWidth: '210px',
+            whiteSpace: 'nowrap',
           }}
         >
-          {data.data.text}
+          {/* {data.data.text} */}
+          {data.data.text.slice(-31)}
         </Button>
       )}
     </>
   )
 }
 
-export default ModuleButton
+export default DisplayButtons

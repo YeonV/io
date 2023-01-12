@@ -7,7 +7,7 @@ import Button from '@mui/material/Button'
 import { FC, useEffect, useState } from 'react'
 import { WebMidi } from 'webmidi'
 import ShortMidi from './ShortMidi'
-import ModuleButton from '@/components/ModuleButton'
+import DisplayButtons from '@/components/DisplayButtons'
 
 type MidiConfigExample = {}
 
@@ -56,7 +56,7 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   console.log(input)
   return (
     <>
-      <ModuleButton data={input} />
+      <DisplayButtons data={input} />
       <Shortkey
         value={input.data.value}
         trigger={() => {

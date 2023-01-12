@@ -1,4 +1,4 @@
-import ModuleButton from '@/components/ModuleButton'
+import DisplayButtons from '@/components/DisplayButtons'
 import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
 import {
   Button,
@@ -34,7 +34,7 @@ export const OutputDisplay: FC<{
 }> = ({ output }) => {
   return (
     <>
-      <ModuleButton data={output} />
+      <DisplayButtons data={output} />
       <Button
         size='small'
         color='inherit'
@@ -58,37 +58,51 @@ export const OutputEdit: FC<{
   onChange: (data: Record<string, any>) => void
 }> = ({ output, onChange }) => {
   const [scenes, setScenes] = useState({} as any)
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(undefined as true | false | undefined)
   return (
     <>
       <TextField
         fullWidth
+        disabled={loading}
+        error={success !== undefined ? !success : false}
         label='Host:Port'
         value={output.data.host ?? 'http://localhost:8888'}
         onBlur={async (e) => {
-          const res = await fetch(e.target.value + '/api/scenes')
-          const resp = await res.json()
-          if (resp.status === 'success') {
-            setScenes(resp.scenes)
+          try {
+            setLoading(true)
+            const res = await fetch(e.target.value + '/api/scenes')
+            const resp = await res.json()
+            if (resp.status === 'success') {
+              setScenes(resp.scenes)
+              setLoading(false)
+              setSuccess(true)
+            }
+          } catch (error) {
+            setLoading(false)
+            setSuccess(false)
+            console.log('Yz was right')
           }
         }}
         onChange={(e) => {
+          setSuccess(undefined)
           onChange({ host: e.target.value })
         }}
         sx={{ mt: 2 }}
         inputProps={{
           style: {
-            height: '50px',
-            paddingLeft: '10px',
+            paddingLeft: '20px',
           },
         }}
         variant='outlined'
       />
       {Object.keys(scenes).length > 0 ? (
-        <FormControl fullWidth>
+        <FormControl fullWidth sx={{ mt: 2 }}>
           <InputLabel id='ledfx-scene-label'>Scene</InputLabel>
           <Select
             labelId='ledfx-scene-label'
             id='ledfx-scene-select'
+            sx={{ pl: 1 }}
             label='Scene'
             onChange={async (e) => {
               console.log('123', e.target.value, scenes)

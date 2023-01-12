@@ -1,4 +1,5 @@
-import ModuleButton from '@/components/ModuleButton'
+import DisplayButtons from '@/components/DisplayButtons'
+import EditButtons from '@/components/EditButtons'
 import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
 import { Button, Icon, TextField } from '@mui/material'
 import { FC, useEffect } from 'react'
@@ -28,7 +29,7 @@ export const OutputDisplay: FC<{
   //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
   return (
     <>
-      <ModuleButton data={output} />
+      <DisplayButtons data={output} />
     </>
   )
 }
@@ -39,21 +40,22 @@ export const OutputEdit: FC<{
 }> = ({ output, onChange }) => {
   //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
   return (
-    <TextField
-      fullWidth
-      value={output.data.text ?? ''}
-      onChange={(e) => {
-        onChange({ text: e.target.value })
-      }}
-      sx={{ mt: 2 }}
-      inputProps={{
-        style: {
-          height: '50px',
-          paddingLeft: '10px',
-        },
-      }}
-      variant='standard'
-    />
+    <EditButtons data={output} onChange={onChange} title='Spoken Text' />
+    // <TextField
+    //   fullWidth
+    //   value={output.data.text ?? ''}
+    //   onChange={(e) => {
+    //     onChange({ text: e.target.value })
+    //   }}
+    //   sx={{ mt: 2 }}
+    //   inputProps={{
+    //     style: {
+    //       height: '50px',
+    //       paddingLeft: '10px',
+    //     },
+    //   }}
+    //   variant='standard'
+    // />
   )
 }
 
