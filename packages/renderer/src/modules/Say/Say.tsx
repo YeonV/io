@@ -65,7 +65,7 @@ export const useOutputActions = (row: Row) => {
       console.log('row output triggered', row, e.detail)
       if (e.detail === row.id) {
         const spk = new SpeechSynthesisUtterance()
-        spk.text = row.output.data.text
+        spk.text = row.output.data.command || row.output.data.text
         window.speechSynthesis.speak(spk)
       }
     }

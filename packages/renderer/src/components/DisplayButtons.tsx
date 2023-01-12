@@ -20,7 +20,7 @@ const DisplayButtons = ({ data }: { data: InputData | OutputData }) => {
         <Icon style={{ marginRight: '10px' }}>{camelToSnake(data.icon)}</Icon>
         {data.name}
       </Button>
-      {data.data.text && (
+      {(data.data.command || data.data.text) && (
         <Button
           size='small'
           color='inherit'
@@ -36,7 +36,7 @@ const DisplayButtons = ({ data }: { data: InputData | OutputData }) => {
           }}
         >
           {/* {data.data.text} */}
-          {data.data.text.slice(-31)}
+          {((data.data.command?.length && data.data.command?.length < 31) ? data.data.command : data.data.text).slice(-31)}
         </Button>
       )}
     </>

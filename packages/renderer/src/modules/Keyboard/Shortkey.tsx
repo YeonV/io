@@ -3,10 +3,10 @@ import { Button, Input, MenuItem, Select, Stack } from '@mui/material'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 const Shortkey = ({
-  trigger = () => {},
+  trigger = () => { },
   edit = false,
   value = 'ctrl+alt+y',
-  onChange = () => {},
+  onChange = () => { },
 }: {
   trigger?: () => void
   edit?: boolean
@@ -107,7 +107,7 @@ const Shortkey = ({
         <Stack
           direction={'row'}
           gap={1}
-          style={{ position: 'absolute', left: 0, top: -7 }}
+          sx={{ position: 'absolute', left: 0, top: -7 }}
         >
           {shortcut.split('+').map((s: any, i: number) => (
             <Button
@@ -115,11 +115,11 @@ const Shortkey = ({
               key={i}
               variant={
                 (s === 'ctrl' && ctrl) ||
-                (s === 'alt' && alt) ||
-                (s === 'shift' && shift) ||
-                (s === 'cmd' && win) ||
-                (s === 'win' && win) ||
-                key
+                  (s === 'alt' && alt) ||
+                  (s === 'shift' && shift) ||
+                  (s === 'cmd' && win) ||
+                  (s === 'win' && win) ||
+                  key
                   ? 'contained'
                   : 'outlined'
               }
@@ -139,14 +139,16 @@ const Shortkey = ({
       {shortcut.split('+').map((s: any, i: number) => (
         <Button
           key={i}
+          size='medium'
+          sx={{ fontSize: '12px' }}
           color={'inherit'}
           variant={
             (s === 'ctrl' && ctrl) ||
-            (s === 'alt' && alt) ||
-            (s === 'shift' && shift) ||
-            (s === 'cmd' && win) ||
-            (s === 'win' && win) ||
-            key
+              (s === 'alt' && alt) ||
+              (s === 'shift' && shift) ||
+              (s === 'cmd' && win) ||
+              (s === 'win' && win) ||
+              key
               ? 'contained'
               : 'outlined'
           }

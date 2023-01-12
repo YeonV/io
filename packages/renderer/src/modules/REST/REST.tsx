@@ -94,11 +94,7 @@ export const InputDisplay: FC<{
   //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
   return (
     <>
-      <Button disabled variant='outlined' sx={{ mr: 2 }}>
-        <Icon style={{ marginRight: '10px' }}>{input.icon}</Icon>
-        {moduleConfig.menuLabel}
-      </Button>
-      {input.data.text}
+      <DisplayButtons data={input} />
     </>
   )
 }
