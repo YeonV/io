@@ -7,6 +7,7 @@ import Button from '@mui/material/Button'
 import { FC, useEffect, useState } from 'react'
 import { WebMidi } from 'webmidi'
 import ShortMidi from './ShortMidi'
+import ModuleButton from '@/components/ModuleButton'
 
 type MidiConfigExample = {}
 
@@ -55,8 +56,7 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   console.log(input)
   return (
     <>
-      {' '}
-      <Icon>{camelToSnake(input.icon)}</Icon>
+      <ModuleButton data={input} />
       <Shortkey
         value={input.data.value}
         trigger={() => {

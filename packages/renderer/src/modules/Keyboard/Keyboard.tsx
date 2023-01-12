@@ -1,7 +1,8 @@
+import ModuleButton from '@/components/ModuleButton'
 import Shortkey from '@/modules/Keyboard/Shortkey'
 import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
 import { camelToSnake } from '@/utils'
-import { Icon } from '@mui/material'
+import { Button, Icon } from '@mui/material'
 import { FC } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
@@ -45,8 +46,7 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   // console.log(input)
   return (
     <>
-      {' '}
-      <Icon>{camelToSnake(input.icon)}</Icon>
+      <ModuleButton data={input} />
       <Shortkey
         value={input.data.value}
         trigger={() => {

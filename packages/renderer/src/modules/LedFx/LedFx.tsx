@@ -1,3 +1,4 @@
+import ModuleButton from '@/components/ModuleButton'
 import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
 import {
   Button,
@@ -19,7 +20,7 @@ export const moduleConfig: ModuleConfig<LedFxConfigExample> = {
   inputs: [],
   outputs: [
     {
-      name: 'Scene Selector',
+      name: 'LedFx-Scene',
       icon: 'developer_mode',
     },
   ],
@@ -33,11 +34,21 @@ export const OutputDisplay: FC<{
 }> = ({ output }) => {
   return (
     <>
-      <Button disabled variant='outlined' sx={{ mr: 2 }}>
-        <Icon style={{ marginRight: '10px' }}>{output.icon}</Icon>
-        {moduleConfig.menuLabel}
+      <ModuleButton data={output} />
+      <Button
+        size='small'
+        color='inherit'
+        variant='outlined'
+        sx={{
+          fontSize: 12,
+          textTransform: 'unset',
+          flexGrow: 1,
+          justifyContent: 'flex-start',
+          mr: 2,
+        }}
+      >
+        {output.data.sceneName}
       </Button>
-      Scene: {output.data.sceneName}
     </>
   )
 }

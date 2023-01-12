@@ -106,7 +106,7 @@ const Shortkey = ({
 
         <Stack
           direction={'row'}
-          gap={2}
+          gap={1}
           style={{ position: 'absolute', left: 0, top: -7 }}
         >
           {shortcut.split('+').map((s: any, i: number) => (
@@ -131,10 +131,15 @@ const Shortkey = ({
       </div>
     </>
   ) : (
-    <Stack direction={'row'} gap={2}>
+    <Stack
+      direction={'row'}
+      gap={1}
+      sx={{ color: '#666', pointerEvents: 'none' }}
+    >
       {shortcut.split('+').map((s: any, i: number) => (
         <Button
           key={i}
+          color={'inherit'}
           variant={
             (s === 'ctrl' && ctrl) ||
             (s === 'alt' && alt) ||

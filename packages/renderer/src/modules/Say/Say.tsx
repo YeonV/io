@@ -1,3 +1,4 @@
+import ModuleButton from '@/components/ModuleButton'
 import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
 import { Button, Icon, TextField } from '@mui/material'
 import { FC, useEffect } from 'react'
@@ -27,11 +28,7 @@ export const OutputDisplay: FC<{
   //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
   return (
     <>
-      <Button disabled variant='outlined' sx={{ mr: 2 }}>
-        <Icon style={{ marginRight: '10px' }}>{output.icon}</Icon>
-        {output.name}
-      </Button>
-      {output.data.text}
+      <ModuleButton data={output} />
     </>
   )
 }

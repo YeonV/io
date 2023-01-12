@@ -48,7 +48,7 @@ export default function RestEditor({
   }
   const handleSave = () => {
     onChange({
-      name,
+      text: name,
       host: message,
       options: {
         method: method,

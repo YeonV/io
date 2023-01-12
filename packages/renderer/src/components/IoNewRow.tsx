@@ -49,7 +49,7 @@ export const IoNewRow = ({ onComplete }: { onComplete: () => void }) => {
           pb: 2,
         }}
       >
-        <div style={{ flexBasis: '50%', borderRight: '1px dashed #666', textAlign: 'left' }}>
+        <div style={{ flexBasis: '50%', textAlign: 'left' }}>
           <InputSelector
             onSelect={(modId, inp) => {
               setRow((row) => {

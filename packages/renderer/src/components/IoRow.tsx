@@ -66,13 +66,13 @@ const IoRow = ({ row }: { row: Row }) => {
         style={{
           flexBasis: '50%',
           marginBottom: 0,
-          height: '60px',
+          height: '50px',
           display: 'flex',
           alignItems: 'center',
           paddingLeft: 10,
         }}
       >
-        <Stack direction={'row'} gap={2} sx={{ alignItems: 'center' }}>
+        <Stack direction={'row'} sx={{ alignItems: 'center', color: '#666' }}>
           {SelectedModuleInputDisplay ? (
             <SelectedModuleInputDisplay
               input={row.input}
@@ -91,7 +91,15 @@ const IoRow = ({ row }: { row: Row }) => {
           justifyContent: 'space-between',
         }}
       >
-        <div>
+        <div
+          style={{
+            flexGrow: 1,
+            textAlign: 'left',
+            display: 'flex',
+            color: '#666',
+            pointerEvents: 'none',
+          }}
+        >
           {SelectedModuleOutputDisplay ? (
             <SelectedModuleOutputDisplay
               output={row.output}
@@ -102,15 +110,15 @@ const IoRow = ({ row }: { row: Row }) => {
         </div>
         <div>
           <IconButton
+            color='primary'
             sx={{ mr: 1 }}
-            color='inherit'
             onClick={handlePopupClickOpen}
           >
             <Delete />
           </IconButton>
           <IconButton
             sx={{ mr: 1 }}
-            color='inherit'
+            color='primary'
             onClick={() =>
               window.dispatchEvent(
                 new CustomEvent(`io_input`, { detail: row.id })

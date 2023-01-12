@@ -12,6 +12,7 @@ export const InputSelector = ({
   const fixId = 'new-row-input-select'
   return (
     <Autocomplete
+      fullWidth
       id={fixId}
       options={modulesAsArray
         .flatMap((mod) => {
@@ -38,7 +39,6 @@ export const InputSelector = ({
       isOptionEqualToValue={(opt, value) => opt.id === value.id}
       getOptionDisabled={(opt) => !opt.moduleEnabled}
       groupBy={(option) => option.group}
-      sx={{ width: 250 }}
       renderInput={(params) => {
         return (
           <TextField

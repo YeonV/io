@@ -11,6 +11,7 @@ export const OutputSelector = ({
 
   return (
     <Autocomplete
+      fullWidth
       id={`new-row-output-select`}
       options={modulesAsArray
         .flatMap((mod) => {
@@ -39,7 +40,6 @@ export const OutputSelector = ({
           </li>
         )
       }}
-      sx={{ width: 250 }}
       renderInput={(params) => {
         return (
           <TextField

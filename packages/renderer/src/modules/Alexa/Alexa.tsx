@@ -1,3 +1,4 @@
+import ModuleButton from '@/components/ModuleButton'
 import { ModuleConfig, InputData, Row, useMainStore } from '@/store/mainStore'
 import { camelToSnake } from '@/utils'
 import { Button, Icon, TextField } from '@mui/material'
@@ -55,8 +56,12 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   // console.log(input)
   return (
     <>
-      <Icon>{camelToSnake(input.icon)}</Icon>
-      <Button variant='outlined' sx={{ pointerEvents: 'none' }}>
+      <ModuleButton data={input} />
+      <Button
+        variant='outlined'
+        color={'inherit'}
+        sx={{ pointerEvents: 'none' }}
+      >
         {input.data.value}
       </Button>
     </>

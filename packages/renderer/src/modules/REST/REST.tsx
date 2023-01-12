@@ -1,3 +1,4 @@
+import ModuleButton from '@/components/ModuleButton'
 import RestEditor from '@/components/OLD/RestEditor/RestEditor'
 import type {
   InputData,
@@ -39,11 +40,7 @@ export const OutputDisplay: FC<{
   console.log(output)
   return (
     <>
-      <Button disabled variant='outlined' sx={{ mr: 2 }}>
-        <Icon style={{ marginRight: '10px' }}>{output.icon}</Icon>
-        {output.name}
-      </Button>
-      {output.data.name}
+      <ModuleButton data={output} />
     </>
   )
 }
@@ -55,7 +52,7 @@ export const OutputEdit: FC<{
   return (
     <div style={{ display: 'flex' }}>
       <RestEditor onChange={onChange} />
-      {output.data.name}
+      {output.data.text}
     </div>
   )
 }
