@@ -56,8 +56,7 @@ export const InputEdit: FC<{
         sx={{ mt: 2 }}
         inputProps={{
           style: {
-            height: '50px',
-            paddingLeft: '10px',
+            paddingLeft: '20px',
           },
         }}
         variant='outlined'
@@ -75,8 +74,7 @@ export const InputEdit: FC<{
         sx={{ mt: 2 }}
         inputProps={{
           style: {
-            height: '50px',
-            paddingLeft: '10px',
+            paddingLeft: '20px',
           },
         }}
         variant='outlined'
@@ -94,8 +92,7 @@ export const InputEdit: FC<{
         sx={{ mt: 2 }}
         inputProps={{
           style: {
-            height: '50px',
-            paddingLeft: '10px',
+            paddingLeft: '20px',
           },
         }}
         variant='outlined'
@@ -113,8 +110,7 @@ export const InputEdit: FC<{
         sx={{ mt: 2 }}
         inputProps={{
           style: {
-            height: '50px',
-            paddingLeft: '10px',
+            paddingLeft: '20px',
           },
         }}
         variant='outlined'
@@ -142,8 +138,7 @@ export const OutputEdit: FC<{
         sx={{ mt: 2 }}
         inputProps={{
           style: {
-            height: '50px',
-            paddingLeft: '10px',
+            paddingLeft: '20px',
           },
         }}
         variant='outlined'
@@ -161,8 +156,7 @@ export const OutputEdit: FC<{
         sx={{ mt: 2 }}
         inputProps={{
           style: {
-            height: '50px',
-            paddingLeft: '10px',
+            paddingLeft: '20px',
           },
         }}
         variant='outlined'
@@ -180,15 +174,14 @@ export const OutputEdit: FC<{
         sx={{ mt: 2 }}
         inputProps={{
           style: {
-            height: '50px',
-            paddingLeft: '10px',
+            paddingLeft: '20px',
           },
         }}
         variant='outlined'
       />
       <TextField
         fullWidth
-        label='topic'
+        label='Topic'
         defaultValue={'homeassistant'}
         onBlur={async (e) => {
           // Connect to mqtt?
@@ -199,8 +192,25 @@ export const OutputEdit: FC<{
         sx={{ mt: 2 }}
         inputProps={{
           style: {
-            height: '50px',
-            paddingLeft: '10px',
+            paddingLeft: '20px',
+          },
+        }}
+        variant='outlined'
+      />
+      <TextField
+        fullWidth
+        label='Message'
+        defaultValue={'homeassistant'}
+        onBlur={async (e) => {
+          // Connect to mqtt?
+        }}
+        onChange={(e) => {
+          // onChange({ host: e.target.value })
+        }}
+        sx={{ mt: 2 }}
+        inputProps={{
+          style: {
+            paddingLeft: '20px',
           },
         }}
         variant='outlined'
