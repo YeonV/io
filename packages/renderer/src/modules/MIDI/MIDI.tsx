@@ -2,7 +2,7 @@ import Shortkey from '@/modules/Keyboard/Shortkey'
 import { useStore } from '@/store/OLD/useStore'
 import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
 import { camelToSnake } from '@/utils'
-import { Icon } from '@mui/material'
+import { Icon, useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
 import { FC, useEffect, useState } from 'react'
 import { WebMidi } from 'webmidi'
@@ -53,16 +53,18 @@ export const InputEdit: FC<{
 }
 
 export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
-  console.log(input)
+  const desktop = useMediaQuery('(min-width:980px)')
   return (
     <>
       <DisplayButtons data={input} />
-      <Shortkey
-        value={input.data.value}
-        trigger={() => {
-          console.log('SHORTKEY;')
-        }}
-      />
+      {desktop && (
+        <Shortkey
+          value={input.data.value}
+          trigger={() => {
+            // console.log('SHORTKEY;')
+          }}
+        />
+      )}
     </>
   )
 }

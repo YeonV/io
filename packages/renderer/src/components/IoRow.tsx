@@ -9,11 +9,14 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  useMediaQuery,
 } from '@mui/material'
 import { Delete, Edit, ExpandMore, Help, PlayArrow } from '@mui/icons-material'
 import { Row, useMainStore } from '@/store/mainStore'
 
 const IoRow = ({ row }: { row: Row }) => {
+  const desktop = useMediaQuery('(min-width:980px)')
+  const mobile = useMediaQuery('(max-width:600px)')
   const [open, setOpen] = useState(false)
   const deleteRow = useMainStore((state) => state.deleteRow)
 
@@ -59,36 +62,45 @@ const IoRow = ({ row }: { row: Row }) => {
 
   return (
     <Stack
-      direction={'row'}
-      style={{ borderTop: '1px solid #bbb', width: '100%' }}
+      direction={mobile ? 'column' : 'row'}
+      style={{
+        borderTop: mobile ? 0 : '1px solid #666',
+        width: mobile ? '95%' : '100%',
+        margin: mobile ? '1rem auto' : 0,
+        borderRadius: mobile ? 10 : 0,
+        overflow: mobile ? 'hidden' : 'unset',
+      }}
     >
       <Card
         style={{
-          flexBasis: '50%',
+          flexBasis: desktop ? '50%' : 'calc(50% - 48px)',
           marginBottom: 0,
           height: '50px',
           display: 'flex',
           alignItems: 'center',
-          paddingLeft: 10,
+          padding: mobile ? '10px 0 0px 10px' : '0 0 0 10px',
+          borderRadius: 0,
+          boxShadow: 'none',
         }}
       >
-        <Stack direction={'row'} sx={{ alignItems: 'center', color: '#666' }}>
-          {SelectedModuleInputDisplay ? (
-            <SelectedModuleInputDisplay
-              input={row.input}
-            ></SelectedModuleInputDisplay>
-          ) : (
-            <Help fontSize='large' />
-          )}
-        </Stack>
+        {SelectedModuleInputDisplay ? (
+          <SelectedModuleInputDisplay
+            input={row.input}
+          ></SelectedModuleInputDisplay>
+        ) : (
+          <Help fontSize='large' />
+        )}
+        {mobile && <div style={{ width: '96px', flexShrink: 0 }}></div>}
       </Card>
       <Card
         style={{
-          flexBasis: '50%',
+          flexBasis: desktop ? '50%' : 'calc(50% + 48px)',
           display: 'flex',
           alignItems: 'center',
           paddingLeft: 10,
           justifyContent: 'space-between',
+          borderRadius: 0,
+          boxShadow: 'none',
         }}
       >
         <div
@@ -98,6 +110,7 @@ const IoRow = ({ row }: { row: Row }) => {
             display: 'flex',
             color: '#666',
             pointerEvents: 'none',
+            marginBottom: mobile ? 10 : 0,
           }}
         >
           {SelectedModuleOutputDisplay ? (

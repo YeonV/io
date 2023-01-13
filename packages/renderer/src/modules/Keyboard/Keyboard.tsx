@@ -2,7 +2,7 @@ import DisplayButtons from '@/components/DisplayButtons'
 import Shortkey from '@/modules/Keyboard/Shortkey'
 import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
 import { camelToSnake } from '@/utils'
-import { Button, Icon } from '@mui/material'
+import { Button, Icon, useMediaQuery } from '@mui/material'
 import { FC } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
@@ -43,16 +43,19 @@ export const InputEdit: FC<{
 }
 
 export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
+  const desktop = useMediaQuery('(min-width:980px)')
   // console.log(input)
   return (
     <>
       <DisplayButtons data={input} />
-      <Shortkey
-        value={input.data.value}
-        trigger={() => {
-          // console.log('SHORTKEY;')
-        }}
-      />
+      {desktop && (
+        <Shortkey
+          value={input.data.value}
+          trigger={() => {
+            // console.log('SHORTKEY;')
+          }}
+        />
+      )}
     </>
   )
 }

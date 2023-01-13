@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react'
-import { Button, Input, MenuItem, Select, Stack } from '@mui/material'
+import {
+  Button,
+  Input,
+  MenuItem,
+  Select,
+  Stack,
+  useMediaQuery,
+} from '@mui/material'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 const Shortkey = ({
-  trigger = () => { },
+  trigger = () => {},
   edit = false,
   value = 'ctrl+alt+y',
-  onChange = () => { },
+  onChange = () => {},
 }: {
   trigger?: () => void
   edit?: boolean
@@ -21,6 +28,7 @@ const Shortkey = ({
   const [win, setWin] = useState(false)
   const [key, setKey] = useState('')
   const isMac = navigator.userAgent.includes('Mac')
+  const desktop = useMediaQuery('(min-width:980px)')
 
   useHotkeys(shortcut, () => trigger())
 
@@ -115,11 +123,11 @@ const Shortkey = ({
               key={i}
               variant={
                 (s === 'ctrl' && ctrl) ||
-                  (s === 'alt' && alt) ||
-                  (s === 'shift' && shift) ||
-                  (s === 'cmd' && win) ||
-                  (s === 'win' && win) ||
-                  key
+                (s === 'alt' && alt) ||
+                (s === 'shift' && shift) ||
+                (s === 'cmd' && win) ||
+                (s === 'win' && win) ||
+                key
                   ? 'contained'
                   : 'outlined'
               }
@@ -136,26 +144,37 @@ const Shortkey = ({
       gap={1}
       sx={{ color: '#666', pointerEvents: 'none' }}
     >
-      {shortcut.split('+').map((s: any, i: number) => (
-        <Button
-          key={i}
-          size='medium'
-          sx={{ fontSize: '12px' }}
-          color={'inherit'}
-          variant={
-            (s === 'ctrl' && ctrl) ||
+      {desktop ? (
+        shortcut.split('+').map((s: any, i: number) => (
+          <Button
+            key={i}
+            size='medium'
+            sx={{ fontSize: '12px' }}
+            color={'inherit'}
+            variant={
+              (s === 'ctrl' && ctrl) ||
               (s === 'alt' && alt) ||
               (s === 'shift' && shift) ||
               (s === 'cmd' && win) ||
               (s === 'win' && win) ||
               key
-              ? 'contained'
-              : 'outlined'
-          }
+                ? 'contained'
+                : 'outlined'
+            }
+          >
+            {s}
+          </Button>
+        ))
+      ) : (
+        <Button
+          size='medium'
+          sx={{ fontSize: '12px' }}
+          color={'inherit'}
+          variant={'outlined'}
         >
-          {s}
+          {shortcut}
         </Button>
-      ))}
+      )}
     </Stack>
   )
 }

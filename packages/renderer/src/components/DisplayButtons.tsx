@@ -1,11 +1,10 @@
 import { InputData, OutputData } from '@/store/mainStore'
-import { camelToSnake } from '@/utils'
-import Button from '@mui/material/Button'
-import Icon from '@mui/material/Icon/Icon'
+import { Button, useMediaQuery } from '@mui/material'
 import IoIcon from './IoIcon/IoIcon'
 
 const DisplayButtons = ({ data }: { data: InputData | OutputData }) => {
-  return (
+  const desktop = useMediaQuery('(min-width:980px)')
+  return desktop ? (
     <>
       <Button
         size='small'
@@ -14,14 +13,15 @@ const DisplayButtons = ({ data }: { data: InputData | OutputData }) => {
         sx={{
           fontSize: 10,
           width: '130px',
+          minWidth: '45px',
           justifyContent: 'flex-start',
           mr: 2,
         }}
       >
         <IoIcon name={data.icon} style={{ marginRight: '10px' }} />
-        {data.name}
+        {desktop && data.name}
       </Button>
-      {(data.data.command || data.data.text) && (
+      {data.data.text && (
         <Button
           size='small'
           color='inherit'
@@ -36,10 +36,32 @@ const DisplayButtons = ({ data }: { data: InputData | OutputData }) => {
             whiteSpace: 'nowrap',
           }}
         >
-          {/* {data.data.text} */}
           {data.data.text?.slice(-31)}
         </Button>
       )}
+    </>
+  ) : (
+    <>
+      <Button
+        size='small'
+        disabled
+        variant='outlined'
+        sx={{
+          fontSize: 10,
+          width: '100%',
+          minWidth: '45px',
+          justifyContent: 'flex-start',
+          mr: 1,
+        }}
+      >
+        <IoIcon
+          name={data.icon}
+          style={{
+            marginRight: data.data.text || data.data.value ? '10px' : 0,
+          }}
+        />
+        {data.data.text?.slice(-31) || data.data.value?.slice(-31)}
+      </Button>
     </>
   )
 }
