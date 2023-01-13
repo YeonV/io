@@ -1,5 +1,6 @@
 import { ModuleId, Input, useMainStore } from '@/store/mainStore'
 import { Autocomplete, Icon, TextField } from '@mui/material'
+import IoIcon from './IoIcon/IoIcon'
 
 export const OutputSelector = ({
   onSelect,
@@ -35,7 +36,7 @@ export const OutputSelector = ({
             style={{ display: 'flex', padding: '5px 15px', minWidth: '100px' }}
             {...props}
           >
-            <Icon sx={{ mr: 2 }}>{option.icon}</Icon>
+            <IoIcon style={{ marginRight: '10px' }} name={option.icon} />
             {option.label}
           </li>
         )
@@ -49,13 +50,14 @@ export const OutputSelector = ({
               ...params.InputProps,
               startAdornment: (
                 <>
-                  <Icon sx={{ mr: 1, ml: 1 }}>
-                    {
+                  <IoIcon
+                    style={{ marginLeft: '10px', marginRight: '5px' }}
+                    name={
                       modulesAsArray
                         .flatMap((mod) => mod.moduleConfig.outputs)
                         .find((o) => o.name === params.inputProps.value)?.icon
                     }
-                  </Icon>
+                  />
                 </>
               ),
             }}
