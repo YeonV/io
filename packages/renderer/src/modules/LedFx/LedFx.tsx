@@ -1,10 +1,8 @@
 import DisplayButtons from '@/components/DisplayButtons'
+import Host from '@/components/Host'
 import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
 import {
-  Button,
-  Icon,
   FormControl,
-  TextField,
   InputLabel,
   Select,
   MenuItem,
@@ -43,46 +41,10 @@ export const OutputEdit: FC<{
   output: OutputData
   onChange: (data: Record<string, any>) => void
 }> = ({ output, onChange }) => {
-  const [scenes, setScenes] = useState({} as any)
-  const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(undefined as true | false | undefined)
   return (
     <>
-      <TextField
-        fullWidth
-        disabled={loading}
-        error={success !== undefined ? !success : false}
-        label='Host:Port'
-        value={output.data.host ?? 'http://localhost:8888'}
-        onBlur={async (e) => {
-          try {
-            setLoading(true)
-            const res = await fetch(e.target.value + '/api/scenes')
-            const resp = await res.json()
-            if (resp.status === 'success') {
-              setScenes(resp.scenes)
-              setLoading(false)
-              setSuccess(true)
-            }
-          } catch (error) {
-            setLoading(false)
-            setSuccess(false)
-            console.log('Yz was right')
-          }
-        }}
-        onChange={(e) => {
-          setSuccess(undefined)
-          onChange({ host: e.target.value })
-        }}
-        sx={{ mt: 2 }}
-        inputProps={{
-          style: {
-            paddingLeft: '20px',
-          },
-        }}
-        variant='outlined'
-      />
-      {Object.keys(scenes).length > 0 ? (
+      <Host defaultHost='http://localhost:888' path='/api/scenes' onChange={onChange} msgConnected={() => 'Connected to LedFx '} />
+      {output.data.config?.scenes && Object.keys(output.data.config.scenes).length > 0 ? (
         <FormControl fullWidth sx={{ mt: 2 }}>
           <InputLabel id='ledfx-scene-label'>Scene</InputLabel>
           <Select
@@ -94,18 +56,18 @@ export const OutputEdit: FC<{
               if (
                 e.target.value &&
                 typeof e.target.value === 'string' &&
-                Object.keys(scenes).includes(e.target.value)
+                Object.keys(output.data.config.scenes).includes(e.target.value)
               ) {
                 onChange({
                   host: output.data.host,
                   sceneId: e.target.value,
-                  text: 'Scene: ' + scenes[e.target.value].name,
+                  text: 'Scene: ' + output.data.config.scenes[e.target.value].name,
                 })
               }
             }}
           >
-            {Object.entries(scenes).map(([sid, s]: any) => (
-              <MenuItem value={sid}>{s.name}</MenuItem>
+            {Object.entries(output.data.config.scenes).map(([sid, s]: any) => (
+              <MenuItem key={sid} value={sid}>{s.name}</MenuItem>
             ))}
           </Select>
         </FormControl>

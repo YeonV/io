@@ -18,21 +18,15 @@ export const download = (
   a.click()
 }
 
-export function waitFor(ms: number, promise: Promise<Response>) {
-  return new Promise((resolve, reject) => {
-    const timeoutId = setTimeout(() => {
-      reject(new Error('promise timeout'))
-      return false
-    }, ms)
-    promise.then(
-      (res) => {
-        clearTimeout(timeoutId)
-        resolve(res)
-      },
-      (err) => {
-        clearTimeout(timeoutId)
-        reject(err)
-      }
-    )
-  })
+export async function fetchFast(resource: any, options = {} as any) {
+  const { timeout = 3000 } = options;
+
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  const response = await fetch(resource, {
+    ...options,
+    signal: controller.signal
+  });
+  clearTimeout(id);
+  return response;
 }

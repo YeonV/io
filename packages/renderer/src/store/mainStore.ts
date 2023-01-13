@@ -96,10 +96,10 @@ export const useMainStore = create<State>()(
         // ROWS
         rows: {},
         addRow: (row: Row) => {
-          console.log('add row', row)
+          // console.log('add row', row)
           set(
             (state) => {
-              console.log('state', state)
+              // console.log('state', state)
               return {
                 ...state,
                 rows: {
