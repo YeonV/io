@@ -89,7 +89,7 @@ const Host = ({
                             if (e.code === 'Enter') {
                                 try {
                                     setLoading(true)
-                                    const res = await fetchWithTimeout(e.target.value + path)
+                                    const res = await fetchFast(e.target.value + path)
                                     const resp = await (res as any).json()
                                     if (resp) {
                                         setConfig(resp)
@@ -125,7 +125,7 @@ const Host = ({
                     onClick={async () => {
                         try {
                             setLoading(true)
-                            const res = await fetchWithTimeout(innerHost + path)
+                            const res = await fetchFast(innerHost + path)
                             const resp = await (res as any).json()
                             if (resp) {
                                 setConfig(resp)
