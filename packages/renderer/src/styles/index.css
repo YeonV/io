@@ -29,3 +29,11 @@ p {
 #root {
   height: 100%;
 }
+@font-face {
+  font-family: "Material Design Icons";
+  src: local("Material Design Icons"),
+    url("../assets/fonts/materialdesignicons-webfont.woff2") format("woff2"),
+    url("../assets/fonts/materialdesignicons-webfont.woff") format("woff");  
+  font-weight: normal;
+  font-style: normal;
+}

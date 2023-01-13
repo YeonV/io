@@ -12,6 +12,8 @@ import * as holisticModule from "@/modules/Mediapipe/Holistic";
 import * as objectronModule from "@/modules/Mediapipe/Objectron";
 import * as alexaModule from "@/modules/Alexa/Alexa";
 import * as shellModule from "@/modules/Shell/Shell";
+import * as hassModule from "@/modules/HomeAssistant/HomeAssistant";
+import * as wledModule from "@/modules/Wled/Wled";
 
 export default {
     [keyboardModule.id]: keyboardModule,
@@ -27,6 +29,8 @@ export default {
     [objectronModule.id]: objectronModule,
     [pianoModule.id]: pianoModule,
     [alexaModule.id]: alexaModule,
-    [shellModule.id]: shellModule
+    [shellModule.id]: shellModule,
+    [hassModule.id]: hassModule,
+    [wledModule.id]: wledModule
 }
    

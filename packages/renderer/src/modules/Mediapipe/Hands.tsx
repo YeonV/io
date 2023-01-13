@@ -14,7 +14,7 @@ import { useStore } from '@/store/OLD/useStore'
 import useRequestAnimationFrame from 'use-request-animation-frame'
 import { HandsEstimator } from './Old/core/hands-estimator'
 import Settings from '@/components/OLD/Settings'
-import ModuleButton from '@/components/ModuleButton'
+import DisplayButtons from '@/components/DisplayButtons'
 
 type HandsConfigExample = {}
 
@@ -115,7 +115,7 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   console.log('HERE', input)
   return (
     <>
-      <ModuleButton data={input} />
+      <DisplayButtons data={input} />
       <Shortkey
         value={input.data.data.value}
         trigger={() => {

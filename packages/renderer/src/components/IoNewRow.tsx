@@ -116,36 +116,46 @@ export const IoNewRow = ({ onComplete }: { onComplete: () => void }) => {
           </>
         </div>
       </Stack>
-      <Button
-        variant='contained'
-        size='small'
-        sx={{ mr: 2 }}
-        disabled={
-          !templateRow.input ||
-          !templateRow.inputModule ||
-          !templateRow.output ||
-          !templateRow.outputModule
-        }
-        onClick={() => {
-          if (
-            templateRow.input &&
-            templateRow.inputModule &&
-            templateRow.output &&
-            templateRow.outputModule
-          ) {
-            addRow({
-              id: templateRow.id,
-              input: templateRow.input,
-              inputModule: templateRow.inputModule,
-              output: templateRow.output,
-              outputModule: templateRow.outputModule,
-            })
-            onComplete()
+      <Stack direction={'row'} sx={{ justifyContent: 'center' }}>
+        <Button
+          variant='contained'
+          sx={{ width: 90, mr: '2px' }}
+          size='small'
+          disabled={
+            !templateRow.input ||
+            !templateRow.inputModule ||
+            !templateRow.output ||
+            !templateRow.outputModule
           }
-        }}
-      >
-        save
-      </Button>
+          onClick={() => {
+            if (
+              templateRow.input &&
+              templateRow.inputModule &&
+              templateRow.output &&
+              templateRow.outputModule
+            ) {
+              addRow({
+                id: templateRow.id,
+                input: templateRow.input,
+                inputModule: templateRow.inputModule,
+                output: templateRow.output,
+                outputModule: templateRow.outputModule,
+              })
+              onComplete()
+            }
+          }}
+        >
+          save
+        </Button>
+        <Button
+          sx={{ width: 90, ml: '10px' }}
+          variant='contained'
+          size='small'
+          onClick={() => onComplete()}
+        >
+          Cancel
+        </Button>
+      </Stack>
     </>
   )
 }

@@ -20,8 +20,8 @@ export const moduleConfig: ModuleConfig<LedFxConfigExample> = {
   inputs: [],
   outputs: [
     {
-      name: 'LedFx-Scene',
-      icon: 'developer_mode',
+      name: 'LedFx',
+      icon: 'ledfx',
     },
   ],
   config: {
@@ -35,20 +35,6 @@ export const OutputDisplay: FC<{
   return (
     <>
       <DisplayButtons data={output} />
-      <Button
-        size='small'
-        color='inherit'
-        variant='outlined'
-        sx={{
-          fontSize: 12,
-          textTransform: 'unset',
-          flexGrow: 1,
-          justifyContent: 'flex-start',
-          mr: 2,
-        }}
-      >
-        {output.data.sceneName}
-      </Button>
     </>
   )
 }
@@ -105,7 +91,6 @@ export const OutputEdit: FC<{
             sx={{ pl: 1 }}
             label='Scene'
             onChange={async (e) => {
-              console.log('123', e.target.value, scenes)
               if (
                 e.target.value &&
                 typeof e.target.value === 'string' &&
@@ -114,7 +99,7 @@ export const OutputEdit: FC<{
                 onChange({
                   host: output.data.host,
                   sceneId: e.target.value,
-                  sceneName: scenes[e.target.value].name,
+                  text: 'Scene: ' + scenes[e.target.value].name,
                 })
               }
             }}

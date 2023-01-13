@@ -2,6 +2,7 @@ import { InputData, OutputData } from '@/store/mainStore'
 import { camelToSnake } from '@/utils'
 import Button from '@mui/material/Button'
 import Icon from '@mui/material/Icon/Icon'
+import IoIcon from './IoIcon/IoIcon'
 
 const DisplayButtons = ({ data }: { data: InputData | OutputData }) => {
   return (
@@ -17,7 +18,7 @@ const DisplayButtons = ({ data }: { data: InputData | OutputData }) => {
           mr: 2,
         }}
       >
-        <Icon style={{ marginRight: '10px' }}>{camelToSnake(data.icon)}</Icon>
+        <IoIcon name={data.icon} style={{ marginRight: '10px' }} />
         {data.name}
       </Button>
       {data.data.text && (

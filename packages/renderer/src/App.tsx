@@ -34,6 +34,12 @@ const App = () => {
                 ? '#888'
                 : pkg.env.VITRON_PRIMARY_COLOR,
           },
+          secondary: {
+            main:
+              pkg.env.VITRON_SECONDARY_COLOR === 'default'
+                ? '#333'
+                : pkg.env.VITRON_SECONDARY_COLOR,
+          },
           mode: darkMode ? 'dark' : 'light',
         },
       }),
