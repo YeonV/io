@@ -37,7 +37,7 @@ const DisplayButtons = ({ data }: { data: InputData | OutputData }) => {
           }}
         >
           {/* {data.data.text} */}
-          {((data.data.command?.length && data.data.command?.length < 31) ? data.data.command : data.data.text).slice(-31)}
+          {data.data.text?.slice(-31)}
         </Button>
       )}
     </>

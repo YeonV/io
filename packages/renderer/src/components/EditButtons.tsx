@@ -27,23 +27,21 @@ const EditButtons = ({
         }}
         variant='outlined'
       />
-      {data.data.command?.length > 30 && (
-        <TextField
-          fullWidth
-          label={'Unique Name for this action'}
-          value={data.data.text ?? ''}
-          onChange={(e) => {
-            onChange({ text: e.target.value })
-          }}
-          sx={{ mt: 2 }}
-          inputProps={{
-            style: {
-              paddingLeft: '20px',
-            },
-          }}
-          variant='outlined'
-        />
-      )}
+      <TextField
+        fullWidth
+        label={'Unique Name for this action'}
+        value={data.data.text ?? ''}
+        onChange={(e) => {
+          onChange({ text: e.target.value })
+        }}
+        sx={{ mt: 2 }}
+        inputProps={{
+          style: {
+            paddingLeft: '20px',
+          },
+        }}
+        variant='outlined'
+      />
     </>
   )
 }
