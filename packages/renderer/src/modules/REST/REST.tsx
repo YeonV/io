@@ -50,19 +50,22 @@ export const OutputEdit: FC<{
   onChange: (data: Record<string, any>) => void
 }> = ({ output, onChange }) => {
   return (
-    <div style={{ display: 'flex', marginTop: '10px' }}>
+    <div style={{ display: 'flex', marginTop: '1rem' }}>
       <RestEditor onChange={onChange} />
       {output.data.text && (
         <Button
-          size='small'
+          size='large'
           color='inherit'
           variant='outlined'
+          disabled
           sx={{
-            fontSize: 12,
+            height: 56,
+            fontSize: 16,
+            fontWeight: 400,
             textTransform: 'unset',
             flexGrow: 1,
             justifyContent: 'flex-start',
-            ml: 2,
+            ml: 1,
             whiteSpace: 'nowrap',
           }}
         >
@@ -104,20 +107,22 @@ export const InputEdit: FC<{
   onChange: (data: Record<string, any>) => void
 }> = ({ input, onChange }) => {
   return (
-    <div style={{ display: 'flex', marginTop: '10px' }}>
+    <div style={{ display: 'flex', marginTop: '1rem' }}>
       <RestEditor onChange={onChange} />
       {input.data.text && (
         <Button
-          size='small'
+          size='large'
           color='inherit'
           variant='outlined'
           disabled
           sx={{
-            fontSize: 12,
+            height: 56,
+            fontSize: 16,
+            fontWeight: 400,
             textTransform: 'unset',
             flexGrow: 1,
             justifyContent: 'flex-start',
-            ml: 2,
+            ml: 1,
             whiteSpace: 'nowrap',
           }}
         >

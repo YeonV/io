@@ -42,9 +42,11 @@ export const IoNewRow = ({ onComplete }: { onComplete: () => void }) => {
         direction={'row'}
         sx={{
           borderTop: '1px solid #bbb',
+          borderBottom: '1px solid #bbb',
           width: '100%',
           justifyContent: 'space-between',
           mt: 2,
+          mb: 2,
           pt: 2,
           pb: 2,
         }}

@@ -5,15 +5,16 @@ import {
   MenuItem,
   Select,
   Stack,
+  TextField,
   useMediaQuery,
 } from '@mui/material'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 const Shortkey = ({
-  trigger = () => {},
+  trigger = () => { },
   edit = false,
   value = 'ctrl+alt+y',
-  onChange = () => {},
+  onChange = () => { },
 }: {
   trigger?: () => void
   edit?: boolean
@@ -52,13 +53,14 @@ const Shortkey = ({
         style={{
           position: 'relative',
           flexGrow: 1,
-          marginTop: '20px',
-          marginRight: '10px',
+          marginTop: '1rem',
         }}
       >
-        <Input
+        <TextField
+          label='Trigger'
+          InputLabelProps={{ shrink: true }}
           value={''}
-          style={{ width: '100%', height: 46 }}
+          style={{ width: '100%' }}
           onKeyDown={(e) => {
             e.preventDefault()
             if (e.ctrlKey) {
@@ -115,7 +117,7 @@ const Shortkey = ({
         <Stack
           direction={'row'}
           gap={1}
-          sx={{ position: 'absolute', left: 0, top: -7 }}
+          sx={{ position: 'absolute', left: 20, top: 15 }}
         >
           {shortcut.split('+').map((s: any, i: number) => (
             <Button
@@ -123,11 +125,11 @@ const Shortkey = ({
               key={i}
               variant={
                 (s === 'ctrl' && ctrl) ||
-                (s === 'alt' && alt) ||
-                (s === 'shift' && shift) ||
-                (s === 'cmd' && win) ||
-                (s === 'win' && win) ||
-                key
+                  (s === 'alt' && alt) ||
+                  (s === 'shift' && shift) ||
+                  (s === 'cmd' && win) ||
+                  (s === 'win' && win) ||
+                  key
                   ? 'contained'
                   : 'outlined'
               }
@@ -153,11 +155,11 @@ const Shortkey = ({
             color={'inherit'}
             variant={
               (s === 'ctrl' && ctrl) ||
-              (s === 'alt' && alt) ||
-              (s === 'shift' && shift) ||
-              (s === 'cmd' && win) ||
-              (s === 'win' && win) ||
-              key
+                (s === 'alt' && alt) ||
+                (s === 'shift' && shift) ||
+                (s === 'cmd' && win) ||
+                (s === 'win' && win) ||
+                key
                 ? 'contained'
                 : 'outlined'
             }

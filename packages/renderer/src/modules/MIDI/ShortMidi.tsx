@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Input, MenuItem, Select, Stack } from '@mui/material'
+import { Button, Input, MenuItem, Select, Stack, TextField } from '@mui/material'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Keyboard, Piano } from '@mui/icons-material'
 import { useStore } from '@/store/OLD/useStore'
@@ -8,7 +8,7 @@ import { useMidi } from './MIDI'
 const ShortMidi = ({
   edit = false,
   value = 'C1',
-  onChange = () => {},
+  onChange = () => { },
 }: {
   edit?: boolean
   value: string
@@ -42,13 +42,14 @@ const ShortMidi = ({
         style={{
           position: 'relative',
           flexGrow: 1,
-          marginTop: '20px',
-          marginRight: '10px',
+          marginTop: '1rem',
         }}
       >
-        <Input
+        <TextField
+          label='Trigger'
+          InputLabelProps={{ shrink: true }}
           value={''}
-          style={{ width: '100%', height: 46 }}
+          style={{ width: '100%' }}
           onKeyDown={(e) => {
             console.log('YES', e)
           }}
@@ -59,7 +60,7 @@ const ShortMidi = ({
         <Stack
           direction={'row'}
           gap={2}
-          style={{ position: 'absolute', left: 0, top: -7 }}
+          style={{ position: 'absolute', left: 20, top: 15 }}
         >
           {shortcut.split('+').map((s: any, i: number) => (
             <Button

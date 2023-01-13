@@ -35,6 +35,7 @@ export const InputEdit: FC<{
     <>
       <TextField
         fullWidth
+        label="New AlexaDevice Name"
         value={input.data.value ?? ''}
         onChange={(event: any) => {
           onChange({ value: event.target.value })
@@ -42,11 +43,10 @@ export const InputEdit: FC<{
         sx={{ mt: 2 }}
         inputProps={{
           style: {
-            height: '50px',
-            paddingLeft: '10px',
+            paddingLeft: '20px',
           },
         }}
-        variant='standard'
+        variant='outlined'
       />
     </>
   )
