@@ -8,6 +8,8 @@ import { FC, useEffect, useState } from 'react'
 import { WebMidi } from 'webmidi'
 import ShortMidi from './ShortMidi'
 import DisplayButtons from '@/components/DisplayButtons'
+import ToggleSettings from '@/components/ToggleSettings'
+import { Piano, PianoOff } from '@mui/icons-material'
 
 type MidiConfigExample = {}
 
@@ -70,12 +72,18 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
 }
 
 export const useInputActions = (row: Row) => {
+  console.log('per-row: midi', row)
   const note = useMidi()
   useEffect(() => {
+    console.log('per-row-useEffect: midi', row)
     if (note && note === row.input.data.value) {
       window.dispatchEvent(new CustomEvent(`io_input`, { detail: row.id }))
     }
   }, [note])
+}
+
+export const useGlobalActions = () => {
+  console.log('useGlobalActions: midi')
 }
 
 export const useMidi = () => {
@@ -119,33 +127,24 @@ export const useMidi = () => {
           console.log(output.manufacturer, output.name)
         )
       }
+    } else {
+      WebMidi.disable()
     }
     return () => {
       if (midi) {
-        WebMidi.enable({ sysex: true })
-          .then(() => console.log('WebMidi with sysex enabled!'))
-          .catch((err) => alert(err))
-
-        WebMidi.enable()
-          .then(onEnabled)
-          .catch((err) => alert(err))
-
-        function onEnabled() {
-          WebMidi.inputs.forEach((input) => {
-            const myInput = WebMidi.getInputByName(input.name)
-            if (myInput)
-              [
-                myInput.removeListener('noteon'),
-                myInput.removeListener('noteoff'),
-              ]
-            return console.log(input.manufacturer, input.name)
-          })
-
-          // Outputs
-        }
+        WebMidi.disable()
+          .then(() => console.log('WebMidi with sysex disabled!'))
       }
     }
   }, [midi])
 
   return note
+}
+
+export const Settings: FC = () => {
+  return (
+    <>
+      <ToggleSettings name='midi' iconTurnOn={<Piano />} iconTurnOff={<PianoOff />} />
+    </>
+  )
 }

@@ -99,3 +99,7 @@ export const useInputActions = (row: Row) => {
     }
   }, [])
 }
+
+export const useGlobalActions = () => {
+  console.log('useGlobalActions: alexa')
+}

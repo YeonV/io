@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Stack,
   IconButton,
@@ -11,7 +11,7 @@ import {
   DialogActions,
   useMediaQuery,
 } from '@mui/material'
-import { Delete, Edit, ExpandMore, Help, PlayArrow } from '@mui/icons-material'
+import { Delete, Help, PlayArrow } from '@mui/icons-material'
 import { Row, useMainStore } from '@/store/mainStore'
 
 const IoRow = ({ row }: { row: Row }) => {
@@ -41,8 +41,6 @@ const IoRow = ({ row }: { row: Row }) => {
     return modules[row.inputModule]
   }, [modules, row])
 
-  selectedInputModule?.useInputActions?.(row)
-
   const selectedOutputModule = useMemo(() => {
     if (!row.output || !row.outputModule) {
       return undefined
@@ -59,6 +57,8 @@ const IoRow = ({ row }: { row: Row }) => {
   const SelectedModuleOutputDisplay = useMemo(() => {
     return selectedOutputModule?.OutputDisplay
   }, [selectedOutputModule])
+
+  selectedInputModule?.useInputActions?.(row)
 
   return (
     <Stack

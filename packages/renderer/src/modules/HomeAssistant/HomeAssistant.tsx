@@ -123,3 +123,7 @@ export const OutputDisplay: FC<{
     </>
   )
 }
+
+export const useGlobalActions = () => {
+  console.log('useGlobalActions: HomeAssistant')
+}

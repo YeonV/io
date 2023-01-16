@@ -3,7 +3,7 @@ import Shortkey from '@/modules/Keyboard/Shortkey'
 import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
 import { camelToSnake } from '@/utils'
 import { Button, Icon, useMediaQuery } from '@mui/material'
-import { FC } from 'react'
+import { FC, useEffect } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 type KeyboardConfigExample = {}
@@ -61,6 +61,7 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
 }
 
 export const useInputActions = (row: Row) => {
+  console.log('useInputActions: keyboard', row.id)
   useHotkeys(
     row.input.data.value,
     () => {
@@ -71,4 +72,8 @@ export const useInputActions = (row: Row) => {
     {},
     [row.input.data.value]
   )
+}
+
+export const useGlobalActions = () => {
+  console.log('useGlobalActions: keyboard')
 }

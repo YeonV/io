@@ -7,12 +7,11 @@ import { Box, Button, Typography } from '@mui/material'
 import { useStore } from '../store/OLD/useStore'
 import IoRow from '@/components/IoRow'
 import { Add } from '@mui/icons-material'
-import Settings from '@/components/OLD/Settings'
 import mqttService from '@/components/OLD/MQTT/mqttService'
 import { useMainStore } from '@/store/mainStore'
 import { IoNewRow } from '@/components/IoNewRow'
 import { Widget } from '@/modules/Alexa/Alexa'
-// import { Widget } from '@/modules/Mediapipe/Hands'
+import { Stack } from '@mui/system'
 
 // var client = null as any
 
@@ -22,7 +21,9 @@ const ipcRenderer = window.ipcRenderer || false
 
 const Home = () => {
   const [data, setData] = useState(0)
-  const [add, setAdd] = useState(false)
+  // const [edit, setEdit] = useState(false)
+  const edit = useMainStore((state) => state.edit)
+  const setEdit = useMainStore((state) => state.setEdit)
   const cam = useStore((state) => state.inputs.cam)
   const mqttData = useStore((state) => state.mqttData)
   const inMqtt = useStore((state) => state.inputs.mqtt)
@@ -85,7 +86,23 @@ const Home = () => {
     }
   }, [])
 
+  const modules = useMainStore((state) => state.modules)
   const rows = useMainStore((state) => state.rows)
+
+  const a = Object.values(rows).flatMap(r => r.inputModule)
+  const b = Object.values(rows).flatMap(r => r.outputModule)
+  const c = [...a, ...b]
+  const d = c.filter((item, index) => c.indexOf(item) === index)
+  d.map(mod => modules[mod].useGlobalActions?.())
+  const SettingsWidgets = () => d.map((mod, i) => {
+    if (modules[mod].Settings && modules[mod].Settings !== undefined) {
+      return modules[mod].Settings!({ props: { key: i } })
+    } else {
+      return null
+    }
+  }
+  ).filter(g => g !== null)
+
 
   return (
     <Box
@@ -121,13 +138,16 @@ const Home = () => {
           </div>
         </header>
         <main style={{ width: '100%', maxWidth: 960 }}>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            {SettingsWidgets().map((n: any, i: number) => <div key={i} style={{ padding: '1rem' }}>{n}</div>)}
+          </div>
           {Object.values(rows).map((row) => {
             return <IoRow key={row.id} row={row} />
           })}
-          {!add ? (
+          {!edit ? (
             <Button
               variant='contained'
-              onClick={() => setAdd(true)}
+              onClick={() => setEdit(true)}
               style={{ margin: 10 }}
             >
               <Add />
@@ -135,7 +155,7 @@ const Home = () => {
           ) : (
             <IoNewRow
               onComplete={() => {
-                setAdd(false)
+                setEdit(false)
               }}
             />
           )}

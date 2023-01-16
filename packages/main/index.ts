@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, ipcMain, nativeTheme, Tray, Menu, Notification  } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, nativeTheme, Tray, Menu, Notification, nativeImage } from 'electron';
 import { release } from 'os';
 import { join } from 'path';
 import Store from 'electron-store';
@@ -7,11 +7,11 @@ import pkg from '../../package.json'
 
 
 // Conditionally include the dev tools installer to load React Dev Tools
-let installExtension:any, REDUX_DEVTOOLS:any; // NEW!
+let installExtension: any, REDUX_DEVTOOLS: any; // NEW!
 if (!app.isPackaged) {
-    const devTools = require("electron-devtools-installer");
-    installExtension = devTools.default;
-    REDUX_DEVTOOLS = devTools.REDUX_DEVTOOLS;
+  const devTools = require("electron-devtools-installer");
+  installExtension = devTools.default;
+  REDUX_DEVTOOLS = devTools.REDUX_DEVTOOLS;
 }
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
@@ -44,7 +44,7 @@ async function createWindow() {
     x: windowState?.x || 0,
     y: windowState?.y || 0,
     width: windowState?.width || 1000,
-    height: windowState?.height || 600,    
+    height: windowState?.height || 600,
     webPreferences: {
       nodeIntegration: true,
       preload: join(__dirname, '../preload/index.cjs'),
@@ -88,7 +88,7 @@ const NOTIFICATION_TITLE = 'io - by Blade'
 const NOTIFICATION_BODY = 'Testing Notification from the Main process'
 
 function showNotification() {
-    new Notification({ title: NOTIFICATION_TITLE, body: NOTIFICATION_BODY }).show()
+  new Notification({ title: NOTIFICATION_TITLE, body: NOTIFICATION_BODY }).show()
 }
 
 let tray = null as any
@@ -96,12 +96,12 @@ let tray = null as any
 app.whenReady().then(createWindow).then(async () => {
   if (!app.isPackaged) {
     await installExtension(REDUX_DEVTOOLS)
-        .then((name:any) => console.log(`Added Extension:  ${name}`))
-        .catch((error:any) => console.log(`An error occurred: , ${error}`));
+      .then((name: any) => console.log(`Added Extension:  ${name}`))
+      .catch((error: any) => console.log(`An error occurred: , ${error}`));
   }
   if (pkg.env.VITRON_TRAY && tray === null) {
-    const icon = join(__dirname, '../../resources/icon.png')
-    tray = new Tray(icon)
+    const icon = nativeImage.createFromPath(join(__dirname, '../../resources/icon.png'))
+    tray = new Tray(icon.resize({ width: 26, height: 26 }))
 
     const contextMenu = Menu.buildFromTemplate([
       { label: 'Show', click: () => win?.show() },
@@ -111,7 +111,7 @@ app.whenReady().then(createWindow).then(async () => {
       { label: 'seperator', type: 'separator' },
       { label: 'Dev', click: () => win?.webContents.openDevTools() },
       { label: 'seperator', type: 'separator' },
-      { label: 'Restart io', click: () => { app.relaunch(); app.exit() }},
+      { label: 'Restart io', click: () => { app.relaunch(); app.exit() } },
       { label: 'seperator', type: 'separator' },
       { label: 'Exit', click: () => app.quit() }
     ])
@@ -123,7 +123,7 @@ app.whenReady().then(createWindow).then(async () => {
 });
 
 app.on('window-all-closed', () => {
-  win = null;      
+  win = null;
   if (tray !== null) tray.destroy();
   if (process.platform !== 'darwin') app.quit();
 });
@@ -160,25 +160,25 @@ ipcMain.on('ping-pong', async (event, arg) => {
 });
 const wemore = require('wemore')
 let device = null as any
-ipcMain.on('emulate-alexa-devices', (event, devices) => {  
-  devices.map((d:string, i:number) => {
+ipcMain.on('emulate-alexa-devices', (event, devices) => {
+  devices.map((d: string, i: number) => {
     // if (device === null) {
-      device = wemore.Emulate({ friendlyName: d, port: 9001 + i })
-      device.on('listening', function () {
-        console.log(d + ' listening on', 9001 + i)
-      })
-    
-      device.on('on', function (_self:any, _sender:any) {
-        win?.webContents.send('alexa-device', {device: d, state: 'on'});
-        console.log(d + ' on')
-      })
-    
-      device.on('off', function (_self:any, _sender:any) {
-        win?.webContents.send('alexa-device', {device: d, state: 'off'});
-        console.log(d + ' off')
-      })
+    device = wemore.Emulate({ friendlyName: d, port: 9001 + i })
+    device.on('listening', function () {
+      console.log(d + ' listening on', 9001 + i)
+    })
+
+    device.on('on', function (_self: any, _sender: any) {
+      win?.webContents.send('alexa-device', { device: d, state: 'on' });
+      console.log(d + ' on')
+    })
+
+    device.on('off', function (_self: any, _sender: any) {
+      win?.webContents.send('alexa-device', { device: d, state: 'off' });
+      console.log(d + ' off')
+    })
     // }
-   
+
   })
   event.returnValue = `[ipcMain] "${devices}" received synchronously.`;
 });
@@ -191,17 +191,17 @@ process.on('uncaughtException', function (error) {
 
 ipcMain.on('run-shell', (event, arg) => {
   const { exec } = require("child_process");
-  exec(arg, (error:any, stdout:any, stderr:any) => {
-      if (error) {
-          console.log(`error: ${error.message}`);
-          return;
-      }
-      if (stderr) {
-          console.log(`stderr: ${stderr}`);
-          return;
-      }
-      win?.webContents.send('run-shell-answer', {result: stdout});
-      console.log(`stdout: ${stdout}`);
+  exec(arg, (error: any, stdout: any, stderr: any) => {
+    if (error) {
+      console.log(`error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      console.log(`stderr: ${stderr}`);
+      return;
+    }
+    win?.webContents.send('run-shell-answer', { result: stdout });
+    console.log(`stdout: ${stdout}`);
   });
   event.returnValue = `[ipcMain] "${arg}" received synchronously.`;
 });
@@ -209,12 +209,12 @@ ipcMain.on('ping-pong-sync', (event, arg) => {
   event.returnValue = `[ipcMain] "${arg}" received synchronously.`;
 });
 
-ipcMain.on('get-darkmode', (event) => {  
+ipcMain.on('get-darkmode', (event) => {
   event.returnValue = nativeTheme.shouldUseDarkColors ? "yes" : "no";
 });
 ipcMain.on('toggle-darkmode', (event) => {
-  const res = nativeTheme.themeSource === 'system' ? (nativeTheme.shouldUseDarkColors ?  'light' : 'dark'): nativeTheme.themeSource === 'dark' ? 'light' : 'dark'; 
+  const res = nativeTheme.themeSource === 'system' ? (nativeTheme.shouldUseDarkColors ? 'light' : 'dark') : nativeTheme.themeSource === 'dark' ? 'light' : 'dark';
   event.returnValue = res === 'dark'
-  nativeTheme.themeSource =  res
+  nativeTheme.themeSource = res
   if (pkg.env.VITRON_CUSTOM_TITLEBAR) win?.reload();
 });

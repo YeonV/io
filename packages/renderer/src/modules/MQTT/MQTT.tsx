@@ -218,3 +218,7 @@ export const OutputEdit: FC<{
     </>
   )
 }
+
+export const useGlobalActions = () => {
+  console.log('useGlobalActions: mqtt')
+}

@@ -3,7 +3,7 @@ import { Box, FormControlLabel, FormGroup, Switch } from '@mui/material'
 // import MqttSettings from './MQTT/MqttSettings'
 const ipcRenderer = window.ipcRenderer || false
 
-const Settings = ({ add }: { add: boolean }) => {
+const Settings = ({ edit }: { edit: boolean }) => {
   const inputs = useStore((state) => state.inputs)
   const outputs = useStore((state) => state.outputs)
   const toggleInput = useStore((state) => state.toggleInput)
@@ -32,7 +32,7 @@ const Settings = ({ add }: { add: boolean }) => {
           />
         </FormGroup>
       )}
-      {add && (
+      {edit && (
         <FormGroup>
           <FormControlLabel
             labelPlacement='end'

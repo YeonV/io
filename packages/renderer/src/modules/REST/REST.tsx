@@ -137,3 +137,7 @@ export const useInputActions = (row: Row) => {
   console.log('hotkey triggered', row.id)
   window.dispatchEvent(new CustomEvent(`io_input`, { detail: row.id }))
 }
+
+export const useGlobalActions = () => {
+  console.log('useGlobalActions: rest')
+}

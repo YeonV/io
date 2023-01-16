@@ -83,3 +83,7 @@ export const useOutputActions = (row: Row) => {
     }
   }, [row.output.data.text])
 }
+
+export const useGlobalActions = () => {
+  console.log('useGlobalActions: wled')
+}

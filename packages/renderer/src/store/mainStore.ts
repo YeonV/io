@@ -1,6 +1,6 @@
 import produce from 'immer'
 import { FC } from 'react'
-import create from 'zustand'
+import { create } from 'zustand'
 import omit from 'lodash-es/omit'
 
 import { devtools, persist } from 'zustand/middleware'
@@ -37,8 +37,10 @@ export type IOModule = {
   OutputDisplay?: FC<{
     output: OutputData
   }>
+  Settings?: FC
   useInputActions?: (row: Row) => void
   useOutputActions?: (row: Row) => void
+  useGlobalActions?: () => void
 }
 
 type ModuleDefaultConfig = {
@@ -64,9 +66,13 @@ export type ModuleId = keyof typeof modules
 
 type State = {
   modules: Record<ModuleId, IOModule>
+  enableModule: (moduleId: ModuleId) => void
+  disableModule: (moduleId: ModuleId) => void
   rows: Record<string, Row>
   addRow: (row: Row) => void
   deleteRow: (row: Row) => void
+  edit: boolean,
+  setEdit: (edit: boolean) => void
 }
 
 export const useMainStore = create<State>()(
@@ -123,10 +129,27 @@ export const useMainStore = create<State>()(
               }
             },
             false,
-            'add row'
+            'remove row'
+          )
+        },
+        // UI
+        edit: false,
+        setEdit: (edit: boolean) => {
+          set(
+            (state) => {
+              // console.log('state', state)
+              return {
+                ...state,
+                edit: edit,
+              }
+            },
+            false,
+            'set edit'
           )
         },
       }),
+
+      // Persist Settings
       {
         name: 'io-v2-storage',
         partialize: (state) =>

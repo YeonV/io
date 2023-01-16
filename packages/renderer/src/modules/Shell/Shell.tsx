@@ -64,3 +64,7 @@ export const useOutputActions = (row: Row) => {
     }
   }, [row.output.data.command])
 }
+
+export const useGlobalActions = () => {
+  console.log('useGlobalActions: shell')
+}
