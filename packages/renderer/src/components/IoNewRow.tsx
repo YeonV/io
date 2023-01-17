@@ -1,10 +1,10 @@
-import { Button, Stack } from '@mui/material'
 import produce from 'immer'
+import type { Row } from '@/store/mainStore'
+import { Button, Stack } from '@mui/material'
 import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { InputSelector } from '@/components/InputSelector'
 import { OutputSelector } from '@/components/OutputSelector'
-import type { Row } from '@/store/mainStore'
 import { useMainStore } from '@/store/mainStore'
 
 export const IoNewRow = ({ onComplete }: { onComplete: () => void }) => {
@@ -161,3 +161,5 @@ export const IoNewRow = ({ onComplete }: { onComplete: () => void }) => {
     </>
   )
 }
+
+export default IoNewRow

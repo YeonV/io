@@ -1,15 +1,11 @@
-import logoTitle from '@/assets/logo-cropped.svg'
-import logo from '@/assets/icon.png'
-import styles from '@/styles/app.module.scss'
-import pkg from '../../../../package.json'
 import { useEffect, useMemo, useState } from 'react'
-import { Box, Button, Typography } from '@mui/material'
+import { useMainStore } from '@/store/mainStore'
+import { Button } from '@mui/material'
 import { useStore } from '../store/OLD/useStore'
-import IoRow from '@/components/IoRow'
 import { Add } from '@mui/icons-material'
 import mqttService from '@/components/OLD/MQTT/mqttService'
-import { useMainStore } from '@/store/mainStore'
-import { IoNewRow } from '@/components/IoNewRow'
+import IoRow from '@/components/IoRow'
+import IoNewRow from '@/components/IoNewRow'
 import Wrapper from '@/components/Wrapper'
 
 // var client = null as any
@@ -20,7 +16,6 @@ const ipcRenderer = window.ipcRenderer || false
 
 const Home = () => {
   const [data, setData] = useState(0)
-  // const [edit, setEdit] = useState(false)
   const edit = useMainStore((state) => state.edit)
   const setEdit = useMainStore((state) => state.setEdit)
   const cam = useStore((state) => state.inputs.cam)
@@ -139,80 +134,6 @@ const Home = () => {
           }}
         />
       )}
-      {/* <Box
-      sx={{
-        bgcolor: 'background.default',
-        color: 'text.primary',
-        overflowX: 'hidden',
-      }}
-      className={styles.app}
-    >
-      <div
-        className={styles.appWrapper}
-        style={{
-          margin: '0 auto',
-          minHeight:
-            ipcRenderer && pkg.env.VITRON_CUSTOM_TITLEBAR
-              ? 'calc(100vh - 30px)'
-              : '100vh',
-        }}
-      >
-        <header className={styles.logos}>
-          <img
-            src={logo}
-            style={{ width: '100px', filter: 'invert(0)' }}
-            alt='logoIO'
-          />
-          <div className={styles.imgBox}>
-            <img
-              src={logoTitle}
-              style={{ width: '480px', filter: 'invert(0)' }}
-              alt='InputOutput'
-            />
-          </div>
-        </header>
-        <main style={{ width: '100%', maxWidth: 960 }}>
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            {SettingsWidgets.map((n: any, i: number) => (
-              <div key={i} style={{ padding: '1rem' }}>
-                {n}
-              </div>
-            ))}
-          </div>
-          {Object.values(rows).map((row) => {
-            return <IoRow key={row.id} row={row} />
-          })}
-          {!edit ? (
-            <Button
-              variant='contained'
-              onClick={() => setEdit(true)}
-              style={{ margin: 10 }}
-            >
-              <Add />
-            </Button>
-          ) : (
-            <IoNewRow
-              onComplete={() => {
-                setEdit(false)
-              }}
-            />
-          )}
-          {!ipcRenderer && (
-            <Typography variant='body2' color='#666' sx={{ mt: 5 }}>
-              If you are accessing this site via httpS, but want to communicate
-              with your local network (mqtt, http, ws), you need to allow
-              insecure content in your browser's site settings either via lock
-              icon next to the url or copy:
-              <br />
-              <code>{`chrome://settings/content/siteDetails?site=${encodeURIComponent(
-                window.location.href.replace(/\/+$/, '')
-              )}`}</code>
-            </Typography>
-          )}
-        </main>
-        <footer>hacked by Blade</footer>
-      </div>
-    </Box> */}
     </Wrapper>
   )
 }

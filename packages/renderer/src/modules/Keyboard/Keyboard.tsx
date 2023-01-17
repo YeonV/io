@@ -1,10 +1,10 @@
+import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
+import type { FC } from 'react'
+import { log } from '@/utils'
+import { useMediaQuery } from '@mui/material'
+import { useHotkeys } from 'react-hotkeys-hook'
 import DisplayButtons from '@/components/DisplayButtons'
 import Shortkey from '@/modules/Keyboard/Shortkey'
-import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
-import { camelToSnake, log } from '@/utils'
-import { Button, Icon, useMediaQuery } from '@mui/material'
-import { FC, useEffect } from 'react'
-import { useHotkeys } from 'react-hotkeys-hook'
 
 type KeyboardConfigExample = {}
 

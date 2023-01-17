@@ -1,14 +1,10 @@
+import type { InputData, ModuleConfig, OutputData, Row } from '@/store/mainStore'
+import type { FC } from 'react'
+import { Button } from '@mui/material'
+import { useEffect } from 'react'
+import { log } from '@/utils'
 import DisplayButtons from '@/components/DisplayButtons'
 import RestEditor from '@/components/OLD/RestEditor/RestEditor'
-import type {
-  InputData,
-  ModuleConfig,
-  OutputData,
-  Row,
-} from '@/store/mainStore'
-import { Button, Icon } from '@mui/material'
-import { FC, useEffect } from 'react'
-import { log } from '@/utils'
 
 type RestConfigExample = {}
 

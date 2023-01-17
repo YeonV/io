@@ -10,7 +10,8 @@ import {
     ToggleButton,
     Typography,
 } from '@mui/material'
-import { FC, useEffect } from 'react'
+import type { FC } from 'react'
+import { useEffect } from 'react'
 import Hands from '@mediapipe/hands'
 import Holistic from '@mediapipe/holistic'
 import {

@@ -1,7 +1,8 @@
 import DisplayButtons from '@/components/DisplayButtons'
 import { ModuleConfig, InputData, Row, useMainStore } from '@/store/mainStore'
 import { Button, Icon, TextField } from '@mui/material'
-import { FC, useEffect } from 'react'
+import type { FC } from 'react'
+import { useEffect } from 'react'
 import { log } from '@/utils'
 
 const ipcRenderer = window.ipcRenderer || false
@@ -68,7 +69,7 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   )
 }
 
-export const Widget = () => {
+export const useGlobalActions = () => {
   const rows = useMainStore((state) => state.rows)
   useEffect(() => {
     if (ipcRenderer) {
@@ -100,6 +101,3 @@ export const useInputActions = (row: Row) => {
   }, [])
 }
 
-export const useGlobalActions = () => {
-  log.info1('useGlobalActions:', 'alexa')
-}

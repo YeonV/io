@@ -1,9 +1,9 @@
+import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
+import type { FC } from 'react'
+import { useEffect } from 'react'
+import { log } from '@/utils'
 import DisplayButtons from '@/components/DisplayButtons'
 import EditButtons from '@/components/EditButtons'
-import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
-import { Button, Icon, TextField } from '@mui/material'
-import { FC, useEffect } from 'react'
-import { log } from '@/utils'
 
 const ipcRenderer = window.ipcRenderer || false
 

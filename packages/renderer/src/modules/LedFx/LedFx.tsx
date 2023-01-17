@@ -1,9 +1,10 @@
+import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
+import type { FC } from 'react'
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material'
+import { useEffect } from 'react'
+import { log } from '@/utils'
 import DisplayButtons from '@/components/DisplayButtons'
 import Host from '@/components/Host'
-import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material'
-import { FC, useEffect, useState } from 'react'
-import { log } from '@/utils'
 
 type LedFxConfigExample = {}
 
@@ -46,7 +47,7 @@ export const OutputEdit: FC<{
         msgConnected={() => 'Connected to LedFx '}
       />
       {output.data.config?.scenes &&
-      Object.keys(output.data.config.scenes).length > 0 ? (
+        Object.keys(output.data.config.scenes).length > 0 ? (
         <FormControl fullWidth sx={{ mt: 2 }}>
           <InputLabel id='ledfx-scene-label'>Scene</InputLabel>
           <Select

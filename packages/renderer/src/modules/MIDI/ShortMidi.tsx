@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Input, MenuItem, Select, Stack, TextField } from '@mui/material'
-import { useHotkeys } from 'react-hotkeys-hook'
-import { Keyboard, Piano } from '@mui/icons-material'
-import { useStore } from '@/store/OLD/useStore'
+import { Button, Stack, TextField } from '@mui/material'
 import { useMidi } from './MIDI'
 
 const ShortMidi = ({

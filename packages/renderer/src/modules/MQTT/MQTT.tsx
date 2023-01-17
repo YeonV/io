@@ -1,6 +1,7 @@
 import type { InputData, ModuleConfig, OutputData } from '@/store/mainStore'
 import { TextField } from '@mui/material'
-import { FC, useEffect, useState } from 'react'
+import type { FC } from 'react'
+import { useEffect, useState } from 'react'
 import { log } from '@/utils'
 
 type MqttConnection = {

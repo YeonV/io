@@ -1,31 +1,18 @@
-import Shortkey from '@/modules/Keyboard/Shortkey'
+import type { FC } from 'react'
 import { ModuleConfig, InputData, Row, useMainStore } from '@/store/mainStore'
-import { camelToSnake } from '@/utils'
-import {
-  Button,
-  FormControlLabel,
-  FormGroup,
-  Icon,
-  Switch,
-  ToggleButton,
-  Typography,
-} from '@mui/material'
-import { FC, useEffect } from 'react'
-import Hands from '@mediapipe/hands'
-import Holistic from '@mediapipe/holistic'
-import {
-  detectGesture,
-  Gesture,
-} from '../../modules/Mediapipe/Old/core/gesture-detector'
+import { Button } from '@mui/material'
+import { useEffect } from 'react'
+import { detectGesture, Gesture } from '../../modules/Mediapipe/Old/core/gesture-detector'
 import { VideoScene } from './Old/video/video-scene'
 import { useStore } from '@/store/OLD/useStore'
-import useRequestAnimationFrame from 'use-request-animation-frame'
 import { HandsEstimator } from './Old/core/hands-estimator'
-import DisplayButtons from '@/components/DisplayButtons'
-import { Camera, Videocam, VideocamOff } from '@mui/icons-material'
-import { Stack } from '@mui/system'
-import ToggleSettings from '@/components/ToggleSettings'
 import { log } from '@/utils'
+import useRequestAnimationFrame from 'use-request-animation-frame'
+import Hands from '@mediapipe/hands'
+import Holistic from '@mediapipe/holistic'
+import Shortkey from '@/modules/Keyboard/Shortkey'
+import DisplayButtons from '@/components/DisplayButtons'
+import ToggleSettings from '@/components/ToggleSettings'
 
 type HandsConfigExample = {}
 
@@ -51,8 +38,6 @@ export const InputEdit: FC<{
 }> = ({ input, onChange }) => {
   const cam = useStore((state) => state.inputs.cam)
   // const mqtt = useStore((state) => state.inputs.mqtt)
-  //   const videoCanvas = useStore((state) => state.videoCanvas)
-  //   const videoScene = useStore((state) => state.videoScene)
 
   const videoCanvas = document.getElementById(
     'video-canvas-hands'
@@ -63,6 +48,7 @@ export const InputEdit: FC<{
   var currentGesture: Gesture | null = null
   var results: Hands.Results | Holistic.Results | null = null
   var hand: Hands.LandmarkList | Holistic.LandmarkList | null = null
+
   useEffect(() => {
     const listener = (r: any) => {
       results = r

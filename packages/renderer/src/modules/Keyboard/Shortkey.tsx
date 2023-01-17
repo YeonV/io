@@ -1,13 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-  Button,
-  Input,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-  useMediaQuery,
-} from '@mui/material'
+import { Button, Stack, TextField, useMediaQuery } from '@mui/material'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 const Shortkey = ({
@@ -22,7 +14,6 @@ const Shortkey = ({
   onChange?: (value: string) => void
 }) => {
   const [shortcut, setShortcut] = useState(value)
-  //   const [message, setMessage] = useState("Hacked by Blade");
   const [ctrl, setCtrl] = useState(false)
   const [alt, setAlt] = useState(false)
   const [shift, setShift] = useState(false)
@@ -32,14 +23,6 @@ const Shortkey = ({
   const desktop = useMediaQuery('(min-width:980px)')
 
   useHotkeys(shortcut, () => trigger())
-
-  //   useEffect(() => {
-  //     if (value && onChange) {
-  //       onChange("ctrl+alt+y");
-  //     } else {
-  //       setShortcut("ctrl+alt+y");
-  //     }
-  //   }, []);
 
   useEffect(() => {
     if (shortcut !== value) {

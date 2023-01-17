@@ -1,15 +1,15 @@
-import Shortkey from '@/modules/Keyboard/Shortkey'
-import { useStore } from '@/store/OLD/useStore'
 import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
+import type { FC } from 'react'
+import { useStore } from '@/store/OLD/useStore'
 import { log } from '@/utils'
-import { Icon, useMediaQuery } from '@mui/material'
-import Button from '@mui/material/Button'
-import { FC, useEffect, useState } from 'react'
+import { useMediaQuery } from '@mui/material'
+import { useEffect, useState } from 'react'
 import { WebMidi } from 'webmidi'
+import { Piano, PianoOff } from '@mui/icons-material'
+import Shortkey from '@/modules/Keyboard/Shortkey'
 import ShortMidi from './ShortMidi'
 import DisplayButtons from '@/components/DisplayButtons'
 import ToggleSettings from '@/components/ToggleSettings'
-import { Piano, PianoOff } from '@mui/icons-material'
 
 type MidiConfigExample = {}
 
@@ -33,16 +33,8 @@ export const InputEdit: FC<{
   input: InputData
   onChange: (data: Record<string, any>) => void
 }> = ({ input, onChange }) => {
-  //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
-  // const note = useMidi()
-
-  // useEffect(() => {
-  //   onChange({ note })
-  // }, [note])
-
   return (
     <>
-      {/* <Button>{note}</Button> */}
       <ShortMidi
         value={input.data.value}
         onChange={(value) => {
