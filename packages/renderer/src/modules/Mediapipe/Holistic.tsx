@@ -55,7 +55,7 @@ export const InputEdit: FC<{
     //   const videoScene = useStore((state) => state.videoScene)
 
     const videoCanvas = document.getElementById(
-        'video-canvas-b'
+        'video-canvas-holistic'
     ) as HTMLCanvasElement
     const videoScene = new VideoScene(videoCanvas)
 
@@ -120,6 +120,14 @@ export const InputEdit: FC<{
         <div style={{ textAlign: 'left', marginTop: '10px', display: 'flex' }}>
             <ToggleSettings name='cam' variant='switch' />
             <Button variant='outlined'>{input?.data?.data?.value || ''}</Button>
+            <canvas style={{
+                height: 150,
+                width: 150,
+                position: 'absolute',
+                bottom: 0,
+                border: '2px solid #0dbedc00'
+            }}
+                id="video-canvas-holistic" />
         </div>
     )
 }

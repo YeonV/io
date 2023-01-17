@@ -10,8 +10,7 @@ import { Add } from '@mui/icons-material'
 import mqttService from '@/components/OLD/MQTT/mqttService'
 import { useMainStore } from '@/store/mainStore'
 import { IoNewRow } from '@/components/IoNewRow'
-import { Widget } from '@/modules/Alexa/Alexa'
-import { Stack } from '@mui/system'
+import Wrapper from '@/components/Wrapper'
 
 // var client = null as any
 
@@ -71,8 +70,6 @@ const Home = () => {
     window.localStorage.setItem('io_mqtt_data', JSON.stringify(mqttData))
   }, [mqttData])
 
-  Widget()
-
   useEffect(() => {
     if (ipcRenderer) {
       ipcRenderer.on('get', (event: any, data: any) => {
@@ -116,7 +113,33 @@ const Home = () => {
     .filter((n) => n !== undefined)
 
   return (
-    <Box
+    <Wrapper>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {SettingsWidgets.map((n: any, i: number) => (
+          <div key={i} style={{ padding: '1rem' }}>
+            {n}
+          </div>
+        ))}
+      </div>
+      {Object.values(rows).map((row) => {
+        return <IoRow key={row.id} row={row} />
+      })}
+      {!edit ? (
+        <Button
+          variant='contained'
+          onClick={() => setEdit(true)}
+          style={{ margin: 10 }}
+        >
+          <Add />
+        </Button>
+      ) : (
+        <IoNewRow
+          onComplete={() => {
+            setEdit(false)
+          }}
+        />
+      )}
+      {/* <Box
       sx={{
         bgcolor: 'background.default',
         color: 'text.primary',
@@ -189,8 +212,8 @@ const Home = () => {
         </main>
         <footer>hacked by Blade</footer>
       </div>
-      {/* <Widget /> */}
-    </Box>
+    </Box> */}
+    </Wrapper>
   )
 }
 

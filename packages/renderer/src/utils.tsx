@@ -82,6 +82,7 @@ export class ConsoleLogger implements Logger {
   readonly success1: LogFn
   readonly success2: LogFn
   readonly success3: LogFn
+  readonly error: LogFn
 
   constructor() {
     this.log = console.log.bind(
@@ -128,6 +129,11 @@ export class ConsoleLogger implements Logger {
       console,
       '%c %s',
       `padding: 3px 5px; border-radius: 5px; background: #70865a;`
+    )
+    this.error = console.log.bind(
+      console,
+      '%c %s',
+      `padding: 3px 5px; border-radius: 5px; background: #800000;`
     )
   }
 }

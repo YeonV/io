@@ -22,5 +22,5 @@ window.removeLoading && window.removeLoading()
 
 // Usage of ipcRenderer.on
 window.ipcRenderer && window.ipcRenderer.on('main-process-message', (_event, ...args) => {
-  console.log('[Receive Main-process message]:', ...args);
+  // console.log('[Receive Main-process message]:', ...args);
 });

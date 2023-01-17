@@ -146,9 +146,9 @@ export class VideoScene {
             drawingUtils.drawConnectors(
                 canvasCtx, results.faceLandmarks, mpHolistic.FACEMESH_LIPS,
                 { color: '#E0E0E0', lineWidth: 5 });
-
-            canvasCtx.restore();
         }
+
+        canvasCtx.restore();
     }
 
 }
