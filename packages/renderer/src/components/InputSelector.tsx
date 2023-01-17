@@ -64,7 +64,7 @@ export const InputSelector = ({
         )
       }}
       onChange={(_, value) => {
-        console.log(value)
+        // console.log(value)
         if (!value) {
           return
         }

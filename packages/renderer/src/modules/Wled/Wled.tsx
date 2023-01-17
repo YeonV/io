@@ -1,10 +1,9 @@
 import DisplayButtons from '@/components/DisplayButtons'
 import Host from '@/components/Host'
 import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
-import {
-  TextField,
-} from '@mui/material'
+import { TextField } from '@mui/material'
 import { FC, useEffect } from 'react'
+import { log } from '@/utils'
 
 type WledConfigExample = {}
 
@@ -40,7 +39,11 @@ export const OutputEdit: FC<{
 }> = ({ output, onChange }) => {
   return (
     <>
-      <Host path='/json' onChange={onChange} msgConnected={(resp) => 'Got state from ' + resp?.info?.name} />
+      <Host
+        path='/json'
+        onChange={onChange}
+        msgConnected={(resp) => 'Got state from ' + resp?.info?.name}
+      />
       <TextField
         fullWidth
         label={'Unique Name for this action'}
@@ -69,11 +72,11 @@ export const OutputEdit: FC<{
 export const useOutputActions = (row: Row) => {
   useEffect(() => {
     const listener = async (e: any) => {
-      console.log('row output triggered', row, e.detail)
+      log.success2('row output triggered', row, e.detail)
       if (e.detail === row.id) {
         await fetch(`${row.output.data.host}/json`, {
           method: 'POST',
-          body: JSON.stringify(row.output.data.config.state),
+          body: JSON.stringify(row.output.data.config?.state),
         })
       }
     }
@@ -85,5 +88,5 @@ export const useOutputActions = (row: Row) => {
 }
 
 export const useGlobalActions = () => {
-  console.log('useGlobalActions: wled')
+  log.info1('useGlobalActions:', 'wled')
 }

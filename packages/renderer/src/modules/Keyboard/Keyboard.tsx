@@ -1,7 +1,7 @@
 import DisplayButtons from '@/components/DisplayButtons'
 import Shortkey from '@/modules/Keyboard/Shortkey'
 import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
-import { camelToSnake } from '@/utils'
+import { camelToSnake, log } from '@/utils'
 import { Button, Icon, useMediaQuery } from '@mui/material'
 import { FC, useEffect } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -61,12 +61,13 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
 }
 
 export const useInputActions = (row: Row) => {
-  console.log('useInputActions: keyboard', row.id)
+  log.info('per-row keyboard', row)
+
   useHotkeys(
     row.input.data.value,
     () => {
       // dispatch event on global event emitter
-      console.log('hotkey triggered', row.id)
+      log.success3('hotkey triggered', row.id)
       window.dispatchEvent(new CustomEvent(`io_input`, { detail: row.id }))
     },
     {},
@@ -75,5 +76,5 @@ export const useInputActions = (row: Row) => {
 }
 
 export const useGlobalActions = () => {
-  console.log('useGlobalActions: keyboard')
+  log.info1('useGlobalActions:', 'keyboard')
 }

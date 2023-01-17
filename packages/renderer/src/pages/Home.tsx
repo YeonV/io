@@ -2,7 +2,7 @@ import logoTitle from '@/assets/logo-cropped.svg'
 import logo from '@/assets/icon.png'
 import styles from '@/styles/app.module.scss'
 import pkg from '../../../../package.json'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Box, Button, Typography } from '@mui/material'
 import { useStore } from '../store/OLD/useStore'
 import IoRow from '@/components/IoRow'
@@ -79,6 +79,12 @@ const Home = () => {
         setData(data.count)
       })
     }
+    console.info(
+      // eslint-disable-next-line no-useless-concat
+      '%c   IO  ' + '%c\n ReactApp by Blade ',
+      'padding: 10px 40px; color: #ffffff; border-radius: 5px 5px 0 0; background-color: #123456;',
+      'background: #fff; color: #123456; border-radius: 0 0 5px 5px;padding: 5px 0;'
+    )
     return () => {
       if (ipcRenderer) {
         ipcRenderer.removeAllListeners('get')
@@ -89,20 +95,25 @@ const Home = () => {
   const modules = useMainStore((state) => state.modules)
   const rows = useMainStore((state) => state.rows)
 
-  const a = Object.values(rows).flatMap(r => r.inputModule)
-  const b = Object.values(rows).flatMap(r => r.outputModule)
-  const c = [...a, ...b]
-  const d = c.filter((item, index) => c.indexOf(item) === index)
-  d.map(mod => modules[mod].useGlobalActions?.())
-  const SettingsWidgets = () => d.map((mod, i) => {
-    if (modules[mod].Settings && modules[mod].Settings !== undefined) {
-      return modules[mod].Settings!({ props: { key: i } })
-    } else {
-      return null
-    }
-  }
-  ).filter(g => g !== null)
+  const usedModules = [
+    ...Object.values(rows).flatMap((r) => r.inputModule),
+    ...Object.values(rows).flatMap((r) => r.outputModule),
+  ]
+    .filter((n) => n !== null)
+    .filter((v, i, a) => a.indexOf(v) === i)
 
+  usedModules.map((mod) => modules[mod].useGlobalActions?.())
+  const SettingsWidgets = usedModules
+    .map((mod) => {
+      if (modules[mod].Settings) {
+        const Setttingz = useMemo(() => {
+          return modules[mod].Settings!
+        }, [modules, mod])
+
+        return <Setttingz />
+      }
+    })
+    .filter((n) => n !== undefined)
 
   return (
     <Box
@@ -139,7 +150,11 @@ const Home = () => {
         </header>
         <main style={{ width: '100%', maxWidth: 960 }}>
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            {SettingsWidgets().map((n: any, i: number) => <div key={i} style={{ padding: '1rem' }}>{n}</div>)}
+            {SettingsWidgets.map((n: any, i: number) => (
+              <div key={i} style={{ padding: '1rem' }}>
+                {n}
+              </div>
+            ))}
           </div>
           {Object.values(rows).map((row) => {
             return <IoRow key={row.id} row={row} />

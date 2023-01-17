@@ -8,6 +8,7 @@ import type {
 } from '@/store/mainStore'
 import { Button, Icon } from '@mui/material'
 import { FC, useEffect } from 'react'
+import { log } from '@/utils'
 
 type RestConfigExample = {}
 
@@ -37,7 +38,7 @@ export const OutputDisplay: FC<{
   output: OutputData
 }> = ({ output }) => {
   //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
-  console.log(output)
+  log.info3('outputDisplay', output)
   return (
     <>
       <DisplayButtons data={output} />
@@ -79,7 +80,7 @@ export const OutputEdit: FC<{
 export const useOutputActions = (row: Row) => {
   useEffect(() => {
     const listener = async (e: any) => {
-      console.log('row output triggered', row, e.detail)
+      log.success2('row output triggered', row, e.detail)
       if (e.detail === row.id) {
         await fetch(row.output.data.host, row.output.data.options)
       }
@@ -134,10 +135,10 @@ export const InputEdit: FC<{
 }
 
 export const useInputActions = (row: Row) => {
-  console.log('hotkey triggered', row.id)
+  log.success3('hotkey triggered', row.id)
   window.dispatchEvent(new CustomEvent(`io_input`, { detail: row.id }))
 }
 
 export const useGlobalActions = () => {
-  console.log('useGlobalActions: rest')
+  log.info1('useGlobalActions:', 'rest')
 }

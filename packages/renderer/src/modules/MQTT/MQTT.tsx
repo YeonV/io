@@ -1,6 +1,8 @@
 import type { InputData, ModuleConfig, OutputData } from '@/store/mainStore'
 import { TextField } from '@mui/material'
 import { FC, useEffect, useState } from 'react'
+import { log } from '@/utils'
+
 type MqttConnection = {
   host: string
   id: string
@@ -220,5 +222,5 @@ export const OutputEdit: FC<{
 }
 
 export const useGlobalActions = () => {
-  console.log('useGlobalActions: mqtt')
+  log.info1('useGlobalActions:', 'mqtt')
 }

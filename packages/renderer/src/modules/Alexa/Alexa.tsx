@@ -1,8 +1,8 @@
 import DisplayButtons from '@/components/DisplayButtons'
 import { ModuleConfig, InputData, Row, useMainStore } from '@/store/mainStore'
-import { camelToSnake } from '@/utils'
 import { Button, Icon, TextField } from '@mui/material'
 import { FC, useEffect } from 'react'
+import { log } from '@/utils'
 
 const ipcRenderer = window.ipcRenderer || false
 
@@ -29,13 +29,13 @@ export const InputEdit: FC<{
   onChange: (data: Record<string, any>) => void
 }> = ({ input, onChange }) => {
   // const updateRowInputValue = useMainStore(state => state.updateRowInputValue);
-  console.log(input)
+  // console.log(input)
   // Widget()
   return (
     <>
       <TextField
         fullWidth
-        label="New AlexaDevice Name"
+        label='New AlexaDevice Name'
         value={input.data.value ?? ''}
         onChange={(event: any) => {
           onChange({ value: event.target.value })
@@ -101,5 +101,5 @@ export const useInputActions = (row: Row) => {
 }
 
 export const useGlobalActions = () => {
-  console.log('useGlobalActions: alexa')
+  log.info1('useGlobalActions:', 'alexa')
 }

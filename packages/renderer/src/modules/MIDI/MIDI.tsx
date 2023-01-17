@@ -1,7 +1,7 @@
 import Shortkey from '@/modules/Keyboard/Shortkey'
 import { useStore } from '@/store/OLD/useStore'
 import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
-import { camelToSnake } from '@/utils'
+import { log } from '@/utils'
 import { Icon, useMediaQuery } from '@mui/material'
 import Button from '@mui/material/Button'
 import { FC, useEffect, useState } from 'react'
@@ -59,23 +59,15 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   return (
     <>
       <DisplayButtons data={input} />
-      {desktop && (
-        <Shortkey
-          value={input.data.value}
-          trigger={() => {
-            // console.log('SHORTKEY;')
-          }}
-        />
-      )}
+      {desktop && <Shortkey value={input.data.value} />}
     </>
   )
 }
 
 export const useInputActions = (row: Row) => {
-  console.log('per-row: midi', row)
   const note = useMidi()
   useEffect(() => {
-    console.log('per-row-useEffect: midi', row)
+    log.info('per-row midi', row)
     if (note && note === row.input.data.value) {
       window.dispatchEvent(new CustomEvent(`io_input`, { detail: row.id }))
     }
@@ -83,7 +75,7 @@ export const useInputActions = (row: Row) => {
 }
 
 export const useGlobalActions = () => {
-  console.log('useGlobalActions: midi')
+  log.info1('useGlobalActions:', 'midi')
 }
 
 export const useMidi = () => {
@@ -94,7 +86,7 @@ export const useMidi = () => {
   useEffect(() => {
     if (midi) {
       WebMidi.enable({ sysex: true })
-        .then(() => console.log('WebMidi with sysex enabled!'))
+        .then(() => log.success('WebMidi with sysex enabled!'))
         .catch((err) => alert(err))
 
       WebMidi.enable()
@@ -107,24 +99,24 @@ export const useMidi = () => {
           if (myInput)
             [
               myInput.addListener('noteon', (e) => {
-                console.log('MIDI-ON', e, shortcut)
+                log.success1('MIDI-ON', e, shortcut)
 
                 setNote(e.note.identifier)
                 setShortcut(e.note.identifier)
               }),
               myInput.addListener('noteoff', (e) => {
-                console.log('MIDI-OFF', e, shortcut)
+                log.success2('MIDI-OFF', e, shortcut)
 
                 setNote(null)
                 setShortcut(e.note.identifier)
               }),
             ]
-          return console.log(input.manufacturer, input.name)
+          return log.success3(input.manufacturer, input.name)
         })
 
         // Outputs
         WebMidi.outputs.forEach((output) =>
-          console.log(output.manufacturer, output.name)
+          log.success3(output.manufacturer, output.name)
         )
       }
     } else {
@@ -132,8 +124,9 @@ export const useMidi = () => {
     }
     return () => {
       if (midi) {
-        WebMidi.disable()
-          .then(() => console.log('WebMidi with sysex disabled!'))
+        WebMidi.disable().then(() =>
+          log.success('WebMidi with sysex disabled!')
+        )
       }
     }
   }, [midi])
@@ -141,10 +134,14 @@ export const useMidi = () => {
   return note
 }
 
-export const Settings: FC = () => {
+export const Settings = () => {
   return (
     <>
-      <ToggleSettings name='midi' iconTurnOn={<Piano />} iconTurnOff={<PianoOff />} />
+      <ToggleSettings
+        name='midi'
+        iconOn={<Piano />}
+        iconOff={<PianoOff color='disabled' />}
+      />
     </>
   )
 }

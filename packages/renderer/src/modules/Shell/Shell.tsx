@@ -3,6 +3,8 @@ import EditButtons from '@/components/EditButtons'
 import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
 import { Button, Icon, TextField } from '@mui/material'
 import { FC, useEffect } from 'react'
+import { log } from '@/utils'
+
 const ipcRenderer = window.ipcRenderer || false
 
 type ShellConfigExample = {}
@@ -50,7 +52,7 @@ export const useOutputActions = (row: Row) => {
   useEffect(() => {
     const listener = (e: any) => {
       if (e.detail === row.id) {
-        console.log('row output triggered', row, e.detail)
+        log.success2('row output triggered', row, e.detail)
         ipcRenderer.sendSync('run-shell', row.output.data.command)
       }
     }
@@ -66,5 +68,5 @@ export const useOutputActions = (row: Row) => {
 }
 
 export const useGlobalActions = () => {
-  console.log('useGlobalActions: shell')
+  log.info1('useGlobalActions:', 'shell')
 }

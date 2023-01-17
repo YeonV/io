@@ -18,7 +18,7 @@ const actions = async (otype: string, opayload: any, clienta?: any) => {
   else if (otype === 'mqtt') {
     const client = mqttService.getClient(console.log)
     if (client) {
-      console.log("payload", opayload)
+      // console.log("payload", opayload)
       client.publish('homeassistant/sensor/gesturesensor/state', opayload);
       // client.publish('blade/gestures', opayload);
     }

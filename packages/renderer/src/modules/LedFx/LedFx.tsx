@@ -1,13 +1,9 @@
 import DisplayButtons from '@/components/DisplayButtons'
 import Host from '@/components/Host'
 import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-} from '@mui/material'
+import { FormControl, InputLabel, Select, MenuItem } from '@mui/material'
 import { FC, useEffect, useState } from 'react'
+import { log } from '@/utils'
 
 type LedFxConfigExample = {}
 
@@ -43,8 +39,14 @@ export const OutputEdit: FC<{
 }> = ({ output, onChange }) => {
   return (
     <>
-      <Host defaultHost='http://localhost:888' path='/api/scenes' onChange={onChange} msgConnected={() => 'Connected to LedFx '} />
-      {output.data.config?.scenes && Object.keys(output.data.config.scenes).length > 0 ? (
+      <Host
+        defaultHost='http://localhost:888'
+        path='/api/scenes'
+        onChange={onChange}
+        msgConnected={() => 'Connected to LedFx '}
+      />
+      {output.data.config?.scenes &&
+      Object.keys(output.data.config.scenes).length > 0 ? (
         <FormControl fullWidth sx={{ mt: 2 }}>
           <InputLabel id='ledfx-scene-label'>Scene</InputLabel>
           <Select
@@ -61,13 +63,16 @@ export const OutputEdit: FC<{
                 onChange({
                   host: output.data.host,
                   sceneId: e.target.value,
-                  text: 'Scene: ' + output.data.config.scenes[e.target.value].name,
+                  text:
+                    'Scene: ' + output.data.config.scenes[e.target.value].name,
                 })
               }
             }}
           >
             {Object.entries(output.data.config.scenes).map(([sid, s]: any) => (
-              <MenuItem key={sid} value={sid}>{s.name}</MenuItem>
+              <MenuItem key={sid} value={sid}>
+                {s.name}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
@@ -81,7 +86,7 @@ export const OutputEdit: FC<{
 export const useOutputActions = (row: Row) => {
   useEffect(() => {
     const listener = async (e: any) => {
-      console.log('row output triggered', row, e.detail)
+      log.success2('row output triggered', row, e.detail)
       if (e.detail === row.id) {
         await fetch(
           `${row.output.data.host || 'http://localhost:8888'}/api/scenes`,
@@ -103,5 +108,5 @@ export const useOutputActions = (row: Row) => {
 }
 
 export const useGlobalActions = () => {
-  console.log('useGlobalActions: ledfx')
+  log.info1('useGlobalActions:', 'ledfx')
 }

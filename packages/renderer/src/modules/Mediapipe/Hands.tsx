@@ -1,7 +1,15 @@
 import Shortkey from '@/modules/Keyboard/Shortkey'
 import { ModuleConfig, InputData, Row, useMainStore } from '@/store/mainStore'
 import { camelToSnake } from '@/utils'
-import { Button, FormControlLabel, FormGroup, Icon, Switch, ToggleButton, Typography } from '@mui/material'
+import {
+  Button,
+  FormControlLabel,
+  FormGroup,
+  Icon,
+  Switch,
+  ToggleButton,
+  Typography,
+} from '@mui/material'
 import { FC, useEffect } from 'react'
 import Hands from '@mediapipe/hands'
 import Holistic from '@mediapipe/holistic'
@@ -17,6 +25,7 @@ import DisplayButtons from '@/components/DisplayButtons'
 import { Camera, Videocam, VideocamOff } from '@mui/icons-material'
 import { Stack } from '@mui/system'
 import ToggleSettings from '@/components/ToggleSettings'
+import { log } from '@/utils'
 
 type HandsConfigExample = {}
 
@@ -40,9 +49,8 @@ export const InputEdit: FC<{
   input: InputData
   onChange: (data: Record<string, any>) => void
 }> = ({ input, onChange }) => {
-  const edit = useMainStore((state) => state.edit)
   const cam = useStore((state) => state.inputs.cam)
-  const mqtt = useStore((state) => state.inputs.mqtt)
+  // const mqtt = useStore((state) => state.inputs.mqtt)
   //   const videoCanvas = useStore((state) => state.videoCanvas)
   //   const videoScene = useStore((state) => state.videoScene)
 
@@ -109,6 +117,7 @@ export const InputEdit: FC<{
   )
   return (
     <div style={{ textAlign: 'left', marginTop: '10px', display: 'flex' }}>
+      <ToggleSettings name='cam' variant='switch' />
       <Button variant='outlined'>{input?.data?.data?.value || ''}</Button>
     </div>
   )
@@ -119,99 +128,17 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   return (
     <>
       <DisplayButtons data={input} />
-      <Shortkey
-        value={input.data.data.value}
-        trigger={() => {
-          console.log('SHORTKEY;')
-        }}
-      />
+      <Shortkey value={input.data.data.value} />
     </>
   )
 }
 
-// export const useCam = () =>
-// // row: Row
-// // onChange: (data: Record<string, any>) => void
-// {
-//   const cam = useStore((state) => state.inputs.cam)
-//   const inMqtt = useStore((state) => state.inputs.mqtt)
-
-//   //   const videoCanvas = useStore((state) => state.videoCanvas)
-//   //   const videoScene = useStore((state) => state.videoScene)
-//   const videoCanvas = document.getElementById(
-//     'video-canvas'
-//   ) as HTMLCanvasElement
-//   const videoScene = new VideoScene(videoCanvas)
-//   var i: number = 0
-//   var currentGesture: Gesture | null = null
-//   var results: Hands.Results | Holistic.Results | null = null
-//   var hand: Hands.LandmarkList | Holistic.LandmarkList | null = null
-
-//   // console.log('WHY0', row)
-//   useEffect(() => {
-//     console.log('WHY')
-//     const listener = (r: any) => {
-//       results = r
-//       const landmarks = r?.multiHandLandmarks[0]
-//       if (landmarks) {
-//         hand = landmarks
-//         const gesture = detectGesture(landmarks)
-//         if (gesture === currentGesture) {
-//           // onChange({ currentGesture })
-//           i++
-//           if (i === 10) {
-//             // window.dispatchEvent(
-//             //   new CustomEvent(`io_input`, { detail: row.id })
-//             // )
-
-//             console.log('Fire', Gesture[gesture])
-//           }
-//         } else {
-//           currentGesture = gesture
-//           i = 0
-//         }
-//       }
-//     }
-
-//     const handsEstimator = new HandsEstimator()
-//     if (videoCanvas) {
-//       if (inMqtt) {
-//         handsEstimator.addListener(listener)
-//         handsEstimator.start()
-//         videoCanvas.style.display = 'block'
-//       } else {
-//         handsEstimator.stop()
-//         handsEstimator.removeListener(listener)
-//         videoCanvas.style.display = 'none'
-//       }
-//     }
-
-//     return () => {
-//       handsEstimator.stop()
-//       handsEstimator.removeListener(listener)
-//       if (videoCanvas) {
-//         videoCanvas.style.display = 'none'
-//       }
-//     }
-//   }, [cam, inMqtt])
-
-//   useRequestAnimationFrame(
-//     (e: any) => {
-//       if (results && videoScene) videoScene.update(results as any)
-//     },
-//     { duration: undefined, shouldAnimate: cam }
-//   )
-//   // return cam ? <>yo</> : <>no</>
-// }
-
 export const useInputActions = (row: Row) => {
   useEffect(() => {
     const listener = (e: any) => {
-      console.log(e)
+      // console.log(e)
       if (e.detail === row.input.data.data.value) {
-        window.dispatchEvent(
-          new CustomEvent(`io_input`, { detail: row.id })
-        )
+        window.dispatchEvent(new CustomEvent(`io_input`, { detail: row.id }))
       }
     }
     window.addEventListener('io_gesture_hands', listener)
@@ -219,11 +146,10 @@ export const useInputActions = (row: Row) => {
       window.removeEventListener('io_gesture_hands', listener)
     }
   }, [row.input.data.data.value])
-
 }
 
 export const useGlobalActions = () => {
-  console.log('useGlobalActions: hands')
+  log.info1('useGlobalActions:', 'hands')
   const cam = useStore((state) => state.inputs.cam)
   const edit = useMainStore((state) => state.edit)
 
@@ -245,8 +171,7 @@ export const useGlobalActions = () => {
             window.dispatchEvent(
               new CustomEvent(`io_gesture_hands`, { detail: Gesture[gesture] })
             )
-
-            console.log('Fire', Gesture[gesture])
+            log.success1('Fire Gesture', Gesture[gesture])
           }
         } else {
           currentGesture = gesture
@@ -272,7 +197,7 @@ export const useGlobalActions = () => {
   }, [cam, edit])
 }
 
-export const Settings: FC = () => {
+export const Settings = () => {
   return (
     <>
       <ToggleSettings name='cam' />

@@ -37,7 +37,7 @@ export type IOModule = {
   OutputDisplay?: FC<{
     output: OutputData
   }>
-  Settings?: FC
+  Settings?: FC<any>
   useInputActions?: (row: Row) => void
   useOutputActions?: (row: Row) => void
   useGlobalActions?: () => void

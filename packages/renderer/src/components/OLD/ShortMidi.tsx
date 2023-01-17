@@ -78,7 +78,7 @@ const ShortMidi = ({
           value={''}
           style={{ width: 400 }}
           onKeyDown={(e) => {
-            console.log(e)
+            // console.log(e)
             if (e.ctrlKey) {
               setCtrl(true)
             }
@@ -127,7 +127,7 @@ const ShortMidi = ({
             if (e.code.includes('Key')) {
               setKey('')
             }
-            console.log(e)
+            // console.log(e)
           }}
         />
         <Stack
@@ -230,7 +230,7 @@ const ShortMidi = ({
                 .indexOf(shortcut.toLowerCase()) > -1
             }
             onClick={() => {
-              console.log(shortcut)
+              // console.log(shortcut)
               addShortcut(
                 shortcut.toLowerCase(),
                 message,

@@ -2,6 +2,7 @@ import DisplayButtons from '@/components/DisplayButtons'
 import type { InputData, ModuleConfig, OutputData } from '@/store/mainStore'
 import { TextField } from '@mui/material'
 import { FC, useEffect, useState } from 'react'
+import { log } from '@/utils'
 type MqttConnection = {
   host: string
   id: string
@@ -125,5 +126,5 @@ export const OutputDisplay: FC<{
 }
 
 export const useGlobalActions = () => {
-  console.log('useGlobalActions: HomeAssistant')
+  log.info1('useGlobalActions:', 'HomeAssistant')
 }

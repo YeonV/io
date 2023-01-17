@@ -3,6 +3,8 @@ import EditButtons from '@/components/EditButtons'
 import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
 import { Button, Icon, TextField } from '@mui/material'
 import { FC, useEffect } from 'react'
+import { log } from '@/utils'
+
 const ipcRenderer = window.ipcRenderer || false
 
 type SayConfigExample = {}
@@ -62,7 +64,7 @@ export const OutputEdit: FC<{
 export const useOutputActions = (row: Row) => {
   useEffect(() => {
     const listener = (e: any) => {
-      console.log('row output triggered', row, e.detail)
+      log.success2('row output triggered', row, e.detail)
       if (e.detail === row.id) {
         const spk = new SpeechSynthesisUtterance()
         spk.text = row.output.data.command || row.output.data.text
@@ -77,5 +79,5 @@ export const useOutputActions = (row: Row) => {
 }
 
 export const useGlobalActions = () => {
-  console.log('useGlobalActions: say')
+  log.info1('useGlobalActions:', 'say')
 }
