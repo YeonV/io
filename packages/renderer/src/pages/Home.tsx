@@ -23,6 +23,7 @@ const Home = () => {
   const inMqtt = useStore((state) => state.inputs.mqtt)
   const outMqtt = useStore((state) => state.outputs.mqtt)
   const useMqtt = inMqtt && outMqtt
+  const setInput = useStore((state) => state.setInput)
 
   useEffect(() => {
     const client = useMqtt ? mqttService.getClient(console.log) : null
@@ -131,6 +132,7 @@ const Home = () => {
         <IoNewRow
           onComplete={() => {
             setEdit(false)
+            setInput('midi', false)
           }}
         />
       )}
