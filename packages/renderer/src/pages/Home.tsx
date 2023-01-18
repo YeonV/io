@@ -9,7 +9,6 @@ import IoNewRow from '@/components/IoNewRow'
 import Wrapper from '@/components/Wrapper'
 
 // var client = null as any
-
 const ipcRenderer = window.ipcRenderer || false
 
 // export const MqttContext = createContext<any>(client);
@@ -18,7 +17,6 @@ const Home = () => {
   const [data, setData] = useState(0)
   const edit = useMainStore((state) => state.edit)
   const setEdit = useMainStore((state) => state.setEdit)
-  const cam = useStore((state) => state.inputs.cam)
   const mqttData = useStore((state) => state.mqttData)
   const inMqtt = useStore((state) => state.inputs.mqtt)
   const outMqtt = useStore((state) => state.outputs.mqtt)

@@ -90,13 +90,13 @@ export const useMidi = () => {
           const myInput = WebMidi.getInputByName(input.name)
           if (!!myInput)
             [
-              myInput.addListener('noteon', (e) => {
+              myInput?.addListener('noteon', (e) => {
                 log.success1('MIDI-ON', e, shortcut)
 
                 setNote(e.note.identifier)
                 setShortcut(e.note.identifier)
               }),
-              myInput.addListener('noteoff', (e) => {
+              myInput?.addListener('noteoff', (e) => {
                 log.success2('MIDI-OFF', e, shortcut)
 
                 setNote(null)
