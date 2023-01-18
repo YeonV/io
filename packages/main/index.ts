@@ -218,3 +218,7 @@ ipcMain.on('toggle-darkmode', (event) => {
   nativeTheme.themeSource = res
   if (pkg.env.VITRON_CUSTOM_TITLEBAR) win?.reload();
 });
+ipcMain.on('restart-app', (event) => {
+  app.relaunch()
+  app.exit()
+});

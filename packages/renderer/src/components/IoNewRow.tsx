@@ -6,9 +6,12 @@ import { v4 as uuidv4 } from 'uuid'
 import { InputSelector } from '@/components/InputSelector'
 import { OutputSelector } from '@/components/OutputSelector'
 import { useMainStore } from '@/store/mainStore'
+import { useStore } from '@/store/OLD/useStore'
 
 export const IoNewRow = ({ onComplete }: { onComplete: () => void }) => {
   const addRow = useMainStore((state) => state.addRow)
+  const setInput = useStore((state) => state.setInput)
+
   const [templateRow, setRow] = useState<Partial<Row> & Pick<Row, 'id'>>({
     id: uuidv4(),
   })
@@ -144,6 +147,13 @@ export const IoNewRow = ({ onComplete }: { onComplete: () => void }) => {
                 outputModule: templateRow.outputModule,
               })
               onComplete()
+              if (templateRow.inputModule === 'alexa-module') {
+                localStorage.setItem('io-restart-needed', 'yes')
+              }
+
+              if (templateRow.inputModule === 'midi-module') {
+                setInput('midi', false)
+              }
             }
           }}
         >

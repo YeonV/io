@@ -21,7 +21,6 @@ const Home = () => {
   const inMqtt = useStore((state) => state.inputs.mqtt)
   const outMqtt = useStore((state) => state.outputs.mqtt)
   const useMqtt = inMqtt && outMqtt
-  const setInput = useStore((state) => state.setInput)
 
   useEffect(() => {
     const client = useMqtt ? mqttService.getClient(console.log) : null
@@ -108,11 +107,16 @@ const Home = () => {
 
   return (
     <Wrapper>
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          marginTop: '1rem',
+          marginBottom: '1rem',
+        }}
+      >
         {SettingsWidgets.map((n: any, i: number) => (
-          <div key={i} style={{ padding: '1rem' }}>
-            {n}
-          </div>
+          <div key={i}>{n}</div>
         ))}
       </div>
       {Object.values(rows).map((row) => {
@@ -130,7 +134,6 @@ const Home = () => {
         <IoNewRow
           onComplete={() => {
             setEdit(false)
-            setInput('midi', false)
           }}
         />
       )}

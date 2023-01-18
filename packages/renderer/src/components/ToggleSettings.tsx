@@ -30,7 +30,10 @@ const ToggleSettings: FC<SettingsProps> = ({
       key={name}
       size='large'
       value='camera'
-      sx={{ '& .MuiSvgIcon-root': { fontSize: 50 } }}
+      sx={{
+        '& .MuiSvgIcon-root': { fontSize: 50 },
+        '&.MuiToggleButton-root': { margin: 2 },
+      }}
       selected={inputs[name as keyof typeof inputs]}
       onChange={() => toggleInput(name)}
     >
@@ -44,7 +47,7 @@ const ToggleSettings: FC<SettingsProps> = ({
         }}
       >
         <Typography variant='caption' color={'#999'}>
-          {name}
+          {name} is {inputs[name as keyof typeof inputs] ? 'on' : 'off'}
         </Typography>
         {inputs[name as keyof typeof inputs] ? iconOn : iconOff}
         <Typography variant='caption' color={'#999'}>

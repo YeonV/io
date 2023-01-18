@@ -1,9 +1,14 @@
 import DisplayButtons from '@/components/DisplayButtons'
-import { ModuleConfig, InputData, Row, useMainStore } from '@/store/mainStore'
-import { Button, Icon, TextField } from '@mui/material'
+import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
+import { useMainStore } from '@/store/mainStore'
+import { Button, Icon, TextField, useMediaQuery } from '@mui/material'
 import type { FC } from 'react'
 import { useEffect } from 'react'
 import { log } from '@/utils'
+import ToggleButton from '@mui/material/ToggleButton'
+import Typography from '@mui/material/Typography'
+import { Sync } from '@mui/icons-material'
+import Shortkey from '../Keyboard/Shortkey'
 
 const ipcRenderer = window.ipcRenderer || false
 
@@ -54,17 +59,18 @@ export const InputEdit: FC<{
 }
 
 export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
-  // console.log(input)
+  const desktop = useMediaQuery('(min-width:980px)')
   return (
     <>
       <DisplayButtons data={input} />
-      <Button
+      {/* <Button
         variant='outlined'
         color={'inherit'}
         sx={{ pointerEvents: 'none' }}
       >
         {input.data.value}
-      </Button>
+      </Button> */}
+      {desktop && <Shortkey value={input.data.value} />}
     </>
   )
 }
@@ -101,3 +107,38 @@ export const useInputActions = (row: Row) => {
   }, [])
 }
 
+export const Settings = () => {
+  return localStorage.getItem('io-restart-needed') === 'yes' ? (
+    <ToggleButton
+      size='large'
+      value='restart'
+      sx={{ '& .MuiSvgIcon-root': { fontSize: 50 } }}
+      selected={localStorage.getItem('io-restart-needed') === 'yes'}
+      onChange={() => {
+        ipcRenderer?.sendSync('restart-app')
+        localStorage.setItem('io-restart-needed', 'no')
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 90,
+          height: 90,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Typography variant='caption' color={'#999'}>
+          Restart
+        </Typography>
+        <Sync />
+        <Typography variant='caption' color={'#999'}>
+          Sync Alexa
+        </Typography>
+      </div>
+    </ToggleButton>
+  ) : (
+    <></>
+  )
+}
