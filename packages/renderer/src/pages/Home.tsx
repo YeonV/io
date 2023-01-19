@@ -4,9 +4,9 @@ import { Button } from '@mui/material'
 import { useStore } from '../store/OLD/useStore'
 import { Add } from '@mui/icons-material'
 import mqttService from '@/components/OLD/MQTT/mqttService'
-import IoRow from '@/components/IoRow'
-import IoNewRow from '@/components/IoNewRow'
-import Wrapper from '@/components/Wrapper'
+import IoRow from '@/components/Row/IoRow'
+import IoNewRow from '@/components/Row/IoNewRow'
+import Wrapper from '@/components/utils/Wrapper'
 
 // var client = null as any
 const ipcRenderer = window.ipcRenderer || false
@@ -21,6 +21,7 @@ const Home = () => {
   const inMqtt = useStore((state) => state.inputs.mqtt)
   const outMqtt = useStore((state) => state.outputs.mqtt)
   const useMqtt = inMqtt && outMqtt
+  const setDarkMode = useStore((state) => state.ui.setDarkMode)
 
   useEffect(() => {
     const client = useMqtt ? mqttService.getClient(console.log) : null
@@ -68,6 +69,12 @@ const Home = () => {
       ipcRenderer.on('get', (event: any, data: any) => {
         setData(data.count)
       })
+      async function getDarkMode() {
+        const dark = await ipcRenderer.sendSync('get-darkmode')
+        console.log(dark)
+        setDarkMode(dark === 'yes')
+      }
+      getDarkMode()
     }
     console.info(
       // eslint-disable-next-line no-useless-concat

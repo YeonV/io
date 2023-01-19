@@ -4,7 +4,7 @@ import { useStore } from './store/OLD/useStore'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import pkg from '../../../package.json'
-import ErrorBoundary from './components/ErrorBoundary'
+import ErrorBoundary from './components/utils/ErrorBoundary'
 
 const App = () => {
   const darkMode = useStore((state) => state.ui.darkMode)

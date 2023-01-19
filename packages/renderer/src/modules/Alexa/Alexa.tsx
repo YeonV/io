@@ -1,4 +1,4 @@
-import DisplayButtons from '@/components/DisplayButtons'
+import DisplayButtons from '@/components/Row/DisplayButtons'
 import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
 import { useMainStore } from '@/store/mainStore'
 import { Button, Icon, TextField, useMediaQuery } from '@mui/material'

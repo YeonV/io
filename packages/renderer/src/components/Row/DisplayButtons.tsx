@@ -1,6 +1,6 @@
 import { InputData, OutputData } from '@/store/mainStore'
 import { Button, useMediaQuery } from '@mui/material'
-import IoIcon from './IoIcon/IoIcon'
+import IoIcon from '../IoIcon/IoIcon'
 
 const DisplayButtons = ({ data }: { data: InputData | OutputData }) => {
   const desktop = useMediaQuery('(min-width:980px)')

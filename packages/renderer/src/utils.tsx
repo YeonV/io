@@ -71,6 +71,9 @@ const randColor = () => {
       .toUpperCase()
   )
 }
+
+const badgeStyle =
+  'padding: 3px 5px; border-radius: 5px; color: #fff; background: '
 /** Logger which outputs to the browser console */
 export class ConsoleLogger implements Logger {
   readonly log: LogFn
@@ -88,53 +91,17 @@ export class ConsoleLogger implements Logger {
     this.log = console.log.bind(
       console,
       '%c %s',
-      `padding: 3px 5px; border-radius: 5px; background: ${randColor()};`
+      `${badgeStyle}${randColor()};`
     )
-    this.info = console.log.bind(
-      console,
-      '%c %s',
-      `padding: 3px 5px; border-radius: 5px; background: #234567;`
-    )
-    this.info1 = console.log.bind(
-      console,
-      '%c %s',
-      `padding: 3px 5px; border-radius: 5px; background: #012345;`
-    )
-    this.info2 = console.log.bind(
-      console,
-      '%c %s',
-      `padding: 3px 5px; border-radius: 5px; background: #345678;`
-    )
-    this.info3 = console.log.bind(
-      console,
-      '%c %s',
-      `padding: 3px 5px; border-radius: 5px; background: #456789;`
-    )
-    this.success = console.log.bind(
-      console,
-      '%c %s',
-      `padding: 3px 5px; border-radius: 5px; background: #333d29;`
-    )
-    this.success1 = console.log.bind(
-      console,
-      '%c %s',
-      `padding: 3px 5px; border-radius: 5px; background: #1e1e1e;`
-    )
-    this.success2 = console.log.bind(
-      console,
-      '%c %s',
-      `padding: 3px 5px; border-radius: 5px; background: #5c6e49;`
-    )
-    this.success3 = console.log.bind(
-      console,
-      '%c %s',
-      `padding: 3px 5px; border-radius: 5px; background: #70865a;`
-    )
-    this.error = console.log.bind(
-      console,
-      '%c %s',
-      `padding: 3px 5px; border-radius: 5px; background: #800000;`
-    )
+    this.info = console.log.bind(console, '%c %s', `${badgeStyle}#234567;`)
+    this.info1 = console.log.bind(console, '%c %s', `${badgeStyle}#012345;`)
+    this.info2 = console.log.bind(console, '%c %s', `${badgeStyle}#345678;`)
+    this.info3 = console.log.bind(console, '%c %s', `${badgeStyle}#456789;`)
+    this.success = console.log.bind(console, '%c %s', `${badgeStyle}#333d29;`)
+    this.success1 = console.log.bind(console, '%c %s', `${badgeStyle}#1e1e1e;`)
+    this.success2 = console.log.bind(console, '%c %s', `${badgeStyle}#5c6e49;`)
+    this.success3 = console.log.bind(console, '%c %s', `${badgeStyle}#70865a;`)
+    this.error = console.log.bind(console, '%c %s', `${badgeStyle}#800000;`)
   }
 }
 

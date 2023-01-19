@@ -10,7 +10,7 @@ import { VideoScene } from './Old/video/video-scene-holistic'
 import { useStore } from '@/store/OLD/useStore'
 import useRequestAnimationFrame from 'use-request-animation-frame'
 import { HolisticEstimator } from './Old/core/holistic-estimator'
-import DisplayButtons from '@/components/DisplayButtons'
+import DisplayButtons from '@/components/Row/DisplayButtons'
 import ToggleSettings from '@/components/ToggleSettings'
 
 type HolisticConfigExample = {}

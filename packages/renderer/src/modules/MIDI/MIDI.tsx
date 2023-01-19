@@ -8,7 +8,7 @@ import { WebMidi } from 'webmidi'
 import { Piano, PianoOff } from '@mui/icons-material'
 import Shortkey from '@/modules/Keyboard/Shortkey'
 import ShortMidi from './ShortMidi'
-import DisplayButtons from '@/components/DisplayButtons'
+import DisplayButtons from '@/components/Row/DisplayButtons'
 import ToggleSettings from '@/components/ToggleSettings'
 
 type MidiConfigExample = {}

@@ -1,6 +1,6 @@
 import { ModuleId, Input, useMainStore } from '@/store/mainStore'
 import { Autocomplete, Icon, TextField } from '@mui/material'
-import IoIcon from './IoIcon/IoIcon'
+import IoIcon from '../IoIcon/IoIcon'
 
 export const OutputSelector = ({
   onSelect,

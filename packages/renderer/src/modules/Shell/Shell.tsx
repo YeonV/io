@@ -2,8 +2,8 @@ import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
 import type { FC } from 'react'
 import { useEffect } from 'react'
 import { log } from '@/utils'
-import DisplayButtons from '@/components/DisplayButtons'
-import EditButtons from '@/components/EditButtons'
+import DisplayButtons from '@/components/Row/DisplayButtons'
+import EditButtons from '@/components/Row/EditButtons'
 
 const ipcRenderer = window.ipcRenderer || false
 

@@ -3,7 +3,7 @@ import type { FC } from 'react'
 import { TextField } from '@mui/material'
 import { useEffect } from 'react'
 import { log } from '@/utils'
-import DisplayButtons from '@/components/DisplayButtons'
+import DisplayButtons from '@/components/Row/DisplayButtons'
 import Host from '@/components/Host'
 
 type WledConfigExample = {}

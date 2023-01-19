@@ -1,4 +1,4 @@
-import DisplayButtons from '@/components/DisplayButtons'
+import DisplayButtons from '@/components/Row/DisplayButtons'
 import type { InputData, ModuleConfig, OutputData } from '@/store/mainStore'
 import { TextField } from '@mui/material'
 import type { FC } from 'react'

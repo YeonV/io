@@ -23,7 +23,7 @@ export const useStore = create(
           Object.fromEntries(
             Object.entries(state).filter(
               ([key]) =>
-                !['inputs', 'outputs',].includes(key)
+                !['inputs', 'outputs', 'ui'].includes(key)
             )
           ),
       }

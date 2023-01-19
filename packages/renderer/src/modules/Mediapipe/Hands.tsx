@@ -2,7 +2,10 @@ import type { FC } from 'react'
 import { ModuleConfig, InputData, Row, useMainStore } from '@/store/mainStore'
 import { Button } from '@mui/material'
 import { useEffect } from 'react'
-import { detectGesture, Gesture } from '../../modules/Mediapipe/Old/core/gesture-detector'
+import {
+  detectGesture,
+  Gesture,
+} from '../../modules/Mediapipe/Old/core/gesture-detector'
 import { VideoScene } from './Old/video/video-scene'
 import { useStore } from '@/store/OLD/useStore'
 import { HandsEstimator } from './Old/core/hands-estimator'
@@ -11,7 +14,7 @@ import useRequestAnimationFrame from 'use-request-animation-frame'
 import Hands from '@mediapipe/hands'
 import Holistic from '@mediapipe/holistic'
 import Shortkey from '@/modules/Keyboard/Shortkey'
-import DisplayButtons from '@/components/DisplayButtons'
+import DisplayButtons from '@/components/Row/DisplayButtons'
 import ToggleSettings from '@/components/ToggleSettings'
 
 type HandsConfigExample = {}
@@ -105,14 +108,16 @@ export const InputEdit: FC<{
     <div style={{ textAlign: 'left', marginTop: '10px', display: 'flex' }}>
       <ToggleSettings name='cam' variant='switch' />
       <Button variant='outlined'>{input?.data?.data?.value || ''}</Button>
-      <canvas style={{
-        height: 150,
-        width: 150,
-        position: 'absolute',
-        bottom: 0,
-        border: '2px solid #0dbedc00'
-      }}
-        id="video-canvas-hands" />
+      <canvas
+        style={{
+          height: 150,
+          width: 150,
+          position: 'absolute',
+          bottom: 0,
+          border: '2px solid #0dbedc00',
+        }}
+        id='video-canvas-hands'
+      />
     </div>
   )
 }

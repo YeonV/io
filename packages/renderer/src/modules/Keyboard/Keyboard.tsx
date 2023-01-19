@@ -3,7 +3,7 @@ import type { FC } from 'react'
 import { log } from '@/utils'
 import { useMediaQuery } from '@mui/material'
 import { useHotkeys } from 'react-hotkeys-hook'
-import DisplayButtons from '@/components/DisplayButtons'
+import DisplayButtons from '@/components/Row/DisplayButtons'
 import Shortkey from '@/modules/Keyboard/Shortkey'
 
 type KeyboardConfigExample = {}
