@@ -32,7 +32,7 @@ const ToggleSettings: FC<SettingsProps> = ({
       value='camera'
       sx={{
         '& .MuiSvgIcon-root': { fontSize: 50 },
-        '&.MuiToggleButton-root': { margin: 2 },
+        // '&.MuiToggleButton-root': { margin: 2 },
       }}
       selected={inputs[name as keyof typeof inputs]}
       onChange={() => toggleInput(name)}

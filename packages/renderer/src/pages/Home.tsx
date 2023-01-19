@@ -123,7 +123,9 @@ const Home = () => {
         }}
       >
         {SettingsWidgets.map((n: any, i: number) => (
-          <div key={i}>{n}</div>
+          <div key={i} style={{ padding: '16px' }}>
+            {n}
+          </div>
         ))}
       </div>
       {Object.values(rows).map((row) => {
