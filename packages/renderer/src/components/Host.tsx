@@ -30,7 +30,6 @@ const Host = ({
   const [success, setSuccess] = useState(undefined as true | false | undefined)
 
   useEffect(() => {
-    // console.log(config)
     onChange({
       host: innerHost,
       config,

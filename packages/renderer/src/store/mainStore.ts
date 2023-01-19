@@ -119,10 +119,10 @@ export const useMainStore = create<State>()(
           )
         },
         deleteRow: (row: Row) => {
-          console.log('add row', row)
+          // console.log('add row', row)
           set(
             (state) => {
-              console.log('state', state)
+              // console.log('state', state)
               return {
                 ...state,
                 rows: omit(state.rows, [row.id]),

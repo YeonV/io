@@ -15,7 +15,6 @@ export const IoNewRow = ({ onComplete }: { onComplete: () => void }) => {
   const [templateRow, setRow] = useState<Partial<Row> & Pick<Row, 'id'>>({
     id: uuidv4(),
   })
-  // console.log(templateRow)
   const modules = useMainStore((state) => state.modules)
   const selectedInputModule = useMemo(() => {
     if (!templateRow.input || !templateRow.inputModule) {

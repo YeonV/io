@@ -1,6 +1,7 @@
 import {LandmarkList} from "@mediapipe/hands";
 import {transformToXYPlane} from "../math/transform-to-x-y-plane";
 import {HandLandmarks} from "./hand-landmarks";
+import { log } from '@/utils'
 
 export enum Gesture {
     Unknown,
@@ -47,40 +48,40 @@ export function detectGesture(landmarks: LandmarkList | null): Gesture {
 
     if (isIndexStreched && isMiddleStreched && isRingStreched && isPinkyStreched) {
         if (isVulcan(landmarks)) {
-            console.log("VULCAN")
+            log.success2("AI:Hands", "VULCAN")
             return Gesture.Vulcan;    
         } else {
-            console.log("PAPER")
+            log.success2("AI:Hands", "PAPER")
             return Gesture.Paper;
         }
     }
 
     if (!isIndexStreched && !isMiddleStreched && !isRingStreched && !isPinkyStreched)  {    
         // if (isThumbStreched(landmarks)) {
-            console.log("Thumbs")
+            log.success2("AI:Hands", "Thumbs")
             return Gesture.ThumbsUp;    
         // } else {
-        //     console.log("ROCK")
+        //     log.success2("AI:Hands", "ROCK")
         //     return Gesture.Rock;
         // }
     }
 
     if (!isIndexStreched && isMiddleStreched && !isRingStreched && !isPinkyStreched)  {
-        console.log("FUCK YOU")
+        log.success2("AI:Hands", "FUCK YOU")
         return Gesture.Fuckyou;
     }
     // if (!isIndexStreched && !isMiddleStreched && !isRingStreched && !isPinkyStreched && !isThumbStreched)  {
-    //     console.log("ROCK")
+    //     log.success2("AI:Hands", "ROCK")
     //     return Gesture.Rock;
     // }
 
     // if (!isIndexStreched && !isMiddleStreched && !isRingStreched && !isPinkyStreched && isThumbStreched) {
-    //     console.log("Thumbs Up")
+    //     log.success2("AI:Hands", "Thumbs Up")
     //     return Gesture.Rock;
     // }
 
     if (isIndexStreched && isMiddleStreched) {
-        console.log("SCISSORS")
+        log.success2("AI:Hands", "SCISSORS")
         return Gesture.Scissors;
     }
     return Gesture.Unknown;

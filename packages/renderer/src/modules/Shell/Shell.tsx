@@ -57,7 +57,7 @@ export const useOutputActions = (row: Row) => {
       }
     }
     ipcRenderer.on('run-shell-answer', (event: any, data: any) => {
-      console.log(JSON.stringify(data.result))
+      log.info2(JSON.stringify(data.result))
     })
     window.addEventListener('io_input', listener)
     return () => {
