@@ -38,7 +38,7 @@ export const InputSelector = ({
         </li>
       )}
       isOptionEqualToValue={(opt, value) => opt.id === value.id}
-      getOptionDisabled={(opt) => !opt.moduleEnabled}
+      getOptionDisabled={(opt) => !opt.moduleEnabled || opt.label === 'REST'}
       groupBy={(option) => option.group}
       renderInput={(params) => {
         return (
