@@ -120,6 +120,43 @@ app.whenReady().then(createWindow).then(async () => {
     tray.setIgnoreDoubleClickEvents(true)
     tray.on('click', () => win?.show())
   }
+  win?.webContents.once("did-finish-load", async function () {
+    const express = require("express");
+    const webapp = express(); // create express webapp
+    
+    const rows = await store.get("rows")
+    webapp.get("/rows", (req: any, res: any) => {
+      if (req.query && req.query.id) {
+        win?.webContents.send('trigger-row', { id: req.query.id });
+        res.json(req.query);  
+      } else {
+        res.json(rows);
+      }
+    });
+
+    // add middleware
+    webapp.use('/', express.static(join(__dirname, '../renderer')));
+    webapp.use('/deck', express.static(join(__dirname, '../renderer')));
+
+    // start express server on port 1337
+    webapp.listen(1337, () => {
+      console.log("server started on port 1337");
+    });
+    // var http = require("http");
+    // var server = http.createServer(function (req: Request, res: any) {
+    //   console.log(req.url)
+    //   if (req.url == '/123') {
+    //     res.end(`ah, you send 123.`);
+    //   } else {
+    //     const remoteAddress = res.socket.remoteAddress;
+    //     const remotePort = res.socket.remotePort;
+    //     res.end(`Your IP address is ${remoteAddress} and your source port is ${remotePort}.`);  
+    //   }
+    // });
+    // server.listen(1337);
+    // console.log("http://localhost:"+1337);
+  });
+
 });
 
 app.on('window-all-closed', () => {

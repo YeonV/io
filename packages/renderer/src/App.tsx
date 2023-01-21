@@ -5,6 +5,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import pkg from '../../../package.json'
 import ErrorBoundary from './components/utils/ErrorBoundary'
+import Wrapper from './components/utils/Wrapper'
+import Deck from './pages/Deck'
 
 const App = () => {
   const darkMode = useStore((state) => state.ui.darkMode)
@@ -46,12 +48,17 @@ const App = () => {
       }),
     [darkMode]
   )
+
   return (
     <ThemeProvider theme={theme}>
       <ErrorBoundary>
         <HashRouter>
           <Routes>
-            <Route path='/' element={<Home />} />
+            {window.location.pathname === '/deck/' ? (
+              <Route path='/' element={<Deck />} />
+            ) : (
+              <Route path='/' element={<Home />} />
+            )}
           </Routes>
         </HashRouter>
       </ErrorBoundary>

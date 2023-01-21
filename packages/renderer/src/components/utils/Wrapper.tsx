@@ -45,24 +45,28 @@ const Wrapper = ({ children }: any) => {
               : '100vh',
         }}
       >
-        <header className={styles.logos}>
-          <img
-            src={logo}
-            style={{ width: '100px', filter: 'invert(0)' }}
-            alt='logoIO'
-          />
-          <div className={styles.imgBox}>
+        {window.location.pathname !== '/deck/' ? (
+          <header className={styles.logos}>
             <img
-              src={logoTitle}
-              style={{ width: '480px', filter: 'invert(0)' }}
-              alt='InputOutput'
+              src={logo}
+              style={{ width: '100px', filter: 'invert(0)' }}
+              alt='logoIO'
             />
-          </div>
-        </header>
+            <div className={styles.imgBox}>
+              <img
+                src={logoTitle}
+                style={{ width: '480px', filter: 'invert(0)' }}
+                alt='InputOutput'
+              />
+            </div>
+          </header>
+        ) : (
+          <div></div>
+        )}
         <main style={{ width: '100%', maxWidth: 960 }}>
           {children}
 
-          {!ipcRenderer && (
+          {!ipcRenderer && window.location.pathname !== '/deck/' && (
             <Typography variant='body2' color='#666' sx={{ mt: 5 }}>
               If you are accessing this site via httpS, but want to communicate
               with your local network (mqtt, http, ws), you need to allow

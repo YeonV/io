@@ -92,6 +92,26 @@ const Home = () => {
   const modules = useMainStore((state) => state.modules)
   const rows = useMainStore((state) => state.rows)
 
+  useEffect(() => {
+    if (ipcRenderer) {
+      ipcRenderer.send('set', ['rows', rows])
+    }
+  }, [rows])
+
+  useEffect(() => {
+    if (ipcRenderer) {
+      ipcRenderer.on('trigger-row', (event: any, data: any) => {
+        if (data.id)
+          window.dispatchEvent(new CustomEvent(`io_input`, { detail: data.id }))
+      })
+    }
+    return () => {
+      if (ipcRenderer) {
+        ipcRenderer.removeAllListeners('alexa-device')
+      }
+    }
+  }, [])
+
   const usedModules = [
     ...Object.values(rows).flatMap((r) => r.inputModule),
     ...Object.values(rows).flatMap((r) => r.outputModule),
