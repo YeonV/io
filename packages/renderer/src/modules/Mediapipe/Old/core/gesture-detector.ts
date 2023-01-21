@@ -19,10 +19,12 @@ export enum Gesture {
 function isFingerStretched(landmarks: LandmarkList, finger: number[]): boolean {
     return landmarks[finger[0]].x < landmarks[finger[1]].x && landmarks[finger[1]].x < landmarks[finger[3]].x;
 }
-function thumbStreched(landmarks: LandmarkList, ): boolean {
-    return (Math.abs(landmarks[4].x - landmarks[6].x) < Math.abs(landmarks[6].x - landmarks[14].x)) ||
-        (Math.abs(landmarks[4].y - landmarks[6].y) < Math.abs(landmarks[6].y - landmarks[14].y));
-}
+// function thumbStreched(landmarks: LandmarkList, ): boolean {
+//     return (Math.abs(landmarks[4].x - landmarks[6].x) < Math.abs(landmarks[6].x - landmarks[14].x)) ||
+//         (Math.abs(landmarks[4].y - landmarks[6].y) < Math.abs(landmarks[6].y - landmarks[14].y));
+// }
+
+
 // function thumbStreched(landmarks: LandmarkList): boolean {
 //     return Math.abs(landmarks[4].x - landmarks[8].x) > 2 * Math.max(Math.abs(landmarks[8].x - landmarks[12].x), Math.abs(landmarks[12].x - landmarks[16].x), Math.abs(landmarks[16].x - landmarks[20].x));
 // }
@@ -45,15 +47,17 @@ export function detectGesture(landmarks: LandmarkList | null): Gesture {
     const ring = [HandLandmarks.Ring_finger_mcp, HandLandmarks.Ring_finger_pip, HandLandmarks.Ring_finger_dip, HandLandmarks.Ring_finger_tip];
     const pinky = [HandLandmarks.Pinky_mcp, HandLandmarks.Pinky_pip, HandLandmarks.Pinky_dip, HandLandmarks.Pinky_tip];
 
+
     // const isThumbStreched = thumbStreched(landmarks);
-    const isThumbStreched = thumbStreched(landmarks);
+
+    // const isThumbStreched = thumbStreched(landmarks);
     // const isThumbStreched = isFingerStretched(landmarks, thumb);
     const isIndexStreched = isFingerStretched(landmarks, index);
     const isMiddleStreched = isFingerStretched(landmarks, middle);
     const isRingStreched = isFingerStretched(landmarks, ring);
     const isPinkyStreched = isFingerStretched(landmarks, pinky);
 
-    console.log(isThumbStreched)
+    // console.log(isThumbStreched)
     
     /*
         const distanceTipThumbIndex = Math.abs(landmarks[HandLandmarks.Thumb_tip].x - HandLandmarks.Index_finger_tip)
@@ -77,13 +81,13 @@ export function detectGesture(landmarks: LandmarkList | null): Gesture {
     }
 
     if (!isIndexStreched && !isMiddleStreched && !isRingStreched && !isPinkyStreched)  {    
-        if (isThumbStreched) {
+        // if (isThumbStreched) {
             log.success2("AI:Hands", "Thumbs")
             return Gesture.ThumbsUp;    
-        } else {
-            log.success2("AI:Hands", "ROCK")
-            return Gesture.Rock;
-        }
+        // } else {
+        //     log.success2("AI:Hands", "ROCK")
+        //     return Gesture.Rock;
+        // }
     }
 
     if (!isIndexStreched && isMiddleStreched && !isRingStreched && !isPinkyStreched)  {
