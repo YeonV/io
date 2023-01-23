@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useMainStore } from '@/store/mainStore'
-import { Button } from '@mui/material'
+import { Button, ToggleButton, Typography } from '@mui/material'
 import { useStore } from '../store/OLD/useStore'
-import { Add } from '@mui/icons-material'
+import { Add, Sync } from '@mui/icons-material'
 import mqttService from '@/components/OLD/MQTT/mqttService'
 import IoRow from '@/components/Row/IoRow'
 import IoNewRow from '@/components/Row/IoNewRow'
@@ -138,19 +138,54 @@ const Home = () => {
         style={{
           display: 'flex',
           justifyContent: 'center',
-          marginTop: '1rem',
           marginBottom: '1rem',
         }}
       >
         {SettingsWidgets.map((n: any, i: number) => (
-          <div key={i} style={{ padding: '16px' }}>
+          <div key={i} style={{ padding: '8px' }}>
             {n}
           </div>
         ))}
+        {/* {localStorage.getItem('io-restart-needed') === 'deck' ? ( */}
+        {
+          <div style={{ padding: '8px' }}>
+            <ToggleButton
+              size='large'
+              value='restart'
+              sx={{ '& .MuiSvgIcon-root': { fontSize: 50 } }}
+              selected={localStorage.getItem('io-restart-needed') === 'yes'}
+              onChange={() => {
+                ipcRenderer?.sendSync('restart-app')
+                localStorage.setItem('io-restart-needed', 'no')
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  minWidth: 90,
+                  height: 90,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography variant='caption' color={'#999'}>
+                  Restart
+                </Typography>
+                <Sync />
+                <Typography variant='caption' color={'#999'}>
+                  Sync Deck
+                </Typography>
+              </div>
+            </ToggleButton>
+          </div>
+        }
       </div>
-      {Object.values(rows).map((row) => {
-        return <IoRow key={row.id} row={row} />
-      })}
+      <div style={{ maxHeight: 'calc(100vh - 356px)', overflowY: 'scroll' }}>
+        {Object.values(rows).map((row) => {
+          return <IoRow key={row.id} row={row} />
+        })}
+      </div>
       {!edit ? (
         <Button
           variant='contained'

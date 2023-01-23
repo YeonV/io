@@ -57,7 +57,10 @@ const App = () => {
             {window.location.pathname === '/deck/' ? (
               <Route path='/' element={<Deck />} />
             ) : (
-              <Route path='/' element={<Home />} />
+              <>
+                <Route path='/' element={<Home />} />
+                <Route path='/deck' element={<Deck />} />
+              </>
             )}
           </Routes>
         </HashRouter>

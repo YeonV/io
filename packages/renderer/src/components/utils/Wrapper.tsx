@@ -1,5 +1,15 @@
 import { log } from '@/utils'
-import { DarkMode, LightMode, Save, Settings } from '@mui/icons-material'
+import {
+  CalendarViewDay,
+  DarkMode,
+  Dashboard,
+  Deck,
+  GridView,
+  LightMode,
+  Save,
+  Settings,
+  SettingsSharp,
+} from '@mui/icons-material'
 import {
   Box,
   Button,
@@ -13,6 +23,7 @@ import logo from '@/assets/icon.png'
 import logoTitle from '@/assets/logo-cropped.svg'
 import pkg from '../../../../../package.json'
 import { useStore } from '@/store/OLD/useStore'
+import { Link } from 'react-router-dom'
 
 const ipcRenderer = window.ipcRenderer || false
 
@@ -86,9 +97,19 @@ const Wrapper = ({ children }: any) => {
             justifyContent: 'space-between',
           }}
         >
-          <div style={{ flexBasis: '100px' }}></div>
+          <div style={{ flexBasis: '150px' }}></div>
           <Typography>hacked by Blade </Typography>
-          <div style={{ flexBasis: '100px' }}>
+          <div style={{ flexBasis: '150px' }}>
+            <Link to={'/'}>
+              <IconButton sx={{ opacity: 0.3 }}>
+                <CalendarViewDay color='primary' />
+              </IconButton>
+            </Link>
+            <Link to={'/deck'}>
+              <IconButton sx={{ opacity: 0.3 }}>
+                <GridView color='primary' />
+              </IconButton>
+            </Link>
             <IconButton
               onClick={() => {
                 // setDarkMode(!darkMode)

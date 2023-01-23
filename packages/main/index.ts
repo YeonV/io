@@ -123,8 +123,10 @@ app.whenReady().then(createWindow).then(async () => {
   win?.webContents.once("did-finish-load", async function () {
     const express = require("express");
     const webapp = express(); // create express webapp
-    
+    const cors = require('cors')
+
     const rows = await store.get("rows")
+    webapp.use(cors())
     webapp.get("/rows", (req: any, res: any) => {
       if (req.query && req.query.id) {
         win?.webContents.send('trigger-row', { id: req.query.id });
@@ -135,6 +137,7 @@ app.whenReady().then(createWindow).then(async () => {
     });
 
     // add middleware
+    
     webapp.use('/', express.static(join(__dirname, '../renderer')));
     webapp.use('/deck', express.static(join(__dirname, '../renderer')));
 
@@ -142,19 +145,7 @@ app.whenReady().then(createWindow).then(async () => {
     webapp.listen(1337, () => {
       console.log("server started on port 1337");
     });
-    // var http = require("http");
-    // var server = http.createServer(function (req: Request, res: any) {
-    //   console.log(req.url)
-    //   if (req.url == '/123') {
-    //     res.end(`ah, you send 123.`);
-    //   } else {
-    //     const remoteAddress = res.socket.remoteAddress;
-    //     const remotePort = res.socket.remotePort;
-    //     res.end(`Your IP address is ${remoteAddress} and your source port is ${remotePort}.`);  
-    //   }
-    // });
-    // server.listen(1337);
-    // console.log("http://localhost:"+1337);
+
   });
 
 });
@@ -256,6 +247,7 @@ ipcMain.on('toggle-darkmode', (event) => {
   if (pkg.env.VITRON_CUSTOM_TITLEBAR) win?.reload();
 });
 ipcMain.on('restart-app', (event) => {
-  app.relaunch()
-  app.exit()
+  win?.reload()
+  // app.relaunch()
+  // app.exit()
 });

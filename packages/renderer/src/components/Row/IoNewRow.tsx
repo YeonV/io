@@ -153,6 +153,8 @@ export const IoNewRow = ({ onComplete }: { onComplete: () => void }) => {
               if (templateRow.inputModule === 'midi-module') {
                 setInput('midi', false)
               }
+
+              localStorage.setItem('io-restart-needed', 'deck')
             }
           }}
         >
