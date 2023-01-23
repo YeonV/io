@@ -24,23 +24,7 @@ import Box from '@mui/material/Box/Box'
 
 const Deck = () => {
   const [data, setData] = useState({} as Record<string, Row>)
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
-
-  const handleClose = () => {
-    setAnchorEl(null)
-    setColorOpen(undefined)
-  }
-
-  const [colorOpen, setColorOpen] = useState(
-    undefined as 'button-color' | 'icon-color' | 'text-color' | undefined
-  )
-  const [open, setOpen] = useState(false)
-  const [buttonColor, setButtonColor] = useState('#666666')
-  const [textColor, setTextColor] = useState('#ffffff')
-  const [iconColor, setIconColor] = useState('#ffffff')
-  const [variant, setVariant] = useState(
-    'outlined' as 'outlined' | 'text' | 'contained' | undefined
-  )
+  const [showSettings, setShowSettings] = useState(false)
 
   useEffect(() => {
     const getRows = async () => {
@@ -68,178 +52,57 @@ const Deck = () => {
         padding={1}
         alignItems={'center'}
         justifyContent={'center'}
+        sx={{
+          '& .icon:nth-of-type(2n)': {
+            animationDelay: '-.75s',
+            animationDuration: '.25s',
+            animationName: 'keyframes1',
+            animationIterationCount: 'infinite',
+            transformOrigin: '50% 10%',
+          },
+          '& .icon:nth-of-type(2n-1)': {
+            animationDelay: '-.5s',
+            animationDuration: '.3s',
+            animationName: 'keyframes2',
+            animationIterationCount: 'infinite',
+            animationDirection: 'alternate',
+            transformOrigin: '30% 5%',
+          },
+          '@keyframes keyframes1': {
+            '0%': {
+              transform: 'rotate(-1deg)',
+              animationTimingFunction: 'ease-in',
+            },
+            '50%': {
+              transform: 'rotate(1.5deg)',
+              animationTimingFunction: 'ease-out',
+            },
+          },
+          '@keyframes keyframes2': {
+            '0%': {
+              transform: 'rotate(1deg)',
+              animationTimingFunction: 'ease-in',
+            },
+            '50%': {
+              transform: 'rotate(-1.5deg)',
+              animationTimingFunction: 'ease-out',
+            },
+          },
+        }}
       >
         {Object.keys(data).length > 0
           ? Object.keys(data).map((rk) => (
-            <Grid item key={rk}>
-              <DeckButton rowkey={rk} data={data} />
-            </Grid>
-          ))
+              <Grid item key={rk} className={showSettings ? 'icon' : ''}>
+                <DeckButton
+                  rowkey={rk}
+                  data={data}
+                  showSettings={showSettings}
+                  setShowSettings={setShowSettings}
+                />
+              </Grid>
+            ))
           : 'What madness did setup the IO-Rows? Oh wait, maybe it was me and you'}
       </Grid>
-      <IconButton onClick={() => setOpen(true)} sx={{ opacity: 0.3 }}>
-        <Settings color='primary' />
-      </IconButton>
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        aria-labelledby='deck-settings-title'
-        aria-describedby='deck-settings-description'
-      >
-        <DialogTitle id='deck-settings-title'>{'Deck Settings'}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id='deck-settings-description'>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <Typography>Button Color:</Typography>
-              <Button
-                style={{
-                  background: buttonColor,
-                  height: 40,
-                  width: 100,
-                  borderRadius: 5,
-                  border: '2px solid #fff',
-                }}
-                onClick={(e) => {
-                  setAnchorEl(e.currentTarget)
-                  setColorOpen('button-color')
-                }}
-              ></Button>
-            </div>
-            <Popover
-              id={'button-color'}
-              open={colorOpen === 'button-color'}
-              anchorEl={anchorEl}
-              onClose={handleClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-            >
-              <HexColorPicker color={buttonColor} onChange={setButtonColor} />
-            </Popover>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <Typography>Text Color:</Typography>
-              <Button
-                style={{
-                  background: textColor,
-                  height: 40,
-                  width: 100,
-                  borderRadius: 5,
-                  border: '2px solid #fff',
-                }}
-                onClick={(e) => {
-                  setAnchorEl(e.currentTarget)
-                  setColorOpen('text-color')
-                }}
-              ></Button>
-            </div>
-            <Popover
-              id={'text-color'}
-              open={colorOpen === 'text-color'}
-              anchorEl={anchorEl}
-              onClose={handleClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-            >
-              <HexColorPicker color={textColor} onChange={setTextColor} />
-            </Popover>
-
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <Typography>Icon Color:</Typography>
-              <Button
-                style={{
-                  background: iconColor,
-                  height: 40,
-                  width: 100,
-                  borderRadius: 5,
-                  border: '2px solid #fff',
-                }}
-                onClick={(e) => {
-                  setAnchorEl(e.currentTarget)
-                  setColorOpen('icon-color')
-                }}
-              ></Button>
-            </div>
-            <Popover
-              id={'icon-color'}
-              open={colorOpen === 'icon-color'}
-              anchorEl={anchorEl}
-              onClose={handleClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-            >
-              <HexColorPicker color={iconColor} onChange={setIconColor} />
-            </Popover>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <Typography>Variant:</Typography>
-              <RadioGroup
-                row
-                aria-labelledby='demo-row-radio-buttons-group-label'
-                name='row-radio-buttons-group'
-                value={variant}
-                onChange={(e) =>
-                  setVariant(
-                    e.target.value as
-                    | 'outlined'
-                    | 'text'
-                    | 'contained'
-                    | undefined
-                  )
-                }
-              >
-                <FormControlLabel
-                  value='outlined'
-                  control={<Radio />}
-                  label='Outlined'
-                />
-                <FormControlLabel
-                  value='contained'
-                  control={<Radio />}
-                  label='Contained'
-                />
-                <FormControlLabel
-                  value='text'
-                  control={<Radio />}
-                  label='Text'
-                />
-              </RadioGroup>
-            </div>
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={() => setOpen(false)}>Save</Button>
-        </DialogActions>
-      </Dialog>
-      {/* </div> */}
     </Wrapper>
   )
 }

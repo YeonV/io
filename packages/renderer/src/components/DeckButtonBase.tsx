@@ -1,5 +1,6 @@
 import { Button, Typography, Grid } from '@mui/material'
 import IoIcon from '@/components/IoIcon/IoIcon'
+import { ReactJSXElement } from '@emotion/react/types/jsx-namespace'
 
 interface DeckButton {
   textColor?: string
@@ -9,6 +10,7 @@ interface DeckButton {
   icon?: string
   label?: string
   variant?: 'text' | 'outlined' | 'contained'
+  children?: ReactJSXElement
   onClick: () => void
 }
 const DeckButtonBase = ({
@@ -18,21 +20,24 @@ const DeckButtonBase = ({
   icon,
   label,
   variant,
+  children,
   onClick,
+  ...rest
 }: DeckButton) => {
   return (
-    <div style={{ color: buttonColor }}>
+    <div style={{ color: buttonColor, position: 'relative' }}>
       <Button
+        {...rest}
         variant={variant || 'outlined'}
         onClick={onClick}
         color='inherit'
         sx={
           variant === 'contained'
             ? {
-              'background': buttonColor,
-              '&:hover .MuiTypography-root': { color: buttonColor },
-              '&:hover .MuiIcon-root': { color: buttonColor },
-            }
+                'background': buttonColor,
+                '&:hover .MuiTypography-root': { color: buttonColor },
+                '&:hover .MuiIcon-root': { color: buttonColor },
+              }
             : {}
         }
       >
@@ -57,6 +62,7 @@ const DeckButtonBase = ({
           )}
         </div>
       </Button>
+      {children}
     </div>
   )
 }
