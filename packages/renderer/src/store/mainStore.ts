@@ -18,7 +18,7 @@ export type Output = {
   icon: string
 }
 
-export type OutputData = Output & { data: Record<string, any> }
+export type OutputData = Output & { data: Record<string, any>, settings?: Record<string, any> }
 
 export type IOModule = {
   id: ModuleId
@@ -70,6 +70,7 @@ type State = {
   disableModule: (moduleId: ModuleId) => void
   rows: Record<string, Row>
   addRow: (row: Row) => void
+  editRow: (rowId: string, settings: Record<string, any>) => void
   deleteRow: (row: Row) => void
   edit: boolean,
   setEdit: (edit: boolean) => void
@@ -116,6 +117,31 @@ export const useMainStore = create<State>()(
             },
             false,
             'add row'
+          )
+        },
+        editRow: (rowId: string, settings: Record<string, any>) => {
+          const row = get().rows[rowId]
+          set(
+            (state) => {
+              return {
+                ...state,
+                rows: {
+                  ...state.rows,
+                  [row.id]: {
+                    id: row.id,
+                    input: row.input,
+                    inputModule: row.inputModule,
+                    outputModule: row.outputModule,
+                    output: {
+                      ...row.output,
+                      settings
+                    }
+                  },
+                },
+              }
+            },
+            false,
+            'edit row'
           )
         },
         deleteRow: (row: Row) => {

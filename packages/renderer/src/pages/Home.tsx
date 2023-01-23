@@ -7,6 +7,7 @@ import mqttService from '@/components/OLD/MQTT/mqttService'
 import IoRow from '@/components/Row/IoRow'
 import IoNewRow from '@/components/Row/IoNewRow'
 import Wrapper from '@/components/utils/Wrapper'
+import { log } from '@/utils'
 
 // var client = null as any
 const ipcRenderer = window.ipcRenderer || false
@@ -17,6 +18,7 @@ const Home = () => {
   const [data, setData] = useState(0)
   const edit = useMainStore((state) => state.edit)
   const setEdit = useMainStore((state) => state.setEdit)
+  const editRow = useMainStore((state) => state.editRow)
   const mqttData = useStore((state) => state.mqttData)
   const inMqtt = useStore((state) => state.inputs.mqtt)
   const outMqtt = useStore((state) => state.outputs.mqtt)
@@ -103,6 +105,22 @@ const Home = () => {
       ipcRenderer.on('trigger-row', (event: any, data: any) => {
         if (data.id)
           window.dispatchEvent(new CustomEvent(`io_input`, { detail: data.id }))
+      })
+      ipcRenderer.on('update-row', (event: any, data: any) => {
+        if (data.id) {
+          log.success2('update-row', data)
+          editRow(data.id, {
+            buttonColor: data.buttonColor,
+            iconColor: data.iconColor,
+            textColor: data.textColor,
+            variant: data.variant
+          })
+          setTimeout(() => {
+            ipcRenderer.send('set', ['rows', rows])
+            localStorage.setItem('io-restart-needed', 'yes')
+            location.reload()
+          }, 500);
+        }
       })
     }
     return () => {

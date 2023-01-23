@@ -26,10 +26,6 @@ const Deck = () => {
   const [data, setData] = useState({} as Record<string, Row>)
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-
   const handleClose = () => {
     setAnchorEl(null)
     setColorOpen(undefined)
@@ -39,9 +35,9 @@ const Deck = () => {
     undefined as 'button-color' | 'icon-color' | 'text-color' | undefined
   )
   const [open, setOpen] = useState(false)
-  const [buttonColor, setButtonColor] = useState('#666')
-  const [textColor, setTextColor] = useState('#666')
-  const [iconColor, setIconColor] = useState('#666')
+  const [buttonColor, setButtonColor] = useState('#666666')
+  const [textColor, setTextColor] = useState('#ffffff')
+  const [iconColor, setIconColor] = useState('#ffffff')
   const [variant, setVariant] = useState(
     'outlined' as 'outlined' | 'text' | 'contained' | undefined
   )
@@ -53,7 +49,6 @@ const Deck = () => {
       return out
     }
     getRows().then((d: Record<string, Row>) => {
-      console.log(d)
       setData(d)
     })
     console.info(
@@ -76,18 +71,10 @@ const Deck = () => {
       >
         {Object.keys(data).length > 0
           ? Object.keys(data).map((rk) => (
-              <Grid item key={rk}>
-                <DeckButton
-                  label={data[rk].output.data.text}
-                  icon={data[rk].output.icon}
-                  onClick={async () => await fetch(`/rows?id=${rk}`)}
-                  buttonColor={buttonColor}
-                  textColor={textColor}
-                  iconColor={iconColor}
-                  variant={variant}
-                />
-              </Grid>
-            ))
+            <Grid item key={rk}>
+              <DeckButton rowkey={rk} data={data} />
+            </Grid>
+          ))
           : 'What madness did setup the IO-Rows? Oh wait, maybe it was me and you'}
       </Grid>
       <IconButton onClick={() => setOpen(true)} sx={{ opacity: 0.3 }}>
@@ -221,10 +208,10 @@ const Deck = () => {
                 onChange={(e) =>
                   setVariant(
                     e.target.value as
-                      | 'outlined'
-                      | 'text'
-                      | 'contained'
-                      | undefined
+                    | 'outlined'
+                    | 'text'
+                    | 'contained'
+                    | undefined
                   )
                 }
               >

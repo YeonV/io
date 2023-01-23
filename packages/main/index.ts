@@ -4,6 +4,7 @@ import { join } from 'path';
 import Store from 'electron-store';
 import './samples/npm-esm-packages';
 import pkg from '../../package.json'
+import { Row } from '@/store/mainStore';
 
 
 // Conditionally include the dev tools installer to load React Dev Tools
@@ -125,19 +126,35 @@ app.whenReady().then(createWindow).then(async () => {
     const webapp = express(); // create express webapp
     const cors = require('cors')
 
-    const rows = await store.get("rows")
+
     webapp.use(cors())
-    webapp.get("/rows", (req: any, res: any) => {
-      if (req.query && req.query.id) {
+    webapp.get("/rows", async (req: any, res: any) => {
+      const rows = await store.get("rows")
+      if (req.query && req.query.id && req.query.update) {
+        console.log("HERE WE ARE", req.query.update)
+        win?.webContents.send('update-row', {
+          id: req.query.id,
+          buttonColor: decodeURIComponent(req.query.buttonColor),
+          iconColor: decodeURIComponent(req.query.iconColor),
+          textColor: decodeURIComponent(req.query.textColor),
+          variant: decodeURIComponent(req.query.variant)
+        });
+        res.json(req.query);
+      } else if (req.query && req.query.id) {
         win?.webContents.send('trigger-row', { id: req.query.id });
-        res.json(req.query);  
+        res.json(req.query);
       } else {
         res.json(rows);
       }
     });
+    webapp.get("/restart", async (req: any, res: any) => {
+      res.json({ message: 'ok' });
+      app.relaunch()
+      app.exit()
+    });
 
     // add middleware
-    
+
     webapp.use('/', express.static(join(__dirname, '../renderer')));
     webapp.use('/deck', express.static(join(__dirname, '../renderer')));
 
@@ -247,7 +264,7 @@ ipcMain.on('toggle-darkmode', (event) => {
   if (pkg.env.VITRON_CUSTOM_TITLEBAR) win?.reload();
 });
 ipcMain.on('restart-app', (event) => {
-  win?.reload()
-  // app.relaunch()
-  // app.exit()
+  // win?.reload()
+  app.relaunch()
+  app.exit()
 });
