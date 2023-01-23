@@ -37,6 +37,7 @@ const Wrapper = ({ children }: any) => {
     }
     setDarkMode(!darkMode)
   }
+  console.log('YYYY', process.env.NODE_ENV)
   return (
     <Box
       sx={{
@@ -100,16 +101,22 @@ const Wrapper = ({ children }: any) => {
           <div style={{ flexBasis: '150px' }}></div>
           <Typography>hacked by Blade </Typography>
           <div style={{ flexBasis: '150px' }}>
-            <Link to={'/'}>
-              <IconButton sx={{ opacity: 0.3 }}>
-                <CalendarViewDay color='primary' />
-              </IconButton>
-            </Link>
-            <Link to={'/deck'}>
-              <IconButton sx={{ opacity: 0.3 }}>
-                <GridView color='primary' />
-              </IconButton>
-            </Link>
+            {process.env.NODE_ENV === 'development' ? (
+              <>
+                <Link to={'/'}>
+                  <IconButton sx={{ opacity: 0.3 }}>
+                    <CalendarViewDay color='primary' />
+                  </IconButton>
+                </Link>
+                <Link to={'/deck'}>
+                  <IconButton sx={{ opacity: 0.3 }}>
+                    <GridView color='primary' />
+                  </IconButton>
+                </Link>
+              </>
+            ) : (
+              <></>
+            )}
             <IconButton
               onClick={() => {
                 // setDarkMode(!darkMode)
