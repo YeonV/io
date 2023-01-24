@@ -134,10 +134,14 @@ app.whenReady().then(createWindow).then(async () => {
         console.log("HERE WE ARE", req.query.update)
         win?.webContents.send('update-row', {
           id: req.query.id,
-          buttonColor: decodeURIComponent(req.query.buttonColor),
-          iconColor: decodeURIComponent(req.query.iconColor),
-          textColor: decodeURIComponent(req.query.textColor),
-          variant: decodeURIComponent(req.query.variant)
+          icon: decodeURIComponent(req.query.icon),
+          label: decodeURIComponent(req.query.label),
+          settings: {
+            buttonColor: decodeURIComponent(req.query.buttonColor),
+            iconColor: decodeURIComponent(req.query.iconColor),
+            textColor: decodeURIComponent(req.query.textColor),
+            variant: decodeURIComponent(req.query.variant)
+          }
         });
         res.json(req.query);
       } else if (req.query && req.query.id) {

@@ -37,7 +37,7 @@ const Wrapper = ({ children }: any) => {
     }
     setDarkMode(!darkMode)
   }
-  console.log('YYYY', process.env.NODE_ENV)
+
   return (
     <Box
       sx={{

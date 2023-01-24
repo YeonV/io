@@ -109,17 +109,22 @@ const Home = () => {
       ipcRenderer.on('update-row', (event: any, data: any) => {
         if (data.id) {
           log.success2('update-row', data)
+          log.success2('update-row-settings', data.settings)
           editRow(data.id, {
-            buttonColor: data.buttonColor,
-            iconColor: data.iconColor,
-            textColor: data.textColor,
-            variant: data.variant
+            icon: data.icon,
+            label: data.label,
+            settings: {
+              buttonColor: data.settings.buttonColor,
+              iconColor: data.settings.iconColor,
+              icon: data.settings.icon,
+              textColor: data.settings.textColor,
+              variant: data.settings.variant,
+            },
           })
           setTimeout(() => {
             ipcRenderer.send('set', ['rows', rows])
-            localStorage.setItem('io-restart-needed', 'yes')
             location.reload()
-          }, 500);
+          }, 500)
         }
       })
     }

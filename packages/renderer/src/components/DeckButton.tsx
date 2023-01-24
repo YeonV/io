@@ -10,8 +10,9 @@ import {
   DialogTitle,
   DialogActions,
   DialogContent,
-  DialogContentText,
+  TextField,
   Radio,
+  InputAdornment,
 } from '@mui/material'
 import IoIcon from '@/components/IoIcon/IoIcon'
 import DeckButtonBase from '@/components/DeckButtonBase'
@@ -28,13 +29,41 @@ const DeckButton = ({
   data,
   showSettings,
   setShowSettings,
+  setDisableDrag,
 }: {
   rowkey: string
   data: any
   showSettings: boolean
   setShowSettings: (show: boolean) => void
+  setDisableDrag?: (show: boolean) => void
 }) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null)
+
+  const [colorOpen, setColorOpen] = useState(
+    undefined as 'button-color' | 'icon-color' | 'text-color' | undefined
+  )
+  const [open, setOpen] = useState(false)
+  const [buttonColor, setButtonColor] = useState(
+    data[rowkey!]?.output.settings?.buttonColor
+  )
+  const [textColor, setTextColor] = useState(
+    data[rowkey!]?.output.settings?.textColor
+  )
+  const [iconColor, setIconColor] = useState(
+    data[rowkey!]?.output.settings?.iconColor
+  )
+  const [icon, setIcon] = useState(
+    data[rowkey!]?.output.icon || data[rowkey!]?.output.settings?.icon
+  )
+  const [label, setLabel] = useState(
+    data[rowkey!]?.output.label || data[rowkey!]?.output.data.text
+  )
+  const [variant, setVariant] = useState(
+    (data[rowkey!]?.output.settings?.variant as
+      | 'outlined'
+      | 'text'
+      | 'contained') || 'outlined'
+  )
 
   const bind = useLongPress(
     () => {
@@ -54,49 +83,38 @@ const DeckButton = ({
     setShowSettings(false)
     setOpen(false)
   }
-
-  const [colorOpen, setColorOpen] = useState(
-    undefined as 'button-color' | 'icon-color' | 'text-color' | undefined
-  )
-  const [open, setOpen] = useState(false)
-  const [buttonColor, setButtonColor] = useState(
-    data[rowkey!]?.output.settings?.buttonColor
-  )
-  const [textColor, setTextColor] = useState(
-    data[rowkey!]?.output.settings?.textColor
-  )
-  const [iconColor, setIconColor] = useState(
-    data[rowkey!]?.output.settings?.iconColor
-  )
-  const [variant, setVariant] = useState(
-    data[rowkey!]?.output.settings?.variant as
-      | 'outlined'
-      | 'text'
-      | 'contained'
-      | undefined
-  )
+  useEffect(() => {
+    if (setDisableDrag) setDisableDrag(open)
+  }, [open])
 
   return (
     <>
       <DeckButtonBase
         {...bind()}
-        label={data[rowkey!]?.output.data.text}
-        icon={data[rowkey!]?.output.icon}
+        label={label || data[rowkey!]?.output.data.text}
+        icon={icon || data[rowkey!]?.output.icon}
         onClick={async () => false}
         buttonColor={buttonColor}
         textColor={textColor}
         iconColor={iconColor}
         variant={variant}
+        className={showSettings ? 'icon' : ''}
       >
         {showSettings ? (
           <>
             <IconButton
-              onClick={() => setOpen(true)}
+              onClick={(e) => {
+                e.stopPropagation()
+                setOpen(true)
+              }}
               sx={{ opacity: 1, position: 'absolute', top: -5, right: -5 }}
             >
               <Settings color='primary' />
             </IconButton>
             <Dialog
+              sx={{
+                '& .MuiDialog-container .MuiPaper-root': { maxWidth: '100%' },
+              }}
               open={open}
               onClose={() => handleSettingsClose()}
               aria-labelledby='deck-settings-title'
@@ -219,7 +237,36 @@ const DeckButton = ({
                     alignItems: 'center',
                   }}
                 >
-                  <Typography>Variant:</Typography>
+                  <Typography>Label:</Typography>
+                  <TextField
+                    value={label}
+                    onChange={(e) => setLabel(e.target.value)}
+                  />
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography>Icon:</Typography>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <IoIcon name={icon} style={{ marginRight: '10px' }} />
+                    <TextField
+                      value={icon}
+                      onChange={(e) => setIcon(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography mr={5}>Variant:</Typography>
                   <RadioGroup
                     row
                     aria-labelledby='demo-row-radio-buttons-group-label'
@@ -227,28 +274,83 @@ const DeckButton = ({
                     value={variant}
                     onChange={(e) =>
                       setVariant(
-                        e.target.value as
-                          | 'outlined'
-                          | 'text'
-                          | 'contained'
-                          | undefined
+                        e.target.value as 'outlined' | 'text' | 'contained'
                       )
                     }
                   >
                     <FormControlLabel
+                      sx={{
+                        color: buttonColor,
+                      }}
                       value='outlined'
                       control={<Radio />}
-                      label='Outlined'
+                      label={
+                        <Button
+                          variant='outlined'
+                          color='inherit'
+                          sx={{ pointerEvents: 'none' }}
+                        >
+                          <IoIcon
+                            name={icon}
+                            style={{ marginRight: '10px', color: iconColor }}
+                          />
+                          <Typography
+                            variant='button'
+                            sx={{ color: textColor }}
+                          >
+                            outlined
+                          </Typography>
+                        </Button>
+                      }
                     />
                     <FormControlLabel
                       value='contained'
                       control={<Radio />}
-                      label='Contained'
+                      label={
+                        <Button
+                          variant='contained'
+                          sx={{
+                            pointerEvents: 'none',
+                            background: buttonColor,
+                          }}
+                        >
+                          <IoIcon
+                            name={icon}
+                            style={{ marginRight: '10px', color: iconColor }}
+                          />
+                          <Typography
+                            variant='button'
+                            sx={{ color: textColor }}
+                          >
+                            Contained
+                          </Typography>
+                        </Button>
+                      }
                     />
                     <FormControlLabel
                       value='text'
                       control={<Radio />}
-                      label='Text'
+                      sx={{
+                        color: buttonColor,
+                      }}
+                      label={
+                        <Button
+                          variant='text'
+                          color='inherit'
+                          sx={{ pointerEvents: 'none' }}
+                        >
+                          <IoIcon
+                            name={icon}
+                            style={{ marginRight: '10px', color: iconColor }}
+                          />
+                          <Typography
+                            variant='button'
+                            sx={{ color: textColor }}
+                          >
+                            Text
+                          </Typography>
+                        </Button>
+                      }
                     />
                   </RadioGroup>
                 </div>
@@ -258,13 +360,17 @@ const DeckButton = ({
                 <Button
                   onClick={async () => {
                     const res = await fetch(
-                      `http://localhost:1337/rows?id=${rowkey}&update=true&buttonColor=${encodeURIComponent(
+                      `${location.protocol}://${
+                        location.hostname
+                      }:1337/rows?id=${rowkey}&update=true&buttonColor=${encodeURIComponent(
                         buttonColor
                       )}&iconColor=${encodeURIComponent(
                         iconColor
                       )}&textColor=${encodeURIComponent(
                         textColor
-                      )}&variant=${variant}`
+                      )}&variant=${variant}&icon=${encodeURIComponent(
+                        icon
+                      )}&label=${encodeURIComponent(label)}`
                     )
                     handleSettingsClose()
                   }}

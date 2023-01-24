@@ -11,6 +11,7 @@ interface DeckButton {
   label?: string
   variant?: 'text' | 'outlined' | 'contained'
   children?: ReactJSXElement
+  className?: string
   onClick: () => void
 }
 const DeckButtonBase = ({
@@ -21,24 +22,33 @@ const DeckButtonBase = ({
   label,
   variant,
   children,
+  className,
   onClick,
   ...rest
 }: DeckButton) => {
   return (
-    <div style={{ color: buttonColor, position: 'relative' }}>
+    <div style={{ color: buttonColor, position: 'relative', height: '100%' }}>
       <Button
         {...rest}
+        className={className}
         variant={variant || 'outlined'}
         onClick={onClick}
         color='inherit'
         sx={
           variant === 'contained'
             ? {
+                'padding': 0,
+                'width': '100%',
+                'height': '100%',
                 'background': buttonColor,
                 '&:hover .MuiTypography-root': { color: buttonColor },
                 '&:hover .MuiIcon-root': { color: buttonColor },
               }
-            : {}
+            : {
+                padding: 0,
+                width: '100%',
+                height: '100%',
+              }
         }
       >
         <div
@@ -46,8 +56,8 @@ const DeckButtonBase = ({
             color: iconColor || '#999',
             display: 'flex',
             flexDirection: 'column',
-            width: 90,
-            height: 90,
+            width: '100%',
+            height: '100%',
             alignItems: 'center',
             justifyContent: 'center',
           }}

@@ -18,7 +18,7 @@ export type Output = {
   icon: string
 }
 
-export type OutputData = Output & { data: Record<string, any>, settings?: Record<string, any> }
+export type OutputData = Output & { icon?: string, label?:string, data: Record<string, any>, settings?: Record<string, any> }
 
 export type IOModule = {
   id: ModuleId
@@ -134,7 +134,7 @@ export const useMainStore = create<State>()(
                     outputModule: row.outputModule,
                     output: {
                       ...row.output,
-                      settings
+                      ...settings
                     }
                   },
                 },
