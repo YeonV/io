@@ -16,6 +16,7 @@ const Deck = () => {
   const darkMode = useStore((state) => state.ui.darkMode)
   const setDarkMode = useStore((state) => state.ui.setDarkMode)
   const { height, width } = useWindowDimensions()
+  const [magicNumber, setMagicNumber] = useState(120)
 
   const toggleDarkmode = () => {
     setDarkMode(!darkMode)
@@ -36,6 +37,12 @@ const Deck = () => {
       'background: #fff; color: #123456; border-radius: 0 0 5px 5px;padding: 5px 0;'
     )
   }, [])
+
+  useEffect(() => {
+    setMagicNumber(
+      Math.floor(width / Math.floor(width / 120)) - Math.ceil(width / 120)
+    )
+  }, [width])
 
   return (
     <Box
@@ -105,14 +112,16 @@ const Deck = () => {
             Object.keys(data).map((rk, i) => (
               <Rnd
                 default={{
-                  width: 120,
-                  height: 120,
-                  x: (i % Math.floor(width / 120)) * 120,
-                  y: Math.floor(i / Math.floor(width / 120)) * 120,
+                  width: magicNumber,
+                  height: magicNumber,
+                  x: (i % Math.floor(width / magicNumber)) * magicNumber,
+                  y:
+                    Math.floor(i / Math.floor(width / magicNumber)) *
+                    magicNumber,
                 }}
                 bounds={'parent'}
-                resizeGrid={[120, 120]}
-                dragGrid={[120, 120]}
+                resizeGrid={[magicNumber, magicNumber]}
+                dragGrid={[magicNumber, magicNumber]}
                 disableDragging={!showSettings || disableDrag}
                 enableResizing={{
                   top: false,
