@@ -28,12 +28,14 @@ const DeckButton = ({
   rowkey,
   data,
   showSettings,
+  fontFamily = 'Montserrat-Alt1',
   setShowSettings,
   setDisableDrag,
 }: {
   rowkey: string
   data: any
   showSettings: boolean
+  fontFamily?: string
   setShowSettings: (show: boolean) => void
   setDisableDrag?: (show: boolean) => void
 }) => {
@@ -43,6 +45,7 @@ const DeckButton = ({
     undefined as 'button-color' | 'icon-color' | 'text-color' | undefined
   )
   const [open, setOpen] = useState(false)
+  const [innerFontFamily, setFontFamily] = useState(fontFamily)
   const [buttonColor, setButtonColor] = useState(
     data[rowkey!]?.output.settings?.buttonColor
   )
@@ -70,7 +73,13 @@ const DeckButton = ({
       setShowSettings(!showSettings)
     },
     {
-      onCancel: async (event) => await fetch(`/rows?id=${rowkey}`),
+      onCancel: async (event) =>
+        await fetch(`/rows?id=${rowkey}`, {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': '*',
+          },
+        }),
     }
   )
 
@@ -98,6 +107,7 @@ const DeckButton = ({
         textColor={textColor}
         iconColor={iconColor}
         variant={variant}
+        fontFamily={innerFontFamily}
         className={showSettings ? 'icon' : ''}
       >
         {showSettings ? (
@@ -370,7 +380,13 @@ const DeckButton = ({
                         textColor
                       )}&variant=${variant}&icon=${encodeURIComponent(
                         icon
-                      )}&label=${encodeURIComponent(label)}`
+                      )}&label=${encodeURIComponent(label)}`,
+                      {
+                        headers: {
+                          'Access-Control-Allow-Origin': '*',
+                          'Access-Control-Allow-Headers': '*',
+                        },
+                      }
                     )
                     handleSettingsClose()
                   }}

@@ -51,34 +51,31 @@ const Wrapper = ({ children }: any) => {
         className={styles.appWrapper}
         style={{
           margin: '0 auto',
+          justifyContent: 'space-between',
           minHeight:
             ipcRenderer && pkg.env.VITRON_CUSTOM_TITLEBAR
               ? 'calc(100vh - 30px)'
               : '100vh',
         }}
       >
-        {window.location.pathname !== '/deck/' ? (
-          <header className={styles.logos}>
+        <header className={styles.logos}>
+          <img
+            src={logo}
+            style={{ width: '100px', filter: 'invert(0)' }}
+            alt='logoIO'
+          />
+          <div className={styles.imgBox}>
             <img
-              src={logo}
-              style={{ width: '100px', filter: 'invert(0)' }}
-              alt='logoIO'
+              src={logoTitle}
+              style={{ width: '480px', filter: 'invert(0)' }}
+              alt='InputOutput'
             />
-            <div className={styles.imgBox}>
-              <img
-                src={logoTitle}
-                style={{ width: '480px', filter: 'invert(0)' }}
-                alt='InputOutput'
-              />
-            </div>
-          </header>
-        ) : (
-          <div></div>
-        )}
+          </div>
+        </header>
         <main style={{ width: '100%', maxWidth: 960 }}>
           {children}
 
-          {!ipcRenderer && window.location.pathname !== '/deck/' && (
+          {!ipcRenderer && (
             <Typography variant='body2' color='#666' sx={{ mt: 5 }}>
               If you are accessing this site via httpS, but want to communicate
               with your local network (mqtt, http, ws), you need to allow

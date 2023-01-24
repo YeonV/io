@@ -12,6 +12,7 @@ interface DeckButton {
   variant?: 'text' | 'outlined' | 'contained'
   children?: ReactJSXElement
   className?: string
+  fontFamily?: string
   onClick: () => void
 }
 const DeckButtonBase = ({
@@ -23,6 +24,7 @@ const DeckButtonBase = ({
   variant,
   children,
   className,
+  fontFamily,
   onClick,
   ...rest
 }: DeckButton) => {
@@ -64,7 +66,11 @@ const DeckButtonBase = ({
         >
           {icon ? <IoIcon name={icon} style={{ fontSize: 50 }} /> : <></>}
           {label ? (
-            <Typography variant='caption' color={textColor || '#999'}>
+            <Typography
+              variant='caption'
+              color={textColor || '#999'}
+              fontFamily={fontFamily}
+            >
               {label}
             </Typography>
           ) : (
