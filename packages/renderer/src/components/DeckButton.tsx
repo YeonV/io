@@ -370,7 +370,7 @@ const DeckButton = ({
                 <Button
                   onClick={async () => {
                     const res = await fetch(
-                      `${location.protocol}://${
+                      `${location.protocol}//${
                         location.hostname
                       }:1337/rows?id=${rowkey}&update=true&buttonColor=${encodeURIComponent(
                         buttonColor

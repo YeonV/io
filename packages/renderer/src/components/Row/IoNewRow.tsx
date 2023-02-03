@@ -154,7 +154,7 @@ export const IoNewRow = ({ onComplete }: { onComplete: () => void }) => {
                 setInput('midi', false)
               }
 
-              // localStorage.setItem('io-restart-needed', 'deck')
+              localStorage.setItem('io-restart-needed', 'deck')
             }
           }}
         >

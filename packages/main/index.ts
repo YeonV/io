@@ -69,7 +69,7 @@ async function createWindow() {
 
   // Make all links open with the browser, not with the application
   win.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https:')) shell.openExternal(url);
+    if (url.startsWith('https:') || url.startsWith('http:')) shell.openExternal(url);
     return { action: 'deny' };
   });
 
@@ -101,8 +101,8 @@ app.whenReady().then(createWindow).then(async () => {
       .catch((error: any) => console.log(`An error occurred: , ${error}`));
   }
   if (pkg.env.VITRON_TRAY && tray === null) {
-    const icon = nativeImage.createFromPath(join(__dirname, '../../resources/icon.png'))
-    tray = new Tray(icon.resize({ width: 26, height: 26 }))
+    const icon = nativeImage.createFromPath(join(__dirname, '../../resources/icon@5x.png'))
+    tray = new Tray(join(__dirname, '../../resources/icon@5x.png'))
 
     const contextMenu = Menu.buildFromTemplate([
       { label: 'Show', click: () => win?.show() },
@@ -131,7 +131,6 @@ app.whenReady().then(createWindow).then(async () => {
     webapp.get("/rows", async (req: any, res: any) => {
       const rows = await store.get("rows")
       if (req.query && req.query.id && req.query.update) {
-        console.log("HERE WE ARE", req.query.update)
         win?.webContents.send('update-row', {
           id: req.query.id,
           icon: decodeURIComponent(req.query.icon),
@@ -195,7 +194,7 @@ app.on('activate', () => {
 });
 
 ipcMain.on('set', async (event, arg) => {
-  console.log(arg[0], arg[1]);
+  // console.log(arg[0], arg[1]);
   await store.set(arg[0], arg[1]);
   event.sender.send('ping-pong', `[ipcMain] "${arg}" received asynchronously.`);
 });

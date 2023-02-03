@@ -98,21 +98,19 @@ const Wrapper = ({ children }: any) => {
           <div style={{ flexBasis: '150px' }}></div>
           <Typography>hacked by Blade </Typography>
           <div style={{ flexBasis: '150px' }}>
-            {process.env.NODE_ENV === 'development' ? (
-              <>
-                <Link to={'/'}>
-                  <IconButton sx={{ opacity: 0.3 }}>
-                    <CalendarViewDay color='primary' />
-                  </IconButton>
-                </Link>
-                <Link to={'/deck'}>
-                  <IconButton sx={{ opacity: 0.3 }}>
-                    <GridView color='primary' />
-                  </IconButton>
-                </Link>
-              </>
-            ) : (
-              <></>
+            {process.env.NODE_ENV === 'development' && (
+              <IconButton
+                onClick={() => {
+                  window.open(
+                    `${location.protocol}//${location.hostname}:1337/deck`,
+                    '_blank',
+                    'noopener,noreferrer'
+                  )
+                }}
+                sx={{ opacity: 0.3 }}
+              >
+                <GridView color='primary' />
+              </IconButton>
             )}
             <IconButton
               onClick={() => {
