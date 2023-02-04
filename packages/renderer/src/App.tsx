@@ -7,6 +7,7 @@ import pkg from '../../../package.json'
 import ErrorBoundary from './components/utils/ErrorBoundary'
 import Wrapper from './components/utils/Wrapper'
 import Deck from './pages/Deck'
+import { SnackbarProvider } from 'notistack'
 
 const App = () => {
   const darkMode = useStore((state) => state.ui.darkMode)
@@ -52,18 +53,20 @@ const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <ErrorBoundary>
-        <HashRouter>
-          <Routes>
-            {window.location.pathname === '/deck/' ? (
-              <Route path='/' element={<Deck />} />
-            ) : (
-              <>
-                <Route path='/' element={<Home />} />
-                <Route path='/deck' element={<Deck />} />
-              </>
-            )}
-          </Routes>
-        </HashRouter>
+        <SnackbarProvider maxSnack={3}>
+          <HashRouter>
+            <Routes>
+              {window.location.pathname === '/deck/' ? (
+                <Route path='/' element={<Deck />} />
+              ) : (
+                <>
+                  <Route path='/' element={<Home />} />
+                  <Route path='/deck' element={<Deck />} />
+                </>
+              )}
+            </Routes>
+          </HashRouter>
+        </SnackbarProvider>
       </ErrorBoundary>
     </ThemeProvider>
   )

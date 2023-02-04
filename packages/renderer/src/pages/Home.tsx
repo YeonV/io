@@ -169,7 +169,7 @@ const Home = () => {
             {n}
           </div>
         ))}
-        {localStorage.getItem('io-restart-needed') === 'deck' ? (
+        {/* {localStorage.getItem('io-restart-needed') === 'deck' ? (
           <div style={{ padding: '8px' }}>
             <ToggleButton
               size='large'
@@ -203,7 +203,7 @@ const Home = () => {
           </div>
         ) : (
           <></>
-        )}
+        )} */}
       </div>
       <div style={{ maxHeight: 'calc(100vh - 356px)', overflowY: 'scroll' }}>
         {Object.values(rows).map((row) => {

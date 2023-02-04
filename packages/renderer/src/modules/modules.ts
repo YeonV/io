@@ -14,6 +14,7 @@ import * as alexaModule from "@/modules/Alexa/Alexa";
 import * as shellModule from "@/modules/Shell/Shell";
 import * as hassModule from "@/modules/HomeAssistant/HomeAssistant";
 import * as wledModule from "@/modules/Wled/Wled";
+import * as alertModule from "@/modules/Alert/Alert";
 
 export default {
     [keyboardModule.id]: keyboardModule,
@@ -31,6 +32,7 @@ export default {
     [alexaModule.id]: alexaModule,
     [shellModule.id]: shellModule,
     [hassModule.id]: hassModule,
-    [wledModule.id]: wledModule
+    [wledModule.id]: wledModule,
+    [alertModule.id]: alertModule
 }
    
