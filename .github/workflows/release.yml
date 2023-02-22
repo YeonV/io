@@ -105,5 +105,5 @@ jobs:
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: ./release/${{ needs.create_release.outputs.current-version}}/io-${{ needs.create_release.outputs.current-version}}-${{matrix.FILEPART}}.${{matrix.OSEND}}
-          asset_name: io-${{ needs.create_release.outputs.current-version}}-${{matrix.FILEPART}}-${{matrix.OSNAME}}.${{matrix.OSEND}}
+          asset_name: io.${{matrix.OSEND}}
           asset_content_type: application/${{matrix.OSEND}}
