@@ -19,6 +19,7 @@ function isFingerStretched(landmarks: LandmarkList, finger: number[]): boolean {
     landmarks[finger[1]].x < landmarks[finger[3]].x
   )
 }
+
 // function thumbStreched(landmarks: LandmarkList, ): boolean {
 //     return (Math.abs(landmarks[4].x - landmarks[6].x) < Math.abs(landmarks[6].x - landmarks[14].x)) ||
 //         (Math.abs(landmarks[4].y - landmarks[6].y) < Math.abs(landmarks[6].y - landmarks[14].y));
@@ -77,7 +78,6 @@ export function detectGesture(landmarks: LandmarkList | null): Gesture {
   ]
 
   // const isThumbStreched = thumbStreched(landmarks);
-
   // const isThumbStreched = thumbStreched(landmarks);
   // const isThumbStreched = isFingerStretched(landmarks, thumb);
   const isIndexStreched = isFingerStretched(landmarks, index)

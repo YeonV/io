@@ -10,8 +10,8 @@ export type SettingsProps = {
   name: string
   textTurnOn?: string
   textTurnOff?: string
-  iconOn?: JSX.Element
-  iconOff?: JSX.Element
+  iconOn?: React.ReactNode
+  iconOff?: React.ReactNode
   variant?: 'button' | 'switch'
 }
 

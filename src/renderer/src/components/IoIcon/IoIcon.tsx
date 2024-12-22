@@ -23,7 +23,7 @@ function IoIcon({
   name = '',
   className = '',
   style
-}: IoIconProps): JSX.Element {
+}: IoIconProps): React.ReactNode {
   return (
     <Icon
       className={className}
