@@ -5,15 +5,23 @@ import { useShallow } from 'zustand/react/shallow'
 import IoIcon from '../IoIcon/IoIcon'
 
 export const InputSelector = ({
+  disabled = false,
+  value,
   onSelect
 }: {
+  disabled?: boolean
+  value: any
   onSelect: (mod: ModuleId, input: Input) => void
 }) => {
   const modulesAsArray = useMainStore(useShallow((state) => Object.values(state.modules)))
   const modules = useMainStore(useShallow((state) => state.modules))
   const fixId = 'new-row-input-select'
+  if (value && disabled) {
+    return null // <TextField disabled fullWidth id={fixId} label="Select Input" value={value} />
+  }
   return (
     <Autocomplete
+      disabled={disabled}
       fullWidth
       id={fixId}
       options={modulesAsArray
