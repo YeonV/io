@@ -1,4 +1,4 @@
-import type { InputData, ModuleConfig, OutputData } from '@/store/mainStore'
+import type { InputData, ModuleConfig, OutputData  } from '@shared/types'
 import { TextField } from '@mui/material'
 import type { FC } from 'react'
 import { log } from '@/utils'

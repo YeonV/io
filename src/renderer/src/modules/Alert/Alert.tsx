@@ -1,4 +1,4 @@
-import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
+import type { ModuleConfig, OutputData, Row } from '@shared/types'
 import { FC, useState } from 'react'
 import { useEffect } from 'react'
 import { log } from '@/utils'

@@ -1,5 +1,5 @@
 import { produce } from 'immer'
-import type { Row } from '@/store/mainStore'
+import type { Row } from '@shared/types'
 import { Button, Stack } from '@mui/material'
 import { useMemo, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'

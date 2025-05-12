@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import Home from './pages/Home'
-import { useStore } from './store/OLD/useStore'
+import { useMainStore } from '@/store/mainStore'
+
 import { ThemeProvider, createTheme } from '@mui/material/styles'
 import { HashRouter, Routes, Route } from 'react-router-dom'
 import pkg from '../../../package.json'
@@ -10,7 +11,7 @@ import Deck from './pages/Deck'
 import { SnackbarProvider } from 'notistack'
 
 const App = () => {
-  const darkMode = useStore((state) => state.ui.darkMode)
+  const darkMode = useMainStore((state) => state.ui.darkMode)
 
   const theme = useMemo(
     () =>

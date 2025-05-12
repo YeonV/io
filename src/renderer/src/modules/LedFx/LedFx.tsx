@@ -1,4 +1,4 @@
-import type { ModuleConfig, OutputData, Row } from '@/store/mainStore'
+import type { ModuleConfig, OutputData, Row } from '@shared/types'
 import type { FC } from 'react'
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material'
 import { useEffect } from 'react'
@@ -47,34 +47,61 @@ export const OutputEdit: FC<{
         msgConnected={() => 'Connected to LedFx '}
       />
       {output.data.config?.scenes && Object.keys(output.data.config.scenes).length > 0 ? (
-        <FormControl fullWidth sx={{ mt: 2 }}>
-          <InputLabel id="ledfx-scene-label">Scene</InputLabel>
-          <Select
-            labelId="ledfx-scene-label"
-            id="ledfx-scene-select"
-            sx={{ pl: 1 }}
-            label="Scene"
-            onChange={async (e) => {
-              if (
-                e.target.value &&
-                typeof e.target.value === 'string' &&
-                Object.keys(output.data.config.scenes).includes(e.target.value)
-              ) {
-                onChange({
-                  host: output.data.host,
-                  sceneId: e.target.value,
-                  text: 'Scene: ' + output.data.config.scenes[e.target.value].name
-                })
-              }
-            }}
-          >
-            {Object.entries(output.data.config.scenes).map(([sid, s]: any) => (
-              <MenuItem key={sid} value={sid}>
-                {s.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        <>
+          {/* <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel id="ledfx-scene-label">Scene</InputLabel>
+            <Select
+              labelId="ledfx-action-label"
+              id="ledfx-action-select"
+              sx={{ pl: 1 }}
+              label="Action"
+              onChange={async (e) => {
+                if (
+                  e.target.value &&
+                  typeof e.target.value === 'string' &&
+                  Object.keys(output.data.config.scenes).includes(e.target.value)
+                ) {
+                  onChange({
+                    host: output.data.host,
+                    sceneId: e.target.value,
+                    text: 'Scene: ' + output.data.config.scenes[e.target.value].name
+                  })
+                }
+              }}
+            >
+              <MenuItem value={'scene'}>Scene</MenuItem>
+              <MenuItem value={'command'}>Command</MenuItem>
+            </Select>
+          </FormControl> */}
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel id="ledfx-scene-label">Scene</InputLabel>
+            <Select
+              labelId="ledfx-scene-label"
+              id="ledfx-scene-select"
+              sx={{ pl: 1 }}
+              label="Scene"
+              onChange={async (e) => {
+                if (
+                  e.target.value &&
+                  typeof e.target.value === 'string' &&
+                  Object.keys(output.data.config.scenes).includes(e.target.value)
+                ) {
+                  onChange({
+                    host: output.data.host,
+                    sceneId: e.target.value,
+                    text: 'Scene: ' + output.data.config.scenes[e.target.value].name
+                  })
+                }
+              }}
+            >
+              {Object.entries(output.data.config.scenes).map(([sid, s]: any) => (
+                <MenuItem key={sid} value={sid}>
+                  {s.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </>
       ) : (
         <></>
       )}

@@ -7,27 +7,74 @@ export enum Gesture {
   Unknown,
   Rock,
   ThumbsUp,
+  ThumbsDown,
+  ThumbsLeft,
+  ThumbsRight,
   Fuckyou,
   Paper,
   Scissors,
-  Vulcan
+  Vulcan,
+  Pinky,
+  Index,
+  Metal
 }
 
-function isFingerStretched(landmarks: LandmarkList, finger: number[]): boolean {
+const fingers = {
+  thumb: [
+    HandLandmarks.Thumb_cmc,
+    HandLandmarks.Thumb_mcp,
+    HandLandmarks.Thumb_ip,
+    HandLandmarks.Thumb_tip
+  ],
+  index: [
+    HandLandmarks.Index_finger_mcp,
+    HandLandmarks.Index_finger_pip,
+    HandLandmarks.Index_finger_dip,
+    HandLandmarks.Index_finger_tip
+  ],
+  middle: [
+    HandLandmarks.Middle_finger_mcp,
+    HandLandmarks.Middle_finger_pip,
+    HandLandmarks.Middle_finger_dip,
+    HandLandmarks.Middle_finger_tip
+  ],
+  ring: [
+    HandLandmarks.Ring_finger_mcp,
+    HandLandmarks.Ring_finger_pip,
+    HandLandmarks.Ring_finger_dip,
+    HandLandmarks.Ring_finger_tip
+  ],
+  pinky: [
+    HandLandmarks.Pinky_mcp,
+    HandLandmarks.Pinky_pip,
+    HandLandmarks.Pinky_dip,
+    HandLandmarks.Pinky_tip
+  ]
+}
+
+const distance = (pointA: { x: number; y: number }, pointB: { x: number; y: number }) => {
+  return Math.sqrt((pointA.x - pointB.x) ** 2 + (pointA.y - pointB.y) ** 2)
+}
+
+function isFingerStretched(
+  landmarks: LandmarkList,
+  finger: 'thumb' | 'index' | 'middle' | 'ring' | 'pinky'
+): boolean {
+  const f = fingers[finger]
+  if (finger === 'thumb') {
+    return (
+      landmarks[f[0]].x < landmarks[f[1]].x &&
+      landmarks[f[1]].x < landmarks[f[3]].x &&
+      distance(landmarks[f[2]], landmarks[fingers.index[0]]) > 0.1
+      // distance(landmarks[f[3]], landmarks[fingers.index[0]]) >
+      //   distance(landmarks[f[2]], landmarks[f[3]]) &&
+    )
+  }
   return (
-    landmarks[finger[0]].x < landmarks[finger[1]].x &&
-    landmarks[finger[1]].x < landmarks[finger[3]].x
+    (landmarks[f[0]].x < landmarks[f[1]].x && landmarks[f[1]].x < landmarks[f[3]].x) ||
+    (landmarks[f[0]].y < landmarks[f[1]].y && landmarks[f[1]].y < landmarks[f[3]].y)
   )
 }
-
-// function thumbStreched(landmarks: LandmarkList, ): boolean {
-//     return (Math.abs(landmarks[4].x - landmarks[6].x) < Math.abs(landmarks[6].x - landmarks[14].x)) ||
-//         (Math.abs(landmarks[4].y - landmarks[6].y) < Math.abs(landmarks[6].y - landmarks[14].y));
-// }
-
-// function thumbStreched(landmarks: LandmarkList): boolean {
-//     return Math.abs(landmarks[4].x - landmarks[8].x) > 2 * Math.max(Math.abs(landmarks[8].x - landmarks[12].x), Math.abs(landmarks[12].x - landmarks[16].x), Math.abs(landmarks[16].x - landmarks[20].x));
-// }
 
 function isVulcan(landmarks: LandmarkList): boolean {
   return (
@@ -46,56 +93,11 @@ export function detectGesture(landmarks: LandmarkList | null): Gesture {
 
   landmarks = transformToXYPlane(landmarks)
 
-  const thumb = [
-    HandLandmarks.Thumb_cmc,
-    HandLandmarks.Thumb_mcp,
-    HandLandmarks.Thumb_ip,
-    HandLandmarks.Thumb_tip
-  ]
-  const index = [
-    HandLandmarks.Index_finger_mcp,
-    HandLandmarks.Index_finger_pip,
-    HandLandmarks.Index_finger_dip,
-    HandLandmarks.Index_finger_tip
-  ]
-  const middle = [
-    HandLandmarks.Middle_finger_mcp,
-    HandLandmarks.Middle_finger_pip,
-    HandLandmarks.Middle_finger_dip,
-    HandLandmarks.Middle_finger_tip
-  ]
-  const ring = [
-    HandLandmarks.Ring_finger_mcp,
-    HandLandmarks.Ring_finger_pip,
-    HandLandmarks.Ring_finger_dip,
-    HandLandmarks.Ring_finger_tip
-  ]
-  const pinky = [
-    HandLandmarks.Pinky_mcp,
-    HandLandmarks.Pinky_pip,
-    HandLandmarks.Pinky_dip,
-    HandLandmarks.Pinky_tip
-  ]
-
-  // const isThumbStreched = thumbStreched(landmarks);
-  // const isThumbStreched = thumbStreched(landmarks);
-  // const isThumbStreched = isFingerStretched(landmarks, thumb);
-  const isIndexStreched = isFingerStretched(landmarks, index)
-  const isMiddleStreched = isFingerStretched(landmarks, middle)
-  const isRingStreched = isFingerStretched(landmarks, ring)
-  const isPinkyStreched = isFingerStretched(landmarks, pinky)
-
-  // console.log(isThumbStreched)
-
-  /*
-        const distanceTipThumbIndex = Math.abs(landmarks[HandLandmarks.Thumb_tip].x - HandLandmarks.Index_finger_tip)
-        const distanceTipThumbMiddle = Math.abs(landmarks[HandLandmarks.Thumb_tip].x - HandLandmarks.Middle_finger_tip)
-        const distanceTipThumbRing = Math.abs(landmarks[HandLandmarks.Thumb_tip].x - HandLandmarks.Ring_finger_tip)
-        const distanceTipThumbPinky = Math.abs(landmarks[HandLandmarks.Thumb_tip].x - HandLandmarks.Pinky_tip)
-        const distanceTipIndexMiddle = Math.abs(landmarks[HandLandmarks.Index_finger_tip].x - HandLandmarks.Middle_finger_tip)
-        const distanceTipMiddleRing = Math.abs(landmarks[HandLandmarks.Middle_finger_tip].x - HandLandmarks.Ring_finger_tip)
-        const distanceTipRingPinky = Math.abs(landmarks[HandLandmarks.Ring_finger_tip].x - HandLandmarks.Pinky_tip)
-    */
+  const isThumbStreched = isFingerStretched(landmarks, 'thumb')
+  const isIndexStreched = isFingerStretched(landmarks, 'index')
+  const isMiddleStreched = isFingerStretched(landmarks, 'middle')
+  const isRingStreched = isFingerStretched(landmarks, 'ring')
+  const isPinkyStreched = isFingerStretched(landmarks, 'pinky')
 
   if (isIndexStreched && isMiddleStreched && isRingStreched && isPinkyStreched) {
     if (isVulcan(landmarks)) {
@@ -108,32 +110,36 @@ export function detectGesture(landmarks: LandmarkList | null): Gesture {
   }
 
   if (!isIndexStreched && !isMiddleStreched && !isRingStreched && !isPinkyStreched) {
-    // if (isThumbStreched) {
-    log.success2('AI:Hands', 'Thumbs')
-    return Gesture.ThumbsUp
-    // } else {
-    //     log.success2("AI:Hands", "ROCK")
-    //     return Gesture.Rock;
-    // }
+    if (isThumbStreched) {
+      log.success2('AI:Hands', 'THUMB')
+      return Gesture.ThumbsUp
+    }
+    log.success2('AI:Hands', 'ROCK')
+    return Gesture.Rock
   }
 
   if (!isIndexStreched && isMiddleStreched && !isRingStreched && !isPinkyStreched) {
     log.success2('AI:Hands', 'FUCK YOU')
     return Gesture.Fuckyou
   }
-  // if (!isIndexStreched && !isMiddleStreched && !isRingStreched && !isPinkyStreched && !isThumbStreched)  {
-  //     log.success2("AI:Hands", "ROCK")
-  //     return Gesture.Rock;
-  // }
-
-  // if (!isIndexStreched && !isMiddleStreched && !isRingStreched && !isPinkyStreched && isThumbStreched) {
-  //     log.success2("AI:Hands", "Thumbs Up")
-  //     return Gesture.Rock;
-  // }
 
   if (isIndexStreched && isMiddleStreched) {
     log.success2('AI:Hands', 'SCISSORS')
     return Gesture.Scissors
   }
+
+  if (!isIndexStreched && !isMiddleStreched && !isRingStreched && isPinkyStreched) {
+    log.success2('AI:Hands', 'PINKY')
+    return Gesture.Pinky
+  }
+  if (isIndexStreched && !isMiddleStreched && !isRingStreched && !isPinkyStreched) {
+    log.success2('AI:Hands', 'INDEX')
+    return Gesture.Index
+  }
+  if (isIndexStreched && !isMiddleStreched && !isRingStreched && isPinkyStreched) {
+    log.success2('AI:Hands', 'METAL')
+    return Gesture.Metal
+  }
+
   return Gesture.Unknown
 }

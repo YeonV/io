@@ -1,73 +1,10 @@
+import type { IOModule, ModuleId, Row } from '../../../shared/types.js'
 import { produce } from 'immer'
-import { FC } from 'react'
 import { create } from 'zustand'
-import omit from 'lodash-es/omit'
-
+import { omit } from 'lodash-es'
 import { devtools, persist } from 'zustand/middleware'
-import modules from '@/modules/modules'
-
-export type Input = {
-  name: string
-  icon: string
-}
-
-export type InputData = Input & { data: Record<string, any> }
-
-export type Output = {
-  name: string
-  icon: string
-}
-
-export type OutputData = Output & {
-  icon?: string
-  label?: string
-  data: Record<string, any>
-  settings?: Record<string, any>
-}
-
-export type IOModule = {
-  id: ModuleId
-  moduleConfig: ModuleConfig
-  InputEdit?: FC<{
-    input: InputData
-    onChange: (data: Record<string, any>) => void
-  }>
-  OutputEdit?: FC<{
-    output: OutputData
-    onChange: (data: Record<string, any>) => void
-  }>
-  InputDisplay?: FC<{
-    input: InputData
-  }>
-  OutputDisplay?: FC<{
-    output: OutputData
-  }>
-  Settings?: FC<any>
-  useInputActions?: (row: Row) => void
-  useOutputActions?: (row: Row) => void
-  useGlobalActions?: () => void
-}
-
-type ModuleDefaultConfig = {
-  enabled: boolean
-}
-
-export type ModuleConfig<T = {}> = {
-  menuLabel: string
-  inputs: Input[]
-  outputs: Output[]
-  config: ModuleDefaultConfig & T
-}
-
-export type Row = {
-  id: string
-  input: InputData
-  inputModule: ModuleId
-  output: OutputData
-  outputModule: ModuleId
-}
-
-export type ModuleId = keyof typeof modules
+import modules from '@shared/modules.js'
+import { storeUI, storeUIActions } from './OLD/storeUI.js'
 
 type State = {
   modules: Record<ModuleId, IOModule>
@@ -79,6 +16,8 @@ type State = {
   deleteRow: (row: Row) => void
   edit: boolean
   setEdit: (edit: boolean) => void
+  ui: ReturnType<typeof storeUI>
+  setDarkMode: ReturnType<typeof storeUIActions>['setDarkMode']
 }
 
 export const useMainStore = create<State>()(
@@ -177,7 +116,9 @@ export const useMainStore = create<State>()(
             false,
             'set edit'
           )
-        }
+        },
+        ui: { ...storeUI() },
+        ...storeUIActions(set)
       }),
 
       // Persist Settings

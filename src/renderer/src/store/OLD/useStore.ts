@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 import { combine } from 'zustand/middleware'
 import storeGeneral from './storeGeneral'
-import { storeUI, storeUIActions } from './storeUI'
 
 export const useStore = create(
   devtools(
@@ -12,8 +11,6 @@ export const useStore = create(
           hackedBy: 'Blade'
         },
         (set: any) => ({
-          ui: storeUI(),
-          ...storeUIActions(set),
           ...storeGeneral(set)
         })
       ),

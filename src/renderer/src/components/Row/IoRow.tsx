@@ -12,7 +12,8 @@ import {
   useMediaQuery
 } from '@mui/material'
 import { Delete, Help, PlayArrow } from '@mui/icons-material'
-import { Row, useMainStore } from '@/store/mainStore'
+import { useMainStore } from '@/store/mainStore'
+import { Row } from '@shared/types'
 
 const IoRow = ({ row }: { row: Row }) => {
   const desktop = useMediaQuery('(min-width:980px)')

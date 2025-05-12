@@ -19,11 +19,11 @@ const Home = () => {
   const edit = useMainStore((state) => state.edit)
   const setEdit = useMainStore((state) => state.setEdit)
   const editRow = useMainStore((state) => state.editRow)
+  const setDarkMode = useMainStore((state) => state.setDarkMode)
   const mqttData = useStore((state) => state.mqttData)
   const inMqtt = useStore((state) => state.inputs.mqtt)
   const outMqtt = useStore((state) => state.outputs.mqtt)
   const useMqtt = inMqtt && outMqtt
-  const setDarkMode = useStore((state) => state.setDarkMode)
 
   useEffect(() => {
     const client = useMqtt ? mqttService.getClient(console.log) : null

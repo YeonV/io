@@ -1,15 +1,17 @@
+import type { Row } from '../shared/types.js'
 import { app, BrowserWindow, shell, ipcMain, nativeTheme, Tray, Menu, Notification } from 'electron'
 import { release } from 'os'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import pkg from '../../package.json' assert { type: 'json' }
+import pkg from '../../package.json' with { type: 'json' }
 import {
   installExtension,
   REDUX_DEVTOOLS
   // REACT_DEVELOPER_TOOLS
 } from 'electron-devtools-installer'
 import { setupTitlebar, attachTitlebarToWindow } from 'custom-electron-titlebar/main'
+import { globalShortcut } from 'electron/main'
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
@@ -85,7 +87,7 @@ async function createWindow(): Promise<void> {
 
   if (pkg.env.VITRON_CUSTOM_TITLEBAR) attachTitlebarToWindow(mainWindow)
 
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+  mainWindow?.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('https:') || url.startsWith('http:')) shell.openExternal(url)
     return { action: 'deny' }
   })
@@ -96,7 +98,7 @@ async function createWindow(): Promise<void> {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 
-  mainWindow.webContents.on('did-finish-load', () => {
+  mainWindow?.webContents.on('did-finish-load', () => {
     mainWindow?.webContents.send('main-process-message', new Date().toLocaleString())
   })
 }
@@ -166,7 +168,24 @@ app.whenReady().then(async () => {
 
     webapp.use(cors.default())
     webapp.get('/rows', async (req: any, res: any) => {
-      const rows = await store.get('rows')
+      const rows: Record<string, Row> = await store.get('rows')
+      const filteredRows = Object.values(rows).filter(
+        (row) => row.inputModule === 'keyboard-module'
+      )
+
+      console.log(
+        'yz',
+        filteredRows.map((r) => [
+          r.input.data.value.replaceAll('ctrl', 'Control', 'alt', 'Alt'),
+          r.output
+        ])
+      )
+      globalShortcut.register('Alt+CommandOrControl+A', () => {
+        fetch('http://192.168.1.170/win&A=~-20')
+      })
+      globalShortcut.register('Alt+CommandOrControl+S', () => {
+        fetch('http://192.168.1.170/win&A=~20')
+      })
       if (req.query && req.query.id && req.query.update) {
         mainWindow?.webContents.send('update-row', {
           id: req.query.id,

@@ -1,8 +1,8 @@
-import type { ModuleId, Input } from '@/store/mainStore'
+import type { Input, ModuleId } from '@shared/types'
 import { useMainStore } from '@/store/mainStore'
 import { Autocomplete, ListItem, TextField } from '@mui/material'
-import IoIcon from '../IoIcon/IoIcon'
 import { useShallow } from 'zustand/react/shallow'
+import IoIcon from '../IoIcon/IoIcon'
 
 export const InputSelector = ({
   onSelect

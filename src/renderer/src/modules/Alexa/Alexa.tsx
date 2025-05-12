@@ -1,5 +1,5 @@
 import DisplayButtons from '@/components/Row/DisplayButtons'
-import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
+import type { ModuleConfig, InputData, Row } from '@shared/types'
 import { useMainStore } from '@/store/mainStore'
 import { TextField, useMediaQuery } from '@mui/material'
 import type { FC } from 'react'

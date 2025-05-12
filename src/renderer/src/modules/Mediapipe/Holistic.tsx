@@ -1,5 +1,5 @@
 import Shortkey from '@/modules/Keyboard/Shortkey'
-import { ModuleConfig, InputData, Row } from '@/store/mainStore'
+import { ModuleConfig, InputData, Row } from '@shared/types'
 import { Button } from '@mui/material'
 import type { FC } from 'react'
 import { useEffect } from 'react'

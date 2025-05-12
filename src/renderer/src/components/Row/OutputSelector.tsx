@@ -1,4 +1,5 @@
-import { ModuleId, Input, useMainStore } from '@/store/mainStore'
+import { useMainStore } from '@/store/mainStore'
+import { ModuleId, Input } from '@shared/types'
 import { Autocomplete, TextField } from '@mui/material'
 import IoIcon from '../IoIcon/IoIcon'
 import { useShallow } from 'zustand/react/shallow'

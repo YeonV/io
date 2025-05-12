@@ -1,4 +1,4 @@
-import { InputData, OutputData } from '@/store/mainStore'
+import { InputData, OutputData } from '@shared/types'
 import { TextField } from '@mui/material'
 
 const EditButtons = ({

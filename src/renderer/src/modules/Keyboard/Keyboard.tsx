@@ -1,4 +1,4 @@
-import type { ModuleConfig, InputData, Row } from '@/store/mainStore'
+import type { ModuleConfig, InputData, Row } from '@shared/types'
 import type { FC } from 'react'
 import { log } from '@/utils'
 import { useMediaQuery } from '@mui/material'

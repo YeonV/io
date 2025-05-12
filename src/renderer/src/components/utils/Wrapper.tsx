@@ -22,14 +22,15 @@ import styles from '@/styles/app.module.css'
 import logo from '@/assets/icon.png'
 import logoTitle from '@/assets/logo-cropped.svg'
 import pkg from '../../../../../package.json'
-import { useStore } from '../../store/OLD/useStore'
+import { useMainStore } from '@/store/mainStore'
+
 // import { Link } from 'react-router-dom'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
 const Wrapper = ({ children }: any) => {
-  const darkMode = useStore((state) => state.ui.darkMode)
-  const setDarkMode = useStore((state) => state.setDarkMode)
+  const darkMode = useMainStore((state) => state.ui.darkMode)
+  const setDarkMode = useMainStore((state) => state.setDarkMode)
 
   const toggleDarkmode = () => {
     if (ipcRenderer) {

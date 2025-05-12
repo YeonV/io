@@ -1,20 +1,20 @@
-import type { Row } from '@/store/mainStore'
 import { useEffect, useState } from 'react'
 import { Box, Grid, IconButton, Typography } from '@mui/material'
 import { Rnd } from 'react-rnd'
-import { useStore } from '@/store/OLD/useStore'
+import { useMainStore } from '@/store/mainStore'
 import { DarkMode, LightMode, Sync } from '@mui/icons-material'
 import DeckButton from '@/components/DeckButton'
 import 'react-resizable/css/styles.css'
 import 'react-grid-layout/css/styles.css'
 import { useWindowDimensions } from '@/utils'
+import { Row } from '@shared/types'
 
 const Deck = () => {
   const [data, setData] = useState({} as Record<string, Row>)
   const [showSettings, setShowSettings] = useState(false)
   const [disableDrag, setDisableDrag] = useState(false)
-  const darkMode = useStore((state) => state.ui.darkMode)
-  const setDarkMode = useStore((state) => state.setDarkMode)
+  const darkMode = useMainStore((state) => state.ui.darkMode)
+  const setDarkMode = useMainStore((state) => state.setDarkMode)
   const { width } = useWindowDimensions()
   const [magicNumber, setMagicNumber] = useState(120)
 

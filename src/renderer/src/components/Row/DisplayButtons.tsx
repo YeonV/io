@@ -1,4 +1,4 @@
-import { InputData, OutputData } from '@/store/mainStore'
+import { InputData, OutputData } from '@shared/types'
 import { Button, useMediaQuery } from '@mui/material'
 import IoIcon from '../IoIcon/IoIcon'
 

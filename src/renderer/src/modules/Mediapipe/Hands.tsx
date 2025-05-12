@@ -1,6 +1,7 @@
 import type { FC } from 'react'
-import { ModuleConfig, InputData, Row, useMainStore } from '@/store/mainStore'
-import { Button } from '@mui/material'
+import { useMainStore } from '@/store/mainStore'
+import type { ModuleConfig, InputData, Row } from '@shared/types'
+import { Button, IconButton, List, ListItem, ListSubheader, Tooltip } from '@mui/material'
 import { useEffect } from 'react'
 import { detectGesture, Gesture } from '../../modules/Mediapipe/Old/core/gesture-detector'
 import { VideoScene } from './Old/video/video-scene'
@@ -13,6 +14,7 @@ import Holistic from '@mediapipe/holistic'
 import Shortkey from '@/modules/Keyboard/Shortkey'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import ToggleSettings from '@/components/ToggleSettings'
+import { Info } from '@mui/icons-material'
 
 type HandsConfigExample = {}
 
@@ -102,7 +104,28 @@ export const InputEdit: FC<{
   return (
     <div style={{ textAlign: 'left', marginTop: '10px', display: 'flex' }}>
       <ToggleSettings name="cam" variant="switch" />
-      <Button variant="outlined">{input?.data?.data?.value || ''}</Button>
+      <Tooltip title="Use Camera">
+        <Button variant="outlined">{input?.data?.data?.value || ''}</Button>
+      </Tooltip>
+      <Tooltip
+        title={
+          <List>
+            <ListSubheader>Possible Options</ListSubheader>
+            <ListItem>VULCAN</ListItem>
+            <ListItem>PAPER</ListItem>
+            <ListItem>THUMB</ListItem>
+            <ListItem>ROCK</ListItem>
+            <ListItem>SCISSORS</ListItem>
+            <ListItem>PINKY</ListItem>
+            <ListItem>INDEX</ListItem>
+            <ListItem>METAL</ListItem>
+          </List>
+        }
+      >
+        <IconButton>
+          <Info />
+        </IconButton>
+      </Tooltip>
       <canvas
         style={{
           height: 150,
