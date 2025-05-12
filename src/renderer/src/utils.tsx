@@ -1,3 +1,4 @@
+import { debounce } from 'lodash-es'
 import { useState, useEffect } from 'react'
 
 function getWindowDimensions() {
@@ -124,3 +125,8 @@ export class ConsoleLogger implements Logger {
  * available colors are `.log` `.info` `.info1` `.info2` `.info3`
  */
 export const log = new ConsoleLogger()
+
+export const debouncedTrigger = debounce((rowId: string) => {
+  console.log(`Debounced Trigger run for row: ${rowId}`)
+  window.dispatchEvent(new CustomEvent('io_input', { detail: rowId }))
+}, 750)

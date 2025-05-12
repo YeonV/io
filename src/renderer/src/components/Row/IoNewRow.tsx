@@ -1,38 +1,30 @@
-// src/renderer/src/components/Row/IoNewRow.tsx
-
 import { produce } from 'immer'
-// Need useState for internal state, useEffect for prefill logic
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Button, Stack, Box, Typography } from '@mui/material' // Add Box, Typography, CircularProgress
+import { useCallback, useMemo, useState } from 'react'
+import { Button, Stack, Box, Typography } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
 import { InputSelector } from './InputSelector'
 import { OutputSelector } from './OutputSelector'
 import { useMainStore } from '@/store/mainStore'
-import type { Row, InputData, OutputData } from '@shared/types' // Use shared types
-// REMOVE (if not used elsewhere): import { useStore } from '@/store/OLD/useStore';
+import type { Row, InputData, OutputData } from '@shared/types'
 import { useShallow } from 'zustand/react/shallow'
 import { log } from '@/utils'
 
-// Define the structure for prefill data
 export interface PrefillData {
   inputModule: Row['inputModule']
-  input: Partial<InputData> // Allow partial input data prefill
+  input: Partial<InputData>
 }
 
-// Modify props to accept prefill data and the function to start a new prefilled row
 export const IoNewRow = ({
   onComplete,
-  startNewPrefilledRow, // Function to trigger the next step
-  initialPrefill // Optional initial prefill data
+  startNewPrefilledRow,
+  initialPrefill
 }: {
   onComplete: () => void
   startNewPrefilledRow: (prefill: PrefillData) => void
   initialPrefill?: PrefillData
 }) => {
   const addRow = useMainStore(useShallow((state) => state.addRow))
-  // REMOVE (if not needed for MIDI anymore): const setInput = useStore(useShallow((state) => state.setInput));
 
-  // Internal state for the row being built
   const [templateRow, setRow] = useState<Partial<Row> & Pick<Row, 'id'>>(() => {
     log.info('IoNewRow initializing state with initialPrefill:', initialPrefill)
     const newRowId = uuidv4()
@@ -41,25 +33,23 @@ export const IoNewRow = ({
         id: newRowId,
         inputModule: initialPrefill.inputModule,
         input: { ...(initialPrefill.input as InputData) },
-        // Output is NOT prefilled, so it will be undefined
+
         outputModule: undefined,
         output: undefined
       }
     }
-    // Default state if no prefill
+
     return { id: newRowId }
   })
 
-  // State to manage if the input side is locked due to prefill
-  const [isInputLocked, setIsInputLocked] = useState(!!initialPrefill)
-  // State to store the 'separateOffAction' flag from Alexa input
+  const [isInputLocked, _setIsInputLocked] = useState(!!initialPrefill)
+
   const [separateOffAction, setSeparateOffAction] = useState(
     initialPrefill?.input?.data?.separateOffAction ?? false
   )
 
   const modules = useMainStore((state) => state.modules)
 
-  // Memoized selectors for Edit components (Input side depends on isInputLocked)
   const selectedInputModule = useMemo(() => {
     if (!templateRow.inputModule) return undefined
     return modules[templateRow.inputModule]
@@ -71,7 +61,6 @@ export const IoNewRow = ({
   }, [modules, templateRow.outputModule])
 
   const SelectedModuleInputEdit = useMemo(() => {
-    // Only show edit component if input is selected AND not locked
     if (isInputLocked) return undefined
     return selectedInputModule?.InputEdit
   }, [selectedInputModule, isInputLocked])
@@ -80,64 +69,52 @@ export const IoNewRow = ({
     return selectedOutputModule?.OutputEdit
   }, [selectedOutputModule])
 
-  // --- Handlers ---
-
-  // Called by InputSelector when a module/input type is chosen
   const handleInputSelect = useCallback(
     (modId: Row['inputModule'], inp: Omit<InputData, 'data'>) => {
       setRow((row) => ({
         ...row,
         inputModule: modId,
-        input: { ...inp, data: {} } // Initialize with empty data
-        // Reset output if input changes? Optional.
-        // outputModule: undefined,
-        // output: undefined,
+        input: { ...inp, data: {} }
       }))
-      setSeparateOffAction(false) // Reset flag on new input selection
+      setSeparateOffAction(false)
       log.info('Input selected:', modId, inp)
     },
     []
   )
 
-  // Called by OutputSelector
   const handleOutputSelect = useCallback(
     (modId: Row['outputModule'], outp: Omit<OutputData, 'data'>) => {
       setRow((row) => ({
         ...row,
         outputModule: modId,
-        output: { ...outp, data: {} } // Initialize with empty data
+        output: { ...outp, data: {} }
       }))
       log.info('Output selected:', modId, outp)
     },
     []
   )
 
-  // Called by the InputEdit component's onChange
-  // Needs to handle the combined data payload from Alexa ({ value, separateOffAction })
   const handleInputChange = useCallback((data: Record<string, any>) => {
     setRow(
       produce((draft) => {
         if (draft.input) {
-          // If Alexa module sends specific structure, handle it
           if (
             draft.inputModule === 'alexa-module' &&
             Object.prototype.hasOwnProperty.call(data, 'separateOffAction')
           ) {
-            draft.input.data.value = data.value // deviceName stored in 'value'
-            setSeparateOffAction(data.separateOffAction) // Update local state flag
-            // Store flag in data as well? Or rely on local state only before save? Let's store it.
+            draft.input.data.value = data.value
+            setSeparateOffAction(data.separateOffAction)
+
             draft.input.data.separateOffAction = data.separateOffAction
           } else {
-            // Default: merge data
             Object.assign(draft.input.data, data)
           }
         }
       })
     )
     log.info('Input data changed:', data)
-  }, []) // Add dependencies if needed, maybe templateRow.inputModule
+  }, [])
 
-  // Called by the OutputEdit component's onChange
   const handleOutputChange = useCallback((data: Record<string, any>) => {
     setRow(
       produce((draft) => {
@@ -149,19 +126,16 @@ export const IoNewRow = ({
     log.info('Output data changed:', data)
   }, [])
 
-  // --- Save Logic ---
   const handleSave = () => {
-    // --- Guard clause (same as before) ---
     if (
       !templateRow.input ||
       !templateRow.inputModule ||
       !templateRow.output ||
       !templateRow.outputModule
     ) {
-      /* ... */ return
+      return
     }
 
-    // --- Determine Alexa State ---
     const isAlexa = templateRow.inputModule === 'alexa-module'
     const useSeparateOff = isAlexa && separateOffAction
     const currentIsOffRow = isAlexa && templateRow.input?.data.triggerState === 'off'
@@ -170,7 +144,6 @@ export const IoNewRow = ({
 
     if (isAlexa) {
       if (useSeparateOff && !currentIsOffRow) {
-        // Use the 'separateOffAction' state
         finalTriggerState = 'on'
         triggerNextPrefill = {
           inputModule: 'alexa-module',
@@ -178,54 +151,48 @@ export const IoNewRow = ({
             name: templateRow.input.name,
             icon: templateRow.input.icon,
             data: {
-              value: templateRow.input.data.value, // deviceName
-              triggerState: 'off' // Set state for the next row
+              value: templateRow.input.data.value,
+              triggerState: 'off'
             }
           }
         }
       } else if (!useSeparateOff && !currentIsOffRow) {
-        // Use the 'separateOffAction' state
         finalTriggerState = 'any'
       } else if (currentIsOffRow) {
         finalTriggerState = 'off'
       }
     }
 
-    // --- Construct rowToSave with NEW objects ---
     const rowToSave: Row = {
       id: templateRow.id,
       inputModule: templateRow.inputModule,
       input: {
-        // Copy basic input properties
         name: templateRow.input.name,
         icon: templateRow.input.icon,
-        // Create a NEW data object
+
         data: {
-          ...templateRow.input.data, // Copy existing data
-          // Overwrite/add triggerState if defined for Alexa
+          ...templateRow.input.data,
+
           ...(finalTriggerState !== undefined && { triggerState: finalTriggerState }),
-          // Remove separateOffAction flag if it exists
-          separateOffAction: undefined // Or delete key if preferred
+
+          separateOffAction: undefined
         }
       },
       outputModule: templateRow.outputModule,
       output: {
-        // Deep clone output too? Or is shallow copy okay? Shallow is usually fine.
         ...templateRow.output,
-        data: { ...templateRow.output.data } // Clone data just in case
+        data: { ...templateRow.output.data }
       }
     }
-    // Remove the key explicitly if setting to undefined isn't enough
+
     if (rowToSave.input.data.separateOffAction === undefined) {
       delete rowToSave.input.data.separateOffAction
     }
 
-    // --- Legacy MIDI Logic ---
     if (rowToSave.inputModule === 'midi-module') {
       /* ... */
     }
 
-    // --- Add Row & Trigger Next ---
     log.success('Saving row:', rowToSave)
     addRow(rowToSave)
 
@@ -234,17 +201,9 @@ export const IoNewRow = ({
     } else {
       onComplete()
     }
-
-    // --- Legacy Alexa Restart Logic ---
-    // Maybe only trigger this after BOTH rows are saved? Or maybe not needed?
-    // We need to revisit how emulation restart works. Defer for now.
-    // if (rowToSave.inputModule === 'alexa-module') {
-    //     localStorage.setItem('io-restart-needed', 'yes');
-    // }
   }
   const isOffConfiguration = isInputLocked && templateRow.input?.data?.triggerState === 'off'
 
-  // --- Render ---
   const isSaveDisabled =
     !templateRow.input ||
     !templateRow.inputModule ||
@@ -253,7 +212,6 @@ export const IoNewRow = ({
 
   return (
     <>
-      {/* Add title when configuring the 'Off' row */}
       {isOffConfiguration && (
         <Typography variant="h6" sx={{ mb: 1, textAlign: 'center', color: 'text.secondary' }}>
           Configure Off action for: {templateRow.input?.data.value}
@@ -272,7 +230,6 @@ export const IoNewRow = ({
           pb: 2
         }}
       >
-        {/* Input Side */}
         <Box
           sx={{
             flexBasis: '50%',
@@ -285,7 +242,6 @@ export const IoNewRow = ({
             disabled={isInputLocked}
             value={templateRow.input}
           />
-          {/* Conditionally render InputEdit OR static display */}
           {templateRow.input &&
             !SelectedModuleInputEdit &&
             isInputLocked &&
@@ -298,7 +254,6 @@ export const IoNewRow = ({
                   borderRadius: 1
                 }}
               >
-                {/* Render InputDisplay component if Edit is not available and input is locked */}
                 <selectedInputModule.InputDisplay input={templateRow.input} />
               </Box>
             )}
@@ -312,7 +267,6 @@ export const IoNewRow = ({
           )}
         </Box>
 
-        {/* Output Side */}
         <Box sx={{ flexBasis: '50%', marginLeft: '10px', textAlign: 'left' }}>
           <OutputSelector onSelect={handleOutputSelect} />
           {templateRow.output && SelectedModuleOutputEdit && (
@@ -326,7 +280,6 @@ export const IoNewRow = ({
         </Box>
       </Stack>
 
-      {/* Action Buttons */}
       <Stack direction={'row'} sx={{ justifyContent: 'center', mt: 2 }}>
         <Button
           variant="contained"
@@ -337,12 +290,7 @@ export const IoNewRow = ({
         >
           Save
         </Button>
-        <Button
-          sx={{ width: 90, ml: '10px' }}
-          variant="outlined" // Use outlined for Cancel?
-          size="small"
-          onClick={onComplete} // Always finishes the current "add row" step
-        >
+        <Button sx={{ width: 90, ml: '10px' }} variant="outlined" size="small" onClick={onComplete}>
           Cancel
         </Button>
       </Stack>
@@ -350,5 +298,4 @@ export const IoNewRow = ({
   )
 }
 
-// Note: Default export might need adjustment if using named exports more
 export default IoNewRow

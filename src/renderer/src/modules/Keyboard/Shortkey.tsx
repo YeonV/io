@@ -1,39 +1,33 @@
-// src/renderer/src/modules/Keyboard/Shortkey.tsx
-import { useEffect, useState } from 'react'
-import { Button, Stack, TextField, Typography, useMediaQuery } from '@mui/material'
-// No need for useHotkeys import anymore
+import { useState } from 'react'
+import { Button, Stack, TextField, Typography } from '@mui/material'
 
 const Shortkey = ({
   edit = false,
-  value = '', // Use empty string as default? Or keep ctrl+alt+y?
+  value = '',
   onChange = () => {}
 }: {
   edit?: boolean
-  value: string // The source of truth for the shortcut string
+  value: string
   onChange?: (value: string) => void
 }) => {
-  // Internal state primarily for visual feedback during capture
-  const [isCapturing, setIsCapturing] = useState(false) // Track active capture state
+  const [isCapturing, setIsCapturing] = useState(false)
   const [ctrl, setCtrl] = useState(false)
   const [alt, setAlt] = useState(false)
   const [shift, setShift] = useState(false)
   const [win, setWin] = useState(false)
-  const [lastKey, setLastKey] = useState('') // Track the non-modifier key visually
+  const [lastKey, setLastKey] = useState('')
 
   const isMac = navigator.userAgent.includes('Mac')
-  const desktop = useMediaQuery('(min-width:980px)')
 
-  // Function to parse the shortcut string into parts for display
   const getShortcutParts = (shortcutString: string): string[] => {
     return shortcutString ? shortcutString.toLowerCase().split('+') : []
   }
 
-  // --- Key Capture Logic ---
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (!edit) return // Only capture if in edit mode
+    if (!edit) return
 
     e.preventDefault()
-    setIsCapturing(true) // Indicate capture is active
+    setIsCapturing(true)
 
     const pressedModifiers: string[] = []
     if (e.ctrlKey) {
@@ -56,26 +50,20 @@ const Shortkey = ({
     const pressedKey = e.key.toLowerCase()
     let finalKey = ''
 
-    // Filter out modifier keys themselves if pressed alone or with others
     if (!['control', 'alt', 'shift', 'meta'].includes(pressedKey)) {
       finalKey = pressedKey
-      setLastKey(finalKey) // Update visual feedback
+      setLastKey(finalKey)
     } else {
-      setLastKey('') // Clear visual key if only modifier was pressed
+      setLastKey('')
     }
 
-    // Construct the shortcut string if a non-modifier key was pressed
     let newShortcut = ''
     if (finalKey) {
       newShortcut = [...pressedModifiers, finalKey].join('+')
     } else {
-      // If only modifiers are held, display them but don't trigger onChange yet
-      // Maybe show "Press a key..."?
-      newShortcut = pressedModifiers.join('+') // Show modifiers held
+      newShortcut = pressedModifiers.join('+')
     }
 
-    // Call onChange only if a valid combo (modifier + key or just key) is formed
-    // And it's different from the original value prop
     if (finalKey && newShortcut !== value) {
       onChange(newShortcut)
     }
@@ -83,19 +71,19 @@ const Shortkey = ({
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (!edit) return
-    // Reset visual state
+
     if (!e.ctrlKey) setCtrl(false)
     if (!e.altKey) setAlt(false)
     if (!e.shiftKey) setShift(false)
     if (!e.metaKey) setWin(false)
-    // Maybe clear lastKey if modifier released? Or wait for full release?
-    setLastKey('') // Clear key visual on any keyup?
-    setIsCapturing(false) // Capture ends on key up
+
+    setLastKey('')
+    setIsCapturing(false)
   }
 
   const handleBlur = () => {
     if (!edit) return
-    // Reset visual state if user clicks away during capture
+
     setIsCapturing(false)
     setCtrl(false)
     setAlt(false)
@@ -104,7 +92,6 @@ const Shortkey = ({
     setLastKey('')
   }
 
-  // --- Render ---
   const displayParts = getShortcutParts(
     edit && isCapturing
       ? [
@@ -115,22 +102,19 @@ const Shortkey = ({
           ...(lastKey ? [lastKey] : [])
         ].join('+')
       : value
-  ) // Show live capture OR prop value
+  )
 
   return edit ? (
-    // --- Edit Mode ---
     <div style={{ position: 'relative', flexGrow: 1, marginTop: '1rem' }}>
       <TextField
         label={isCapturing ? 'Capturing...' : 'Press Keys To Set Trigger'}
-        // placeholder={value || 'Click here and press keys'} // Show current value as placeholder
-        value={''} // Input is just for focus/events
+        value={''}
         style={{ width: '100%' }}
         onKeyDown={handleKeyDown}
         onKeyUp={handleKeyUp}
-        onBlur={handleBlur} // Reset visual state on blur
+        onBlur={handleBlur}
         InputLabelProps={{ shrink: true }}
       />
-      {/* Visual feedback stack */}
       <Stack
         direction={'row'}
         gap={1}
@@ -142,13 +126,12 @@ const Shortkey = ({
               key={i}
               size="small"
               variant={
-                // Highlight based on current key down state during capture
                 (part === 'ctrl' && ctrl) ||
                 (part === 'alt' && alt) ||
                 (part === 'shift' && shift) ||
                 (part === 'cmd' && win) ||
                 (part === 'win' && win) ||
-                (part === lastKey && lastKey) // Highlight the last non-modifier key
+                (part === lastKey && lastKey)
                   ? 'contained'
                   : 'outlined'
               }
@@ -163,14 +146,12 @@ const Shortkey = ({
       </Stack>
     </div>
   ) : (
-    // --- Display Mode ---
     <Stack direction={'row'} gap={1} sx={{ color: '#666', pointerEvents: 'none' }}>
-      {/* Render based on displayParts derived from the 'value' prop */}
       {displayParts.length > 0 ? (
         displayParts.map((part, i) => (
           <Button
             key={i}
-            size="medium" // Keep original size for display?
+            size="medium"
             sx={{ fontSize: '12px', textTransform: 'capitalize' }}
             color={'inherit'}
             variant={'outlined'}
@@ -181,7 +162,6 @@ const Shortkey = ({
       ) : (
         <Typography sx={{ fontSize: '12px', color: 'text.disabled' }}>Not Set</Typography>
       )}
-      {/* Remove mobile specific button logic if not needed */}
     </Stack>
   )
 }

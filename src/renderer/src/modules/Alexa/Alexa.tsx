@@ -1,3 +1,6 @@
+import type { ModuleConfig, InputData, Row } from '@shared/types'
+import type { FC } from 'react'
+import { useEffect } from 'react'
 import { useMainStore } from '@/store/mainStore'
 import { Sync } from '@mui/icons-material'
 import {
@@ -10,20 +13,11 @@ import {
   Button,
   Box
 } from '@mui/material'
-import type { ModuleConfig, InputData } from '@shared/types'
-// import type { ModuleConfig, InputData, Row } from '@shared/types'
-// REMOVE: import { useMainStore } from '@/store/mainStore'; // Not needed here directly anymore
-import type { FC } from 'react'
-import { useEffect } from 'react'
 import IoIcon from '@/components/IoIcon/IoIcon'
-import { debounce } from 'lodash-es'
+import { debouncedTrigger } from '@/utils'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
-const debouncedTrigger = debounce((rowId: string) => {
-  console.log(`Debounced Trigger run for row: ${rowId}`)
-  window.dispatchEvent(new CustomEvent('io_input', { detail: rowId }))
-}, 750)
 // --- Module Config ---
 export const id = 'alexa-module'
 export const moduleConfig: ModuleConfig<{}> = {
@@ -36,35 +30,30 @@ export const moduleConfig: ModuleConfig<{}> = {
 // --- InputEdit Component ---
 export const InputEdit: FC<{
   input: InputData
-  // Need onChange to update BOTH deviceName and the new separateOffAction flag
   onChange: (data: { value: string; separateOffAction: boolean }) => void
 }> = ({ input, onChange }) => {
-  // Extract current values from input.data, providing defaults
-  const deviceName = input.data.value ?? '' // Assuming 'value' holds the device name
-  const separateOffAction = input.data.separateOffAction ?? false // Default to false
+  const deviceName = input.data.value ?? ''
+  const separateOffAction = input.data.separateOffAction ?? false
 
   const handleDeviceNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({ value: event.target.value, separateOffAction }) // Keep separateOffAction state
+    onChange({ value: event.target.value, separateOffAction })
   }
 
   const handleSeparateActionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({ value: deviceName, separateOffAction: event.target.checked }) // Keep deviceName state
+    onChange({ value: deviceName, separateOffAction: event.target.checked })
   }
 
   return (
     <>
       <TextField
         fullWidth
-        label="Alexa Device Name" // More specific label
+        label="Alexa Device Name"
         value={deviceName}
         onChange={handleDeviceNameChange}
         sx={{ mt: 2 }}
         inputProps={{ style: { paddingLeft: '20px' } }}
         variant="outlined"
-        // Add helper text?
-        helperText="The exact name Alexa recognizes (case-sensitive)."
       />
-      {/* Add the new Checkbox */}
       <FormControlLabel
         control={
           <Checkbox
@@ -76,24 +65,19 @@ export const InputEdit: FC<{
         label='Configure separate action for "Off" command'
         sx={{
           mt: 1,
-          // display: 'block', // Keep if you like this block behavior
-          width: '100%', // Make it take full width
-          justifyContent: 'flex-start', // Align content to the start
-          marginLeft: 0, // Remove default negative margin if any
+          width: '100%',
+          justifyContent: 'flex-start',
+          marginLeft: 0,
           '& .MuiFormControlLabel-label': {
-            // Target the label specifically
-            fontSize: '0.875rem' // Match typical form label size
+            fontSize: '0.875rem'
           }
-        }} // Make it block for alignment
+        }}
       />
     </>
   )
 }
 
 // --- InputDisplay Component ---
-// Might need update if we store data differently later, but okay for now
-// src/renderer/src/modules/Alexa/Alexa.tsx
-
 export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   const desktop = useMediaQuery('(min-width:980px)')
   const deviceName = input.data.value ?? 'No Name'
@@ -121,12 +105,9 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
           variant="outlined"
           disabled
           sx={{
-            fontSize: 12, // Match deviceName font size
+            fontSize: 12,
             flexShrink: 0,
             marginLeft: 0
-            // Ensure consistent padding/minWidth if needed to look like other buttons
-            // padding: '3px 8px', // Example padding
-            // minWidth: 'auto',   // Allow natural width
           }}
         >
           {triggerState}
@@ -159,50 +140,24 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
 }
 
 // --- useInputActions Hook ---
-// This hook is called PER ROW. It's NOT suitable for the central listener.
-// The central listener needs to know about ALL Alexa rows.
-// We will implement the central listener logic elsewhere (likely Home.tsx initially).
-// This hook might not be needed at all for Alexa anymore, or could potentially
-// be used for row-specific cleanup if necessary. Let's comment it out for now.
-
-// export const useInputActions = (row: Row) => {
-//   useEffect(() => {
-//     // We move the listener logic out of here
-//     // The listener needs to map incoming IPC events to row IDs
-//     // based on deviceName and triggerState, which this hook scope doesn't easily have access to.
-//     console.log(`useInputActions called for Alexa row ${row.id}, but listener is handled globally.`)
-//     return () => {
-//       // Cleanup if needed
-//     }
-//   }, []) // Empty dependency array, runs once per row mount
-// }
+// This hook is called PER ROW.
+export const useInputActions = (row: Row) => {
+  console.log(`useInputActions called for Alexa row ${row.id}, but listener is handled globally.`)
+}
 
 // --- useGlobalActions Hook ---
-// This is where we initialize the connection/emulation with the main process.
-// It might ALSO be where we put the central listener, as it runs once per module activation.
 export const useGlobalActions = () => {
-  // Get Zustand functions directly if needed, or rely on listeners in Home.tsx
-  // const rows = useMainStore((state) => state.rows); // Avoid direct reads in hooks if possible
-
   useEffect(() => {
     console.log('Alexa useGlobalActions: Setting up emulation.')
     if (ipcRenderer) {
-      // This part is still needed to tell the main process WHICH devices to emulate
-      // BUT we need to get the list of device names from the store here.
-      // This is tricky because Zustand hooks shouldn't be called conditionally/in effects directly.
-      // Option 1: Trigger IPC from Home.tsx where rows state is available.
-      // Option 2: Use useMainStore.getState() here (less reactive, but simpler for setup)
-
-      // Using getState() for simplicity during setup:
       const allRows = useMainStore.getState().rows
       const alexaDeviceNames = Object.values(allRows)
-        .filter((r) => r.inputModule === id) // Filter for Alexa rows
-        .map((r) => r.input.data.value) // Get the deviceName (stored in 'value')
-        .filter((name, index, self) => name && self.indexOf(name) === index) // Unique, non-empty names
+        .filter((r) => r.inputModule === id)
+        .map((r) => r.input.data.value)
+        .filter((name, index, self) => name && self.indexOf(name) === index)
 
       if (alexaDeviceNames.length > 0) {
         console.log('Emulating Alexa devices:', alexaDeviceNames)
-        // SendSync might be okay for setup, but consider async if it blocks
         try {
           ipcRenderer.sendSync('emulate-alexa-devices', alexaDeviceNames)
         } catch (error) {
@@ -212,28 +167,23 @@ export const useGlobalActions = () => {
         console.log('No Alexa devices configured for emulation.')
       }
 
-      // SETUP THE CENTRAL LISTENER: This hook is a good place for the IPC listener
       const handleAlexaDeviceEvent = (
         _event: any,
         data: { device: string; state: 'on' | 'off' }
       ) => {
         console.log(`Alexa event received: ${data.device} -> ${data.state}`)
-        const currentRows = useMainStore.getState().rows // Get latest rows
+        const currentRows = useMainStore.getState().rows
 
-        // Find the matching row based on deviceName and triggerState
         const targetRow = Object.values(currentRows).find(
           (row) =>
-            row.inputModule === id && // Is an Alexa row
-            row.input.data.value === data.device && // Matches device name
-            (row.input.data.triggerState === data.state || // Matches specific state OR
-              row.input.data.triggerState === 'any') // Matches if configured for 'any' state
+            row.inputModule === id &&
+            row.input.data.value === data.device &&
+            (row.input.data.triggerState === data.state || row.input.data.triggerState === 'any')
         )
 
         if (targetRow) {
           console.log(`Match found! Triggering row: ${targetRow.id}`)
-          // Dispatch the standard io_input event with the target row's ID
-          debouncedTrigger(targetRow.id) // Use debounced trigger
-          // window.dispatchEvent(new CustomEvent('io_input', { detail: targetRow.id }))
+          debouncedTrigger(targetRow.id)
         } else {
           console.log(`No matching row found for ${data.device} (${data.state})`)
         }
@@ -242,21 +192,21 @@ export const useGlobalActions = () => {
       ipcRenderer.on('alexa-device', handleAlexaDeviceEvent)
       console.log("Alexa 'alexa-device' IPC listener attached.")
 
-      // Cleanup function
       return () => {
         console.log('Cleaning up Alexa useGlobalActions: Removing listener.')
         if (ipcRenderer) {
           ipcRenderer.removeListener('alexa-device', handleAlexaDeviceEvent)
         }
-        // Potentially tell main process to STOP emulating devices? Needs IPC handler.
-        // ipcRenderer.send('stop-emulating-alexa-devices', alexaDeviceNames);
       }
     } else {
       console.warn('IPC Renderer not available for Alexa module.')
+      return () => {
+        // No cleanup needed when ipcRenderer is not available
+      }
     }
   }, [])
 
-  return null // Or return undefined, hook doesn't need to render anything
+  return null
 }
 
 // --- Settings Component ---
