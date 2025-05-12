@@ -1,5 +1,5 @@
 import type { FC } from 'react'
-import modules from './modules.js'
+import modules from '../renderer/src/modules/modules.js'
 
 export type Input = {
   name: string

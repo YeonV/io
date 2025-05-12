@@ -3,7 +3,7 @@ import { produce } from 'immer'
 import { create } from 'zustand'
 import { omit } from 'lodash-es'
 import { devtools, persist } from 'zustand/middleware'
-import modules from '@shared/modules.js'
+import modules from '@/modules/modules.js'
 import { storeUI, storeUIActions } from './OLD/storeUI.js'
 
 type State = {
