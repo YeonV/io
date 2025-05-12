@@ -27,6 +27,98 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 let store: any = null
+const registeredShortcuts = new Set<string>()
+
+function registerGlobalShortcuts() {
+  if (!store) {
+    console.warn('Electron-store not initialized, cannot register shortcuts.')
+    return
+  }
+  console.log('Attempting to register global shortcuts...')
+
+  // 1. Unregister ALL previously registered shortcuts managed by this app
+  //    This is simpler than tracking exact changes.
+  console.log('Unregistering existing global shortcuts:', Array.from(registeredShortcuts))
+  registeredShortcuts.forEach((accelerator) => {
+    globalShortcut.unregister(accelerator)
+  })
+  registeredShortcuts.clear()
+
+  // 2. Get current rows from store
+  const rows: Record<string, Row> | undefined = store.get('rows')
+  if (!rows) {
+    console.log('No rows found in store.')
+    return
+  }
+
+  // 3. Filter for keyboard input rows and register them
+  Object.values(rows).forEach((row: Row) => {
+    if (row.inputModule === 'keyboard-module' && row.input.data.value) {
+      const accelerator = row.input.data.value // e.g., "ctrl+alt+y"
+      const electronAccelerator = accelerator
+        .split('+') // Split into parts
+        .map((part) => {
+          const lowerPart = part.toLowerCase()
+          switch (lowerPart) {
+            case 'ctrl':
+              return 'Control' // Use 'Control', not 'CommandOrControl' unless needed for Mac only?
+            case 'alt':
+              return 'Alt'
+            case 'shift':
+              return 'Shift'
+            case 'cmd':
+              return 'Command' // Use 'Command' specifically for Mac Meta key
+            case 'win':
+              return 'Super' // Use 'Super' for Windows key
+            case 'meta':
+              return process.platform === 'darwin' ? 'Command' : 'Super' // Handle generic 'meta'
+            case 'option':
+              return 'Alt' // Map Mac 'option' to 'Alt'
+            // Add mappings for space, arrow keys etc. if react-hotkeys-hook uses different names
+            // case 'space': return 'Space';
+            // case 'left': return 'Left';
+            // ...
+            default:
+              return lowerPart.length === 1 ? lowerPart.toUpperCase() : part // Uppercase single chars (A-Z), keep others (F1, etc.)
+          }
+        })
+        .join('+')
+      console.log(`Attempting to register: ${electronAccelerator} for row ${row.id}`)
+
+      try {
+        const success = globalShortcut.register(electronAccelerator, () => {
+          // --- THIS CALLBACK RUNS WHEN SHORTCUT IS PRESSED ---
+          console.log(`Global shortcut pressed: ${electronAccelerator}, triggering row: ${row.id}`)
+          // Send IPC message to Renderer
+          mainWindow?.webContents.send('trigger-row', { id: row.id })
+        })
+
+        if (success) {
+          console.log(`Successfully registered: ${electronAccelerator}`)
+          registeredShortcuts.add(electronAccelerator) // Track successful registration
+        } else {
+          console.error(
+            `Failed to register global shortcut: ${electronAccelerator}. Might be used by OS or another app.`
+          )
+          // Notify user? Maybe via a notification in renderer?
+        }
+      } catch (error) {
+        console.error(`Error registering global shortcut ${electronAccelerator}:`, error)
+      }
+    }
+  })
+  console.log(
+    'Finished registering global shortcuts. Currently active:',
+    Array.from(registeredShortcuts)
+  )
+}
+
+// Function to unregister all shortcuts on quit
+function unregisterAllGlobalShortcuts() {
+  console.log('Unregistering all global shortcuts before quit.')
+  globalShortcut.unregisterAll()
+  registeredShortcuts.clear()
+}
 
 async function loadElectronStore() {
   const { default: Store } = await import('electron-store')
@@ -161,6 +253,8 @@ app.whenReady().then(async () => {
     }
   })
 
+  registerGlobalShortcuts()
+
   mainWindow?.webContents.once('did-finish-load', async function () {
     const express = await import('express')
     const webapp = express.default() // create express webapp
@@ -169,23 +263,23 @@ app.whenReady().then(async () => {
     webapp.use(cors.default())
     webapp.get('/rows', async (req: any, res: any) => {
       const rows: Record<string, Row> = await store.get('rows')
-      const filteredRows = Object.values(rows).filter(
-        (row) => row.inputModule === 'keyboard-module'
-      )
+      // const filteredRows = Object.values(rows).filter(
+      //   (row) => row.inputModule === 'keyboard-module'
+      // )
 
-      console.log(
-        'yz',
-        filteredRows.map((r) => [
-          r.input.data.value.replaceAll('ctrl', 'Control', 'alt', 'Alt'),
-          r.output
-        ])
-      )
-      globalShortcut.register('Alt+CommandOrControl+A', () => {
-        fetch('http://192.168.1.170/win&A=~-20')
-      })
-      globalShortcut.register('Alt+CommandOrControl+S', () => {
-        fetch('http://192.168.1.170/win&A=~20')
-      })
+      // console.log(
+      //   'yz',
+      //   filteredRows.map((r) => [
+      //     r.input.data.value.replaceAll('ctrl', 'Control', 'alt', 'Alt'),
+      //     r.output
+      //   ])
+      // )
+      // globalShortcut.register('Alt+CommandOrControl+A', () => {
+      //   fetch('http://192.168.1.170/win&A=~-20')
+      // })
+      // globalShortcut.register('Alt+CommandOrControl+S', () => {
+      //   fetch('http://192.168.1.170/win&A=~20')
+      // })
       if (req.query && req.query.id && req.query.update) {
         mainWindow?.webContents.send('update-row', {
           id: req.query.id,
@@ -228,6 +322,10 @@ app.whenReady().then(async () => {
   })
 })
 
+app.on('will-quit', () => {
+  unregisterAllGlobalShortcuts()
+})
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
@@ -235,9 +333,16 @@ app.on('window-all-closed', () => {
 })
 
 ipcMain.on('set', async (event, arg) => {
-  console.log(arg[0], arg[1])
-  await store.set(arg[0], arg[1])
-  event.sender.send('ping-pong', `[ipcMain] "${arg}" received asynchronously.`)
+  const key = arg[0]
+  const value = arg[1]
+  console.log(`IPC 'set' received for key: ${key}`) // Add logging
+  await store.set(key, value)
+
+  // If the 'rows' key was updated, re-register shortcuts
+  if (key === 'rows') {
+    console.log("Rows updated via IPC 'set', re-registering global shortcuts.")
+    registerGlobalShortcuts() // Re-run registration logic
+  }
 })
 
 ipcMain.on('get', async (event, arg) => {
@@ -245,27 +350,100 @@ ipcMain.on('get', async (event, arg) => {
   event.sender.send('get', res)
 })
 const wemore = await import('wemore')
-let device = null as any
-ipcMain.on('emulate-alexa-devices', (event, devices) => {
-  devices.map((d: string, i: number) => {
-    // if (device === null) {
-    device = wemore.Emulate({ friendlyName: d, port: 9001 + i })
-    device.on('listening', function () {
-      console.log(d + ' listening on', 9001 + i)
-    })
+const device = null as any
+const emulatedDevices: Record<string, { instance: any; port: number; friendlyName: string }> = {}
+let nextPort = 9001
 
-    device.on('on', function (_self: any, _sender: any) {
-      mainWindow?.webContents.send('alexa-device', { device: d, state: 'on' })
-      console.log(d + ' on')
-    })
+function findNextAvailablePort(startPort: number): number {
+  let port = startPort
+  const usedPorts = Object.values(emulatedDevices).map((d) => d.port)
+  while (usedPorts.includes(port)) {
+    port++
+    // Add a safety break?
+    if (port > startPort + 100) {
+      console.error('Could not find an available port after 100 attempts!')
+      throw new Error('Port allocation failed')
+    }
+  }
+  return port
+}
 
-    device.on('off', function (_self: any, _sender: any) {
-      mainWindow?.webContents.send('alexa-device', { device: d, state: 'off' })
-      console.log(d + ' off')
-    })
-    // }
+// Function to stop and remove a specific emulated device
+function stopEmulation(deviceName: string) {
+  if (emulatedDevices[deviceName]) {
+    try {
+      // Wemore doesn't seem to have an explicit stop/close method in examples.
+      // We might rely on garbage collection or look deeper into its API.
+      // For now, just remove it from our tracking.
+      console.log(
+        `Stopping emulation tracking for ${deviceName} on port ${emulatedDevices[deviceName].port}`
+      )
+    } catch (err) {
+      console.error(`Error stopping device ${deviceName}:`, err)
+    }
+    delete emulatedDevices[deviceName]
+  }
+}
+
+ipcMain.on('emulate-alexa-devices', (event, desiredDeviceNames: string[]) => {
+  console.log('IPC emulate-alexa-devices received. Desired:', desiredDeviceNames)
+
+  const currentDeviceNames = Object.keys(emulatedDevices)
+
+  // 1. Stop devices that are no longer desired
+  const devicesToRemove = currentDeviceNames.filter((name) => !desiredDeviceNames.includes(name))
+  devicesToRemove.forEach((name) => {
+    stopEmulation(name)
   })
-  event.returnValue = `[ipcMain] "${devices}" received synchronously.`
+
+  // 2. Start new devices or update existing ones (if needed, though usually just start new)
+  desiredDeviceNames.forEach((friendlyName) => {
+    if (!emulatedDevices[friendlyName]) {
+      // Device doesn't exist, create it
+      try {
+        const port = findNextAvailablePort(nextPort)
+        nextPort = port + 1 // Increment for the next potential device
+
+        console.log(`Attempting to emulate ${friendlyName} on port ${port}`)
+        const device = wemore.Emulate({ friendlyName: friendlyName, port: port })
+
+        device.on('listening', function () {
+          console.log(`${friendlyName} emulated successfully on port ${port}`)
+          // Store the instance and its details
+          emulatedDevices[friendlyName] = {
+            instance: device,
+            port: port,
+            friendlyName: friendlyName
+          }
+        })
+
+        device.on('error', function (err: any) {
+          console.error(`Error for ${friendlyName} on port ${port}:`, err)
+          // Attempt cleanup if it failed to listen
+          delete emulatedDevices[friendlyName] // Remove from tracking if error occurs early
+          // Potentially try next port? Or just log error.
+        })
+
+        device.on('on', function (_self: any, _sender: any) {
+          console.log(`WEMORE EVENT: ${friendlyName} received ON state. Timestamp: ${Date.now()}`)
+          mainWindow?.webContents.send('alexa-device', { device: friendlyName, state: 'on' })
+        })
+
+        device.on('off', function (_self: any, _sender: any) {
+          console.log(`WEMORE EVENT: ${friendlyName} received OFF state. Timestamp: ${Date.now()}`)
+          mainWindow?.webContents.send('alexa-device', { device: friendlyName, state: 'off' })
+        })
+      } catch (error) {
+        console.error(`Failed to start emulation for ${friendlyName}:`, error)
+      }
+    } else {
+      console.log(`${friendlyName} is already being emulated.`)
+      // Potentially update existing device if needed? Wemore API might not support easy updates.
+    }
+  })
+
+  // Return status (sendSync requires a return value)
+  event.returnValue = `[ipcMain] Emulation status updated. Active: ${Object.keys(emulatedDevices).join(', ')}`
 })
 
 process.on('uncaughtException', function (error) {

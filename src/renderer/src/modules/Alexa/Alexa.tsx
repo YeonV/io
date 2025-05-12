@@ -1,4 +1,3 @@
-import DisplayButtons from '@/components/Row/DisplayButtons'
 import { useMainStore } from '@/store/mainStore'
 import { Sync } from '@mui/icons-material'
 import {
@@ -7,15 +6,24 @@ import {
   Checkbox,
   FormControlLabel,
   ToggleButton,
-  Typography
+  Typography,
+  Button,
+  Box
 } from '@mui/material'
 import type { ModuleConfig, InputData } from '@shared/types'
 // import type { ModuleConfig, InputData, Row } from '@shared/types'
 // REMOVE: import { useMainStore } from '@/store/mainStore'; // Not needed here directly anymore
 import type { FC } from 'react'
 import { useEffect } from 'react'
-import Shortkey from '../Keyboard/Shortkey'
+import IoIcon from '@/components/IoIcon/IoIcon'
+import { debounce } from 'lodash-es'
+
 const ipcRenderer = window.electron?.ipcRenderer || false
+
+const debouncedTrigger = debounce((rowId: string) => {
+  console.log(`Debounced Trigger run for row: ${rowId}`)
+  window.dispatchEvent(new CustomEvent('io_input', { detail: rowId }))
+}, 750)
 // --- Module Config ---
 export const id = 'alexa-module'
 export const moduleConfig: ModuleConfig<{}> = {
@@ -66,7 +74,17 @@ export const InputEdit: FC<{
           />
         }
         label='Configure separate action for "Off" command'
-        sx={{ mt: 1, display: 'block' }} // Make it block for alignment
+        sx={{
+          mt: 1,
+          // display: 'block', // Keep if you like this block behavior
+          width: '100%', // Make it take full width
+          justifyContent: 'flex-start', // Align content to the start
+          marginLeft: 0, // Remove default negative margin if any
+          '& .MuiFormControlLabel-label': {
+            // Target the label specifically
+            fontSize: '0.875rem' // Match typical form label size
+          }
+        }} // Make it block for alignment
       />
     </>
   )
@@ -74,23 +92,69 @@ export const InputEdit: FC<{
 
 // --- InputDisplay Component ---
 // Might need update if we store data differently later, but okay for now
+// src/renderer/src/modules/Alexa/Alexa.tsx
+
 export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   const desktop = useMediaQuery('(min-width:980px)')
-  // Display the device name from input.data.value
-  const displayValue = input.data.value ?? 'No Name'
+  const deviceName = input.data.value ?? 'No Name'
+  const moduleName = input.name
+  const iconName = input.icon
+  const triggerState = input.data.triggerState
+
   return (
-    <>
-      {/* Pass data down - DisplayButtons needs to know what to show */}
-      <DisplayButtons data={{ ...input, name: input.data.value || input.name }} />
-      {/* Maybe show (On/Off specific) if data.triggerState exists? */}
-      {input.data.triggerState && (
-        <Typography variant="caption" sx={{ ml: 1, fontStyle: 'italic' }}>
-          ({input.data.triggerState})
-        </Typography>
+    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1 }}>
+      {/* Button 1 (Module or Device Name) */}
+      <Button
+        size="small"
+        disabled
+        variant="outlined"
+        sx={{ fontSize: 10, minWidth: '45px', justifyContent: 'flex-start', flexShrink: 0 }}
+        startIcon={<IoIcon name={iconName} />}
+      >
+        {desktop ? moduleName : deviceName}
+      </Button>
+      {/* State Indicator - styled as a button */}
+      {triggerState && triggerState !== 'any' && (
+        <Button
+          size="small"
+          color="inherit"
+          variant="outlined"
+          disabled
+          sx={{
+            fontSize: 12, // Match deviceName font size
+            flexShrink: 0,
+            marginLeft: 0
+            // Ensure consistent padding/minWidth if needed to look like other buttons
+            // padding: '3px 8px', // Example padding
+            // minWidth: 'auto',   // Allow natural width
+          }}
+        >
+          {triggerState}
+        </Button>
       )}
-      {/* Remove Shortkey display here? It doesn't make sense for Alexa */}
-      {desktop && <Shortkey value={displayValue} />}
-    </>
+
+      {/* Device Name (Desktop Only) */}
+      {desktop && (
+        <Button
+          size="small"
+          color="inherit"
+          variant="outlined"
+          disabled
+          sx={{
+            fontSize: 12,
+            textTransform: 'unset',
+            flexGrow: 1,
+            justifyContent: 'flex-start',
+            textAlign: 'left',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {deviceName}
+        </Button>
+      )}
+    </Box>
   )
 }
 
@@ -168,7 +232,8 @@ export const useGlobalActions = () => {
         if (targetRow) {
           console.log(`Match found! Triggering row: ${targetRow.id}`)
           // Dispatch the standard io_input event with the target row's ID
-          window.dispatchEvent(new CustomEvent('io_input', { detail: targetRow.id }))
+          debouncedTrigger(targetRow.id) // Use debounced trigger
+          // window.dispatchEvent(new CustomEvent('io_input', { detail: targetRow.id }))
         } else {
           console.log(`No matching row found for ${data.device} (${data.state})`)
         }

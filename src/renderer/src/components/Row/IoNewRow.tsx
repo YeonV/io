@@ -33,35 +33,29 @@ export const IoNewRow = ({
   // REMOVE (if not needed for MIDI anymore): const setInput = useStore(useShallow((state) => state.setInput));
 
   // Internal state for the row being built
-  const [templateRow, setRow] = useState<Partial<Row> & Pick<Row, 'id'>>(() => ({
-    id: uuidv4(),
-    inputModule: initialPrefill?.inputModule,
-    input: initialPrefill?.input ? { ...(initialPrefill.input as InputData) } : undefined // Initialize from prefill
-    // outputModule and output start empty
-  }))
+  const [templateRow, setRow] = useState<Partial<Row> & Pick<Row, 'id'>>(() => {
+    log.info('IoNewRow initializing state with initialPrefill:', initialPrefill)
+    const newRowId = uuidv4()
+    if (initialPrefill) {
+      return {
+        id: newRowId,
+        inputModule: initialPrefill.inputModule,
+        input: { ...(initialPrefill.input as InputData) },
+        // Output is NOT prefilled, so it will be undefined
+        outputModule: undefined,
+        output: undefined
+      }
+    }
+    // Default state if no prefill
+    return { id: newRowId }
+  })
 
   // State to manage if the input side is locked due to prefill
   const [isInputLocked, setIsInputLocked] = useState(!!initialPrefill)
   // State to store the 'separateOffAction' flag from Alexa input
-  const [separateOffAction, setSeparateOffAction] = useState(false)
-
-  // Effect to handle initial prefill when component mounts or prefill prop changes
-  useEffect(() => {
-    if (initialPrefill) {
-      setRow({
-        id: uuidv4(), // Generate new ID for the new row instance
-        inputModule: initialPrefill.inputModule,
-        input: { ...(initialPrefill.input as InputData) } // Ensure full InputData structure
-      })
-      setIsInputLocked(true)
-      // Reset separateOffAction flag for the new prefilled row
-      setSeparateOffAction(false)
-    } else {
-      // Reset if prefill is removed (e.g., navigating away and back)
-      // setRow({ id: uuidv4() }); // Or keep existing if suitable
-      setIsInputLocked(false)
-    }
-  }, [initialPrefill])
+  const [separateOffAction, setSeparateOffAction] = useState(
+    initialPrefill?.input?.data?.separateOffAction ?? false
+  )
 
   const modules = useMainStore((state) => state.modules)
 
@@ -169,14 +163,15 @@ export const IoNewRow = ({
 
     // --- Determine Alexa State ---
     const isAlexa = templateRow.inputModule === 'alexa-module'
+    const useSeparateOff = isAlexa && separateOffAction
     const currentIsOffRow = isAlexa && templateRow.input?.data.triggerState === 'off'
     let finalTriggerState: 'on' | 'off' | 'any' | undefined = undefined
     let triggerNextPrefill: PrefillData | null = null
 
     if (isAlexa) {
-      if (separateOffAction && !currentIsOffRow) {
+      if (useSeparateOff && !currentIsOffRow) {
+        // Use the 'separateOffAction' state
         finalTriggerState = 'on'
-        // Prepare prefill data for the "off" row
         triggerNextPrefill = {
           inputModule: 'alexa-module',
           input: {
@@ -188,10 +183,11 @@ export const IoNewRow = ({
             }
           }
         }
-      } else if (!separateOffAction && !currentIsOffRow) {
+      } else if (!useSeparateOff && !currentIsOffRow) {
+        // Use the 'separateOffAction' state
         finalTriggerState = 'any'
       } else if (currentIsOffRow) {
-        finalTriggerState = 'off' // It's the prefilled 'off' row
+        finalTriggerState = 'off'
       }
     }
 
@@ -246,6 +242,7 @@ export const IoNewRow = ({
     //     localStorage.setItem('io-restart-needed', 'yes');
     // }
   }
+  const isOffConfiguration = isInputLocked && templateRow.input?.data?.triggerState === 'off'
 
   // --- Render ---
   const isSaveDisabled =
@@ -257,18 +254,23 @@ export const IoNewRow = ({
   return (
     <>
       {/* Add title when configuring the 'Off' row */}
-      {isInputLocked && templateRow.input?.data?.triggerState === 'off' && (
+      {isOffConfiguration && (
         <Typography variant="h6" sx={{ mb: 1, textAlign: 'center', color: 'text.secondary' }}>
-          Configure Off action for: {templateRow.input.data.value}
+          Configure Off action for: {templateRow.input?.data.value}
         </Typography>
       )}
       <Stack
         direction={'row'}
-        sx={
-          {
-            /* ... existing styles ... */
-          }
-        }
+        sx={{
+          borderTop: '1px solid #bbb',
+          borderBottom: '1px solid #bbb',
+          width: '100%',
+          justifyContent: 'space-between',
+          mt: 2,
+          mb: 2,
+          pt: 2,
+          pb: 2
+        }}
       >
         {/* Input Side */}
         <Box
@@ -288,7 +290,14 @@ export const IoNewRow = ({
             !SelectedModuleInputEdit &&
             isInputLocked &&
             selectedInputModule?.InputDisplay && (
-              <Box sx={{ mt: 2, p: 1, border: '1px dashed grey', borderRadius: 1 }}>
+              <Box
+                sx={{
+                  mt: isOffConfiguration ? 0 : 2,
+                  p: 1,
+                  border: '1px dashed grey',
+                  borderRadius: 1
+                }}
+              >
                 {/* Render InputDisplay component if Edit is not available and input is locked */}
                 <selectedInputModule.InputDisplay input={templateRow.input} />
               </Box>

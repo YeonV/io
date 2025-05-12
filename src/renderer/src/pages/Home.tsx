@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useMainStore } from '@/store/mainStore'
-import { Button } from '@mui/material'
+import { Box, Button } from '@mui/material'
 import { useStore } from '../store/OLD/useStore'
 import { Add } from '@mui/icons-material'
 import mqttService from '@/components/OLD/MQTT/mqttService'
@@ -22,6 +22,7 @@ const Home = () => {
   const setEditState = useMainStore((state) => state.setEdit)
   const [prefillData, setPrefillData] = useState<PrefillData | undefined>(undefined)
   const editRow = useMainStore((state) => state.editRow)
+  const [ioNewRowKey, setIoNewRowKey] = useState(0)
 
   const modules = useMainStore((state) => state.modules)
   const rows = useMainStore((state) => state.rows)
@@ -36,20 +37,32 @@ const Home = () => {
   // Function to start the 'Add Row' process
   const handleAddNewRowClick = useCallback(() => {
     setPrefillData(undefined) // Clear any previous prefill
+    setIoNewRowKey((prevKey) => prevKey + 1)
     setEditState(true) // Show the IoNewRow component
   }, [setEditState])
 
   // Function passed to IoNewRow to trigger the next step in the pairing
   const startNewPrefilledRow = useCallback(
-    (prefill: PrefillData) => {
+    async (prefill: PrefillData) => {
       log.info('Starting new row prefilled for:', prefill.input?.data)
-      setPrefillData(prefill) // Set the prefill data
-      setEditState(true) // Ensure the form stays/becomes visible
-      // Maybe scroll into view?
-      // window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      if (showAddRow) {
+        // Only do this if it's already visible
+        setEditState(false)
+        // Give React a moment to process the state update and unmount
+        await new Promise((resolve) => setTimeout(resolve, 0)) // Or requestAnimationFrame
+      }
+
+      // 2. Set the prefill data
+      setPrefillData(prefill)
+
+      // 3. Increment the key to ensure IoNewRow remounts with new initialPrefill
+      setIoNewRowKey((prevKey) => prevKey + 1)
+
+      // 4. Show the component
+      setEditState(true)
     },
-    [setEditState]
-  )
+    [setEditState, showAddRow]
+  ) // Add showAddRow to dependencies
 
   // Function passed to IoNewRow when it completes (or cancels)
   const handleAddRowComplete = useCallback(() => {
@@ -198,6 +211,7 @@ const Home = () => {
     log.info('IPC listeners for trigger-row and update-row attached.')
 
     return () => {
+      console.log(`Cleaning up Alexa useGlobalActions: Removing listener. Timestamp: ${Date.now()}`)
       if (ipcRenderer) {
         // ipcRenderer.removeAllListeners('alexa-device')
         if (ipcRenderer) {
@@ -295,12 +309,13 @@ const Home = () => {
           <Add /> Add New IO Row
         </Button>
       ) : (
-        // Pass down the new props to IoNewRow
-        <IoNewRow
-          onComplete={handleAddRowComplete}
-          startNewPrefilledRow={startNewPrefilledRow}
-          initialPrefill={prefillData}
-        />
+        <Box sx={{ mt: 2, mb: 2 }}>
+          <IoNewRow
+            onComplete={handleAddRowComplete}
+            startNewPrefilledRow={startNewPrefilledRow}
+            initialPrefill={prefillData}
+          />
+        </Box>
       )}
     </Wrapper>
   )

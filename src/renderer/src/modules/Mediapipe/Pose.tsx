@@ -1,5 +1,5 @@
 import Shortkey from '@/modules/Keyboard/Shortkey'
-import type { ModuleConfig, InputData, Row  } from '@shared/types'
+import type { ModuleConfig, InputData, Row } from '@shared/types'
 import { camelToSnake } from '@/utils'
 import { Button, Icon } from '@mui/material'
 import { FC } from 'react'
@@ -39,12 +39,7 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
     <>
       {' '}
       <Icon>{camelToSnake(input.icon)}</Icon>
-      <Shortkey
-        value={input.data.data.value}
-        trigger={() => {
-          // console.log('SHORTKEY;')
-        }}
-      />
+      <Shortkey value={input.data.data.value} />
     </>
   )
 }

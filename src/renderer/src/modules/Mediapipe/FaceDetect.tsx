@@ -39,12 +39,7 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
     <>
       {' '}
       <Icon>{camelToSnake(input.icon)}</Icon>
-      <Shortkey
-        value={input.data.data.value}
-        trigger={() => {
-          // console.log('SHORTKEY;')
-        }}
-      />
+      <Shortkey value={input.data.data.value} />
     </>
   )
 }
