@@ -1,221 +1,341 @@
+// src/renderer/src/modules/Mediapipe/Hands.tsx
+
 import type { FC } from 'react'
 import { useMainStore } from '@/store/mainStore'
-import type { ModuleConfig, InputData, Row } from '@shared/types'
-import { Button, IconButton, List, ListItem, ListSubheader, Tooltip } from '@mui/material'
-import { useEffect } from 'react'
-import { detectGesture, Gesture } from '../../modules/Mediapipe/Old/core/gesture-detector'
+import type { ModuleConfig, InputData, Row, ModuleDefaultConfig } from '@shared/types'
+import {
+  Button,
+  IconButton,
+  List,
+  ListItem,
+  ListSubheader,
+  Tooltip,
+  Box,
+  FormControlLabel,
+  Switch,
+  Typography
+} from '@mui/material'
+import { useEffect, useRef, useState } from 'react'
+import { detectGesture, Gesture } from './Old/core/gesture-detector'
 import { VideoScene } from './Old/video/video-scene'
-import { useStore } from '@/store/OLD/useStore'
-import { HandsEstimator } from './Old/core/hands-estimator'
+import { HandsEstimator, HandsListener } from './Old/core/hands-estimator' // Assuming HandsListener is an exported type for the listener fn
 import { log } from '@/utils'
 import useRequestAnimationFrame from 'use-request-animation-frame'
-import Hands from '@mediapipe/hands'
-import Holistic from '@mediapipe/holistic'
-import Shortkey from '@/modules/Keyboard/Shortkey'
+import type * as MediapipeHands from '@mediapipe/hands'
 import DisplayButtons from '@/components/Row/DisplayButtons'
-import ToggleSettings from '@/components/ToggleSettings'
-import { Info } from '@mui/icons-material'
+import { Info, Videocam, VideocamOff } from '@mui/icons-material'
 
-type HandsConfigExample = {}
+export interface HandsModuleCustomConfig {
+  cameraActive: boolean
+}
 
 export const id = 'hands-module'
 
-export const moduleConfig: ModuleConfig<HandsConfigExample> = {
-  menuLabel: 'A.I.',
-  inputs: [
-    {
-      name: 'Hands',
-      icon: 'sign_language'
-    }
-  ],
+export const moduleConfig: ModuleConfig<HandsModuleCustomConfig> = {
+  menuLabel: 'A.I. Vision',
+  inputs: [{ name: 'Hand Gesture', icon: 'sign_language' }],
   outputs: [],
   config: {
-    enabled: true
+    enabled: true,
+    cameraActive: false
   }
 }
 
 export const InputEdit: FC<{
   input: InputData
-  onChange: (data: Record<string, any>) => void
+  onChange: (data: { value: string }) => void
 }> = ({ input, onChange }) => {
-  const cam = useStore((state) => state.inputs.cam)
-  // const mqtt = useStore((state) => state.inputs.mqtt)
+  const handsModuleFullConfig = useMainStore((state) => state.modules[id]?.config)
+  const handsConfig = handsModuleFullConfig as
+    | (ModuleDefaultConfig & HandsModuleCustomConfig)
+    | undefined
+  const cameraActive = handsConfig?.cameraActive ?? false
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue)
 
-  const videoCanvas = document.getElementById('video-canvas-hands') as HTMLCanvasElement
-  const videoScene = new VideoScene(videoCanvas)
-
-  let i: number = 0
-  let currentGesture: Gesture | null = null
-  let results: Hands.Results | Holistic.Results | null = null
-  let hand: Hands.LandmarkList | Holistic.LandmarkList | null = null
+  const videoCanvasRef = useRef<HTMLCanvasElement | null>(null)
+  const videoSceneRef = useRef<VideoScene | null>(null)
+  const handsEstimatorRef = useRef<HandsEstimator | null>(null)
+  const [detectedGestureForRow, setDetectedGestureForRow] = useState<string>(input.data.value || '')
 
   useEffect(() => {
-    const listener = (r: any) => {
-      results = r
-      const landmarks = r?.multiHandLandmarks[0]
+    if (videoCanvasRef.current && !videoSceneRef.current) {
+      videoSceneRef.current = new VideoScene(videoCanvasRef.current)
+    }
+    if (!handsEstimatorRef.current) {
+      handsEstimatorRef.current = new HandsEstimator()
+    }
+
+    const estimator = handsEstimatorRef.current
+    const canvas = videoCanvasRef.current
+    let i = 0
+    let currentGestureEnum: Gesture | null = null
+
+    // Define the listener with a null check for results
+    const listener: HandsListener = (results: MediapipeHands.Results | null) => {
+      // Adjusted type to allow null
+      if (!results) return // Guard against null results
+
+      if (videoSceneRef.current) videoSceneRef.current.update(results as any) // Cast if update expects non-null
+
+      const landmarks = results?.multiHandLandmarks?.[0]
       if (landmarks) {
-        hand = landmarks
         const gesture = detectGesture(landmarks)
-        if (gesture === currentGesture) {
+        if (gesture === currentGestureEnum) {
           i++
           if (i === 10) {
-            onChange({
-              data: {
-                value: Gesture[gesture]
-              }
-            })
+            const gestureString = Gesture[gesture]
+            log.info(`Hands InputEdit: Detected gesture: ${gestureString}`)
+            setDetectedGestureForRow(gestureString)
+            onChange({ value: gestureString })
+            i = 0
+            currentGestureEnum = null
           }
         } else {
-          currentGesture = gesture
+          currentGestureEnum = gesture
           i = 0
         }
       }
     }
 
-    const handsEstimator = new HandsEstimator()
-
-    if (videoCanvas) {
-      if (cam) {
-        handsEstimator.addListener(listener)
-        handsEstimator.start()
-        videoCanvas.style.display = 'block'
-      } else {
-        handsEstimator.stop()
-        handsEstimator.removeListener(listener)
-        videoCanvas.style.display = 'none'
+    if (cameraActive && canvas && estimator) {
+      log.info('Hands InputEdit: Camera active, starting estimator.')
+      estimator.addListener(listener)
+      try {
+        estimator.start() // Call start directly
+      } catch (err) {
+        log.error('Hands InputEdit: Error starting estimator', err)
       }
+      canvas.style.display = 'block'
+    } else {
+      log.info('Hands InputEdit: Camera inactive, stopping estimator.')
+      estimator?.stop()
+      if (canvas) canvas.style.display = 'none'
     }
 
     return () => {
-      handsEstimator.stop()
-      handsEstimator.removeListener(listener)
-      if (videoCanvas) {
-        videoCanvas.style.display = 'none'
-      }
+      log.info('Hands InputEdit: Cleaning up estimator.')
+      estimator?.removeListener(listener)
+      estimator?.stop()
+      if (canvas) canvas.style.display = 'none'
     }
-  }, [cam])
+  }, [cameraActive, onChange])
 
-  useRequestAnimationFrame(
-    (_e: any) => {
-      if (results && videoScene) videoScene.update(results as any)
-    },
-    { duration: undefined, shouldAnimate: cam }
-  )
+  const handleToggleCameraActive = () => {
+    if (handsConfig) {
+      setModuleConfig(id, 'cameraActive', !handsConfig.cameraActive)
+    }
+  }
+  useRequestAnimationFrame(() => {}, { duration: undefined, shouldAnimate: cameraActive })
+
   return (
-    <div style={{ textAlign: 'left', marginTop: '10px', display: 'flex' }}>
-      <ToggleSettings name="cam" variant="switch" />
-      <Tooltip title="Use Camera">
-        <Button variant="outlined">{input?.data?.data?.value || ''}</Button>
-      </Tooltip>
-      <Tooltip
-        title={
-          <List>
-            <ListSubheader>Possible Options</ListSubheader>
-            <ListItem>VULCAN</ListItem>
-            <ListItem>PAPER</ListItem>
-            <ListItem>THUMB</ListItem>
-            <ListItem>ROCK</ListItem>
-            <ListItem>SCISSORS</ListItem>
-            <ListItem>PINKY</ListItem>
-            <ListItem>INDEX</ListItem>
-            <ListItem>METAL</ListItem>
-          </List>
-        }
-      >
-        <IconButton>
-          <Info />
-        </IconButton>
-      </Tooltip>
+    <Box sx={{ textAlign: 'left', mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <FormControlLabel
+        control={<Switch checked={cameraActive} onChange={handleToggleCameraActive} size="small" />}
+        label={cameraActive ? 'Camera: Active (Capturing Gesture)' : 'Camera: Inactive'}
+      />
+
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography variant="body2">Target Gesture:</Typography>
+        <Button variant="outlined" size="small" sx={{ minWidth: 120, justifyContent: 'center' }}>
+          {input.data.value || (cameraActive ? 'Detecting...' : 'None Set')}
+        </Button>
+        <Tooltip
+          title={
+            <List dense sx={{ bgcolor: 'background.paper', color: 'text.primary' }}>
+              <ListSubheader sx={{ bgcolor: 'background.paper' }}>Available Gestures</ListSubheader>
+              {Object.values(Gesture)
+                .filter((value) => typeof value === 'string') // Get string values from enum
+                .map((g) => (
+                  <ListItem key={g} dense disableGutters>
+                    <Typography variant="caption">{g}</Typography>
+                  </ListItem>
+                ))}
+            </List>
+          }
+        >
+          <IconButton size="small">
+            <Info />
+          </IconButton>
+        </Tooltip>
+      </Box>
       <canvas
+        ref={videoCanvasRef}
         style={{
           height: 150,
-          width: 150,
-          position: 'absolute',
-          bottom: 0,
-          border: '2px solid #0dbedc00'
+          width: 150, // Or use 4:3 aspect like 200x150
+          border: cameraActive ? '2px solid green' : '2px dashed grey',
+          borderRadius: '4px',
+          objectFit: 'cover', // Ensure video covers the canvas
+          display: 'none' // Initially hidden, shown by effect
         }}
-        id="video-canvas-hands"
+        // id removed as ref is used
       />
-    </div>
+    </Box>
   )
 }
 
 export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
-  // console.log('HERE', input)
   return (
-    <>
-      <DisplayButtons data={input} />
-      <Shortkey value={input.data.data.value} />
-    </>
+    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1 }}>
+      <DisplayButtons data={input} /> {/* Shows module icon + "Hand Gesture" */}
+      <Typography variant="body2" sx={{ color: '#888', fontStyle: 'italic' }}>
+        {input.data.value || 'Any Gesture'} {/* Display configured gesture */}
+      </Typography>
+    </Box>
   )
 }
 
-export const useInputActions = (row: Row) => {
-  useEffect(() => {
-    const listener = (e: any) => {
-      // console.log(e)
-      if (e.detail === row.input.data.data.value) {
-        window.dispatchEvent(new CustomEvent(`io_input`, { detail: row.id }))
-      }
-    }
-    window.addEventListener('io_gesture_hands', listener)
-    return () => {
-      window.removeEventListener('io_gesture_hands', listener)
-    }
-  }, [row.input.data.data.value])
-}
-
 export const useGlobalActions = () => {
-  log.info1('useGlobalActions:', 'hands')
-  const cam = useStore((state) => state.inputs.cam)
-  const edit = useMainStore((state) => state.edit)
-
-  let i: number = 0
-  let currentGesture: Gesture | null = null
-  let results: Hands.Results | Holistic.Results | null = null
-  let hand: Hands.LandmarkList | Holistic.LandmarkList | null = null
+  const handsModuleFullConfig = useMainStore((state) => state.modules[id]?.config)
+  const handsConfig = handsModuleFullConfig as
+    | (ModuleDefaultConfig & HandsModuleCustomConfig)
+    | undefined
+  const moduleEnabled = handsConfig?.enabled
+  const cameraActive = handsConfig?.cameraActive
+  const isAppEditing = useMainStore((state) => state.edit)
+  const handsEstimatorRef = useRef<HandsEstimator | null>(null)
 
   useEffect(() => {
-    const listener = (r: any) => {
-      results = r
-      const landmarks = r?.multiHandLandmarks[0]
+    if (!moduleEnabled || !cameraActive || isAppEditing) {
+      log.info('Hands Global: Stopping estimator.')
+      handsEstimatorRef.current?.stop()
+      return
+    }
+
+    log.info('Hands Global: Initializing HandsEstimator...')
+    if (!handsEstimatorRef.current) {
+      handsEstimatorRef.current = new HandsEstimator()
+    }
+    const estimator = handsEstimatorRef.current
+    let i = 0
+    let currentGestureEnum: Gesture | null = null
+
+    // Define the listener with a null check for results
+    const listener: HandsListener = (results: MediapipeHands.Results | null) => {
+      // Adjusted type to allow null
+      if (!results) return // Guard against null results
+
+      const landmarks = results?.multiHandLandmarks?.[0]
       if (landmarks) {
-        hand = landmarks
         const gesture = detectGesture(landmarks)
-        if (gesture === currentGesture) {
+        if (gesture === currentGestureEnum) {
           i++
           if (i === 10) {
-            window.dispatchEvent(new CustomEvent(`io_gesture_hands`, { detail: Gesture[gesture] }))
-            log.success1('Fire Gesture', Gesture[gesture])
+            const gestureString = Gesture[gesture]
+            log.success(`Hands Global: Firing event for: ${gestureString}`)
+            window.dispatchEvent(new CustomEvent('io_gesture_hands', { detail: gestureString }))
+            i = 0
+            currentGestureEnum = null
           }
         } else {
-          currentGesture = gesture
+          currentGestureEnum = gesture
           i = 0
         }
       }
     }
 
-    const handsEstimator = new HandsEstimator()
-    if (cam && !edit) {
-      handsEstimator.addListener(listener)
-      handsEstimator.start()
-    } else {
-      handsEstimator.stop()
-      handsEstimator.removeListener(listener)
+    estimator.addListener(listener)
+    try {
+      estimator.start() // Call start directly
+      log.info('Hands Global: Estimator started and listener attached.')
+    } catch (err) {
+      log.error('Hands Global: Error starting estimator', err)
     }
-    // }
 
     return () => {
-      handsEstimator.stop()
-      handsEstimator.removeListener(listener)
+      log.info('Hands Global: Cleaning up. Stopping estimator.')
+      estimator?.removeListener(listener)
+      estimator?.stop()
     }
-  }, [cam, edit])
+  }, [moduleEnabled, cameraActive, isAppEditing])
+
+  return null
 }
 
-export const Settings = () => {
+export const useInputActions = (row: Row) => {
+  useEffect(() => {
+    const gestureListener = (event: CustomEvent) => {
+      const detectedGestureString = event.detail as string
+      // row.input.data.value should store the target gesture string (e.g., "VULCAN")
+      if (detectedGestureString && detectedGestureString === row.input.data.value) {
+        log.info(
+          `Hands Row ${row.id}: Matched gesture "${detectedGestureString}". Triggering action.`
+        )
+        window.dispatchEvent(new CustomEvent('io_input', { detail: row.id }))
+      }
+    }
+
+    log.info1(
+      `Hands Row ${row.id}: Attaching 'io_gesture_hands' listener for gesture ${row.input.data.value}`
+    )
+    window.addEventListener('io_gesture_hands', gestureListener as EventListener)
+
+    return () => {
+      log.info1(`Hands Row ${row.id}: Removing 'io_gesture_hands' listener.`)
+      window.removeEventListener('io_gesture_hands', gestureListener as EventListener)
+    }
+  }, [row.id, row.input.data.value]) // Dependencies
+}
+
+export const Settings: FC = () => {
+  const handsModuleFullConfig = useMainStore((state) => state.modules[id]?.config)
+  const handsConfig = handsModuleFullConfig as
+    | (ModuleDefaultConfig & HandsModuleCustomConfig)
+    | undefined
+  const cameraActive = handsConfig?.cameraActive ?? false
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue)
+
+  const handleToggleCameraActive = () => {
+    if (handsConfig) {
+      setModuleConfig(id, 'cameraActive', !handsConfig.cameraActive)
+    }
+  }
+
   return (
-    <>
-      <ToggleSettings name="cam" />
-    </>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        gap: 1,
+        p: 1,
+        border: '1px solid #555',
+        borderRadius: 1,
+        minWidth: 200
+      }}
+    >
+      <Typography variant="overline">Hand Gesture Settings</Typography>
+      {cameraActive ? <Videocam /> : <VideocamOff color="disabled" />}
+      <FormControlLabel
+        control={<Switch checked={cameraActive} onChange={handleToggleCameraActive} size="small" />}
+        label={cameraActive ? 'Camera: Active' : 'Camera: Inactive'}
+      />
+      {/* Add other global settings for Hands module here if needed */}
+      <canvas
+      // This canvas is for global preview in settings, similar to InputEdit
+      // It should only be active if cameraActive is true.
+      // Need to manage its VideoScene and estimator instance separately or share carefully.
+      // For simplicity, it might be better NOT to have a live preview in global settings
+      // unless absolutely necessary, to avoid multiple camera streams / estimator conflicts.
+      // Let's comment out the global preview canvas for now.
+      /*
+        ref={useRef<HTMLCanvasElement | null>(null)} // Needs its own ref and logic
+        style={{
+          height: 100, width: 133, border: '1px dashed grey',
+          display: cameraActive ? 'block' : 'none'
+        }}
+        */
+      />
+      {cameraActive && (
+        <Typography variant="caption" color="textSecondary">
+          Gesture detection is running.
+        </Typography>
+      )}
+      {!cameraActive && (
+        <Typography variant="caption" color="textSecondary">
+          Enable camera to detect hand gestures.
+        </Typography>
+      )}
+    </Box>
   )
 }

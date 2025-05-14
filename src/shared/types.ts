@@ -42,7 +42,7 @@ export type IOModule = {
   useGlobalActions?: () => void
 }
 
-type ModuleDefaultConfig = {
+export type ModuleDefaultConfig = {
   enabled: boolean
 }
 
