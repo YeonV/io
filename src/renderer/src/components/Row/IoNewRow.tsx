@@ -1,29 +1,35 @@
+// src/renderer/src/components/Row/IoNewRow.tsx
 import { produce } from 'immer'
-import { useCallback, useMemo, useState } from 'react'
+import { FC, useCallback, useMemo, useState } from 'react'
 import { Button, Stack, Box, Typography } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
 import { InputSelector } from './InputSelector'
 import { OutputSelector } from './OutputSelector'
 import { useMainStore } from '@/store/mainStore'
-import type { Row, InputData, OutputData } from '@shared/types'
-import { useShallow } from 'zustand/react/shallow'
+import type { Row, InputData, OutputData, ModuleId } from '@shared/types'
 import { log } from '@/utils'
+import { moduleImplementations, ModuleImplementationMap } from '@/modules/moduleRegistry'
 
 export interface PrefillData {
-  inputModule: Row['inputModule']
-  input: Partial<InputData>
+  inputModule: ModuleId
+  input: Partial<Omit<InputData, 'data'> & { data?: Record<string, any> }>
 }
 
-export const IoNewRow = ({
-  onComplete,
-  startNewPrefilledRow,
-  initialPrefill
-}: {
+// For the 'value' prop passed to Selectors
+interface SelectorValue {
+  name?: string
+  icon?: string
+  inputModuleId?: ModuleId // For InputSelector
+  outputModuleId?: ModuleId // For OutputSelector
+}
+
+export const IoNewRow: FC<{
   onComplete: () => void
   startNewPrefilledRow: (prefill: PrefillData) => void
   initialPrefill?: PrefillData
-}) => {
-  const addRow = useMainStore(useShallow((state) => state.addRow))
+  key?: string | number // Accept key for remounting
+}> = ({ onComplete, startNewPrefilledRow, initialPrefill }) => {
+  const addRow = useMainStore((state) => state.addRow)
 
   const [templateRow, setRow] = useState<Partial<Row> & Pick<Row, 'id'>>(() => {
     log.info('IoNewRow initializing state with initialPrefill:', initialPrefill)
@@ -32,71 +38,67 @@ export const IoNewRow = ({
       return {
         id: newRowId,
         inputModule: initialPrefill.inputModule,
-        input: { ...(initialPrefill.input as InputData) },
-
+        input: {
+          name: initialPrefill.input.name || '',
+          icon: initialPrefill.input.icon || '',
+          data: initialPrefill.input.data || {}
+        } as InputData, // Assert as InputData after ensuring properties
         outputModule: undefined,
         output: undefined
       }
     }
-
     return { id: newRowId }
   })
 
-  const [isInputLocked, _setIsInputLocked] = useState(!!initialPrefill)
-
+  const [isInputLocked, setIsInputLocked] = useState(!!initialPrefill)
   const [separateOffAction, setSeparateOffAction] = useState(
     initialPrefill?.input?.data?.separateOffAction ?? false
   )
 
-  const modules = useMainStore((state) => state.modules)
-
-  const selectedInputModule = useMemo(() => {
-    if (!templateRow.inputModule) return undefined
-    return modules[templateRow.inputModule]
-  }, [modules, templateRow.inputModule])
-
-  const selectedOutputModule = useMemo(() => {
-    if (!templateRow.outputModule) return undefined
-    return modules[templateRow.outputModule]
-  }, [modules, templateRow.outputModule])
-
   const SelectedModuleInputEdit = useMemo(() => {
-    if (isInputLocked) return undefined
-    return selectedInputModule?.InputEdit
-  }, [selectedInputModule, isInputLocked])
+    if (isInputLocked || !templateRow.inputModule) return undefined
+    return (moduleImplementations[templateRow.inputModule as keyof ModuleImplementationMap] as any)
+      ?.InputEdit
+  }, [templateRow.inputModule, isInputLocked])
 
   const SelectedModuleOutputEdit = useMemo(() => {
-    return selectedOutputModule?.OutputEdit
-  }, [selectedOutputModule])
+    if (!templateRow.outputModule) return undefined
+    return (moduleImplementations[templateRow.outputModule as keyof ModuleImplementationMap] as any)
+      ?.OutputEdit
+  }, [templateRow.outputModule])
 
-  const handleInputSelect = useCallback(
-    (modId: Row['inputModule'], inp: Omit<InputData, 'data'>) => {
-      setRow((row) => ({
-        ...row,
-        inputModule: modId,
-        input: { ...inp, data: {} }
-      }))
-      setSeparateOffAction(false)
-      log.info('Input selected:', modId, inp)
-    },
-    []
-  )
+  const SelectedModuleInputDisplay = useMemo(() => {
+    if (!templateRow.inputModule) return undefined
+    return (moduleImplementations[templateRow.inputModule as keyof ModuleImplementationMap] as any)
+      ?.InputDisplay
+  }, [templateRow.inputModule])
 
-  const handleOutputSelect = useCallback(
-    (modId: Row['outputModule'], outp: Omit<OutputData, 'data'>) => {
-      setRow((row) => ({
-        ...row,
-        outputModule: modId,
-        output: { ...outp, data: {} }
-      }))
-      log.info('Output selected:', modId, outp)
-    },
-    []
-  )
+  const handleInputSelect = useCallback((modId: ModuleId, inp: Omit<InputData, 'data'>) => {
+    setRow((prevRow) => ({
+      ...prevRow,
+      inputModule: modId,
+      input: { ...inp, data: {} }
+      // Optionally reset output when input changes
+      // outputModule: undefined,
+      // output: undefined,
+    }))
+    setSeparateOffAction(false) // Reset for new input type
+    log.info('Input selected:', modId, inp)
+  }, [])
+
+  const handleOutputSelect = useCallback((modId: ModuleId, outp: Omit<OutputData, 'data'>) => {
+    setRow((prevRow) => ({
+      ...prevRow,
+      outputModule: modId,
+      output: { ...outp, data: {} }
+    }))
+    log.info('Output selected:', modId, outp)
+  }, [])
 
   const handleInputChange = useCallback((data: Record<string, any>) => {
     setRow(
-      produce((draft) => {
+      produce((draft: Partial<Row>) => {
+        // Ensure draft is typed
         if (draft.input) {
           if (
             draft.inputModule === 'alexa-module' &&
@@ -104,7 +106,6 @@ export const IoNewRow = ({
           ) {
             draft.input.data.value = data.value
             setSeparateOffAction(data.separateOffAction)
-
             draft.input.data.separateOffAction = data.separateOffAction
           } else {
             Object.assign(draft.input.data, data)
@@ -117,7 +118,8 @@ export const IoNewRow = ({
 
   const handleOutputChange = useCallback((data: Record<string, any>) => {
     setRow(
-      produce((draft) => {
+      produce((draft: Partial<Row>) => {
+        // Ensure draft is typed
         if (draft.output) {
           Object.assign(draft.output.data, data)
         }
@@ -133,12 +135,13 @@ export const IoNewRow = ({
       !templateRow.output ||
       !templateRow.outputModule
     ) {
+      log.info1('IoNewRow: Cannot save, input or output missing.')
       return
     }
 
     const isAlexa = templateRow.inputModule === 'alexa-module'
-    const useSeparateOff = isAlexa && separateOffAction
-    const currentIsOffRow = isAlexa && templateRow.input?.data.triggerState === 'off'
+    const useSeparateOff = isAlexa && separateOffAction // Use the local state flag
+    const currentIsOffRow = isAlexa && templateRow.input?.data?.triggerState === 'off'
     let finalTriggerState: 'on' | 'off' | 'any' | undefined = undefined
     let triggerNextPrefill: PrefillData | null = null
 
@@ -164,33 +167,36 @@ export const IoNewRow = ({
     }
 
     const rowToSave: Row = {
-      id: templateRow.id,
+      id: templateRow.id!, // Assert id is present
       inputModule: templateRow.inputModule,
       input: {
         name: templateRow.input.name,
         icon: templateRow.input.icon,
-
         data: {
           ...templateRow.input.data,
-
           ...(finalTriggerState !== undefined && { triggerState: finalTriggerState }),
-
-          separateOffAction: undefined
+          separateOffAction: undefined // Ensure this temporary flag is not saved
         }
       },
       outputModule: templateRow.outputModule,
       output: {
-        ...templateRow.output,
-        data: { ...templateRow.output.data }
+        name: templateRow.output.name, // Ensure name and icon are present
+        icon: templateRow.output.icon,
+        data: { ...(templateRow.output.data || {}) }, // Ensure data is an object
+        settings: { ...(templateRow.output.settings || {}) } // Ensure settings is an object
       }
     }
 
-    if (rowToSave.input.data.separateOffAction === undefined) {
+    if (
+      Object.prototype.hasOwnProperty.call(rowToSave.input.data, 'separateOffAction') &&
+      rowToSave.input.data.separateOffAction === undefined
+    ) {
       delete rowToSave.input.data.separateOffAction
     }
 
-    if (rowToSave.inputModule === 'midi-module') {
-      /* ... */
+    if (rowToSave.inputModule === 'midi-module' && !rowToSave.input.data.value) {
+      // Potentially set a default value if MIDI note wasn't captured, or validate
+      log.info1('MIDI row saved without a specific note value in input.data.value')
     }
 
     log.success('Saving row:', rowToSave)
@@ -202,13 +208,35 @@ export const IoNewRow = ({
       onComplete()
     }
   }
-  const isOffConfiguration = isInputLocked && templateRow.input?.data?.triggerState === 'off'
 
+  const isOffConfiguration = isInputLocked && templateRow.input?.data?.triggerState === 'off'
   const isSaveDisabled =
     !templateRow.input ||
     !templateRow.inputModule ||
     !templateRow.output ||
     !templateRow.outputModule
+
+  const inputSelectorValue: SelectorValue | undefined = useMemo(() => {
+    if (templateRow.input && templateRow.inputModule) {
+      return {
+        name: templateRow.input.name,
+        icon: templateRow.input.icon,
+        inputModuleId: templateRow.inputModule
+      }
+    }
+    return undefined
+  }, [templateRow.input, templateRow.inputModule])
+
+  const outputSelectorValue: SelectorValue | undefined = useMemo(() => {
+    if (templateRow.output && templateRow.outputModule) {
+      return {
+        name: templateRow.output.name,
+        icon: templateRow.output.icon,
+        outputModuleId: templateRow.outputModule
+      }
+    }
+    return undefined
+  }, [templateRow.output, templateRow.outputModule])
 
   return (
     <>
@@ -240,12 +268,12 @@ export const IoNewRow = ({
           <InputSelector
             onSelect={handleInputSelect}
             disabled={isInputLocked}
-            value={templateRow.input}
+            value={inputSelectorValue}
           />
           {templateRow.input &&
             !SelectedModuleInputEdit &&
             isInputLocked &&
-            selectedInputModule?.InputDisplay && (
+            SelectedModuleInputDisplay && (
               <Box
                 sx={{
                   mt: isOffConfiguration ? 0 : 2,
@@ -254,11 +282,14 @@ export const IoNewRow = ({
                   borderRadius: 1
                 }}
               >
-                <selectedInputModule.InputDisplay input={templateRow.input} />
+                <SelectedModuleInputDisplay input={templateRow.input as InputData} />
               </Box>
             )}
           {templateRow.input && SelectedModuleInputEdit && (
-            <SelectedModuleInputEdit input={templateRow.input} onChange={handleInputChange} />
+            <SelectedModuleInputEdit
+              input={templateRow.input as InputData}
+              onChange={handleInputChange}
+            />
           )}
           {!templateRow.input && !isInputLocked && (
             <Typography sx={{ mt: 2, color: 'text.disabled' }}>
@@ -268,9 +299,12 @@ export const IoNewRow = ({
         </Box>
 
         <Box sx={{ flexBasis: '50%', marginLeft: '10px', textAlign: 'left' }}>
-          <OutputSelector onSelect={handleOutputSelect} />
+          <OutputSelector onSelect={handleOutputSelect} value={outputSelectorValue} />
           {templateRow.output && SelectedModuleOutputEdit && (
-            <SelectedModuleOutputEdit output={templateRow.output} onChange={handleOutputChange} />
+            <SelectedModuleOutputEdit
+              output={templateRow.output as OutputData}
+              onChange={handleOutputChange}
+            />
           )}
           {!templateRow.output && (
             <Typography sx={{ mt: 2, color: 'text.disabled' }}>
@@ -279,7 +313,6 @@ export const IoNewRow = ({
           )}
         </Box>
       </Stack>
-
       <Stack direction={'row'} sx={{ justifyContent: 'center', mt: 2 }}>
         <Button
           variant="contained"

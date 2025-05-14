@@ -21,7 +21,7 @@ export type OutputData = Output & {
 
 export type IOModule = {
   id: ModuleId
-  moduleConfig: ModuleConfig
+  moduleConfig: ModuleConfig<any>
   InputEdit?: FC<{
     input: InputData
     onChange: (data: Record<string, any>) => void
@@ -46,10 +46,12 @@ type ModuleDefaultConfig = {
   enabled: boolean
 }
 
+// T now represents ONLY the custom fields
 export type ModuleConfig<T = {}> = {
   menuLabel: string
   inputs: Input[]
   outputs: Output[]
+  // The final config type is an intersection of ModuleDefaultConfig and T
   config: ModuleDefaultConfig & T
 }
 
