@@ -2,7 +2,6 @@
 
 import { produce } from 'immer'
 import { create } from 'zustand'
-import { omit } from 'lodash-es'
 import { devtools, persist } from 'zustand/middleware'
 import type { Row, ModuleId, ModuleConfig, IOModule } from '@shared/types'
 
@@ -10,7 +9,7 @@ import type { Row, ModuleId, ModuleConfig, IOModule } from '@shared/types'
 import modulesFromFile from '@/modules/modules' // Path to your modules.ts
 
 // UI Slice (from its current location)
-import { storeUI, storeUIActions } from './OLD/storeUI' // Adjust path if moved
+import { storeUI, storeUIActions } from './storeUI' // Adjust path if moved
 
 // --- Create Initial Modules State DYNAMICALLY ---
 // This object will hold the ModuleConfig for every registered module.
@@ -46,6 +45,7 @@ type State = {
   setEdit: (edit: boolean) => void
   setDarkMode: ReturnType<typeof storeUIActions>['setDarkMode']
   setModuleConfigValue: (moduleId: ModuleId, key: string, value: any) => void
+  toggleRowEnabled: (rowId: string) => void
 }
 
 export const useMainStore = create<State>()(
@@ -101,10 +101,21 @@ export const useMainStore = create<State>()(
         addRow: (row: Row) => {
           set(
             produce((state: State) => {
-              state.rows[row.id] = row
+              state.rows[row.id] = { ...row, enabled: true }
             }),
             false,
             'addRow'
+          )
+        },
+        toggleRowEnabled: (rowId: string) => {
+          set(
+            produce((state: State) => {
+              if (state.rows[rowId]) {
+                state.rows[rowId].enabled = !state.rows[rowId].enabled
+              }
+            }),
+            false,
+            `toggleRowEnabled/${rowId}`
           )
         },
         editRow: (rowId: string, updates: Partial<Pick<Row, 'input' | 'output'>>) => {

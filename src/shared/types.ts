@@ -61,6 +61,7 @@ export type Row = {
   inputModule: ModuleId
   output: OutputData
   outputModule: ModuleId
+  enabled: boolean
 }
 
 export type ModuleId = keyof typeof modules

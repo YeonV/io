@@ -1,11 +1,9 @@
-import type { ModuleConfig, OutputData, Row  } from '@shared/types'
+import type { ModuleConfig, OutputData, Row } from '@shared/types'
 import type { FC } from 'react'
 import { useEffect } from 'react'
 import { log } from '@/utils'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import EditButtons from '@/components/Row/EditButtons'
-
-// const ipcRenderer = window.electron?.ipcRenderer || false
 
 type SayConfigExample = {}
 
@@ -28,7 +26,6 @@ export const moduleConfig: ModuleConfig<SayConfigExample> = {
 export const OutputDisplay: FC<{
   output: OutputData
 }> = ({ output }) => {
-  //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
   return (
     <>
       <DisplayButtons data={output} />
@@ -40,42 +37,69 @@ export const OutputEdit: FC<{
   output: OutputData
   onChange: (data: Record<string, any>) => void
 }> = ({ output, onChange }) => {
-  //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
-  return (
-    <EditButtons data={output} onChange={onChange} title="Spoken Text" />
-    // <TextField
-    //   fullWidth
-    //   value={output.data.text ?? ''}
-    //   onChange={(e) => {
-    //     onChange({ text: e.target.value })
-    //   }}
-    //   sx={{ mt: 2 }}
-    //   inputProps={{
-    //     style: {
-    //       height: '50px',
-    //       paddingLeft: '10px',
-    //     },
-    //   }}
-    //   variant='standard'
-    // />
-  )
+  return <EditButtons data={output} onChange={onChange} title="Spoken Text" />
 }
 
 export const useOutputActions = (row: Row) => {
+  const { id: rowId, output, enabled: rowEnabled } = row
+  const textFromOutputData = output.data.text || output.data.command
+
   useEffect(() => {
-    const listener = (e: any) => {
-      log.success2('row output triggered', row, e.detail)
-      if (e.detail === row.id) {
-        const spk = new SpeechSynthesisUtterance()
-        spk.text = row.output.data.command || row.output.data.text
-        window.speechSynthesis.speak(spk)
+    const isRowActuallyEnabled = rowEnabled === undefined ? true : rowEnabled
+
+    if (!isRowActuallyEnabled) {
+      log.info2(
+        `Say.tsx: Row ${rowId} is disabled. Cancelling any ongoing speech for this row context.`
+      )
+      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+        log.info2(`Say.tsx: Row ${rowId} disabled, calling speechSynthesis.cancel()`)
+        window.speechSynthesis.cancel()
+      }
+      return
+    }
+
+    log.info2(
+      `Say.tsx: Attaching 'io_input' listener for row ${rowId} (Text: "${textFromOutputData}")`
+    )
+
+    const listener = (event: CustomEvent) => {
+      const eventDetail = event.detail
+      let triggerRowId: string | undefined
+      let receivedPayload: any = undefined
+
+      if (typeof eventDetail === 'string') {
+        triggerRowId = eventDetail
+      } else if (
+        typeof eventDetail === 'object' &&
+        eventDetail !== null &&
+        Object.prototype.hasOwnProperty.call(eventDetail, 'rowId')
+      ) {
+        triggerRowId = eventDetail.rowId
+        receivedPayload = eventDetail.payload
+      } else {
+        return
+      }
+
+      if (triggerRowId === rowId) {
+        log.success(`Say.tsx: Action for row ${rowId} TRIGGERED! Detail:`, eventDetail)
+        window.speechSynthesis.cancel()
+
+        const textToSpeak = textFromOutputData || 'Error: No text configured'
+
+        log.info(`Say.tsx: Row ${rowId} speaking: "${textToSpeak}"`)
+        const utterance = new SpeechSynthesisUtterance(textToSpeak)
+        window.speechSynthesis.speak(utterance)
       }
     }
-    window.addEventListener('io_input', listener)
+
+    window.addEventListener('io_input', listener as EventListener)
+
     return () => {
-      window.removeEventListener('io_input', listener)
+      log.info2(`Say.tsx: Removing 'io_input' listener for row ${rowId}. Also cancelling speech.`)
+      window.removeEventListener('io_input', listener as EventListener)
+      window.speechSynthesis.cancel()
     }
-  }, [row.output.data.text])
+  }, [rowId, textFromOutputData, rowEnabled])
 }
 
 export const useGlobalActions = () => {

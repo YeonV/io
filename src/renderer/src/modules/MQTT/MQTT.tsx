@@ -1,7 +1,7 @@
 // src/renderer/src/modules/MQTT/MQTT.tsx
 
 import type { FC } from 'react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useMainStore } from '@/store/mainStore'
 import type { ModuleConfig, InputData, OutputData, Row, ModuleDefaultConfig } from '@shared/types'
 import {
@@ -23,49 +23,48 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  FormHelperText,
   Grid,
   Stack,
-  SelectChangeEvent,
+  type SelectChangeEvent,
   FormControlLabel,
-  Switch
+  Switch,
+  Tooltip
 } from '@mui/material'
-import { AddCircleOutline, Delete, Edit } from '@mui/icons-material'
+import { AddCircleOutline, Delete, Edit, AddLink } from '@mui/icons-material'
 import { log } from '@/utils'
-import mqtt from 'mqtt'
-
-import { v4 as uuidv4 } from 'uuid' // For unique broker profile IDs
+import { v4 as uuidv4 } from 'uuid'
 import DisplayButtons from '@/components/Row/DisplayButtons'
+import type { IClientPublishOptions } from 'mqtt' // Corrected import for MQTT types
+import { mqttTopicMatch } from './MQTThelper'
 
-// --- Types Specific to this Module ---
+const ipcRenderer = window.electron?.ipcRenderer
+
+// --- Types Specific to this Module (Exported for MQTT.main.ts) ---
 export interface MqttBrokerConfig {
-  id: string // Unique ID for this profile
-  name: string // User-friendly name (e.g., "Home Assistant MQTT")
-  host: string // e.g., 'mqtt://localhost:1883' or 'ws://broker.hivemq.com:8000/mqtt'
+  id: string
+  name: string
+  host: string
   username?: string
   password?: string
-  clientId?: string // Optional: custom client ID
-  // Add other common MQTT options if needed: port, path, protocol, keepalive, clean, etc.
+  clientId?: string
 }
-
 export interface MqttModuleCustomConfig {
   brokerConnections: MqttBrokerConfig[]
 }
 
-// For row data
-interface MqttRowConnectionData {
-  useProfileId?: string // ID of a broker profile from moduleConfig
-  customHost?: string
-  customUsername?: string
-  customPassword?: string
-  customClientId?: string
-}
-interface MqttInputRowData extends MqttRowConnectionData {
+// --- Row Data Types for this Module ---
+export interface MqttInputRowData {
+  profileId?: string // ID of the selected broker profile
   topic: string
-  jsonPath?: string // Optional JSONPath expression to extract value from payload
+  jsonPath?: string
+  matchPayload?: string
+  matchType?: 'exact' | 'contains' | 'regex'
 }
-interface MqttOutputRowData extends MqttRowConnectionData {
+export interface MqttOutputRowData {
+  profileId?: string // ID of the selected broker profile
   topic: string
-  payload: string // The message to send
+  payload: string
   retain?: boolean
   qos?: 0 | 1 | 2
 }
@@ -74,252 +73,324 @@ interface MqttOutputRowData extends MqttRowConnectionData {
 export const id = 'mqtt-module'
 export const moduleConfig: ModuleConfig<MqttModuleCustomConfig> = {
   menuLabel: 'Network & Web',
-  inputs: [{ icon: 'rss_feed', name: 'MQTT Message Received' }], // Updated icon/name
-  outputs: [{ icon: 'publish', name: 'Publish MQTT Message' }], // Updated icon/name
+  inputs: [{ icon: 'rss_feed', name: 'MQTT Message Received' }],
+  outputs: [{ icon: 'publish', name: 'Publish MQTT Message' }],
   config: {
     enabled: true,
     brokerConnections: [
       {
         id: uuidv4(),
-        name: 'Local Mosquitto',
+        name: 'Local Mosquitto (Example)',
         host: 'mqtt://localhost:1883',
-        clientId: `io_client_${Math.random().toString(16).slice(2, 10)}`
+        clientId: `io_client_${Math.random().toString(16).slice(2, 6)}`
       },
       {
         id: uuidv4(),
         name: 'EMQX Public Broker (WS)',
         host: 'ws://broker.emqx.io:8083/mqtt',
-        clientId: `io_client_${Math.random().toString(16).slice(2, 10)}`
+        clientId: `io_client_${Math.random().toString(16).slice(2, 6)}`
       }
     ]
   }
 }
 
-// --- Helper: Broker Profile Editor Dialog ---
+// --- Reusable Broker Profile Editor Dialog ---
 const BrokerProfileDialog: FC<{
   open: boolean
   onClose: () => void
   onSave: (profile: MqttBrokerConfig) => void
-  initialProfile?: MqttBrokerConfig | null
+  initialProfile?: MqttBrokerConfig | null // For editing existing or adding new
 }> = ({ open, onClose, onSave, initialProfile }) => {
-  const [profile, setProfile] = useState<Partial<MqttBrokerConfig>>(
-    initialProfile || { host: 'mqtt://' }
-  )
+  const [profileName, setProfileName] = useState('')
+  const [host, setHost] = useState('mqtt://')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [clientId, setClientId] = useState('')
+  const [currentProfileId, setCurrentProfileId] = useState<string | null>(null)
 
   useEffect(() => {
-    setProfile(
-      initialProfile || {
-        id: uuidv4(),
-        name: '',
-        host: 'mqtt://',
-        clientId: `io_client_${Math.random().toString(16).slice(2, 10)}`
+    if (open) {
+      if (initialProfile) {
+        setProfileName(initialProfile.name || '')
+        setHost(initialProfile.host || 'mqtt://')
+        setUsername(initialProfile.username || '')
+        setPassword(initialProfile.password || '')
+        setClientId(initialProfile.clientId || '')
+        setCurrentProfileId(initialProfile.id)
+      } else {
+        // New profile
+        setProfileName('')
+        setHost('mqtt://')
+        setUsername('')
+        setPassword('')
+        setClientId(`io_client_${Math.random().toString(16).slice(2, 10)}`) // Default new client ID
+        setCurrentProfileId(null) // Indicate it's a new profile
       }
-    )
-  }, [initialProfile, open])
+    }
+  }, [open, initialProfile])
 
-  const handleChange = (field: keyof MqttBrokerConfig, value: string) => {
-    setProfile((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const handleSave = () => {
-    // Basic validation
-    if (!profile.name?.trim() || !profile.host?.trim()) {
+  const handleSaveAction = () => {
+    if (!profileName.trim() || !host.trim()) {
       alert('Profile Name and Host URL are required.')
       return
     }
-    onSave(profile as MqttBrokerConfig) // Assert complete profile
-    onClose()
+    if (
+      !host.startsWith('mqtt://') &&
+      !host.startsWith('ws://') &&
+      !host.startsWith('mqtts://') &&
+      !host.startsWith('wss://')
+    ) {
+      alert('Host URL must start with a valid protocol (e.g., mqtt://, ws://, mqtts://, wss://).')
+      return
+    }
+    onSave({
+      id: currentProfileId || uuidv4(), // Use existing ID if editing, else new
+      name: profileName,
+      host,
+      username,
+      password,
+      clientId
+    })
+    onClose() // Close dialog after save
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>{initialProfile ? 'Edit' : 'Add'} MQTT Broker Profile</DialogTitle>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="xs"
+      fullWidth
+      PaperProps={{
+        component: 'form',
+        onSubmit: (e) => {
+          e.preventDefault()
+          handleSaveAction()
+        }
+      }}
+    >
+      <DialogTitle>{initialProfile ? 'Edit' : 'Add New'} MQTT Broker Profile</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
           <TextField
             label="Profile Name"
-            value={profile.name || ''}
-            onChange={(e) => handleChange('name', e.target.value)}
+            value={profileName}
+            onChange={(e) => setProfileName(e.target.value)}
             fullWidth
             autoFocus
+            required
           />
           <TextField
-            label="Host URL (e.g., mqtt://host:port or ws://host:port/path)"
-            value={profile.host || ''}
-            onChange={(e) => handleChange('host', e.target.value)}
+            label="Host URL (e.g., mqtt://host:port)"
+            value={host}
+            onChange={(e) => setHost(e.target.value)}
             fullWidth
+            required
           />
           <TextField
             label="Username (Optional)"
-            value={profile.username || ''}
-            onChange={(e) => handleChange('username', e.target.value)}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             fullWidth
           />
           <TextField
             label="Password (Optional)"
             type="password"
-            value={profile.password || ''}
-            onChange={(e) => handleChange('password', e.target.value)}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             fullWidth
           />
           <TextField
-            label="Client ID (Optional - auto-generates if blank)"
-            value={profile.clientId || ''}
-            onChange={(e) => handleChange('clientId', e.target.value)}
+            label="Client ID (Optional)"
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
             fullWidth
-            helperText="Leave blank for auto-generated."
+            helperText="Leave blank for auto-generated if supported by broker for custom."
           />
         </Stack>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button onClick={handleSave} variant="contained">
-          Save
+        <Button type="submit" variant="contained">
+          Save Profile
         </Button>
       </DialogActions>
     </Dialog>
   )
 }
 
-// --- Settings: UI for managing MQTT Broker Connection Profiles ---
+// --- Global Settings Component for MQTT Module ---
 export const Settings: FC = () => {
-  const moduleFullConfig = useMainStore((state) => state.modules[id]?.config)
-  const customConfig = moduleFullConfig as
-    | (ModuleDefaultConfig & MqttModuleCustomConfig)
-    | undefined
-  const brokerConnections = customConfig?.brokerConnections || []
+  const moduleCfg = useMainStore(
+    (state) =>
+      state.modules[id]?.config as (ModuleDefaultConfig & MqttModuleCustomConfig) | undefined
+  )
+  const brokerConnections = moduleCfg?.brokerConnections || []
   const setModuleConfig = useMainStore((state) => state.setModuleConfigValue)
 
-  const [dialogOpen, setDialogOpen] = useState(false)
+  const [manageDialogOpen, setManageDialogOpen] = useState(false)
+  const [addEditDialogOpen, setAddEditDialogOpen] = useState(false)
   const [editingProfile, setEditingProfile] = useState<MqttBrokerConfig | null>(null)
 
-  const handleAddProfile = () => {
-    setEditingProfile(null) // Clear for new profile
-    setDialogOpen(true)
+  const openAddDialog = () => {
+    setEditingProfile(null)
+    setAddEditDialogOpen(true)
+    setManageDialogOpen(false)
   }
-
-  const handleEditProfile = (profile: MqttBrokerConfig) => {
+  const openEditDialogFromManage = (profile: MqttBrokerConfig) => {
     setEditingProfile(profile)
-    setDialogOpen(true)
+    setAddEditDialogOpen(true)
+    setManageDialogOpen(false)
   }
-
   const handleDeleteProfile = (profileId: string) => {
-    if (window.confirm('Are you sure you want to delete this broker profile?')) {
-      const updatedConnections = brokerConnections.filter((p) => p.id !== profileId)
-      setModuleConfig(id, 'brokerConnections', updatedConnections)
+    if (window.confirm('Delete profile? Rows using it will need reconfiguration.')) {
+      setModuleConfig(
+        id,
+        'brokerConnections',
+        brokerConnections.filter((p) => p.id !== profileId)
+      )
     }
   }
-
-  const handleSaveProfile = (profileToSave: MqttBrokerConfig) => {
+  const handleSaveProfileCallback = (profileToSave: MqttBrokerConfig) => {
     let updatedConnections
-    if (editingProfile && profileToSave.id === editingProfile.id) {
-      // Editing existing
+    const existing = brokerConnections.find((p) => p.id === profileToSave.id)
+    if (existing) {
       updatedConnections = brokerConnections.map((p) =>
         p.id === profileToSave.id ? profileToSave : p
       )
     } else {
-      // Adding new or editing with a new ID (shouldn't happen if ID is from uuid)
-      const newProfile = { ...profileToSave, id: profileToSave.id || uuidv4() }
-      updatedConnections = [...brokerConnections, newProfile]
+      updatedConnections = [...brokerConnections, profileToSave] // ID already set by dialog
     }
     setModuleConfig(id, 'brokerConnections', updatedConnections)
+    setAddEditDialogOpen(false) // Close the add/edit dialog
   }
 
   return (
-    <Paper elevation={2} sx={{ p: 2, minWidth: 300, maxWidth: 500 }}>
+    <Paper
+      elevation={2}
+      sx={{ p: 2, minWidth: 320, display: 'flex', flexDirection: 'column', gap: 1 }}
+    >
       <Typography variant="overline">MQTT Broker Profiles</Typography>
-      <List dense>
-        {brokerConnections.map((profile) => (
-          <ListItem
-            key={profile.id}
-            disablePadding
-            secondaryAction={
-              <>
-                <IconButton
-                  edge="end"
-                  aria-label="edit"
-                  onClick={() => handleEditProfile(profile)}
-                  size="small"
-                >
-                  <Edit fontSize="small" />
-                </IconButton>
-                <IconButton
-                  edge="end"
-                  aria-label="delete"
-                  onClick={() => handleDeleteProfile(profile.id)}
-                  size="small"
-                >
-                  <Delete fontSize="small" />
-                </IconButton>
-              </>
-            }
-          >
-            <ListItemText primary={profile.name} secondary={profile.host} />
-          </ListItem>
-        ))}
-        {brokerConnections.length === 0 && (
-          <ListItem>
-            <ListItemText secondary="No broker profiles configured." />
-          </ListItem>
-        )}
-      </List>
       <Button
-        startIcon={<AddCircleOutline />}
-        onClick={handleAddProfile}
+        startIcon={<Edit />}
+        onClick={() => setManageDialogOpen(true)}
         variant="outlined"
         size="small"
-        sx={{ mt: 1 }}
+        fullWidth
       >
-        Add Broker Profile
+        Manage Profiles ({brokerConnections.length})
       </Button>
+      <Button
+        startIcon={<AddCircleOutline />}
+        onClick={openAddDialog}
+        variant="outlined"
+        size="small"
+        fullWidth
+      >
+        Add New Profile
+      </Button>
+
+      <Dialog
+        open={manageDialogOpen}
+        onClose={() => setManageDialogOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Manage MQTT Broker Profiles</DialogTitle>
+        <DialogContent>
+          <List dense>
+            {brokerConnections.map((p) => (
+              <ListItem
+                key={p.id}
+                secondaryAction={
+                  <>
+                    <IconButton
+                      title="Edit Profile"
+                      size="small"
+                      onClick={() => openEditDialogFromManage(p)}
+                    >
+                      <Edit fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      title="Delete Profile"
+                      size="small"
+                      onClick={() => handleDeleteProfile(p.id)}
+                    >
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </>
+                }
+              >
+                <ListItemText primary={p.name} secondary={p.host} />
+              </ListItem>
+            ))}
+            {brokerConnections.length === 0 && (
+              <ListItem>
+                <ListItemText secondary="No profiles. Click 'Add New Profile' to create one." />
+              </ListItem>
+            )}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={openAddDialog} startIcon={<AddCircleOutline />}>
+            Add New Profile
+          </Button>
+          <Button onClick={() => setManageDialogOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
       <BrokerProfileDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        onSave={handleSaveProfile}
+        open={addEditDialogOpen}
+        onClose={() => setAddEditDialogOpen(false)}
+        onSave={handleSaveProfileCallback}
         initialProfile={editingProfile}
       />
     </Paper>
   )
 }
 
-// --- Helper: MQTT Connection Fields for Input/Output Edit ---
-const MqttConnectionFields: FC<{
-  data: MqttRowConnectionData
-  onChange: (updatedConnectionData: Partial<MqttRowConnectionData>) => void
-  brokerProfiles: MqttBrokerConfig[]
-}> = ({ data, onChange, brokerProfiles }) => {
-  const [useProfile, setUseProfile] = useState(!!data.useProfileId)
+// --- InputEdit ---
+export const InputEdit: FC<{
+  input: InputData
+  onChange: (data: Partial<MqttInputRowData>) => void
+}> = ({ input, onChange }) => {
+  const brokerProfiles = useMainStore(
+    (state) =>
+      (state.modules[id]?.config as ModuleDefaultConfig & MqttModuleCustomConfig)
+        ?.brokerConnections || []
+  )
+  const currentData = input.data as Partial<MqttInputRowData>
+  const [addProfileDialogOpen, setAddProfileDialogOpen] = useState(false)
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue)
 
-  const handleProfileChange = (event: SelectChangeEvent<string>) => {
-    const profileId = event.target.value
-    onChange({ useProfileId: profileId || undefined })
+  const handleProfileSelectChange = (event: SelectChangeEvent<string>) => {
+    onChange({ profileId: event.target.value || undefined })
   }
-
-  const handleCustomFieldChange = (field: keyof MqttRowConnectionData, value: string) => {
-    onChange({ [field]: value })
+  const handleAddNewProfile = () => setAddProfileDialogOpen(true)
+  const handleSaveNewProfile = (profileToSave: MqttBrokerConfig) => {
+    const newProfileWithId = { ...profileToSave, id: profileToSave.id || uuidv4() } // Ensure ID
+    const currentGlobalProfiles =
+      (useMainStore.getState().modules[id]?.config as ModuleDefaultConfig & MqttModuleCustomConfig)
+        ?.brokerConnections || []
+    setModuleConfig(id, 'brokerConnections', [...currentGlobalProfiles, newProfileWithId])
+    onChange({ profileId: newProfileWithId.id })
   }
 
   return (
-    <Box>
-      <FormControlLabel
-        control={
-          <Switch
-            checked={useProfile}
-            onChange={(e) => setUseProfile(e.target.checked)}
-            size="small"
-          />
-        }
-        label="Use Saved Broker Profile"
-      />
-      {useProfile ? (
-        <FormControl fullWidth margin="dense" size="small">
-          <InputLabel>Broker Profile</InputLabel>
+    <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Typography variant="caption" color="textSecondary">
+        Broker Connection
+      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
+        <FormControl fullWidth margin="dense" size="small" sx={{ flexGrow: 1 }}>
+          <InputLabel id={`mqtt-input-profile-label-${input.name}`}>Broker Profile *</InputLabel>
           <Select
-            value={data.useProfileId || ''}
-            label="Broker Profile"
-            onChange={handleProfileChange}
+            labelId={`mqtt-input-profile-label-${input.name}`}
+            value={currentData.profileId || ''}
+            label="Broker Profile *"
+            onChange={handleProfileSelectChange}
+            required
           >
-            <MenuItem value="">
+            <MenuItem value="" disabled>
               <em>Select a profile...</em>
             </MenuItem>
             {brokerProfiles.map((p) => (
@@ -328,107 +399,95 @@ const MqttConnectionFields: FC<{
               </MenuItem>
             ))}
           </Select>
+          {brokerProfiles.length === 0 && (
+            <FormHelperText error>No profiles. Add one with the (+) button.</FormHelperText>
+          )}
+          {!currentData.profileId && brokerProfiles.length > 0 && (
+            <FormHelperText error>Profile selection is required.</FormHelperText>
+          )}
         </FormControl>
-      ) : (
-        <Stack spacing={1.5} sx={{ mt: 1 }}>
-          <TextField
-            label="Custom Host URL"
-            value={data.customHost || ''}
-            onChange={(e) => handleCustomFieldChange('customHost', e.target.value)}
-            fullWidth
-            size="small"
-            margin="dense"
-          />
-          <TextField
-            label="Custom Username (Optional)"
-            value={data.customUsername || ''}
-            onChange={(e) => handleCustomFieldChange('customUsername', e.target.value)}
-            fullWidth
-            size="small"
-            margin="dense"
-          />
-          <TextField
-            label="Custom Password (Optional)"
-            type="password"
-            value={data.customPassword || ''}
-            onChange={(e) => handleCustomFieldChange('customPassword', e.target.value)}
-            fullWidth
-            size="small"
-            margin="dense"
-          />
-          <TextField
-            label="Custom Client ID (Optional)"
-            value={data.customClientId || ''}
-            onChange={(e) => handleCustomFieldChange('customClientId', e.target.value)}
-            fullWidth
-            size="small"
-            margin="dense"
-            helperText="Leave blank for auto-generated."
-          />
-        </Stack>
-      )}
-    </Box>
-  )
-}
-
-// --- InputEdit: UI for configuring an MQTT Input Row ---
-export const InputEdit: FC<{
-  input: InputData // input.data should be MqttInputRowData
-  onChange: (data: Partial<MqttInputRowData>) => void
-}> = ({ input, onChange }) => {
-  const brokerProfiles = useMainStore(
-    (state) =>
-      (state.modules[id]?.config as ModuleDefaultConfig & MqttModuleCustomConfig)
-        ?.brokerConnections || []
-  )
-  const currentData = input.data as Partial<MqttInputRowData> // Cast for easier access
-
-  const handleConnectionChange = (connectionUpdate: Partial<MqttRowConnectionData>) => {
-    onChange(connectionUpdate)
-  }
-  const handleFieldChange = (field: keyof MqttInputRowData, value: string) => {
-    onChange({ [field]: value })
-  }
-
-  return (
-    <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <Typography variant="caption" color="textSecondary">
-        Connection:
-      </Typography>
-      <MqttConnectionFields
-        data={currentData}
-        onChange={handleConnectionChange}
-        brokerProfiles={brokerProfiles}
+        <Tooltip title="Add New Broker Profile">
+          <span>
+            {' '}
+            {/* IconButton disabled state needs a span wrapper for Tooltip */}
+            <IconButton onClick={handleAddNewProfile} size="medium" sx={{ mb: '4px' }}>
+              <AddLink />
+            </IconButton>
+          </span>
+        </Tooltip>
+      </Box>
+      <BrokerProfileDialog
+        open={addProfileDialogOpen}
+        onClose={() => setAddProfileDialogOpen(false)}
+        onSave={handleSaveNewProfile}
+        initialProfile={null}
       />
+
       <Divider sx={{ my: 1 }} />
       <Typography variant="caption" color="textSecondary">
-        Subscription:
+        Subscription Details
       </Typography>
       <TextField
-        label="Topic to Subscribe"
+        label="Topic to Subscribe *"
         value={currentData.topic || ''}
-        onChange={(e) => handleFieldChange('topic', e.target.value)}
+        onChange={(e) => onChange({ topic: e.target.value })}
         fullWidth
         size="small"
         margin="dense"
         required
       />
       <TextField
-        label="JSONPath (Optional, e.g., $.sensor.temp)"
+        label="JSONPath Filter (Optional)"
         value={currentData.jsonPath || ''}
-        onChange={(e) => handleFieldChange('jsonPath', e.target.value)}
+        onChange={(e) => onChange({ jsonPath: e.target.value })}
         fullWidth
         size="small"
         margin="dense"
-        helperText="Extract specific value from JSON payload."
+        helperText="e.g., $.value or data.temperature"
       />
+
+      <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
+        Payload Condition (Optional)
+      </Typography>
+      <Grid container spacing={1} alignItems="center">
+        <Grid item xs={12} sm={7}>
+          <TextField
+            label="Trigger if payload..."
+            value={currentData.matchPayload || ''}
+            onChange={(e) => onChange({ matchPayload: e.target.value })}
+            fullWidth
+            size="small"
+            margin="dense"
+            helperText="Value to check payload against."
+          />
+        </Grid>
+        <Grid item xs={12} sm={5}>
+          <FormControl fullWidth size="small" margin="dense" disabled={!currentData.matchPayload}>
+            <InputLabel>Match Type</InputLabel>
+            <Select
+              value={currentData.matchType || 'exact'}
+              label="Match Type"
+              onChange={(e) =>
+                onChange({ matchType: e.target.value as MqttInputRowData['matchType'] })
+              }
+            >
+              <MenuItem value="exact">Exactly Matches</MenuItem>
+              <MenuItem value="contains">Contains</MenuItem>
+              <MenuItem value="regex">Matches Regex</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
+      <FormHelperText sx={{ ml: 1 }}>
+        If &quot;Trigger if payload...&quot; is empty, any message on the topic triggers.
+      </FormHelperText>
     </Box>
   )
 }
 
-// --- OutputEdit: UI for configuring an MQTT Output Row ---
+// --- OutputEdit: REVISED (Similar to InputEdit) ---
 export const OutputEdit: FC<{
-  output: OutputData // output.data should be MqttOutputRowData
+  output: OutputData
   onChange: (data: Partial<MqttOutputRowData>) => void
 }> = ({ output, onChange }) => {
   const brokerProfiles = useMainStore(
@@ -437,41 +496,82 @@ export const OutputEdit: FC<{
         ?.brokerConnections || []
   )
   const currentData = output.data as Partial<MqttOutputRowData>
-
-  const handleConnectionChange = (connectionUpdate: Partial<MqttRowConnectionData>) => {
-    onChange(connectionUpdate)
-  }
-  const handleFieldChange = (field: keyof MqttOutputRowData, value: string | boolean | number) => {
-    onChange({ [field]: value })
+  const [addProfileDialogOpen, setAddProfileDialogOpen] = useState(false)
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue)
+  const handleProfileSelectChange = (event: SelectChangeEvent<string>) =>
+    onChange({ profileId: event.target.value || undefined })
+  const handleAddNewProfile = () => setAddProfileDialogOpen(true)
+  const handleSaveNewProfile = (profileToSave: MqttBrokerConfig) => {
+    const newProfileWithId = { ...profileToSave, id: profileToSave.id || uuidv4() }
+    const currentGlobalProfiles =
+      (useMainStore.getState().modules[id]?.config as ModuleDefaultConfig & MqttModuleCustomConfig)
+        ?.brokerConnections || []
+    setModuleConfig(id, 'brokerConnections', [...currentGlobalProfiles, newProfileWithId])
+    onChange({ profileId: newProfileWithId.id })
   }
 
   return (
     <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Typography variant="caption" color="textSecondary">
-        Connection:
+        Broker Connection
       </Typography>
-      <MqttConnectionFields
-        data={currentData}
-        onChange={handleConnectionChange}
-        brokerProfiles={brokerProfiles}
+      <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
+        <FormControl fullWidth margin="dense" size="small" sx={{ flexGrow: 1 }}>
+          <InputLabel id={`mqtt-output-profile-label-${output.name}`}>Broker Profile *</InputLabel>
+          <Select
+            labelId={`mqtt-output-profile-label-${output.name}`}
+            value={currentData.profileId || ''}
+            label="Broker Profile *"
+            onChange={handleProfileSelectChange}
+            required
+          >
+            <MenuItem value="" disabled>
+              <em>Select a profile...</em>
+            </MenuItem>
+            {brokerProfiles.map((p) => (
+              <MenuItem key={p.id} value={p.id}>
+                {p.name} ({p.host})
+              </MenuItem>
+            ))}
+          </Select>
+          {brokerProfiles.length === 0 && (
+            <FormHelperText error>No profiles. Add one with (+).</FormHelperText>
+          )}
+          {!currentData.profileId && brokerProfiles.length > 0 && (
+            <FormHelperText error>Profile selection is required.</FormHelperText>
+          )}
+        </FormControl>
+        <Tooltip title="Add New Broker Profile">
+          <span>
+            <IconButton onClick={handleAddNewProfile} size="medium" sx={{ mb: '4px' }}>
+              <AddLink />
+            </IconButton>
+          </span>
+        </Tooltip>
+      </Box>
+      <BrokerProfileDialog
+        open={addProfileDialogOpen}
+        onClose={() => setAddProfileDialogOpen(false)}
+        onSave={handleSaveNewProfile}
+        initialProfile={null}
       />
       <Divider sx={{ my: 1 }} />
       <Typography variant="caption" color="textSecondary">
-        Publication:
+        Publication Details
       </Typography>
       <TextField
-        label="Topic to Publish"
+        label="Topic to Publish *"
         value={currentData.topic || ''}
-        onChange={(e) => handleFieldChange('topic', e.target.value)}
+        onChange={(e) => onChange({ topic: e.target.value })}
         fullWidth
         size="small"
         margin="dense"
         required
       />
       <TextField
-        label="Payload (Message)"
+        label="Payload (Message) *"
         value={currentData.payload || ''}
-        onChange={(e) => handleFieldChange('payload', e.target.value)}
+        onChange={(e) => onChange({ payload: e.target.value })}
         fullWidth
         size="small"
         margin="dense"
@@ -486,7 +586,7 @@ export const OutputEdit: FC<{
               <Switch
                 size="small"
                 checked={currentData.retain ?? false}
-                onChange={(e) => handleFieldChange('retain', e.target.checked)}
+                onChange={(e) => onChange({ retain: e.target.checked })}
               />
             }
             label="Retain"
@@ -498,11 +598,11 @@ export const OutputEdit: FC<{
             <Select
               value={currentData.qos ?? 0}
               label="QoS"
-              onChange={(e) => handleFieldChange('qos', Number(e.target.value) as 0 | 1 | 2)}
+              onChange={(e) => onChange({ qos: Number(e.target.value) as 0 | 1 | 2 })}
             >
-              <MenuItem value={0}>0 (At most once)</MenuItem>
-              <MenuItem value={1}>1 (At least once)</MenuItem>
-              <MenuItem value={2}>2 (Exactly once)</MenuItem>
+              <MenuItem value={0}>0</MenuItem>
+              <MenuItem value={1}>1</MenuItem>
+              <MenuItem value={2}>2</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -511,83 +611,127 @@ export const OutputEdit: FC<{
   )
 }
 
-// --- Global MQTT Client Management ---
-const mqttClients = new Map<string, mqtt.MqttClient>() // Key: host_username_clientId
-const clientSubscriptions = new Map<string, Set<string>>() // Key: clientKey, Value: Set of topics
-const clientStatus = new Map<string, 'connecting' | 'connected' | 'error' | 'closed'>()
-
-function getClientKey(config: MqttBrokerConfig | MqttRowConnectionData): string {
-  const host =
-    'customHost' in config && config.customHost
-      ? config.customHost
-      : 'host' in config
-        ? config.host
-        : ''
-  const username =
-    'customUsername' in config && config.customUsername
-      ? config.customUsername
-      : 'username' in config
-        ? config.username
-        : ''
-  const clientId =
-    'customClientId' in config && config.customClientId
-      ? config.customClientId
-      : 'clientId' in config
-        ? config.clientId
-        : `io_client_${Math.random().toString(16).slice(2, 10)}`
-  return `${host}_${username || 'nouser'}_${clientId}`
+// --- InputDisplay & OutputDisplay (Helper to display resolved broker info) ---
+function resolveBrokerConfigForRowDisplay(
+  rowData: Partial<MqttInputRowData | MqttOutputRowData>,
+  profiles: MqttBrokerConfig[]
+): Partial<MqttBrokerConfig> {
+  if (rowData.profileId) {
+    const profile = profiles.find((p) => p.id === rowData.profileId)
+    return profile ? { name: profile.name, host: profile.host } : { name: 'Invalid/No Profile' }
+  }
+  return { name: 'Profile Not Set' }
+}
+export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
+  const d = input.data as MqttInputRowData
+  const ps = useMainStore(
+    (s) =>
+      (s.modules[id]?.config as ModuleDefaultConfig & MqttModuleCustomConfig)?.brokerConnections ||
+      []
+  )
+  const brokerDisplay = resolveBrokerConfigForRowDisplay(d, ps)
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1, overflow: 'hidden' }}>
+      {' '}
+      <DisplayButtons data={{ ...input, name: 'MQTT In' }} />{' '}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          flexGrow: 1,
+          textAlign: 'left'
+        }}
+      >
+        <Typography noWrap variant="body2" title={d.topic}>
+          T: {d.topic || 'N/A'}
+        </Typography>
+        <Typography noWrap variant="caption" title={brokerDisplay.host}>
+          B: {brokerDisplay.name}
+        </Typography>
+      </Box>{' '}
+    </Box>
+  )
+}
+export const OutputDisplay: FC<{ output: OutputData }> = ({ output }) => {
+  const d = output.data as MqttOutputRowData
+  const ps = useMainStore(
+    (s) =>
+      (s.modules[id]?.config as ModuleDefaultConfig & MqttModuleCustomConfig)?.brokerConnections ||
+      []
+  )
+  const brokerDisplay = resolveBrokerConfigForRowDisplay(d, ps)
+  const pl = d.payload
+    ? d.payload.length > 15
+      ? d.payload.substring(0, 12) + '...'
+      : d.payload
+    : 'N/A'
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1, overflow: 'hidden' }}>
+      {' '}
+      <DisplayButtons data={{ ...output, name: 'MQTT Out' }} />{' '}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          flexGrow: 1,
+          textAlign: 'left'
+        }}
+      >
+        <Typography noWrap variant="body2" title={d.topic}>
+          T: {d.topic || 'N/A'}
+        </Typography>
+        <Typography noWrap variant="caption" title={brokerDisplay.host}>
+          B: {brokerDisplay.name}
+        </Typography>
+        <Typography noWrap variant="caption" title={d.payload}>
+          P: {pl}
+        </Typography>
+      </Box>{' '}
+    </Box>
+  )
 }
 
-function getEffectiveBrokerConfig(
-  rowData: MqttRowConnectionData,
+// --- resolveBrokerConfigForRow (For action hooks, expects profileId to be set) ---
+function resolveBrokerConfigForRow(
+  rowData: MqttInputRowData | MqttOutputRowData,
   profiles: MqttBrokerConfig[]
 ): MqttBrokerConfig | null {
-  if (rowData.useProfileId) {
-    return profiles.find((p) => p.id === rowData.useProfileId) || null
+  if (rowData.profileId) {
+    const profile = profiles.find((p) => p.id === rowData.profileId)
+    if (!profile) log.info1(`MQTT: Profile ID '${rowData.profileId}' not found in global profiles.`)
+    return profile || null
   }
-  if (rowData.customHost) {
-    return {
-      id: 'custom_' + uuidv4(), // Internal ID for custom config
-      name: 'Custom Row Connection',
-      host: rowData.customHost,
-      username: rowData.customUsername,
-      password: rowData.customPassword,
-      clientId: rowData.customClientId || `io_client_${Math.random().toString(16).slice(2, 10)}`
-    }
-  }
+  log.info1('MQTT: resolveBrokerConfigForRow - No profileId in rowData.', rowData)
   return null
 }
 
-// --- useGlobalActions: Manages MQTT clients and subscriptions ---
+// --- useGlobalActions ---
 export const useGlobalActions = () => {
-  const brokerProfiles = useMainStore(
-    (state) =>
-      (state.modules[id]?.config as ModuleDefaultConfig & MqttModuleCustomConfig)
-        ?.brokerConnections || []
-  )
-
-  // Cleanup all clients on unmount (e.g., module disabled or app closing context)
+  const [clientStatuses, setClientStatuses] = useState<Record<string, string>>({})
   useEffect(() => {
+    if (!ipcRenderer) return
+    const listener = (
+      _event: any,
+      data: { clientKey: string; status: string; host: string; message?: string }
+    ) => {
+      log.info(
+        `MQTT Client Status [${data.host} / ${data.clientKey}]: ${data.status}`,
+        data.message || ''
+      )
+      setClientStatuses((prev) => ({ ...prev, [data.clientKey]: data.status }))
+    }
+    ipcRenderer.on('mqtt-client-status', listener)
     return () => {
-      log.info('MQTT Global: Cleaning up all MQTT clients.')
-      mqttClients.forEach((client) => client.end(true))
-      mqttClients.clear()
-      clientSubscriptions.clear()
-      clientStatus.clear()
+      ipcRenderer.removeListener('mqtt-client-status', listener)
     }
   }, [])
-
-  // This hook mainly provides the context for client management.
-  // Specific connect/subscribe/publish actions will be triggered by Input/Output actions.
-  // We need a way for Input/Output actions to request client and subscriptions.
-  // This is more of a "service" setup than a typical global action hook.
-  // For now, let's log that it's active.
-  log.info2('MQTT Global Actions initialized (client management context).')
-
+  // For future UI feedback on connection statuses
   return null
 }
 
-// --- useInputActions: Handles incoming MQTT messages for a row ---
+// --- useInputActions ---
 export const useInputActions = (row: Row) => {
   const { input } = row
   const inputData = input.data as MqttInputRowData
@@ -596,255 +740,155 @@ export const useInputActions = (row: Row) => {
       (state.modules[id]?.config as ModuleDefaultConfig & MqttModuleCustomConfig)
         ?.brokerConnections || []
   )
+  const clientKeyRef = useRef<string | null>(null)
 
   useEffect(() => {
-    const effectiveConfig = getEffectiveBrokerConfig(inputData, brokerProfiles)
-    if (!effectiveConfig || !inputData.topic) {
-      log.info1(`MQTT Input Row ${row.id}: Missing effective config or topic.`)
+    if (!row.enabled) {
+      log.info(
+        `Row ${row.id} (${row.inputModule}/${row.outputModule}) is disabled, actions not initialized.`
+      )
+      return () => {} // Return empty cleanup if disabled from the start
+    }
+    if (!ipcRenderer || !inputData.profileId) {
+      // Require profileId
+      clientKeyRef.current = null // Clear if no profile
       return
     }
 
-    const clientKey = getClientKey(effectiveConfig)
-    let client = mqttClients.get(clientKey)
-
-    const connectAndSubscribe = () => {
-      // If client doesn't exist, OR is not connected AND not currently trying to reconnect
-      if (!client || (!client.connected && !client.reconnecting)) {
-        if (client) {
-          // If client exists but is in a 'closed' like state
-          log.info(
-            `MQTT Input Row ${row.id}: Client ${clientKey} exists but is not connected/reconnecting. Forcing new connection.`
-          )
-          client.end(true, () => {
-            mqttClients.delete(clientKey)
-            clientStatus.delete(clientKey) // Also remove from our status tracker
-            clientSubscriptions.delete(clientKey) // Clear its subscriptions too
-            performConnection()
-          })
-          return
-        }
-        performConnection()
-      } else if (client.connected) {
-        performSubscription(client)
-      } else {
-        // Client exists, not connected, but might be reconnecting or in an intermediate state
-        log.info(
-          `MQTT Input Row ${row.id}: Client ${clientKey} exists but not yet connected (State: ${clientStatus.get(clientKey)}, Reconnecting: ${client.reconnecting}). Waiting for 'connect' or error event.`
-        )
-      }
+    const effectiveConfig = resolveBrokerConfigForRow(inputData, brokerProfiles)
+    if (!effectiveConfig || !inputData.topic) {
+      log.info1(`MQTT Input Row ${row.id}: No valid broker config or topic for subscription.`)
+      clientKeyRef.current = null
+      return
     }
 
-    const performConnection = () => {
-      log.info(`MQTT Input Row ${row.id}: Attempting connection for ${clientKey}`)
-      clientStatus.set(clientKey, 'connecting')
-
-      // --- AGGRESSIVE LOGGING ---
-      if (!effectiveConfig || !effectiveConfig.host) {
-        log.error(
-          `MQTT FATAL: effectiveConfig or effectiveConfig.host is NULL/UNDEFINED before connect for row ${row.id}`,
-          effectiveConfig
+    log.info(
+      `MQTT Input Row ${row.id}: Requesting subscription to topic '${inputData.topic}' on broker '${effectiveConfig.host}'`
+    )
+    ipcRenderer
+      .invoke('mqtt-subscribe', {
+        brokerConfig: effectiveConfig,
+        topic: inputData.topic,
+        rowId: row.id
+      })
+      .then((result) => {
+        if (result?.success && result.clientKey) clientKeyRef.current = result.clientKey
+        else clientKeyRef.current = null
+        log.info(
+          `MQTT Input Row ${row.id}: Subscribe IPC result (ClientKey: ${clientKeyRef.current}):`,
+          result
         )
-        return
-      }
+      })
+      .catch((err) => {
+        log.error(`MQTT Input Row ${row.id}: Subscribe IPC error:`, err)
+        clientKeyRef.current = null
+      })
+
+    const messageListener = (
+      _event: any,
+      data: { clientKey: string; topic: string; payloadString: string; brokerHost: string }
+    ) => {
       log.info(
-        `MQTT PRE-CONNECT for row ${row.id}: Host='${effectiveConfig.host}', ClientID='${effectiveConfig.clientId}', User='${effectiveConfig.username}'`
+        `MQTT Row ${row.id} messageListener: IPC data received. My clientKeyRef.current='${clientKeyRef.current}', My subscribed pattern='${inputData.topic}', Msg topic='${data.topic}'`
       )
-      // --- END AGGRESSIVE LOGGING ---
 
-      // --- EXPLICIT PROTOCOL IN OPTIONS (Defensive) ---
-      const options: mqtt.IClientOptions = {
-        // Use IClientOptions for better typing
-        clientId: effectiveConfig.clientId,
-        username: effectiveConfig.username,
-        password: effectiveConfig.password,
-        reconnectPeriod: 5000,
-        connectTimeout: 10000
-        // Try to force the protocol based on the URL scheme
-        // This might be redundant if URL parsing is correct, but worth a try.
-      }
-
-      if (effectiveConfig.host.startsWith('ws')) {
-        options.protocol = effectiveConfig.host.startsWith('wss') ? 'wss' : 'ws'
-        // For WebSockets, 'path' might also be needed if broker URL includes it
-        // e.g., ws://broker.emqx.io:8083/mqtt  => path should be /mqtt
-        // Try to parse it from host if present
-        try {
-          const url = new URL(effectiveConfig.host)
-          if (url.pathname && url.pathname !== '/') {
-            options.path = url.pathname
-            log.info(`MQTT: Using WebSocket path: ${options.path}`)
-          }
-        } catch (e) {
-          /* Host might not be a full URL, ignore error */
-        }
-      } else if (effectiveConfig.host.startsWith('mqtt')) {
-        options.protocol = effectiveConfig.host.startsWith('mqtts') ? 'mqtts' : 'mqtt'
-      }
-      log.info(`MQTT: Options for connect for row ${row.id}:`, options)
-      // --- END EXPLICIT PROTOCOL ---
-
-      const newClient = mqtt.connect(effectiveConfig.host, options) // Pass refined options
-      mqttClients.set(clientKey, newClient)
-      client = newClient // Update local ref
-
-      client.on('connect', () => {
-        log.success(
-          `MQTT Input Row ${row.id}: Connected to ${effectiveConfig.host} as ${clientKey}`
-        )
-        clientStatus.set(clientKey, 'connected')
-        performSubscription(client!)
-      })
-
-      client.on('message', (topic, payloadBuffer) => {
-        const payloadString = payloadBuffer.toString()
-        log.info2(
-          `MQTT Input Row ${row.id}: Message on ${clientKey} - T: ${topic}, P: ${payloadString}`
-        )
-        // Dispatch global event for all MQTT inputs to potentially consume
-        window.dispatchEvent(
-          new CustomEvent('io_mqtt_message_received', {
-            detail: { clientKey, topic, payload: payloadString, MqttBrokerConfig: effectiveConfig }
-          })
-        )
-      })
-
-      client.on('error', (err) => {
-        log.error(`MQTT Input Row ${row.id}: Client error for ${clientKey}:`, err.message)
-        clientStatus.set(clientKey, 'error')
-      })
-      client.on('close', () => {
-        log.info(`MQTT Input Row ${row.id}: Client ${clientKey} closed.`)
-        clientStatus.set(clientKey, 'closed')
-      })
-      client.on('offline', () => {
-        log.info(`MQTT Input Row ${row.id}: Client ${clientKey} offline.`)
-        // Status will likely go to 'reconnecting' or 'closed'
-      })
-    }
-
-    const performSubscription = (activeClient: mqtt.MqttClient) => {
-      if (!clientSubscriptions.has(clientKey)) {
-        clientSubscriptions.set(clientKey, new Set())
-      }
-      const topicsForClient = clientSubscriptions.get(clientKey)!
-      if (!topicsForClient.has(inputData.topic)) {
+      if (
+        clientKeyRef.current &&
+        data.clientKey === clientKeyRef.current &&
+        mqttTopicMatch(data.topic, inputData.topic)
+      ) {
         log.info(
-          `MQTT Input Row ${row.id}: Subscribing client ${clientKey} to topic: ${inputData.topic}`
+          `MQTT Input Row ${row.id} (ClientKey: ${clientKeyRef.current}): Matched message for topic pattern '${inputData.topic}' (actual: '${data.topic}'). Payload:`,
+          data.payloadString
         )
-        activeClient.subscribe(inputData.topic, { qos: 0 }, (err) => {
-          if (err) {
-            log.error(`MQTT Input Row ${row.id}: Failed to subscribe to ${inputData.topic}`, err)
-          } else {
-            log.success(`MQTT Input Row ${row.id}: Subscribed to ${inputData.topic}`)
-            topicsForClient.add(inputData.topic)
-          }
-        })
-      } else {
-        log.info2(
-          `MQTT Input Row ${row.id}: Client ${clientKey} already subscribed to ${inputData.topic}`
-        )
-      }
-    }
 
-    // This is the listener for the globally dispatched MQTT messages
-    const globalMqttMessageListener = (event: CustomEvent) => {
-      const { clientKey: msgClientKey, topic: msgTopic, payload: msgPayload } = event.detail
-      if (msgClientKey === clientKey && msgTopic === inputData.topic) {
-        log.info(`MQTT Input Row ${row.id}: Processing message for topic ${msgTopic}`)
-        let finalPayload: any = msgPayload
+        let finalPayload: any = data.payloadString
+        let extractedValueForMatching: any = data.payloadString
         if (inputData.jsonPath) {
           try {
-            // Basic JSONPath-like extraction (very simplified)
-            // For real JSONPath, use a library like 'jsonpath-plus'
-            const parsedPayload = JSON.parse(msgPayload)
-            const pathParts = inputData.jsonPath.replace(/^\$\.?/, '').split('.')
-            let extractedValue = parsedPayload
-            for (const part of pathParts) {
-              if (extractedValue && typeof extractedValue === 'object' && part in extractedValue) {
-                extractedValue = extractedValue[part]
-              } else {
-                extractedValue = undefined
+            const parsed = JSON.parse(data.payloadString)
+            const parts = inputData.jsonPath.replace(/^\$\.?/, '').split('.')
+            let val = parsed
+            for (const p of parts) {
+              if (val && typeof val === 'object' && p in val) val = val[p]
+              else {
+                val = undefined
                 break
               }
             }
-            finalPayload = extractedValue
-            log.info2(
-              `MQTT Input Row ${row.id}: Extracted with JSONPath '${inputData.jsonPath}':`,
-              finalPayload
-            )
+            finalPayload = val
+            extractedValueForMatching = finalPayload // Match on extracted value if JSONPath is used
           } catch (e) {
-            log.info(
-              `MQTT Input Row ${row.id}: Failed to parse JSON or apply JSONPath. Using raw payload. Error:`,
+            log.info1(
+              `MQTT Input Row ${row.id}: JSONPath error for '${inputData.jsonPath}' on payload '${data.payloadString}'. Using raw.`,
               e
             )
-            finalPayload = msgPayload // Fallback to raw payload
           }
         }
-        // Dispatch actual IO trigger
-        window.dispatchEvent(
-          new CustomEvent('io_input', { detail: { rowId: row.id, payload: finalPayload } })
-        )
-      }
-    }
 
-    connectAndSubscribe()
-    window.addEventListener('io_mqtt_message_received', globalMqttMessageListener as EventListener)
-
-    return () => {
-      log.info(`MQTT Input Row ${row.id}: Cleaning up input action.`)
-      window.removeEventListener(
-        'io_mqtt_message_received',
-        globalMqttMessageListener as EventListener
-      )
-
-      // Unsubscribe logic: if this is the last row subscribed to this topic on this client
-      if (client) {
-        // Use the client established in this hook's scope
-        const topicsForClient = clientSubscriptions.get(clientKey)
-        if (topicsForClient?.has(inputData.topic)) {
-          // Check if other rows use this topic on this client
-          // This is complex to manage without a central subscription manager.
-          // For now, let's be simple: if row is removed, try to unsubscribe.
-          // A more robust system would count subscribers per topic/client.
+        let trigger = true
+        if (inputData.matchPayload !== undefined && inputData.matchPayload.trim() !== '') {
+          const actualPayloadToMatch = String(extractedValueForMatching)
+          const targetMatch = inputData.matchPayload
+          switch (inputData.matchType) {
+            case 'contains':
+              trigger = actualPayloadToMatch.includes(targetMatch)
+              break
+            case 'regex':
+              try {
+                trigger = new RegExp(targetMatch).test(actualPayloadToMatch)
+              } catch (e) {
+                log.error(`MQTT Row ${row.id}: Invalid Regex: ${targetMatch}`, e)
+                trigger = false
+              }
+              break
+            default:
+              trigger = actualPayloadToMatch === targetMatch
+              break
+          }
           log.info(
-            `MQTT Input Row ${row.id}: Unsubscribing client ${clientKey} from topic: ${inputData.topic}`
+            `MQTT Row ${row.id}: Payload matching: '${actualPayloadToMatch}' ${inputData.matchType || 'exact'} '${targetMatch}' -> ${trigger}`
           )
-          client.unsubscribe(inputData.topic, (err) => {
-            if (err)
-              log.error(
-                `MQTT Input Row ${row.id}: Error unsubscribing from ${inputData.topic}`,
-                err
-              )
-            else topicsForClient.delete(inputData.topic)
+        }
 
-            // If no more subscriptions for this client, consider closing it
-            if (topicsForClient.size === 0) {
-              log.info(
-                `MQTT Input Row ${row.id}: No more subscriptions for ${clientKey}. Closing client.`
-              )
-              client?.end(true)
-              mqttClients.delete(clientKey)
-              clientStatus.delete(clientKey)
-              clientSubscriptions.delete(clientKey)
-            }
-          })
+        if (trigger) {
+          log.success(`MQTT Row ${row.id}: Triggering action. Final payload:`, finalPayload)
+          window.dispatchEvent(
+            new CustomEvent('io_input', { detail: { rowId: row.id, payload: finalPayload } })
+          )
         }
       }
     }
+    ipcRenderer.on('mqtt-message-received', messageListener)
+
+    return () => {
+      const currentEffectiveConfig = resolveBrokerConfigForRow(inputData, brokerProfiles)
+      if (ipcRenderer && currentEffectiveConfig && inputData.topic) {
+        log.info(
+          `MQTT Input Row ${row.id}: Cleaning up. Unsubscribing from '${inputData.topic}' on '${currentEffectiveConfig.host}'`
+        )
+        ipcRenderer.invoke('mqtt-unsubscribe', {
+          brokerConfig: currentEffectiveConfig,
+          topic: inputData.topic,
+          rowId: row.id
+        })
+      }
+      ipcRenderer?.removeListener('mqtt-message-received', messageListener)
+      clientKeyRef.current = null
+    }
   }, [
+    inputData.profileId,
     inputData.topic,
-    inputData.useProfileId,
-    inputData.customHost,
-    inputData.customUsername,
-    inputData.customPassword,
-    inputData.customClientId,
     inputData.jsonPath,
+    inputData.matchPayload,
+    inputData.matchType,
     row.id,
-    brokerProfiles
-  ]) // Re-run if config changes
+    brokerProfiles,
+    row.enabled
+  ]) // Dependencies updated
 }
 
-// --- useOutputActions: Handles publishing MQTT messages for a row ---
+// --- useOutputActions ---
 export const useOutputActions = (row: Row) => {
   const { output } = row
   const outputData = output.data as MqttOutputRowData
@@ -855,231 +899,52 @@ export const useOutputActions = (row: Row) => {
   )
 
   useEffect(() => {
-    const effectiveConfig = getEffectiveBrokerConfig(outputData, brokerProfiles)
+    if (!ipcRenderer || !outputData.profileId) return // Require profileId
+
+    const effectiveConfig = resolveBrokerConfigForRow(outputData, brokerProfiles)
 
     const ioListener = (event: CustomEvent) => {
-      if (event.detail?.rowId === row.id || event.detail === row.id) {
-        // Handle both payload and simple ID
+      const eventRowId =
+        typeof event.detail === 'object' && event.detail !== null
+          ? event.detail.rowId
+          : event.detail
+      if (eventRowId === row.id) {
         if (!effectiveConfig || !outputData.topic || outputData.payload === undefined) {
           log.error(
-            `MQTT Output Row ${row.id}: Missing effective config, topic, or payload. Cannot publish.`
+            `MQTT Output Row ${row.id}: Incomplete config (missing profile, topic, or payload). Cannot publish.`
           )
           return
         }
-        log.info(`MQTT Output Row ${row.id}: Triggered. Publishing to ${outputData.topic}`)
+        log.info(
+          `MQTT Output Row ${row.id}: Triggered. Publishing to '${outputData.topic}' on broker '${effectiveConfig.host}'`
+        )
 
-        const clientKey = getClientKey(effectiveConfig)
-        let client = mqttClients.get(clientKey)
-
-        const publishMessage = (activeClient: mqtt.MqttClient) => {
-          activeClient.publish(
-            outputData.topic,
-            outputData.payload,
-            { qos: outputData.qos ?? 0, retain: outputData.retain ?? false },
-            (err) => {
-              if (err) {
-                log.error(
-                  `MQTT Output Row ${row.id}: Failed to publish to ${outputData.topic}`,
-                  err
-                )
-              } else {
-                log.success(
-                  `MQTT Output Row ${row.id}: Published to ${outputData.topic}:`,
-                  outputData.payload
-                )
-              }
-            }
-          )
+        const publishOptions: IClientPublishOptions = {
+          qos: outputData.qos ?? 0,
+          retain: outputData.retain ?? false
         }
-
-        if (client && client.connected) {
-          publishMessage(client)
-        } else if (client && !client.connected && !client.reconnecting) {
-          // If client exists but is effectively closed
-          log.info(
-            `MQTT Output Row ${row.id}: Client ${clientKey} exists but not connected/reconnecting. Attempting to reconnect and publish.`
-          )
-          client.end(true, () => {
-            mqttClients.delete(clientKey)
-            clientStatus.delete(clientKey)
-            clientSubscriptions.delete(clientKey) // If output actions also manage subscriptions (unlikely here but good practice)
-            connectAndPublish()
+        ipcRenderer
+          .invoke('mqtt-publish', {
+            brokerConfig: effectiveConfig,
+            topic: outputData.topic,
+            payload: outputData.payload,
+            options: publishOptions
           })
-        } else if (client && client.reconnecting) {
-          log.info(
-            `MQTT Output Row ${row.id}: Client ${clientKey} is reconnecting. Publish will be attempted on connect by 'connectAndPublish'.`
-          )
-          // Potentially wait for connect, or let connectAndPublish handle it.
-          // For now, if it's reconnecting, connectAndPublish will also be called if there was no client.
-          // If there IS a client and it's reconnecting, maybe we just queue the message or log.
-          // For simplicity, let's assume connectAndPublish will create a new one if this one is problematic.
-          connectAndPublish() // This might create a parallel client if the existing one is stuck reconnecting.
-          // A more robust solution would be a message queue per client.
-        } else {
-          // No client, or client in an unknown state
-          connectAndPublish()
-        }
-
-        function connectAndPublish() {
-          log.info(
-            `MQTT Output Row ${row.id}: Client ${clientKey} not connected/found. Connecting to publish.`
-          )
-          clientStatus.set(clientKey, 'connecting')
-          const newClient = mqtt.connect(effectiveConfig!.host, {
-            // Assert effectiveConfig exists
-            clientId: effectiveConfig!.clientId,
-            username: effectiveConfig!.username,
-            password: effectiveConfig!.password
-          })
-          mqttClients.set(clientKey, newClient)
-          client = newClient
-
-          client.on('connect', () => {
-            log.success(
-              `MQTT Output Row ${row.id}: Connected to ${effectiveConfig!.host} for publishing.`
-            )
-            clientStatus.set(clientKey, 'connected')
-            publishMessage(client!)
-            // Potentially close after publish if it's a one-shot? Or keep alive? Keep alive for now.
-            // client.end();
-          })
-          client.on('error', (err) => {
-            log.error(
-              `MQTT Output Row ${row.id}: Client error for ${clientKey} during publish attempt:`,
-              err.message
-            )
-            clientStatus.set(clientKey, 'error')
-            client?.end(true) // End on error to allow fresh connect next time
-            mqttClients.delete(clientKey)
-            clientStatus.delete(clientKey)
-          })
-        }
+          .then((result) => log.info(`MQTT Output Row ${row.id}: Publish IPC result:`, result))
+          .catch((err) => log.error(`MQTT Output Row ${row.id}: Publish IPC error:`, err))
       }
     }
-
     window.addEventListener('io_input', ioListener as EventListener)
     return () => {
       window.removeEventListener('io_input', ioListener as EventListener)
     }
-  }, [row.id, outputData, brokerProfiles]) // Re-run if config changes
-}
-
-export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
-  const inputData = input.data as MqttInputRowData
-  const brokerProfiles = useMainStore(
-    (state) =>
-      (state.modules[id]?.config as ModuleDefaultConfig & MqttModuleCustomConfig)
-        ?.brokerConnections || []
-  )
-
-  let displayHost = 'Unknown Host'
-  if (inputData.useProfileId) {
-    const profile = brokerProfiles.find((p) => p.id === inputData.useProfileId)
-    displayHost = profile ? `${profile.name} (Profile)` : 'Invalid Profile'
-  } else if (inputData.customHost) {
-    displayHost = inputData.customHost
-  }
-
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1, overflow: 'hidden' }}>
-      <DisplayButtons data={{ ...input, name: 'MQTT In' }} />{' '}
-      {/* Shows module icon + override name */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', flexGrow: 1 }}>
-        <Typography
-          variant="body2"
-          sx={{
-            color: '#888',
-            fontStyle: 'italic',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}
-          title={inputData.topic}
-        >
-          Topic: {inputData.topic || 'Not Set'}
-        </Typography>
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'text.secondary',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}
-          title={displayHost}
-        >
-          Broker: {displayHost}
-        </Typography>
-      </Box>
-    </Box>
-  )
-}
-
-// --- OutputDisplay: UI for showing configured MQTT Output in a row ---
-export const OutputDisplay: FC<{ output: OutputData }> = ({ output }) => {
-  const outputData = output.data as MqttOutputRowData
-  const brokerProfiles = useMainStore(
-    (state) =>
-      (state.modules[id]?.config as ModuleDefaultConfig & MqttModuleCustomConfig)
-        ?.brokerConnections || []
-  )
-
-  let displayHost = 'Unknown Host'
-  if (outputData.useProfileId) {
-    const profile = brokerProfiles.find((p) => p.id === outputData.useProfileId)
-    displayHost = profile ? `${profile.name} (Profile)` : 'Invalid Profile'
-  } else if (outputData.customHost) {
-    displayHost = outputData.customHost
-  }
-
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1, overflow: 'hidden' }}>
-      <DisplayButtons data={{ ...output, name: 'MQTT Out' }} />{' '}
-      {/* Shows module icon + override name */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', flexGrow: 1 }}>
-        <Typography
-          variant="body2"
-          sx={{
-            color: '#888',
-            fontStyle: 'italic',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}
-          title={outputData.topic}
-        >
-          Topic: {outputData.topic || 'Not Set'}
-        </Typography>
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'text.secondary',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}
-          title={displayHost}
-        >
-          Broker: {displayHost}
-        </Typography>
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'text.secondary',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis'
-          }}
-          title={outputData.payload}
-        >
-          Payload:{' '}
-          {outputData.payload
-            ? outputData.payload.length > 20
-              ? outputData.payload.substring(0, 17) + '...'
-              : outputData.payload
-            : 'N/A'}
-        </Typography>
-      </Box>
-    </Box>
-  )
+  }, [
+    row.id,
+    outputData.profileId,
+    outputData.topic,
+    outputData.payload,
+    outputData.qos,
+    outputData.retain,
+    brokerProfiles
+  ]) // Updated dependencies
 }

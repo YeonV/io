@@ -10,10 +10,6 @@ import { log } from '@/utils'
 import type { ModuleId, Row } from '@shared/types'
 import { moduleImplementations, ModuleImplementationMap } from '@/modules/moduleRegistry'
 
-// Legacy imports (to be removed phase by phase)
-// import { useStore as useOldStore } from '../store/OLD/useStore' // Alias to avoid conflict
-// import mqttService from '@/components/OLD/MQTT/mqttService' // For legacy MQTT
-
 const ipcRenderer = window.electron?.ipcRenderer || false
 
 const ModuleGlobalActionsRunner: FC<{ moduleId: ModuleId }> = ({ moduleId }) => {
@@ -32,8 +28,7 @@ const Home: FC = () => {
   const [ioNewRowKey, setIoNewRowKey] = useState(0)
 
   const editRow = useMainStore((state) => state.editRow)
-  // moduleConfigs is Record<ModuleId, ModuleConfig<any>>
-  // const moduleConfigs = useMainStore((state) => state.modules); // Not directly used, but good to know
+
   const rows = useMainStore((state) => state.rows)
   const setDarkModeStoreAction = useMainStore((state) => state.setDarkMode)
 
@@ -73,10 +68,8 @@ const Home: FC = () => {
       'padding: 10px 40px; color: #ffffff; border-radius: 5px 5px 0 0; background-color: #123456;',
       'background: #fff; color: #123456; border-radius: 0 0 5px 5px;padding: 5px 0;'
     )
-    // No specific cleanup needed for this effect
   }, [setDarkModeStoreAction])
 
-  // IPC listeners (trigger-row, update-row)
   useEffect(() => {
     if (!ipcRenderer) return
 
@@ -89,9 +82,7 @@ const Home: FC = () => {
 
     const updateRowListener = (_event: Electron.IpcRendererEvent, data: any) => {
       if (data.id) {
-        // data should contain { id, icon?, label?, settings? }
         log.success2(`Home: IPC update-row received for ID: ${data.id}`, data)
-        // Construct payload for editRow carefully
         const updatesForOutput: Partial<Row['output']> = {}
         if (data.icon !== undefined) updatesForOutput.icon = data.icon
         if (data.label !== undefined) updatesForOutput.label = data.label
@@ -99,7 +90,7 @@ const Home: FC = () => {
 
         if (Object.keys(updatesForOutput).length > 0) {
           const currentRow = useMainStore.getState().rows[data.id]
-          editRow(data.id, { output: { ...currentRow.output, ...updatesForOutput } }) // Merge with existing output to ensure all fields are defined
+          editRow(data.id, { output: { ...currentRow.output, ...updatesForOutput } })
         }
         const currentRows = useMainStore.getState().rows
         ipcRenderer.send('set', ['rows', currentRows])
@@ -115,7 +106,6 @@ const Home: FC = () => {
     return () => {
       log.info1('Home: Cleaning up IPC listeners for trigger-row and update-row.')
       if (ipcRenderer) {
-        // Check again in cleanup
         ipcRenderer.removeListener('trigger-row', triggerRowListener)
         ipcRenderer.removeListener('update-row', updateRowListener)
       }
@@ -125,7 +115,7 @@ const Home: FC = () => {
   // Sync rows to main process store (used by Deck API)
   useEffect(() => {
     if (ipcRenderer) {
-      console.log("Renderer (Home.tsx): 'rows' changed, sending to main via IPC 'set'. Rows:", rows) // ADD THIS LOG
+      console.log("Renderer (Home.tsx): 'rows' changed, sending to main via IPC 'set'. Rows:", rows)
       ipcRenderer.send('set', ['rows', rows])
     } else {
       console.warn("Renderer (Home.tsx): ipcRenderer not available, cannot send 'rows' update.")
@@ -153,32 +143,6 @@ const Home: FC = () => {
         .filter((widget) => widget !== null),
     [usedModules]
   )
-
-  // --- Legacy MQTT Logic (To be removed) ---
-  // const mqttData = useOldStore((state) => state.mqttData)
-  // const useMqtt = useOldStore((state) => state.inputs.mqtt && state.outputs.mqtt)
-  // useEffect(() => {
-  //   if (!useMqtt) return
-  //   const client = mqttService.getClient(console.log)
-  //   const callBack = (mqttMessage: any) => console.log('Legacy MQTT Message:', mqttMessage)
-  //   if (client && !client.connected) {
-  //     client.on('connect', function () {
-  //       client.subscribe(mqttData.topic, function (err: any) {
-  //         if (!err) {
-  //           /* ... publish initial messages ... */
-  //         }
-  //       })
-  //     })
-  //   }
-  //   mqttService.onMessage(client, callBack)
-  //   return () => mqttService.closeConnection(client)
-  // }, [useMqtt, mqttData])
-
-  // useEffect(() => {
-  //   // Persisting old MQTT data to localStorage
-  //   if (useMqtt) window.localStorage.setItem('io_mqtt_data', JSON.stringify(mqttData))
-  // }, [mqttData, useMqtt])
-  // --- End Legacy MQTT ---
 
   return (
     <Wrapper>

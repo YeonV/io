@@ -3,6 +3,12 @@
 import type { IOMainModulePart } from '../../../shared/types.js'
 import alexaMain from './Alexa/Alexa.main.js'
 import keyboardMain from './Keyboard/Keyboard.main.js'
+import mqttMain from './MQTT/MQTT.main.js'
 import shellMain from './Shell/Shell.main.js'
 
-export const mainModuleHandlers: IOMainModulePart[] = [alexaMain, keyboardMain, shellMain]
+export const mainModuleHandlers: IOMainModulePart[] = [
+  alexaMain,
+  keyboardMain,
+  mqttMain,
+  shellMain
+]
