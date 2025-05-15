@@ -55,28 +55,27 @@ export const InputEdit: FC<{
   const videoCanvasRef = useRef<HTMLCanvasElement | null>(null)
   const videoSceneRef = useRef<VideoScene | null>(null)
   const handsEstimatorRef = useRef<HandsEstimator | null>(null)
-  const [detectedGestureForRow, setDetectedGestureForRow] = useState<string>(input.data.value || '')
+
+  const [detectedGestureForDisplay, setDetectedGestureForDisplay] = useState<string | null>(null)
 
   useEffect(() => {
+    if (!cameraActive) {
+      setDetectedGestureForDisplay(null)
+    }
+
     if (videoCanvasRef.current && !videoSceneRef.current) {
       videoSceneRef.current = new VideoScene(videoCanvasRef.current)
     }
     if (!handsEstimatorRef.current) {
       handsEstimatorRef.current = new HandsEstimator()
     }
-
     const estimator = handsEstimatorRef.current
     const canvas = videoCanvasRef.current
     let i = 0
     let currentGestureEnum: Gesture | null = null
-
-    // Define the listener with a null check for results
     const listener: HandsListener = (results: MediapipeHands.Results | null) => {
-      // Adjusted type to allow null
-      if (!results) return // Guard against null results
-
-      if (videoSceneRef.current) videoSceneRef.current.update(results as any) // Cast if update expects non-null
-
+      if (!results) return
+      if (videoSceneRef.current) videoSceneRef.current.update(results as any)
       const landmarks = results?.multiHandLandmarks?.[0]
       if (landmarks) {
         const gesture = detectGesture(landmarks)
@@ -84,9 +83,9 @@ export const InputEdit: FC<{
           i++
           if (i === 10) {
             const gestureString = Gesture[gesture]
-            log.info(`Hands InputEdit: Detected gesture: ${gestureString}`)
-            setDetectedGestureForRow(gestureString)
-            onChange({ value: gestureString })
+            log.info(`Hands InputEdit: Detected gesture for config: ${gestureString}`)
+            setDetectedGestureForDisplay(gestureString) // Update display
+            onChange({ value: gestureString }) // Update row config
             i = 0
             currentGestureEnum = null
           }
@@ -125,26 +124,49 @@ export const InputEdit: FC<{
       setModuleConfig(id, 'cameraActive', !handsConfig.cameraActive)
     }
   }
+
   useRequestAnimationFrame(() => {}, { duration: undefined, shouldAnimate: cameraActive })
 
-  return (
-    <Box sx={{ textAlign: 'left', mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <FormControlLabel
-        control={<Switch checked={cameraActive} onChange={handleToggleCameraActive} size="small" />}
-        label={cameraActive ? 'Camera: Active (Capturing Gesture)' : 'Camera: Inactive'}
-      />
+  // Determine text for the main gesture button
+  let gestureButtonText: string
 
+  if (cameraActive) {
+    // If camera is active, show what's being detected,
+    // or fallback to the configured value, or "Detecting..."
+    gestureButtonText = detectedGestureForDisplay || input.data.value || 'Detecting...'
+  } else {
+    // If camera is inactive, show the configured value,
+    // or "Camera is inactive" if nothing is configured yet.
+    gestureButtonText = input.data.value || 'Camera is inactive'
+  }
+
+  return (
+    <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Typography variant="body2">Target Gesture:</Typography>
-        <Button variant="outlined" size="small" sx={{ minWidth: 120, justifyContent: 'center' }}>
-          {input.data.value || (cameraActive ? 'Detecting...' : 'None Set')}
+        <Button
+          variant="outlined"
+          size="small"
+          color={gestureButtonText === 'Camera is inactive' ? 'error' : 'primary'}
+          sx={{
+            minWidth: 150,
+            justifyContent: 'center',
+            fontFamily: 'monospace',
+            flexGrow: 1,
+            height: '56px',
+            textTransform: 'uppercase'
+          }}
+          // disabled={!cameraActive && !input.data.value}
+        >
+          {gestureButtonText}
         </Button>
+
+        {/* Info Tooltip */}
         <Tooltip
           title={
             <List dense sx={{ bgcolor: 'background.paper', color: 'text.primary' }}>
               <ListSubheader sx={{ bgcolor: 'background.paper' }}>Available Gestures</ListSubheader>
               {Object.values(Gesture)
-                .filter((value) => typeof value === 'string') // Get string values from enum
+                .filter((value) => typeof value === 'string')
                 .map((g) => (
                   <ListItem key={g} dense disableGutters>
                     <Typography variant="caption">{g}</Typography>
@@ -153,22 +175,33 @@ export const InputEdit: FC<{
             </List>
           }
         >
-          <IconButton size="small">
+          <IconButton size="small" sx={{ height: '56px' }}>
             <Info />
           </IconButton>
         </Tooltip>
+        <Button
+          variant="outlined"
+          size="small"
+          onClick={handleToggleCameraActive}
+          sx={{ minWidth: '40px', height: '56px', padding: '6px 8px' }}
+          title={cameraActive ? 'Turn Camera Off' : 'Turn Camera On'}
+        >
+          {cameraActive ? <VideocamOff /> : <Videocam color="error" />}
+        </Button>
       </Box>
+
       <canvas
         ref={videoCanvasRef}
         style={{
           height: 150,
-          width: 150, // Or use 4:3 aspect like 200x150
-          border: cameraActive ? '2px solid green' : '2px dashed grey',
+          width: cameraActive ? 200 : 0, // Make width 0 when inactive to hide and not take space
+          border: cameraActive ? '2px solid green' : '2px dashed #8883', // More subtle inactive
           borderRadius: '4px',
-          objectFit: 'cover', // Ensure video covers the canvas
-          display: 'none' // Initially hidden, shown by effect
+          objectFit: 'cover',
+          display: cameraActive ? 'block' : 'none', // Also control display
+          margin: '0 auto', // Center the canvas
+          transition: 'width 0.3s ease-in-out' // Smooth hide/show
         }}
-        // id removed as ref is used
       />
     </Box>
   )

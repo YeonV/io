@@ -11,8 +11,8 @@ import type { ModuleId, Row } from '@shared/types'
 import { moduleImplementations, ModuleImplementationMap } from '@/modules/moduleRegistry'
 
 // Legacy imports (to be removed phase by phase)
-import { useStore as useOldStore } from '../store/OLD/useStore' // Alias to avoid conflict
-import mqttService from '@/components/OLD/MQTT/mqttService' // For legacy MQTT
+// import { useStore as useOldStore } from '../store/OLD/useStore' // Alias to avoid conflict
+// import mqttService from '@/components/OLD/MQTT/mqttService' // For legacy MQTT
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
@@ -154,29 +154,29 @@ const Home: FC = () => {
   )
 
   // --- Legacy MQTT Logic (To be removed) ---
-  const mqttData = useOldStore((state) => state.mqttData)
-  const useMqtt = useOldStore((state) => state.inputs.mqtt && state.outputs.mqtt)
-  useEffect(() => {
-    if (!useMqtt) return
-    const client = mqttService.getClient(console.log)
-    const callBack = (mqttMessage: any) => console.log('Legacy MQTT Message:', mqttMessage)
-    if (client && !client.connected) {
-      client.on('connect', function () {
-        client.subscribe(mqttData.topic, function (err: any) {
-          if (!err) {
-            /* ... publish initial messages ... */
-          }
-        })
-      })
-    }
-    mqttService.onMessage(client, callBack)
-    return () => mqttService.closeConnection(client)
-  }, [useMqtt, mqttData])
+  // const mqttData = useOldStore((state) => state.mqttData)
+  // const useMqtt = useOldStore((state) => state.inputs.mqtt && state.outputs.mqtt)
+  // useEffect(() => {
+  //   if (!useMqtt) return
+  //   const client = mqttService.getClient(console.log)
+  //   const callBack = (mqttMessage: any) => console.log('Legacy MQTT Message:', mqttMessage)
+  //   if (client && !client.connected) {
+  //     client.on('connect', function () {
+  //       client.subscribe(mqttData.topic, function (err: any) {
+  //         if (!err) {
+  //           /* ... publish initial messages ... */
+  //         }
+  //       })
+  //     })
+  //   }
+  //   mqttService.onMessage(client, callBack)
+  //   return () => mqttService.closeConnection(client)
+  // }, [useMqtt, mqttData])
 
-  useEffect(() => {
-    // Persisting old MQTT data to localStorage
-    if (useMqtt) window.localStorage.setItem('io_mqtt_data', JSON.stringify(mqttData))
-  }, [mqttData, useMqtt])
+  // useEffect(() => {
+  //   // Persisting old MQTT data to localStorage
+  //   if (useMqtt) window.localStorage.setItem('io_mqtt_data', JSON.stringify(mqttData))
+  // }, [mqttData, useMqtt])
   // --- End Legacy MQTT ---
 
   return (

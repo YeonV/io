@@ -1,6 +1,6 @@
 // @ts-nocheck
 import * as keyboardModule from './Keyboard/Keyboard.js'
-import * as pianoModule from './MIDI/MIDI.js'
+import * as midiModule from './MIDI/MIDI.js'
 import * as mqttModule from './MQTT/MQTT.js'
 import * as sayModule from './Say/Say.js'
 import * as restModule from './REST/REST.js'
@@ -29,7 +29,7 @@ export default {
   [faceMeshModule.id]: faceMeshModule,
   [holisticModule.id]: holisticModule,
   [objectronModule.id]: objectronModule,
-  [pianoModule.id]: pianoModule,
+  [midiModule.id]: midiModule,
   [alexaModule.id]: alexaModule,
   [shellModule.id]: shellModule,
   [hassModule.id]: hassModule,
