@@ -16,9 +16,9 @@ import {
   Typography
 } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
-import { detectGesture, Gesture } from './Old/core/gesture-detector'
-import { VideoScene } from './Old/video/video-scene'
-import { HandsEstimator, HandsListener } from './Old/core/hands-estimator' // Assuming HandsListener is an exported type for the listener fn
+import { detectGesture, Gesture } from './core/gesture-detector'
+import { VideoScene } from './video/video-scene'
+import { HandsEstimator, HandsListener } from './core/hands-estimator' // Assuming HandsListener is an exported type for the listener fn
 import { log } from '@/utils'
 import useRequestAnimationFrame from 'use-request-animation-frame'
 import type * as MediapipeHands from '@mediapipe/hands'
@@ -29,10 +29,10 @@ export interface HandsModuleCustomConfig {
   cameraActive: boolean
 }
 
-export const id = 'hands-module'
+export const id = 'mphands-module'
 
 export const moduleConfig: ModuleConfig<HandsModuleCustomConfig> = {
-  menuLabel: 'A.I. Vision',
+  menuLabel: 'A.I.',
   inputs: [{ name: 'Hand Gesture', icon: 'sign_language' }],
   outputs: [],
   config: {

@@ -64,3 +64,22 @@ export type Row = {
 }
 
 export type ModuleId = keyof typeof modules
+
+export interface IOMainModulePart {
+  moduleId: string // Should match the id from the renderer module's IOModule export
+  initialize?: (deps: {
+    ipcMain: typeof Electron.ipcMain
+    getMainWindow: () => Electron.BrowserWindow | null
+    getStore: () => any // Consider a more specific store type if possible
+  }) => void | Promise<void>
+  onRowsUpdated?: (
+    rows: Record<string, Row>, // Use the specific Row type
+    deps: {
+      ipcMain: typeof Electron.ipcMain
+      getMainWindow: () => Electron.BrowserWindow | null
+      getStore: () => any
+    }
+  ) => void | Promise<void>
+  cleanup?: () => void | Promise<void>
+  // Add any other lifecycle methods main module parts might need
+}

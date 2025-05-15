@@ -19,8 +19,8 @@ import { useEffect, useRef, useState } from 'react'
 // Note: Holistic doesn't use 'detectGesture' or 'Gesture' enum from Hands in your provided code.
 // If it needs its own detection, that logic would be separate.
 // For now, we focus on camera activation and data flow.
-import { VideoScene } from './Old/video/video-scene-holistic' // Assuming this path
-import { HolisticEstimator, HolisticListener } from './Old/core/holistic-estimator' // Assuming HolisticListener type
+import { VideoScene } from './video-scene-holistic' // Assuming this path
+import { HolisticEstimator, HolisticListener } from './holistic-estimator' // Assuming HolisticListener type
 import { log } from '@/utils'
 import useRequestAnimationFrame from 'use-request-animation-frame'
 import type * as MediapipeHolistic from '@mediapipe/holistic' // Type import
@@ -34,10 +34,10 @@ export interface HolisticModuleCustomConfig {
 }
 
 // --- Module ID and Configuration ---
-export const id = 'holistic-module'
+export const id = 'mpholistic-module'
 
 export const moduleConfig: ModuleConfig<HolisticModuleCustomConfig> = {
-  menuLabel: 'A.I. Vision', // Consistent with Hands
+  menuLabel: 'A.I.',
   inputs: [
     { name: 'Holistic Pose', icon: 'accessibility_new' } // More specific name
   ],

@@ -1,0 +1,82 @@
+Auflistung der Ordnerpfade für Volume DEV
+Volumeseriennummer : 1CEE-ACB9
+Y:.
+¦   list.txt
+¦   moduleRegistry.ts
+¦   modules.main.ts
+¦   modules.md
+¦   modules.ts
+¦   
++---Alert
+¦       Alert.tsx
+¦       
++---Alexa
+¦       Alexa.main.ts
+¦       Alexa.tsx
+¦       
++---HomeAssistant
+¦       HomeAssistant.tsx
+¦       
++---Keyboard
+¦       Keyboard.tsx
+¦       Shortkey.tsx
+¦       
++---LedFx
+¦       LedFx.tsx
+¦       
++---MIDI
+¦       MIDI.tsx
+¦       ShortMidi.tsx
+¦       
++---MpFaceDetect
+¦       MpFaceDetect.tsx
+¦       
++---MpFaceMesh
+¦       MpFaceMesh.tsx
+¦       
++---MpHands
+¦   ¦   MpHands.tsx
+¦   ¦   
+¦   +---core
+¦   ¦       gesture-detector.ts
+¦   ¦       gesture-landmarks.ts
+¦   ¦       hand-landmarks.ts
+¦   ¦       hands-estimator.ts
+¦   ¦       
+¦   +---math
+¦   ¦       get-angle-between.ts
+¦   ¦       get-dot-product.ts
+¦   ¦       get-length.ts
+¦   ¦       rotate.ts
+¦   ¦       transform-to-x-y-plane.ts
+¦   ¦       
+¦   +---video
+¦           video-scene.ts
+¦           
++---MpHolistic
+¦       holistic-estimator.ts
+¦       MpHolistic.tsx
+¦       video-scene-holistic.ts
+¦       
++---MpObjectron
+¦       MpObjectron.tsx
+¦       
++---MpPose
+¦       MpPose.tsx
+¦       
++---MQTT
+¦       MQTT.tsx
+¦       
++---REST
+¦       REST.tsx
+¦       
++---Say
+¦       Say.tsx
+¦       
++---Shell
+¦       Shell.main.ts
+¦       Shell.tsx
+¦       
++---Wled
+        Wled.tsx
+        

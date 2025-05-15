@@ -1,7 +1,7 @@
 // src/main/modules/shell.main.ts
 import { type IpcMain, type BrowserWindow, ipcMain } from 'electron'
 import { exec } from 'child_process' // Import exec directly
-import { IOMainModulePart } from '../../../../main/moduleLoader.js'
+import { IOMainModulePart } from '../../../../shared/types.js'
 
 // Define the interface for the dependencies this main part will receive
 interface ShellMainInitDeps {

@@ -4,16 +4,16 @@ import { camelToSnake } from '@/utils'
 import { Button, Icon } from '@mui/material'
 import { FC } from 'react'
 
-type FaceMeshConfigExample = {}
+type FaceDetectConfigExample = {}
 
-export const id = 'facemesh-module'
+export const id = 'mpfacedetect-module'
 
-export const moduleConfig: ModuleConfig<FaceMeshConfigExample> = {
+export const moduleConfig: ModuleConfig<FaceDetectConfigExample> = {
   menuLabel: 'A.I.',
   inputs: [
     {
-      name: 'Face Mesh',
-      icon: 'emoji_emotions'
+      name: 'Face Detect',
+      icon: 'person_search'
     }
   ],
   outputs: [],
@@ -45,8 +45,8 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
 }
 
 export const useInputActions = (
-  row: Row
+  _row: Row
   // onChange: (data: Record<string, any>) => void
 ) => {
-  // console.log("FaceMesh", row)
+  // console.log("FaceDetect", row)
 }

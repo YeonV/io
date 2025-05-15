@@ -1,4 +1,4 @@
-import type { VideoScene } from '@/modules/Mediapipe/Old/video/video-scene'
+import type { VideoScene } from '@/modules/MpHands/video/video-scene'
 import { produce } from 'immer'
 
 const ipcRenderer = window.electron?.ipcRenderer || false

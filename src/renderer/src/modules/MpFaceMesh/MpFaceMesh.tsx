@@ -4,16 +4,16 @@ import { camelToSnake } from '@/utils'
 import { Button, Icon } from '@mui/material'
 import { FC } from 'react'
 
-type ObjectronConfigExample = {}
+type FaceMeshConfigExample = {}
 
-export const id = 'objectron-module'
+export const id = 'mpfacemesh-module'
 
-export const moduleConfig: ModuleConfig<ObjectronConfigExample> = {
+export const moduleConfig: ModuleConfig<FaceMeshConfigExample> = {
   menuLabel: 'A.I.',
   inputs: [
     {
-      name: 'Objectron',
-      icon: 'view_in_ar'
+      name: 'Face Mesh',
+      icon: 'emoji_emotions'
     }
   ],
   outputs: [],
@@ -48,5 +48,5 @@ export const useInputActions = (
   row: Row
   // onChange: (data: Record<string, any>) => void
 ) => {
-  // console.log("Objectron", row)
+  // console.log("FaceMesh", row)
 }

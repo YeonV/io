@@ -4,16 +4,16 @@ import { camelToSnake } from '@/utils'
 import { Button, Icon } from '@mui/material'
 import { FC } from 'react'
 
-type PoseConfigExample = {}
+type ObjectronConfigExample = {}
 
-export const id = 'pose-module'
+export const id = 'mpobjectron-module'
 
-export const moduleConfig: ModuleConfig<PoseConfigExample> = {
+export const moduleConfig: ModuleConfig<ObjectronConfigExample> = {
   menuLabel: 'A.I.',
   inputs: [
     {
-      name: 'Pose',
-      icon: 'accessibility_new'
+      name: 'Objectron',
+      icon: 'view_in_ar'
     }
   ],
   outputs: [],
@@ -48,5 +48,5 @@ export const useInputActions = (
   row: Row
   // onChange: (data: Record<string, any>) => void
 ) => {
-  // console.log("Pose", row)
+  // console.log("Objectron", row)
 }

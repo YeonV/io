@@ -1,7 +1,6 @@
 // src/main/index.ts
-import { app, BrowserWindow } from 'electron' // Minimal Electron imports
+import { app, BrowserWindow } from 'electron'
 
-// Import setup and manager functions
 import {
   performEarlyAppSetup,
   enforceSingleInstanceLock,
@@ -9,23 +8,24 @@ import {
 } from './appSetup.js'
 import { createMainWindow, getMainWindow, loadElectronStore } from './windowManager.js'
 import { createTray, destroyTray } from './trayManager.js'
-import {
-  registerGlobalShortcutsForRows,
-  unregisterAllGlobalShortcutsApp
-} from './globalShortcutManager.js'
-// import { initializeIpcHandlers } from './ipcManager.js'
+// initializeIpcHandlers now only handles base IPCs like set/get, theme, app control
+import { initializeBaseIpcHandlers } from './ipcManager.js'
 import { startExpressApi } from './expressApi.js'
 import { installDevTools } from './devtools.js'
 import iconAsset from '../../resources/icon.png?asset'
-import { cleanupAllMainModules, initializeAllMainModules } from './moduleLoader.js'
 
-// --- 1. Perform VERY Early Setup (before app ready) ---
-performEarlyAppSetup() // Handles env vars, GPU accel
-enforceSingleInstanceLock() // Handles single instance lock & 'second-instance' event
+// Import the dynamic module loader for main process parts
+import {
+  loadAndInitializeAllMainModules,
+  cleanupAllMainModules
+  // notifyMainModulesOnRowsUpdate is called by ipcManager's 'set' handler
+} from './moduleLoader.js'
 
-// --- 2. Main Application Flow (after app is ready) ---
+performEarlyAppSetup()
+enforceSingleInstanceLock()
+
 app.whenReady().then(async () => {
-  initializeBaseAppLifecycleEvents() // Handles electronApp.setAppUserModelId, optimizer, uncaught exceptions etc.
+  initializeBaseAppLifecycleEvents()
 
   await loadElectronStore()
   const mainWindowInstance = await createMainWindow(iconAsset)
@@ -33,9 +33,11 @@ app.whenReady().then(async () => {
   if (mainWindowInstance) {
     await installDevTools()
     createTray(mainWindowInstance)
-    initializeAllMainModules() // This will internally use getMainWindow() and getStore()
-    // initializeIpcHandlers() // This will internally use getMainWindow() and getStore()
-    registerGlobalShortcutsForRows()
+
+    initializeBaseIpcHandlers() // Initialize base IPC (ping, set, get, theme, app control)
+    // The 'set' handler will call notifyMainModulesOnRowsUpdate
+
+    await loadAndInitializeAllMainModules() // This loads and initializes Keyboard.main, Alexa.main, Shell.main etc.
 
     mainWindowInstance.webContents.once('did-finish-load', () => {
       console.log("Main (index.ts): Renderer 'did-finish-load'. Starting Express API.")
@@ -50,25 +52,25 @@ app.whenReady().then(async () => {
     app.quit()
   }
 
-  // Handle app activation (e.g., clicking dock icon on macOS when no windows are open)
   app.on('activate', async () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
+    const currentMainWindow = getMainWindow()
+    if (currentMainWindow) {
+      currentMainWindow.show()
+      currentMainWindow.focus()
+    } else if (BrowserWindow.getAllWindows().length === 0) {
       const newWindow = await createMainWindow(iconAsset)
       if (newWindow) {
-        createTray(newWindow) // Re-initialize tray if it depends on the window
-        // registerGlobalShortcutsForRows(); // Re-register if necessary
+        createTray(newWindow)
+        // Re-initialize main modules as they might depend on window/store which are fresh
+        // Or ensure their internal logic correctly uses getMainWindow/getStore for fresh instances
+        await loadAndInitializeAllMainModules()
       }
-    } else {
-      getMainWindow()?.show() // Or focus existing window
-      getMainWindow()?.focus()
     }
   })
 })
 
-// --- 3. App Quitting Logic ---
-app.on('will-quit', () => {
-  cleanupAllMainModules()
-  unregisterAllGlobalShortcutsApp()
+app.on('will-quit', async () => {
+  await cleanupAllMainModules() // Calls cleanup on keyboard.main, alexa.main, etc.
   destroyTray()
   console.log('Main (index.ts): App is about to quit.')
 })

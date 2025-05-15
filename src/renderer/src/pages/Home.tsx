@@ -125,9 +125,10 @@ const Home: FC = () => {
   // Sync rows to main process store (used by Deck API)
   useEffect(() => {
     if (ipcRenderer) {
-      // This might be frequent; consider if needed if 'set' in updateRowListener is enough
-      // For now, keeping it to ensure Deck API has latest on any row change
+      console.log("Renderer (Home.tsx): 'rows' changed, sending to main via IPC 'set'. Rows:", rows) // ADD THIS LOG
       ipcRenderer.send('set', ['rows', rows])
+    } else {
+      console.warn("Renderer (Home.tsx): ipcRenderer not available, cannot send 'rows' update.")
     }
   }, [rows])
 
