@@ -159,7 +159,7 @@ export const useGlobalActions = () => {
       if (alexaDeviceNames.length > 0) {
         console.log('Emulating Alexa devices:', alexaDeviceNames)
         try {
-          ipcRenderer.sendSync('emulate-alexa-devices', alexaDeviceNames)
+          ipcRenderer.send('emulate-alexa-devices', alexaDeviceNames)
         } catch (error) {
           console.error('Error sending emulate-alexa-devices sync:', error)
         }

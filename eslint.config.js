@@ -8,7 +8,7 @@ const compat = new FlatCompat()
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   {
-    ignores: ['node_modules', 'dist', 'out', '.git']
+    ignores: ['node_modules', 'dist', 'out', '.git', 'scripts']
   },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,

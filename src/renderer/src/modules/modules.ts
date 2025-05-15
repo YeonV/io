@@ -16,6 +16,7 @@ import * as shellModule from './Shell/Shell.js'
 import * as hassModule from './HomeAssistant/HomeAssistant.js'
 import * as wledModule from './Wled/Wled.js'
 import * as alertModule from './Alert/Alert.js'
+import * as dummyModule from './Dummy/Dummy.js'
 
 export default {
   [keyboardModule.id]: keyboardModule,
@@ -34,5 +35,6 @@ export default {
   [shellModule.id]: shellModule,
   [hassModule.id]: hassModule,
   [wledModule.id]: wledModule,
-  [alertModule.id]: alertModule
+  [alertModule.id]: alertModule,
+  [dummyModule.id]: dummyModule
 }

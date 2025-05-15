@@ -7,27 +7,27 @@ import { registerGlobalShortcutsForRows } from './globalShortcutManager.js' // T
 // import wemore from 'wemore' // Dynamic import for Alexa
 
 // Alexa-specific state (can be moved to a dedicated alexaHandler.ts later)
-const emulatedAlexaDevices: Record<string, { instance: any; port: number; friendlyName: string }> =
-  {}
-let nextAlexaPort = 9001
+// const emulatedAlexaDevices: Record<string, { instance: any; port: number; friendlyName: string }> =
+//   {}
+// const nextAlexaPort = 9001
 
-function findNextAvailableAlexaPort(startPort: number): number {
-  let port = startPort
-  const usedPorts = Object.values(emulatedAlexaDevices).map((d) => d.port)
-  while (usedPorts.includes(port)) {
-    port++
-    if (port > startPort + 100) throw new Error('Alexa port allocation failed')
-  }
-  return port
-}
-function stopAlexaEmulation(deviceName: string) {
-  if (emulatedAlexaDevices[deviceName]) {
-    // wemore doesn't have an explicit stop, just remove from tracking.
-    // The underlying server might eventually timeout or be garbage collected.
-    console.log(`Main (ipcManager): Stopping Alexa emulation tracking for ${deviceName}`)
-    delete emulatedAlexaDevices[deviceName]
-  }
-}
+// function findNextAvailableAlexaPort(startPort: number): number {
+//   let port = startPort
+//   const usedPorts = Object.values(emulatedAlexaDevices).map((d) => d.port)
+//   while (usedPorts.includes(port)) {
+//     port++
+//     if (port > startPort + 100) throw new Error('Alexa port allocation failed')
+//   }
+//   return port
+// }
+// function stopAlexaEmulation(deviceName: string) {
+//   if (emulatedAlexaDevices[deviceName]) {
+//     // wemore doesn't have an explicit stop, just remove from tracking.
+//     // The underlying server might eventually timeout or be garbage collected.
+//     console.log(`Main (ipcManager): Stopping Alexa emulation tracking for ${deviceName}`)
+//     delete emulatedAlexaDevices[deviceName]
+//   }
+// }
 
 export function initializeIpcHandlers(): void {
   console.log('Main (ipcManager): Initializing IPC Handlers...')
@@ -62,50 +62,50 @@ export function initializeIpcHandlers(): void {
 
   // --- Module-Specific IPC Handlers ---
   // Alexa
-  ipcMain.on('emulate-alexa-devices', async (event, desiredDeviceNames: string[]) => {
-    const wemore = await import('wemore') // Ensure wemore is loaded
-    console.log('Main (ipcManager) emulate-alexa-devices. Desired:', desiredDeviceNames)
-    const currentDeviceNames = Object.keys(emulatedAlexaDevices)
-    currentDeviceNames
-      .filter((name) => !desiredDeviceNames.includes(name))
-      .forEach(stopAlexaEmulation)
+  //   ipcMain.on('emulate-alexa-devices', async (_event, desiredDeviceNames: string[]) => {
+  //     const wemore = await import('wemore') // Ensure wemore is loaded
+  //     console.log('Main (ipcManager) emulate-alexa-devices. Desired:', desiredDeviceNames)
+  //     const currentDeviceNames = Object.keys(emulatedAlexaDevices)
+  //     currentDeviceNames
+  //       .filter((name) => !desiredDeviceNames.includes(name))
+  //       .forEach(stopAlexaEmulation)
 
-    desiredDeviceNames.forEach((friendlyName) => {
-      if (!emulatedAlexaDevices[friendlyName]) {
-        try {
-          const port = findNextAvailableAlexaPort(nextAlexaPort)
-          nextAlexaPort = port + 1
-          const device = wemore.Emulate({ friendlyName, port })
-          device.on('listening', () => {
-            emulatedAlexaDevices[friendlyName] = { instance: device, port, friendlyName }
-            console.log(`Main (ipcManager): Alexa ${friendlyName} emulated on port ${port}`)
-          })
-          device.on('error', (err: any) => {
-            console.error(`Main (ipcManager): Alexa Error for ${friendlyName}:${port}:`, err)
-            delete emulatedAlexaDevices[friendlyName]
-          })
-          device.on('on', () =>
-            currentMainWindow.webContents.send('alexa-device', {
-              device: friendlyName,
-              state: 'on'
-            })
-          )
-          device.on('off', () =>
-            currentMainWindow.webContents.send('alexa-device', {
-              device: friendlyName,
-              state: 'off'
-            })
-          )
-        } catch (e) {
-          console.error(
-            `Main (ipcManager): Failed to start Alexa emulation for ${friendlyName}:`,
-            e
-          )
-        }
-      }
-    })
-    event.returnValue = `Emulation status updated. Active: ${Object.keys(emulatedAlexaDevices).join(', ')}`
-  })
+  //     desiredDeviceNames.forEach((friendlyName) => {
+  //       if (!emulatedAlexaDevices[friendlyName]) {
+  //         try {
+  //           const port = findNextAvailableAlexaPort(nextAlexaPort)
+  //           nextAlexaPort = port + 1
+  //           const device = wemore.Emulate({ friendlyName, port })
+  //           device.on('listening', () => {
+  //             emulatedAlexaDevices[friendlyName] = { instance: device, port, friendlyName }
+  //             console.log(`Main (ipcManager): Alexa ${friendlyName} emulated on port ${port}`)
+  //           })
+  //           device.on('error', (err: any) => {
+  //             console.error(`Main (ipcManager): Alexa Error for ${friendlyName}:${port}:`, err)
+  //             delete emulatedAlexaDevices[friendlyName]
+  //           })
+  //           device.on('on', () =>
+  //             currentMainWindow.webContents.send('alexa-device', {
+  //               device: friendlyName,
+  //               state: 'on'
+  //             })
+  //           )
+  //           device.on('off', () =>
+  //             currentMainWindow.webContents.send('alexa-device', {
+  //               device: friendlyName,
+  //               state: 'off'
+  //             })
+  //           )
+  //         } catch (e) {
+  //           console.error(
+  //             `Main (ipcManager): Failed to start Alexa emulation for ${friendlyName}:`,
+  //             e
+  //           )
+  //         }
+  //       }
+  //     })
+  //     // event.returnValue = `Emulation status updated. Active: ${Object.keys(emulatedAlexaDevices).join(', ')}`
+  //   })
 
   // Shell
   ipcMain.on('run-shell', async (event, arg) => {

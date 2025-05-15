@@ -5,8 +5,16 @@
     "src/renderer/src/**/*",
     "src/renderer/src/**/*.tsx",
     "src/shared/**/*",
-    "src/preload/*.d.ts"
-, "src/shared/types.ts"  ],
+    "src/preload/*.d.ts",
+    "src/shared/types.ts"  
+  ],
+  "exclude": [
+    "src/renderer/src/**/*.main.ts",
+    "src/renderer/src/**/*.test.tsx",
+    "src/renderer/src/**/*.test.ts",
+    "scripts/*.ts",
+    "scripts/*.js",
+  ],
   "compilerOptions": {
     "composite": true,
     "jsx": "react-jsx",

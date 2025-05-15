@@ -13,10 +13,11 @@ import {
   registerGlobalShortcutsForRows,
   unregisterAllGlobalShortcutsApp
 } from './globalShortcutManager.js'
-import { initializeIpcHandlers } from './ipcManager.js'
+// import { initializeIpcHandlers } from './ipcManager.js'
 import { startExpressApi } from './expressApi.js'
 import { installDevTools } from './devtools.js'
 import iconAsset from '../../resources/icon.png?asset'
+import { cleanupAllMainModules, initializeAllMainModules } from './moduleLoader.js'
 
 // --- 1. Perform VERY Early Setup (before app ready) ---
 performEarlyAppSetup() // Handles env vars, GPU accel
@@ -32,7 +33,8 @@ app.whenReady().then(async () => {
   if (mainWindowInstance) {
     await installDevTools()
     createTray(mainWindowInstance)
-    initializeIpcHandlers() // This will internally use getMainWindow() and getStore()
+    initializeAllMainModules() // This will internally use getMainWindow() and getStore()
+    // initializeIpcHandlers() // This will internally use getMainWindow() and getStore()
     registerGlobalShortcutsForRows()
 
     mainWindowInstance.webContents.once('did-finish-load', () => {
@@ -65,6 +67,7 @@ app.whenReady().then(async () => {
 
 // --- 3. App Quitting Logic ---
 app.on('will-quit', () => {
+  cleanupAllMainModules()
   unregisterAllGlobalShortcutsApp()
   destroyTray()
   console.log('Main (index.ts): App is about to quit.')
