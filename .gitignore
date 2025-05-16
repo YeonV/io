@@ -87,3 +87,5 @@ release
 .DS_Store
 dist-ssr
 *.local
+out
+build
