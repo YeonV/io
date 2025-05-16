@@ -1,12 +1,24 @@
-import type { InputData, ModuleConfig, OutputData, Row  } from '@shared/types'
+import type { InputData, ModuleConfig, OutputData, Row } from '@shared/types'
 import type { FC } from 'react'
-import { Button } from '@mui/material'
+import { Box, Button, Tooltip } from '@mui/material'
 import { useEffect } from 'react'
 import { log } from '@/utils'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import RestEditor from '@/components/RestEditor/RestEditor'
+import { useRowActivation } from '@/hooks/useRowActivation'
 
 type RestConfigExample = {}
+const ipcRenderer = window.electron?.ipcRenderer
+
+export interface RestOutputRowDataFromEditor {
+  text?: string // Label
+  host: string // URL
+  options: {
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD'
+    headers?: Record<string, string>
+    body?: string // Stringified JSON
+  }
+}
 
 export const id = 'rest-module'
 export const groupId = 'Network'
@@ -32,15 +44,7 @@ export const moduleConfig: ModuleConfig<RestConfigExample> = {
 
 export const OutputDisplay: FC<{
   output: OutputData
-}> = ({ output }) => {
-  //   const updateRowInputValue = useMainStore(store.updateRowInputValue);
-  log.info3('outputDisplay', output)
-  return (
-    <>
-      <DisplayButtons data={output} />
-    </>
-  )
-}
+}> = ({ output }) => <DisplayButtons data={output} />
 
 export const OutputEdit: FC<{
   output: OutputData
@@ -74,11 +78,31 @@ export const OutputEdit: FC<{
 }
 
 export const useOutputActions = (row: Row) => {
+  const { id: rowId, output } = row
+  const outputData = output.data as RestOutputRowDataFromEditor // CAST to our specific type
+  const { isActive, inactiveReason } = useRowActivation(row)
+
+  // Destructure for dependency array
+  const { host, options } = outputData
+  const method = options?.method
+  const headers = options?.headers
+  const body = options?.body
+
   useEffect(() => {
+    if (!isActive) {
+      log.info2(`REST.tsx: Row ${row.id} Output not active. Reason: ${inactiveReason}`)
+      return // Do not attach listener if not active
+    }
     const listener = async (e: any) => {
       log.success2('row output triggered', row, e.detail)
-      if (e.detail === row.id) {
-        await fetch(row.output.data.host, row.output.data.options)
+      if (e.detail === rowId) {
+        // await fetch(row.output.data.host, row.output.data.options)
+        await ipcRenderer.invoke('rest-request', {
+          url: host,
+          method: method,
+          headers: headers,
+          body: body
+        })
       }
     }
     window.addEventListener('io_input', listener)

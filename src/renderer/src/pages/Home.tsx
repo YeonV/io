@@ -9,6 +9,7 @@ import Wrapper from '@/components/utils/Wrapper'
 import { log } from '@/utils'
 import type { ModuleId, Row } from '@shared/types'
 import { moduleImplementations, ModuleImplementationMap } from '@/modules/moduleRegistry'
+import ProfileManagerSettings from '@/components/Settings/ProfileManagerSettings'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
@@ -30,6 +31,32 @@ const Home: FC = () => {
   const editRow = useMainStore((state) => state.editRow)
 
   const rows = useMainStore((state) => state.rows)
+  const activeProfileId = useMainStore((state) => state.activeProfileId)
+  const profiles = useMainStore((state) => state.profiles)
+
+  const rowsToDisplay = useMemo(() => {
+    const allRowsArray = Object.values(rows)
+    if (!activeProfileId) {
+      console.log(
+        "No profile active, display all rows (IoRow will handle opacity for its 'enabled' state)"
+      )
+      return allRowsArray
+    }
+
+    const activeProfile = profiles[activeProfileId]
+    if (!activeProfile) {
+      console.log(
+        "Active profile ID set, but profile definition not found (shouldn't happen ideally)"
+      )
+      return allRowsArray // Fallback to showing all
+    }
+    console.log(
+      'Profile is active, filter rows to only those included in the profile',
+      activeProfile,
+      rows
+    )
+    return allRowsArray.filter((row) => activeProfile.includedRowIds.includes(row.id))
+  }, [rows, activeProfileId, profiles])
   const setDarkModeStoreAction = useMainStore((state) => state.setDarkMode)
 
   const handleAddNewRowClick = useCallback(() => {
@@ -150,25 +177,25 @@ const Home: FC = () => {
         <ModuleGlobalActionsRunner key={`${modId}-global`} moduleId={modId} />
       ))}
 
-      {SettingsWidgets.length > 0 && (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginBottom: '1rem',
-            flexWrap: 'wrap'
-          }}
-        >
-          {SettingsWidgets.map((widget, index) => (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          marginBottom: '1rem',
+          flexWrap: 'wrap'
+        }}
+      >
+        {rowsToDisplay.length > 0 && <ProfileManagerSettings key="profile-manager" />}
+        {SettingsWidgets.length > 0 &&
+          SettingsWidgets.map((widget, index) => (
             <div key={(widget as any)?.key || index} style={{ padding: '8px' }}>
               {widget}
             </div>
           ))}
-        </div>
-      )}
+      </div>
 
       <div style={{ maxHeight: 'calc(100vh - 356px)', overflowY: 'auto' }}>
-        {Object.values(rows).map((row) => (
+        {rowsToDisplay.map((row) => (
           <IoRow key={row.id} row={row} />
         ))}
       </div>

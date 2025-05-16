@@ -64,6 +64,13 @@ export type Row = {
   enabled: boolean
 }
 
+export interface ProfileDefinition {
+  id: string
+  name: string
+  icon?: string // For your point #2
+  // Stores only the IDs of rows that are part of this profile's "set"
+  includedRowIds: string[]
+}
 export type ModuleId = keyof typeof modules
 
 export interface IOMainModulePart {
@@ -72,6 +79,10 @@ export interface IOMainModulePart {
     ipcMain: typeof Electron.ipcMain
     getMainWindow: () => Electron.BrowserWindow | null
     getStore: () => any // Consider a more specific store type if possible
+    activeProfileInfo: {
+      id: string | null
+      includedRowIds: string[] | null
+    }
   }) => void | Promise<void>
   onRowsUpdated?: (
     rows: Record<string, Row>, // Use the specific Row type
@@ -79,8 +90,23 @@ export interface IOMainModulePart {
       ipcMain: typeof Electron.ipcMain
       getMainWindow: () => Electron.BrowserWindow | null
       getStore: () => any
+      activeProfileInfo: {
+        id: string | null
+        includedRowIds: string[] | null
+      }
     }
   ) => void | Promise<void>
   cleanup?: () => void | Promise<void>
   // Add any other lifecycle methods main module parts might need
+}
+
+export interface RestPresetDefinition {
+  id: string // uuid
+  name: string
+  icon?: string
+  url: string
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD'
+  headers?: Record<string, string>
+  bodyTemplate?: string // Stored as string, might contain placeholders
+  description?: string
 }

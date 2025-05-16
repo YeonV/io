@@ -1,6 +1,7 @@
 // src/renderer/src/modules/Keyboard/Keyboard.main.ts
-import { globalShortcut, type BrowserWindow } from 'electron' // Added BrowserWindow for deps type
-import type { IOMainModulePart, Row } from '../../../../shared/types.js' // Path from Keyboard.main.ts to shared
+import { globalShortcut } from 'electron'
+import type { IOMainModulePart, Row } from '../../../../shared/types.js'
+import { MainModuleDeps } from '../../../../main/moduleLoader.js'
 
 const KEYBOARD_MODULE_ID = 'keyboard-module'
 const registeredShortcuts = new Set<string>()
@@ -32,17 +33,14 @@ function getElectronAccelerator(accelerator: string): string {
     .join('+')
 }
 
-interface KeyboardMainDeps {
-  ipcMain: typeof Electron.ipcMain // Not used by keyboard, but part of IOMainModulePart
-  getMainWindow: () => BrowserWindow | null
-  getStore: () => any
-}
+interface KeyboardMainDeps extends MainModuleDeps {}
 
 const keyboardMainModule: IOMainModulePart = {
   moduleId: KEYBOARD_MODULE_ID,
 
   initialize: (deps: KeyboardMainDeps) => {
     console.log(`Main (${KEYBOARD_MODULE_ID}): Initializing.`)
+
     const storeInstance = deps.getStore()
     if (storeInstance) {
       const rows = storeInstance.get('rows')
@@ -58,21 +56,37 @@ const keyboardMainModule: IOMainModulePart = {
   },
 
   onRowsUpdated: (rows: Record<string, Row>, deps: KeyboardMainDeps) => {
-    const { getMainWindow } = deps
+    const { getMainWindow, activeProfileInfo } = deps // Get activeProfileInfo from deps
     const currentMainWindow = getMainWindow()
 
     console.log(
-      `Main (${KEYBOARD_MODULE_ID}): Rows data received, re-registering shortcuts. Number of rows: ${Object.keys(rows).length}`
+      `Main (${KEYBOARD_MODULE_ID}): Rows data received. Num rows: ${Object.keys(rows).length}. Active Profile ID: '${activeProfileInfo.id || 'None'}', Included rows in profile: ${activeProfileInfo.includedRowIds?.length ?? 'N/A (No Profile Active)'}`
     )
 
     registeredShortcuts.forEach((acc) => globalShortcut.unregister(acc))
     registeredShortcuts.clear()
 
     Object.values(rows).forEach((row: Row) => {
-      if (row.inputModule === KEYBOARD_MODULE_ID && row.input.data.value) {
-        const originalAccelerator = String(row.input.data.value) // Ensure it's a string
+      let isRowActiveForShortcut = row.enabled === undefined ? true : row.enabled // Default to true if undefined
+
+      // If a profile is active (i.e., includedRowIds is an array, even if empty)
+      if (activeProfileInfo.includedRowIds !== null) {
+        isRowActiveForShortcut =
+          isRowActiveForShortcut && activeProfileInfo.includedRowIds.includes(row.id)
+      }
+      // If activeProfileInfo.includedRowIds is null, it means no profile is active,
+      // so only row.enabled matters (which is already in isRowActiveForShortcut).
+
+      if (
+        row.inputModule === KEYBOARD_MODULE_ID &&
+        isRowActiveForShortcut &&
+        row.input.data.value
+      ) {
+        const originalAccelerator = String(row.input.data.value)
         const electronAccelerator = getElectronAccelerator(originalAccelerator)
-        // console.log(`Main (${KEYBOARD_MODULE_ID}): Attempting to register: ${electronAccelerator} for row ${row.id}`);
+        console.log(
+          `Main (${KEYBOARD_MODULE_ID}): Attempting to register: ${electronAccelerator} for row ${row.id} (Enabled: ${row.enabled}, ProfileActive: ${activeProfileInfo.id !== null}, InProfile: ${activeProfileInfo.includedRowIds?.includes(row.id) ?? 'N/A'})`
+        )
         try {
           const success = globalShortcut.register(electronAccelerator, () => {
             console.log(

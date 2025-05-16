@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { log } from '@/utils'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import EditButtons from '@/components/Row/EditButtons'
+import { useRowActivation } from '@/hooks/useRowActivation'
 
 type SayConfigExample = {}
 
@@ -43,19 +44,17 @@ export const OutputEdit: FC<{
 export const useOutputActions = (row: Row) => {
   const { id: rowId, output, enabled: rowEnabled } = row
   const textFromOutputData = output.data.text || output.data.command
+  const { isActive } = useRowActivation(row)
 
   useEffect(() => {
-    const isRowActuallyEnabled = rowEnabled === undefined ? true : rowEnabled
-
-    if (!isRowActuallyEnabled) {
-      log.info2(
-        `Say.tsx: Row ${rowId} is disabled. Cancelling any ongoing speech for this row context.`
-      )
+    if (!isActive) {
       if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
-        log.info2(`Say.tsx: Row ${rowId} disabled, calling speechSynthesis.cancel()`)
+        log.info2(
+          `Say.tsx: Row ${row.output.name} became inactive, calling speechSynthesis.cancel()`
+        )
         window.speechSynthesis.cancel()
       }
-      return
+      return // Do not attach listener or perform actions if not active
     }
 
     log.info2(

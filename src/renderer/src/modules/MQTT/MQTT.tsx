@@ -1,7 +1,7 @@
 // src/renderer/src/modules/MQTT/MQTT.tsx
 
 import type { FC } from 'react'
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useMainStore } from '@/store/mainStore'
 import type { ModuleConfig, InputData, OutputData, Row, ModuleDefaultConfig } from '@shared/types'
 import {
@@ -37,6 +37,7 @@ import { v4 as uuidv4 } from 'uuid'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import type { IClientPublishOptions } from 'mqtt' // Corrected import for MQTT types
 import { mqttTopicMatch } from './MQTThelper'
+import { useRowActivation } from '@/hooks/useRowActivation'
 
 const ipcRenderer = window.electron?.ipcRenderer
 
@@ -275,6 +276,7 @@ export const Settings: FC = () => {
         onClick={() => setManageDialogOpen(true)}
         variant="outlined"
         size="small"
+        sx={{ height: 41 }}
         fullWidth
       >
         Manage Profiles ({brokerConnections.length})
@@ -284,6 +286,7 @@ export const Settings: FC = () => {
         onClick={openAddDialog}
         variant="outlined"
         size="small"
+        sx={{ height: 41 }}
         fullWidth
       >
         Add New Profile
@@ -634,22 +637,35 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1, overflow: 'hidden' }}>
       {' '}
       <DisplayButtons data={{ ...input, name: 'MQTT In' }} />{' '}
-      <Box
+      <Button
+        size="small"
+        disabled
+        variant="outlined"
+        color="primary"
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-          flexGrow: 1,
-          textAlign: 'left'
+          fontSize: 10,
+          minWidth: '45px',
+          justifyContent: 'flex-start',
+          mr: 1,
+          ml: -1
         }}
       >
-        <Typography noWrap variant="body2" title={d.topic}>
-          T: {d.topic || 'N/A'}
-        </Typography>
-        <Typography noWrap variant="caption" title={brokerDisplay.host}>
-          B: {brokerDisplay.name}
-        </Typography>
-      </Box>{' '}
+        {brokerDisplay.name}
+      </Button>
+      <Button
+        size="small"
+        disabled
+        variant="outlined"
+        sx={{
+          fontSize: 10,
+          minWidth: '45px',
+          justifyContent: 'flex-start',
+          mr: 1,
+          ml: -1
+        }}
+      >
+        {d.topic || 'N/A'}
+      </Button>
     </Box>
   )
 }
@@ -733,7 +749,8 @@ export const useGlobalActions = () => {
 
 // --- useInputActions ---
 export const useInputActions = (row: Row) => {
-  const { input } = row
+  const { input, id: rowId } = row
+  const { isActive, inactiveReason } = useRowActivation(row)
   const inputData = input.data as MqttInputRowData
   const brokerProfiles = useMainStore(
     (state) =>
@@ -743,10 +760,8 @@ export const useInputActions = (row: Row) => {
   const clientKeyRef = useRef<string | null>(null)
 
   useEffect(() => {
-    if (!row.enabled) {
-      log.info(
-        `Row ${row.id} (${row.inputModule}/${row.outputModule}) is disabled, actions not initialized.`
-      )
+    if (!isActive) {
+      log.info(`Row ${row.id} actions not running. Reason: ${inactiveReason}.`)
       return () => {} // Return empty cleanup if disabled from the start
     }
     if (!ipcRenderer || !inputData.profileId) {

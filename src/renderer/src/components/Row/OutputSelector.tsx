@@ -1,5 +1,5 @@
 // src/renderer/src/components/Row/OutputSelector.tsx
-import type { Output, OutputData, ModuleId, ModuleConfig } from '@shared/types'
+import type { Output, ModuleId } from '@shared/types'
 import { useMainStore } from '@/store/mainStore'
 import { Autocomplete, ListItem, TextField } from '@mui/material'
 import IoIcon from '../IoIcon/IoIcon'
@@ -65,12 +65,20 @@ export const OutputSelector: FC<{
       disabled={disabled}
       disableClearable
       getOptionLabel={(option) => option?.label ?? ''}
-      renderOption={(props, option) => (
-        <ListItem {...props} style={{ display: 'flex', padding: '5px 15px', minWidth: '100px' }}>
-          <IoIcon style={{ marginRight: '10px' }} name={option.icon} />
-          {option.label}
-        </ListItem>
-      )}
+      renderOption={(props, option) => {
+        const listProps = { ...props }
+        delete listProps['key']
+        return (
+          <ListItem
+            {...listProps}
+            key={option.id}
+            style={{ display: 'flex', padding: '5px 15px', minWidth: '100px' }}
+          >
+            <IoIcon style={{ marginRight: '10px' }} name={option.icon} />
+            {option.label}
+          </ListItem>
+        )
+      }}
       isOptionEqualToValue={(opt, val) =>
         opt?.id === val?.id && opt?.moduleActualId === val?.moduleActualId
       }

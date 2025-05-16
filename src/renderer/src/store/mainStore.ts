@@ -3,13 +3,15 @@
 import { produce } from 'immer'
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
-import type { Row, ModuleId, ModuleConfig, IOModule } from '@shared/types'
-
+import type { Row, ModuleId, ModuleConfig, IOModule, ProfileDefinition } from '@shared/types'
+import { v4 as uuidv4 } from 'uuid'
 // Import the DEFAULT export from your modules.ts (which has full IOModule objects)
 import modulesFromFile from '@/modules/modules' // Path to your modules.ts
 
 // UI Slice (from its current location)
 import { storeUI, storeUIActions } from './storeUI' // Adjust path if moved
+import { log } from '@/utils'
+const ipcRenderer = window.electron?.ipcRenderer || false
 
 // --- Create Initial Modules State DYNAMICALLY ---
 // This object will hold the ModuleConfig for every registered module.
@@ -35,6 +37,8 @@ type State = {
   rows: Record<string, Row>
   edit: boolean
   ui: ReturnType<typeof storeUI>
+  profiles: Record<string, ProfileDefinition> // Profile ID -> Definition
+  activeProfileId: string | null
 
   // Actions
   enableModule: (moduleId: ModuleId) => void
@@ -45,6 +49,12 @@ type State = {
   setEdit: (edit: boolean) => void
   setDarkMode: ReturnType<typeof storeUIActions>['setDarkMode']
   setModuleConfigValue: (moduleId: ModuleId, key: string, value: any) => void
+
+  // --- NEW PROFILE ACTIONS ---
+  addProfile: (name: string, icon?: string, includedRowIds?: string[]) => string // Returns new profile ID
+  updateProfile: (profileId: string, updates: Partial<Omit<ProfileDefinition, 'id'>>) => void
+  deleteProfile: (profileId: string) => void
+  setActiveProfile: (profileId: string | null) => void
   toggleRowEnabled: (rowId: string) => void
 }
 
@@ -56,7 +66,8 @@ export const useMainStore = create<State>()(
         rows: {},
         edit: false,
         ui: storeUI(),
-
+        profiles: {},
+        activeProfileId: null,
         ...storeUIActions(set),
 
         enableModule: (moduleId: ModuleId) => {
@@ -98,10 +109,15 @@ export const useMainStore = create<State>()(
             `setModuleConfig/${moduleId}/${String(key)}`
           )
         },
-        addRow: (row: Row) => {
+        // --- Row Actions ---
+        addRow: (newRowData) => {
+          // newRowData is what IoNewRow passes (without 'enabled')
           set(
             produce((state: State) => {
-              state.rows[row.id] = { ...row, enabled: true }
+              state.rows[newRowData.id] = {
+                ...newRowData,
+                enabled: true // Default new rows to enabled
+              }
             }),
             false,
             'addRow'
@@ -148,20 +164,94 @@ export const useMainStore = create<State>()(
             'editRow'
           )
         },
-        deleteRow: (row: Row) => {
+        setEdit: (editState: boolean) => {
+          set({ edit: editState }, false, 'setEdit')
+        },
+        deleteRow: (rowToDelete: Row) => {
+          // Param is full row object
           set(
             produce((state: State) => {
-              delete state.rows[row.id]
-            }), // Simpler with Immer
-            // (state) => ({ ...state, rows: omit(state.rows, [row.id]) }), // Old way
+              delete state.rows[rowToDelete.id]
+              // Also remove this rowId from all profiles' includedRowIds
+              Object.values(state.profiles).forEach((profile) => {
+                profile.includedRowIds = profile.includedRowIds.filter(
+                  (id) => id !== rowToDelete.id
+                )
+              })
+            }),
             false,
             'deleteRow'
           )
+        }, // --- NEW PROFILE ACTIONS ---
+        addProfile: (name: string, icon?: string, initialIncludedRowIds?: string[]) => {
+          const newProfileId = uuidv4()
+          const newProfile: ProfileDefinition = {
+            id: newProfileId,
+            name: name || `Profile ${Object.keys(get().profiles).length + 1}`,
+            icon: icon || 'inventory_2', // Default icon
+            includedRowIds: initialIncludedRowIds || []
+          }
+          set(
+            produce((state: State) => {
+              state.profiles[newProfileId] = newProfile
+            }),
+            false,
+            'addProfile'
+          )
+          log.info(`Profile added: ${newProfile.name} (ID: ${newProfileId})`)
+          return newProfileId // Return ID so UI can auto-select it
         },
-        setEdit: (editState: boolean) => {
-          set({ edit: editState }, false, 'setEdit')
+        updateProfile: (profileId: string, updates: Partial<Omit<ProfileDefinition, 'id'>>) => {
+          set(
+            produce((state: State) => {
+              if (state.profiles[profileId]) {
+                state.profiles[profileId] = { ...state.profiles[profileId], ...updates }
+              }
+            }),
+            false,
+            `updateProfile/${profileId}`
+          )
+        },
+        deleteProfile: (profileId: string) => {
+          set(
+            produce((state: State) => {
+              delete state.profiles[profileId]
+              if (state.activeProfileId === profileId) {
+                state.activeProfileId = null // Deactivate if current profile is deleted
+              }
+            }),
+            false,
+            `deleteProfile/${profileId}`
+          )
+        },
+        setActiveProfile: (profileId: string | null) => {
+          set({ activeProfileId: profileId }, false, `setActiveProfile/${profileId || 'none'}`)
+          log.info(`Active profile set to: ${profileId || 'None'}`)
+
+          // --- NEW: Send active profile info to main process ---
+          const newActiveProfile = profileId ? get().profiles[profileId] : null
+          const includedRowIdsForMain = newActiveProfile ? newActiveProfile.includedRowIds : null // Send null if no profile active
+
+          if (ipcRenderer) {
+            ipcRenderer.send('active-profile-changed-for-main', {
+              activeProfileId: profileId,
+              includedRowIds: includedRowIdsForMain
+            })
+          }
+          // --- END NEW ---
+
+          // Trigger re-evaluation of shortcuts in main AFTER profile change is sent
+          // This is important because the set of active rows might have changed.
+          // We can do this by re-sending the current 'rows' object which will trigger onRowsUpdated
+          // This assumes the main process will then combine this new profile info with the rows.
+          if (ipcRenderer) {
+            const currentRows = get().rows
+            ipcRenderer.send('set', ['rows', currentRows])
+          }
         }
+        // --- End Profile Actions ---
       }),
+
       {
         name: 'io-v2-storage',
         partialize: (state: State) => ({
@@ -172,10 +262,19 @@ export const useMainStore = create<State>()(
               id,
               moduleFullConfig.config
             ])
-          )
+          ),
+          profiles: state.profiles,
+          activeProfileId: state.activeProfileId
         }),
         merge: (persistedState: any, currentState: State): State => {
-          const mergedState = { ...currentState, ...persistedState }
+          // Start with the current state (which includes fresh initialModulesState and default profiles/activeProfileId)
+          const mergedState = { ...currentState }
+
+          // Merge rows, ui (these are simple enough that direct spread from persisted is often okay if structure matches)
+          if (persistedState.rows) mergedState.rows = persistedState.rows
+          if (persistedState.ui) mergedState.ui = { ...currentState.ui, ...persistedState.ui } // Deep merge ui a bit
+
+          // Rehydrate moduleStoredConfigs
           if (persistedState.moduleStoredConfigs) {
             const rehydratedModules = { ...initialModulesState } as Record<
               ModuleId,
@@ -195,9 +294,40 @@ export const useMainStore = create<State>()(
             }
             mergedState.modules = rehydratedModules
           }
-          if (Object.prototype.hasOwnProperty.call(mergedState, 'moduleStoredConfigs')) {
-            delete mergedState.moduleStoredConfigs
+
+          // --- MERGE PROFILES AND ACTIVEPROFILEID ---
+          if (persistedState.profiles) {
+            mergedState.profiles = persistedState.profiles
+            // Optional: Data integrity check for profiles if structure might change
+            for (const pid in mergedState.profiles) {
+              if (Object.prototype.hasOwnProperty.call(mergedState.profiles, pid)) {
+                if (!Array.isArray(mergedState.profiles[pid].includedRowIds)) {
+                  mergedState.profiles[pid].includedRowIds = []
+                }
+                if (mergedState.profiles[pid].icon === undefined) {
+                  // Example: ensure new fields have defaults
+                  mergedState.profiles[pid].icon = 'people'
+                }
+              }
+            }
+          } else {
+            // If no profiles in persisted state, ensure it's an empty object from initial state
+            mergedState.profiles = currentState.profiles || {}
           }
+
+          if (persistedState.activeProfileId !== undefined) {
+            // Allow null to be a valid persisted value
+            mergedState.activeProfileId = persistedState.activeProfileId
+          } else {
+            mergedState.activeProfileId = currentState.activeProfileId || null
+          }
+          // --- END MERGE PROFILES ---
+
+          // Clean up temporary key if it was differently named in partialize (it's not here)
+          // if (Object.prototype.hasOwnProperty.call(mergedState, 'moduleStoredConfigs')) {
+          //    delete mergedState.moduleStoredConfigs; // Not needed if key matches
+          // }
+
           return mergedState
         }
       }

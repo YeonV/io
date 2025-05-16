@@ -3,7 +3,6 @@ import { FC, useMemo, useState } from 'react'
 import {
   Stack,
   IconButton,
-  Card,
   Button,
   Dialog,
   DialogTitle,
@@ -11,16 +10,16 @@ import {
   DialogContentText,
   DialogActions,
   useMediaQuery,
-  Box, // Added Box for better layout control
+  Box,
   Switch
 } from '@mui/material'
 import { Delete, Help, PlayArrow } from '@mui/icons-material'
 import type { ModuleId, Row } from '@shared/types'
 import { useMainStore } from '@/store/mainStore'
 import { moduleImplementations, ModuleImplementationMap } from '@/modules/moduleRegistry'
+import { useRowActivation } from '@/hooks/useRowActivation'
 
 const InputActionRunner: FC<{ moduleId?: ModuleId | null; row: Row }> = ({ moduleId, row }) => {
-  // This useMemo is fine, it's just getting the hook function reference
   const hookToRun = useMemo(
     () =>
       moduleId
@@ -29,11 +28,10 @@ const InputActionRunner: FC<{ moduleId?: ModuleId | null; row: Row }> = ({ modul
     [moduleId]
   )
 
-  // The hook itself is called here, at the top level of InputActionRunner
   if (hookToRun) {
-    hookToRun(row) // The hook (e.g., MQTT's useInputActions) will check row.enabled internally
+    hookToRun(row)
   }
-  return null // This component renders nothing visible
+  return null
 }
 
 const OutputActionRunner: FC<{ moduleId?: ModuleId | null; row: Row }> = ({ moduleId, row }) => {
@@ -47,7 +45,7 @@ const OutputActionRunner: FC<{ moduleId?: ModuleId | null; row: Row }> = ({ modu
   )
 
   if (hookToRun) {
-    hookToRun(row) // The hook (e.g., Say's useOutputActions) will check row.enabled internally
+    hookToRun(row)
   }
   return null
 }
@@ -58,6 +56,7 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const deleteRowAction = useMainStore((state) => state.deleteRow)
   const toggleRowEnabledAction = useMainStore((state) => state.toggleRowEnabled)
+  const { isEnabled } = useRowActivation(row)
 
   const handleToggleEnable = () => {
     toggleRowEnabledAction(row.id)
@@ -70,23 +69,6 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
     setOpenDeleteDialog(false)
   }
 
-  // --- Get Implementations from Registry ---
-  const InputActionsHook = useMemo(
-    () =>
-      row.inputModule
-        ? (moduleImplementations[row.inputModule as keyof ModuleImplementationMap] as any)
-            ?.useInputActions
-        : undefined,
-    [row.inputModule]
-  )
-  const OutputActionsHook = useMemo(
-    () =>
-      row.outputModule
-        ? (moduleImplementations[row.outputModule as keyof ModuleImplementationMap] as any)
-            ?.useOutputActions
-        : undefined,
-    [row.outputModule]
-  )
   const SelectedModuleInputDisplay = useMemo(
     () =>
       row.inputModule
@@ -104,15 +86,6 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
     [row.outputModule]
   )
 
-  // --- Call Action Hooks (if they exist) ---
-  // These hooks are called at the top level of the component, which is correct.
-  if (InputActionsHook) {
-    InputActionsHook(row)
-  }
-  if (OutputActionsHook) {
-    OutputActionsHook(row)
-  }
-
   const handleManualTrigger = () => {
     window.dispatchEvent(new CustomEvent('io_input', { detail: row.id }))
   }
@@ -128,21 +101,22 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
           borderTop: mobile ? 0 : '1px solid #666',
           width: mobile ? '95%' : '100%',
           margin: mobile ? '1rem auto' : 0,
-          borderRadius: mobile ? '10px' : 0, // Use theme spacing or numbers
+          borderRadius: mobile ? '10px' : 0,
           overflow: mobile ? 'hidden' : 'unset',
-          bgcolor: 'background.paper', // Add background for Card-like appearance if needed
-          mb: mobile ? 2 : 0 // Spacing between rows on mobile
+          bgcolor: 'background.paper',
+          mb: mobile ? 2 : 0,
+          opacity: isEnabled === false ? 0.5 : 1
         }}
       >
         {/* Input Section */}
         <Box
           sx={{
-            flexBasis: desktop ? '50%' : 'calc(50% - 48px)', // Or use theme.spacing
-            minHeight: '50px', // Ensure consistent height
+            flexBasis: desktop ? '50%' : 'calc(50% - 48px)',
+            minHeight: '50px',
             display: 'flex',
             alignItems: 'center',
-            padding: mobile ? '10px 0 10px 10px' : '0 0 0 10px', // Adjusted padding
-            borderRight: !mobile ? '1px solid #666' : 'none', // Separator on desktop
+            padding: mobile ? '10px 0 10px 10px' : '0 0 0 10px',
+            borderRight: !mobile ? '1px solid #666' : 'none',
             borderBottom: '1px solid #666'
           }}
         >
@@ -156,10 +130,10 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
         {/* Output Section & Actions */}
         <Box
           sx={{
-            flexBasis: desktop ? '50%' : '100%', // Full width on mobile if below input
+            flexBasis: desktop ? '50%' : '100%',
             display: 'flex',
             alignItems: 'center',
-            padding: mobile ? '10px 10px 10px 10px' : '0 10px 0 10px', // Consistent padding
+            padding: mobile ? '10px 10px 10px 10px' : '0 10px 0 10px',
             justifyContent: 'space-between',
             borderBottom: '1px solid #666'
           }}
@@ -198,7 +172,7 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
               <Delete />
             </IconButton>
             <Switch
-              checked={row.enabled === undefined ? true : row.enabled} // Default to true if undefined
+              checked={row.enabled === undefined ? true : row.enabled}
               onChange={handleToggleEnable}
               size="small"
               title={row.enabled ? 'Disable Row' : 'Enable Row'}

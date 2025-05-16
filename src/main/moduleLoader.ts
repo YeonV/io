@@ -2,13 +2,37 @@
 import { ipcMain, type BrowserWindow } from 'electron'
 import { getMainWindow, getStore } from './windowManager.js'
 import { mainModuleHandlers } from '../renderer/src/modules/modules.main.js' // Path from out/main to out/renderer
-import type { IOMainModulePart, Row } from '../shared/types.js'
+import type { ProfileDefinition, Row } from '../shared/types.js'
+
+let currentActiveProfileForMain: { id: string | null; includedRowIds: string[] | null } = {
+  id: null,
+  includedRowIds: null // null means no profile active, empty array means profile active but no rows included
+}
+
+export interface MainModuleDeps {
+  ipcMain: typeof Electron.ipcMain
+  getMainWindow: () => BrowserWindow | null
+  getStore: () => any
+  // NEW: Pass current profile info
+  activeProfileInfo: typeof currentActiveProfileForMain
+}
 
 export async function loadAndInitializeAllMainModules(): Promise<void> {
-  console.log(
-    `Main (moduleLoader): Initializing main module parts from generated renderer registry...`
+  ipcMain.on(
+    'active-profile-changed-for-main',
+    (_event, profileData: { activeProfileId: string | null; includedRowIds: string[] | null }) => {
+      console.log(`Main (moduleLoader): Received 'active-profile-changed-for-main'`, profileData)
+      currentActiveProfileForMain = {
+        id: profileData.activeProfileId,
+        includedRowIds: profileData.includedRowIds
+      }
+      // When profile changes, it's crucial to re-evaluate things that depend on it, like shortcuts
+      // This is already handled because renderer's setActiveProfile also re-sends 'rows' via 'set' IPC
+      // which triggers notifyMainModulesOnRowsUpdate.
+    }
   )
-  const deps = { ipcMain, getMainWindow, getStore }
+
+  const deps: Omit<MainModuleDeps, 'activeProfileInfo'> = { ipcMain, getMainWindow, getStore }
 
   for (const modulePart of mainModuleHandlers) {
     if (modulePart && typeof modulePart.initialize === 'function' && modulePart.moduleId) {
@@ -16,7 +40,9 @@ export async function loadAndInitializeAllMainModules(): Promise<void> {
         console.log(
           `Main (moduleLoader): Initializing main part for module ID: ${modulePart.moduleId}`
         )
-        await Promise.resolve(modulePart.initialize(deps))
+        await Promise.resolve(
+          modulePart.initialize({ ...deps, activeProfileInfo: currentActiveProfileForMain })
+        )
       } catch (e) {
         console.error(
           `Main (moduleLoader): Error initializing main part for ${modulePart.moduleId}`,
@@ -58,7 +84,12 @@ export async function cleanupAllMainModules(): Promise<void> {
 
 export async function notifyMainModulesOnRowsUpdate(rows: Record<string, Row>): Promise<void> {
   console.log('Main (moduleLoader): Notifying main module parts of row update...')
-  const deps = { ipcMain, getMainWindow, getStore }
+  const deps: MainModuleDeps = {
+    ipcMain,
+    getMainWindow,
+    getStore,
+    activeProfileInfo: currentActiveProfileForMain
+  }
   for (const modulePart of mainModuleHandlers) {
     if (modulePart && typeof modulePart.onRowsUpdated === 'function') {
       try {

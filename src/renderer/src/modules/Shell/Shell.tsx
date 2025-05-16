@@ -1,9 +1,10 @@
-import type { ModuleConfig, OutputData, Row  } from '@shared/types'
+import type { ModuleConfig, OutputData, Row } from '@shared/types'
 import type { FC } from 'react'
 import { useEffect } from 'react'
 import { log } from '@/utils'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import EditButtons from '@/components/Row/EditButtons'
+import { useRowActivation } from '@/hooks/useRowActivation'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
@@ -49,7 +50,18 @@ export const OutputEdit: FC<{
 }
 
 export const useOutputActions = (row: Row) => {
+  const { isActive } = useRowActivation(row)
+
   useEffect(() => {
+    if (!isActive) {
+      if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+        log.info2(
+          `Shell.tsx: Row ${row.output.name} became inactive, calling speechSynthesis.cancel()`
+        )
+        window.speechSynthesis.cancel()
+      }
+      return // Do not attach listener or perform actions if not active
+    }
     const listener = (e: any) => {
       if (e.detail === row.id) {
         log.success2('row output triggered', row, e.detail)

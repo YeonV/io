@@ -3,13 +3,10 @@ import { type IpcMain, type BrowserWindow, ipcMain } from 'electron'
 import mqtt from 'mqtt'
 import type { IOMainModulePart } from '../../../../shared/types.js'
 import { type MqttBrokerConfig } from './MQTT.js'
+import { MainModuleDeps } from '../../../../main/moduleLoader.js'
 
 const id = 'mqtt-module' // Unique ID for this module
-interface MqttMainInitDeps {
-  ipcMain: IpcMain
-  getMainWindow: () => BrowserWindow | null
-  getStore: () => any // To get broker profiles if needed, though renderer sends them
-}
+interface MqttMainInitDeps extends MainModuleDeps {}
 
 // Main process state for MQTT clients
 const mainMqttClients = new Map<string, mqtt.MqttClient>() // Key: clientKey (host_user_clientid)

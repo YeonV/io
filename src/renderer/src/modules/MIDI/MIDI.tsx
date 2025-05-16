@@ -23,6 +23,7 @@ import ShortMidi from './ShortMidi'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import { useMainStore } from '@/store/mainStore'
 import { Piano, PianoOff } from '@mui/icons-material'
+import { useRowActivation } from '@/hooks/useRowActivation'
 
 // --- Define the custom part of the config for THIS module ---
 export interface MidiModuleCustomConfig {
@@ -112,6 +113,7 @@ export const useGlobalActions = () => {
   const midiActive = midiModuleSpecificConfig?.midiActive
   const selectedInputDeviceId = midiModuleSpecificConfig?.selectedInputId
 
+  // const { isActive } = useRowActivation(row)
   useEffect(() => {
     if (!moduleEnabled || !midiActive) {
       log.info(
@@ -294,7 +296,12 @@ export const Settings: FC = () => {
 
 // --- useInputActions: Reacts to the global 'io_midi_event' ---
 export const useInputActions = (row: Row) => {
+  const { isActive, inactiveReason } = useRowActivation(row)
   useEffect(() => {
+    if (!isActive) {
+      log.info(`Row ${row.id} actions not running. Reason: ${inactiveReason}.`)
+      return () => {} // Return empty cleanup if disabled from the start
+    }
     const midiEventListener = (event: CustomEvent) => {
       const detail = event.detail
       if (typeof detail !== 'object' || detail === null || !detail.noteIdentifier) {
