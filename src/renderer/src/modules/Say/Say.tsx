@@ -5,7 +5,6 @@ import { log } from '@/utils'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import EditButtons from '@/components/Row/EditButtons'
 import { useRowActivation } from '@/hooks/useRowActivation'
-
 type SayConfigExample = {}
 
 export const id = 'say-module'
@@ -29,7 +28,7 @@ export const OutputDisplay: FC<{
 }> = ({ output }) => {
   return (
     <>
-      <DisplayButtons data={output} />
+      <DisplayButtons data={output} variant="text" />
     </>
   )
 }
