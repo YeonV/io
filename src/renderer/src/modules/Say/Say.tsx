@@ -63,7 +63,7 @@ export const useOutputActions = (row: Row) => {
     const listener = (event: CustomEvent) => {
       const eventDetail = event.detail
       let triggerRowId: string | undefined
-      let receivedPayload: any = undefined
+      // let receivedPayload: any = undefined
 
       if (typeof eventDetail === 'string') {
         triggerRowId = eventDetail
@@ -73,7 +73,7 @@ export const useOutputActions = (row: Row) => {
         Object.prototype.hasOwnProperty.call(eventDetail, 'rowId')
       ) {
         triggerRowId = eventDetail.rowId
-        receivedPayload = eventDetail.payload
+        // receivedPayload = eventDetail.payload
       } else {
         return
       }

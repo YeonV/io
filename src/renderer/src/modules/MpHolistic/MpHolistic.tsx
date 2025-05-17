@@ -6,9 +6,6 @@ import type { ModuleConfig, InputData, Row, ModuleDefaultConfig } from '@shared/
 import {
   Button,
   IconButton,
-  List,
-  ListItem,
-  ListSubheader,
   Tooltip,
   Box,
   FormControlLabel, // For potential Switch in Settings if preferred

@@ -1,5 +1,5 @@
 // src/renderer/src/components/Row/InputSelector.tsx
-import type { Input, InputData, ModuleId, ModuleConfig } from '@shared/types'
+import type { Input, ModuleId } from '@shared/types'
 import { useMainStore } from '@/store/mainStore'
 import { Autocomplete, ListItem, TextField } from '@mui/material'
 import IoIcon from '../IoIcon/IoIcon'
@@ -112,5 +112,5 @@ export const InputSelector: FC<{
       }}
       readOnly={disabled}
     />
-  );
+  )
 }

@@ -68,7 +68,7 @@ export const useOutputActions = (row: Row) => {
         ipcRenderer.sendSync('run-shell', row.output.data.command)
       }
     }
-    ipcRenderer.on('run-shell-answer', (event: any, data: any) => {
+    ipcRenderer.on('run-shell-answer', (_event: any, data: any) => {
       log.info2(JSON.stringify(data.result))
     })
     window.addEventListener('io_input', listener)

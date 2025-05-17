@@ -453,7 +453,7 @@ export const InputEdit: FC<{
         Payload Condition (Optional)
       </Typography>
       <Grid container spacing={1} alignItems="center">
-        <Grid item xs={12} sm={7}>
+        <Grid size={{ xs: 12, sm: 7 }}>
           <TextField
             label="Trigger if payload..."
             value={currentData.matchPayload || ''}
@@ -464,7 +464,7 @@ export const InputEdit: FC<{
             helperText="Value to check payload against."
           />
         </Grid>
-        <Grid item xs={12} sm={5}>
+        <Grid size={{ xs: 12, sm: 5 }}>
           <FormControl fullWidth size="small" margin="dense" disabled={!currentData.matchPayload}>
             <InputLabel>Match Type</InputLabel>
             <Select
@@ -583,7 +583,7 @@ export const OutputEdit: FC<{
         rows={2}
       />
       <Grid container spacing={1} alignItems="center">
-        <Grid item>
+        <Grid>
           <FormControlLabel
             control={
               <Switch
@@ -595,7 +595,7 @@ export const OutputEdit: FC<{
             label="Retain"
           />
         </Grid>
-        <Grid item xs>
+        <Grid>
           <FormControl fullWidth size="small" margin="dense">
             <InputLabel>QoS</InputLabel>
             <Select
@@ -736,6 +736,7 @@ export const useGlobalActions = () => {
         `MQTT Client Status [${data.host} / ${data.clientKey}]: ${data.status}`,
         data.message || ''
       )
+      log.info(`EYYYYYY`, clientStatuses)
       setClientStatuses((prev) => ({ ...prev, [data.clientKey]: data.status }))
     }
     ipcRenderer.on('mqtt-client-status', listener)
@@ -749,7 +750,7 @@ export const useGlobalActions = () => {
 
 // --- useInputActions ---
 export const useInputActions = (row: Row) => {
-  const { input, id: rowId } = row
+  const { input } = row
   const { isActive, inactiveReason } = useRowActivation(row)
   const inputData = input.data as MqttInputRowData
   const brokerProfiles = useMainStore(

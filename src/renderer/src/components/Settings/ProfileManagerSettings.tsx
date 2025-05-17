@@ -16,36 +16,24 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Divider,
   Paper,
   TextField,
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
   Checkbox,
-  FormGroup,
-  FormControlLabel,
-  ListSubheader,
   Tooltip,
   Stack,
-  SelectChangeEvent,
-  FormHelperText
+  SelectChangeEvent
 } from '@mui/material'
 import {
-  AddCircleOutline,
   Delete,
   Edit,
   CheckCircle,
   RadioButtonUnchecked,
-  People,
   PersonAdd,
-  ManageAccounts,
-  Info,
   Settings
 } from '@mui/icons-material'
-import { v4 as uuidv4 } from 'uuid'
-import { log } from '@/utils'
 import IoIcon from '../IoIcon/IoIcon'
 // Assume you have an IconPicker component or a simple TextField for icon names for now
 // import IconPicker from '../IconPicker';
@@ -389,7 +377,7 @@ export const ProfileManagerSettings: FC = () => {
         allRows={allRows}
       />
     </Paper>
-  );
+  )
 }
 
 // Make sure to export it if it's not the default, or make it default

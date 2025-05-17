@@ -1,6 +1,6 @@
 import type { InputData, ModuleConfig, OutputData, Row } from '@shared/types'
 import type { FC } from 'react'
-import { Box, Button, Tooltip } from '@mui/material'
+import { Button } from '@mui/material'
 import { useEffect } from 'react'
 import { log } from '@/utils'
 import DisplayButtons from '@/components/Row/DisplayButtons'

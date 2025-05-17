@@ -17,12 +17,12 @@
 		"module": "nodenext",
 		"moduleResolution": "nodenext",
     "composite": true,
-    "types": ["electron-vite/node"]
-  },
-  "baseUrl": ".", // If not already inherited
-    "paths": {
-        // This alias might be needed if .main.ts files try to import from @shared
-        "@shared/*": ["src/shared/*"],
-        // We generally DON'T want to add renderer aliases like "@/*" here
-    }
+    "types": ["electron-vite/node"],
+    "baseUrl": ".",
+      "paths": {
+          // This alias might be needed if .main.ts files try to import from @shared
+          "@shared/*": ["src/shared/*"],
+          "@/*": ["src/renderer/src/*"]
+      }
+  }
 }

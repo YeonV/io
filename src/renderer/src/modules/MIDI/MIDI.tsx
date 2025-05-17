@@ -235,7 +235,7 @@ export const Settings: FC = () => {
         WebMidi.removeListener('disconnected', onDisconnected)
       }
     } else {
-      setAvailableInputs([])
+      return setAvailableInputs([])
     }
   }, [midiActive])
 
@@ -300,7 +300,7 @@ export const useInputActions = (row: Row) => {
   useEffect(() => {
     if (!isActive) {
       log.info(`Row ${row.id} actions not running. Reason: ${inactiveReason}.`)
-      return () => {} // Return empty cleanup if disabled from the start
+      return undefined
     }
     const midiEventListener = (event: CustomEvent) => {
       const detail = event.detail

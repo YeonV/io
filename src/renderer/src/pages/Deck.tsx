@@ -219,6 +219,7 @@ const Deck = () => {
                   showSettings={showSettings}
                   profileId={currentIoProfileId}
                   setShowSettings={setDeckShowSettings}
+                  setDisableDrag={setDisableDrag}
                 />
               </Rnd>
             )

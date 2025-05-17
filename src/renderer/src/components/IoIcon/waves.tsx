@@ -1,5 +1,3 @@
-import React from 'react'
-
 const WaveLines = ({
   backgroundColor = 'transparent',
   startColor = '#1db954',

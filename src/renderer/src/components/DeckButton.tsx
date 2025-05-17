@@ -155,9 +155,6 @@ const DeckButton: FC<DeckButtonProps> = ({
 
   const handleSaveDeckButtonSettings = () => {
     if (profileId) {
-      // This should be an action that updates a specific tile's appearance properties
-      // in the deckLayouts[profileId] array.
-      // For now, let's construct the appearance part of DeckTileLayout
       const appearanceUpdate: Partial<Omit<DeckTileLayout, 'id' | 'x' | 'y' | 'w' | 'h'>> = {
         buttonColor,
         textColor,
@@ -168,54 +165,40 @@ const DeckButton: FC<DeckButtonProps> = ({
         fontFamily: innerFontFamily
       }
 
-      // Need an action in deckStore: updateDeckButtonAppearance(profileId, row.id, appearanceUpdate)
-      // For simplicity with existing saveFullDeckLayoutForProfile:
-      const currentLayouts = useDeckStore.getState().deckLayouts
-      const currentProfileLayout = currentLayouts[profileId] || []
-      const existingTileIndex = currentProfileLayout.findIndex((tile) => tile.id === row.id)
+      // Get current state ONCE
+      const currentGlobalDeckLayouts = useDeckStore.getState().deckLayouts
+      const currentProfileSpecificLayout = currentGlobalDeckLayouts[profileId] || []
+      const existingTileIndex = currentProfileSpecificLayout.findIndex((tile) => tile.id === row.id)
 
-      let newTileData: Partial<DeckTileLayout> = appearanceUpdate
+      let updatedTileDataForSave: DeckTileLayout
+
       if (existingTileIndex > -1) {
-        // Merge with existing layout data (x,y,w,h)
-        newTileData = { ...currentProfileLayout[existingTileIndex], ...appearanceUpdate }
+        // Tile exists: merge existing layout data with new appearance
+        updatedTileDataForSave = {
+          ...currentProfileSpecificLayout[existingTileIndex], // includes id, x, y, w, h
+          ...appearanceUpdate // overrides appearance fields
+        }
       } else {
-        // No existing layout data, just save appearance (layout will be default)
-        newTileData = appearanceUpdate
-      }
-      // This uses the existing updateDeckLayout that expects x,y,w,h etc.
-      // We might need a more specific saveDeckButtonAppearance action.
-      // For now, this will create/update the entry but might miss x,y,w,h if it was a new tile.
-      // Let's assume updateDeckLayout merges intelligently or we call a more specific action.
-
-      const { deckLayouts, updateDeckLayout } = useDeckStore.getState()
-      const profileCurrentLayout = deckLayouts[profileId] || []
-      const tileIndex = profileCurrentLayout.findIndex((tile) => tile.id === row.id)
-      let newLayoutData: DeckTileLayout
-
-      if (tileIndex > -1) {
-        newLayoutData = { ...profileCurrentLayout[tileIndex], ...appearanceUpdate, id: row.id }
-      } else {
-        // If no layout data exists, we are only saving appearance.
-        // The Rnd component will use default x,y,w,h.
-        // So, when saving, we only need to store the appearance overrides.
-        // The full DeckTileLayout expects x,y,w,h so this needs care.
-        // Let's just pass the overrides and let an action in store handle it.
-        newLayoutData = {
+        // Tile is new: create a new DeckTileLayout with default x,y,w,h and the appearance
+        updatedTileDataForSave = {
           id: row.id,
-          x: 0,
-          y: 0,
-          w: 0,
-          h: 0, // These would be default/ignored if not set
+          x: 0, // Default X - Rnd component might handle actual placement
+          y: 0, // Default Y
+          w: 1, // Default width (adjust if your grid defaults are different, 0 might be problematic)
+          h: 1, // Default height (adjust if your grid defaults are different, 0 might be problematic)
           ...appearanceUpdate
-        } as DeckTileLayout
+        }
       }
-      // A better action would be: saveDeckTileAppearance(profileId, row.id, appearanceUpdate)
-      // For now, using the full save function as an example:
-      const newProfileLayout =
-        tileIndex > -1
-          ? profileCurrentLayout.map((t) => (t.id === row.id ? newLayoutData : t))
-          : [...profileCurrentLayout, newLayoutData]
-      saveDeckButtonAppearance(profileId, newProfileLayout)
+
+      // Construct the new full layout array for the profile
+      const newLayoutArrayForProfile =
+        existingTileIndex > -1
+          ? currentProfileSpecificLayout.map((tile) =>
+              tile.id === row.id ? updatedTileDataForSave : tile
+            )
+          : [...currentProfileSpecificLayout, updatedTileDataForSave]
+
+      saveDeckButtonAppearance(profileId, newLayoutArrayForProfile)
     }
     handleDialogSettingsClose()
   }
