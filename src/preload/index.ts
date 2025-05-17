@@ -15,7 +15,9 @@ const { appendLoading, removeLoading } = useLoading()
   appendLoading()
 })()
 
-const api = {}
+const api = {
+  getStoreState: () => preloadIpcRenderer.invoke('get-main-store-state')
+}
 
 if (process.contextIsolated) {
   try {

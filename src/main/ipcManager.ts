@@ -1,11 +1,10 @@
 // src/main/ipcManager.ts
-import { ipcMain, nativeTheme, app, type BrowserWindow } from 'electron'
+import { ipcMain, nativeTheme, app } from 'electron'
 import { getStore, getMainWindow } from './windowManager.js'
-import { notifyMainModulesOnRowsUpdate } from './moduleLoader.js' // To trigger module updates
-import type { Row } from '../shared/types.js' // Import Row
+import { notifyMainModulesOnRowsUpdate } from './moduleLoader.js'
+import type { Row } from '../shared/types.js'
 
 export function initializeBaseIpcHandlers(): void {
-  // Renamed to reflect its new role
   console.log('Main (ipcManager): Initializing Base IPC Handlers...')
   const storeInstance = getStore()
 
@@ -19,18 +18,15 @@ export function initializeBaseIpcHandlers(): void {
   ipcMain.on('set', async (_event, arg: [string, any]) => {
     const key = arg[0]
     const value = arg[1]
-    // console.log(`Main (ipcManager) 'set': key: ${key}, value:`, value); // Can be verbose
     console.log(`Main (ipcManager) 'set': key: ${key}`)
     await storeInstance.set(key, value)
 
     if (key === 'rows') {
       console.log("Main (ipcManager): 'rows' key updated in store, notifying modules.")
-      // Ensure 'value' here is the complete rows object
-      const currentRows = value as Record<string, Row> // Cast if sure about the structure
+      const currentRows = value as Record<string, Row>
       if (currentRows) {
         await notifyMainModulesOnRowsUpdate(currentRows)
       } else {
-        // If value is null/undefined after a delete all rows, pass empty object
         await notifyMainModulesOnRowsUpdate({})
         console.warn(
           "Main (ipcManager): 'rows' key updated but value was null/undefined, notifying with empty rows."
@@ -44,7 +40,6 @@ export function initializeBaseIpcHandlers(): void {
     event.sender.send('get', res)
   })
 
-  // Dark Mode & App Control Handlers (These are app-generic, not module-specific)
   ipcMain.on('get-darkmode', (event) => {
     event.returnValue = nativeTheme.shouldUseDarkColors ? 'yes' : 'no'
   })
@@ -62,8 +57,16 @@ export function initializeBaseIpcHandlers(): void {
     app.exit()
   })
 
+  ipcMain.handle('get-main-store-state', () => {
+    const storeInstance = getStore()
+    return {
+      profiles: storeInstance.get('profiles') || {},
+      activeProfileId: storeInstance.get('activeProfileId') || null,
+      rows: storeInstance.get('rows') || {}
+    }
+  })
+
   console.log(
     'Main (ipcManager): Base IPC Handlers (ping, set, get, theme, app control) initialized.'
   )
-  // Module-specific IPCs (Alexa, Shell) are now initialized by their respective *.main.ts files via moduleLoader.
 }

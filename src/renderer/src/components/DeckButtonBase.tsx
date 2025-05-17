@@ -12,7 +12,7 @@ interface DeckButton {
   children?: React.ReactNode
   className?: string
   fontFamily?: string
-  onClick: () => void
+  onClick?: () => void
 }
 const DeckButtonBase = ({
   textColor,

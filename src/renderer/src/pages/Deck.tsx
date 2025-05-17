@@ -1,45 +1,103 @@
 import { useEffect, useState } from 'react'
-import { Box, Grid, IconButton, Typography } from '@mui/material'
+import {
+  Box,
+  FormControl,
+  Grid2 as Grid,
+  IconButton,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Typography
+} from '@mui/material'
 import { Rnd } from 'react-rnd'
 import { useMainStore } from '@/store/mainStore'
-import { DarkMode, LightMode, Sync } from '@mui/icons-material'
+import { useDeckStore } from '@/store/deckStore'
+import { DarkMode, LightMode, Settings, Sync } from '@mui/icons-material'
 import DeckButton from '@/components/DeckButton'
 import 'react-resizable/css/styles.css'
 import 'react-grid-layout/css/styles.css'
 import { useWindowDimensions } from '@/utils'
-import { Row } from '@shared/types'
+import { useShallow } from 'zustand/react/shallow'
+// import { Row } from '@shared/types'
 
 const Deck = () => {
-  const [data, setData] = useState({} as Record<string, Row>)
-  const [showSettings, setShowSettings] = useState(false)
+  const {
+    allProfiles,
+    currentIoProfileId,
+    rowsForCurrentProfile,
+    deckLayouts,
+    showSettings,
+    fetchAllProfiles,
+    fetchCurrentActiveIoProfile,
+    // fetchRowsForProfile,
+    setDeckShowSettings,
+    updateDeckLayout,
+    // saveFullDeckLayoutForProfile,
+    activateIoProfile
+  } = useDeckStore(useShallow((state) => ({ ...state })))
+
+  const appDarkMode = useMainStore((state) => state.ui.darkMode)
+  const appSetDarkMode = useMainStore((state) => state.setDarkMode)
+
   const [disableDrag, setDisableDrag] = useState(false)
-  const darkMode = useMainStore((state) => state.ui.darkMode)
-  const setDarkMode = useMainStore((state) => state.setDarkMode)
   const { width } = useWindowDimensions()
   const [magicNumber, setMagicNumber] = useState(120)
 
-  const toggleDarkmode = () => {
-    setDarkMode(!darkMode)
-  }
+  // const [data, setData] = useState({} as Record<string, Row>)
+  // const [showSettings, setShowSettings] = useState(false)
+
   useEffect(() => {
-    const getRows = async () => {
-      const res = await fetch(`http://${location.hostname}:1337/rows`)
-      const out = await res.json()
-      return out
-    }
-    getRows().then((d: Record<string, Row>) => {
-      setData(d)
-    })
+    fetchAllProfiles()
+    fetchCurrentActiveIoProfile()
     console.info(
       '%c   IO  ' + '%c\n ReactApp by Blade ',
       'padding: 10px 40px; color: #ffffff; border-radius: 5px 5px 0 0; background-color: #123456;',
       'background: #fff; color: #123456; border-radius: 0 0 5px 5px;padding: 5px 0;'
     )
-  }, [])
+
+    console.log('Deck: currentIoProfileId:', currentIoProfileId)
+    console.log('Deck: rowsForCurrentProfile:', rowsForCurrentProfile)
+    console.log('Deck: allProfiles:', allProfiles)
+    console.log('Deck: deckLayouts:', deckLayouts)
+  }, [fetchAllProfiles, fetchCurrentActiveIoProfile])
+
+  // console.log('Deck: showSettings:', showSettings)
+  // console.log('Deck: magicNumber:', magicNumber)
+  // console.log('Deck: width:', width)
+  // console.log('Deck: disableDrag:', disableDrag)
+  // console.log('Deck: appDarkMode:', appDarkMode)
+
+  // useEffect(() => {
+  //   const getRows = async () => {
+  //     const res = await fetch(`http://${location.hostname}:1337/rows`)
+  //     const out = await res.json()
+  //     return out
+  //   }
+  //   getRows().then((d: Record<string, Row>) => {
+  //     setData(d)
+  //   })
+  //   console.info(
+  //     '%c   IO  ' + '%c\n ReactApp by Blade ',
+  //     'padding: 10px 40px; color: #ffffff; border-radius: 5px 5px 0 0; background-color: #123456;',
+  //     'background: #fff; color: #123456; border-radius: 0 0 5px 5px;padding: 5px 0;'
+  //   )
+  // }, [])
 
   useEffect(() => {
     setMagicNumber(Math.floor(width / Math.floor(width / 120)) - Math.ceil(width / 120))
   }, [width])
+
+  const currentProfileLayout = currentIoProfileId ? deckLayouts[currentIoProfileId] : []
+
+  const handleToggleDarkmode = () => {
+    if (appSetDarkMode) appSetDarkMode(!appDarkMode)
+    // If Deck had its own darkMode: deckStore.toggleDarkMode();
+  }
+
+  const handleProfileChangeOnDeck = (event: SelectChangeEvent<string>) => {
+    const newProfileId = event.target.value || null
+    activateIoProfile(newProfileId) // This tells main app to switch, then Deck re-fetches
+  }
 
   return (
     <Box
@@ -105,14 +163,25 @@ const Deck = () => {
         }}
       >
         <>
-          {Object.keys(data).length > 0 ? (
-            Object.keys(data).map((rk, i) => (
+          {Object.values(rowsForCurrentProfile).map((row, i) => {
+            const layoutProps = currentProfileLayout?.find((tile) => tile.id === row.id)
+            const defaultLayout = {
+              width: magicNumber,
+              height: magicNumber,
+              x: (i % Math.floor(width / magicNumber)) * magicNumber,
+              y: Math.floor(i / Math.floor(width / magicNumber)) * magicNumber
+            }
+            return (
               <Rnd
-                default={{
-                  width: magicNumber,
-                  height: magicNumber,
-                  x: (i % Math.floor(width / magicNumber)) * magicNumber,
-                  y: Math.floor(i / Math.floor(width / magicNumber)) * magicNumber
+                key={row.id}
+                default={defaultLayout}
+                size={{
+                  width: layoutProps?.w || magicNumber,
+                  height: layoutProps?.h || magicNumber
+                }}
+                position={{
+                  x: layoutProps?.x || defaultLayout.x,
+                  y: layoutProps?.y || defaultLayout.y
                 }}
                 bounds={'parent'}
                 resizeGrid={[magicNumber, magicNumber]}
@@ -128,24 +197,49 @@ const Deck = () => {
                   bottomLeft: false,
                   topLeft: false
                 }}
-                key={rk}
                 style={{
                   padding: '4px',
                   border: showSettings ? '1px dashed #9999' : ''
                 }}
+                onClick={(e) => e.preventDefault()}
+                onDragStop={(_e, d) => {
+                  console.log('Deck: onDragStop:', d)
+                  if (currentIoProfileId && showSettings) {
+                    // Only update if in edit mode
+                    const newPosition = {
+                      x: Math.round(d.x / magicNumber) * magicNumber,
+                      y: Math.round(d.y / magicNumber) * magicNumber
+                    }
+                    // updateDeckLayout should merge this position with existing w/h for the tile
+                    updateDeckLayout(currentIoProfileId, row.id, newPosition)
+                  }
+                }}
+                onResizeStop={(_e, _direction, refElement, _delta, position) => {
+                  console.log('Deck: onResizeStop:', position)
+                  if (currentIoProfileId && showSettings) {
+                    // Only update if in edit mode
+                    const newLayout = {
+                      // x: Math.round(position.x / magicNumber) * magicNumber,
+                      // y: Math.round(position.y / magicNumber) * magicNumber,
+                      x: position.x,
+                      y: position.y,
+                      w: Math.round(refElement.offsetWidth / magicNumber) * magicNumber,
+                      h: Math.round(refElement.offsetHeight / magicNumber) * magicNumber
+                    }
+                    updateDeckLayout(currentIoProfileId, row.id, newLayout)
+                  }
+                }}
               >
                 <DeckButton
-                  rowkey={rk}
-                  data={data}
+                  row={row}
                   showSettings={showSettings}
-                  setShowSettings={setShowSettings}
-                  setDisableDrag={setDisableDrag}
+                  profileId={currentIoProfileId}
+                  setShowSettings={setDeckShowSettings}
                 />
               </Rnd>
-            ))
-          ) : (
-            <div>What madness did setup the IO-Rows? Oh wait, maybe it was me and you</div>
-          )}
+            )
+          })}
+          {Object.keys(rowsForCurrentProfile).length === 0 && 'NO ROWS IN THIS PROFILE'}
         </>
       </Grid>
       <footer
@@ -153,11 +247,28 @@ const Deck = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: darkMode ? '#090909' : '#ddd'
+          background: appDarkMode ? '#090909' : '#ddd'
         }}
       >
-        <div style={{ flexBasis: '100px' }}></div>
-        <Typography fontFamily={'Montserrat-Alt1'} color={darkMode ? '#333' : '#999'}>
+        <Box sx={{ p: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
+          <FormControl size="small" sx={{ minWidth: 200 }}>
+            <Select
+              value={currentIoProfileId || ''}
+              onChange={handleProfileChangeOnDeck}
+              displayEmpty
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              {Object.values(allProfiles).map((p) => (
+                <MenuItem key={p.id} value={p.id}>
+                  {p.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+        <Typography fontFamily={'Montserrat-Alt1'} color={appDarkMode ? '#333' : '#999'}>
           Hacked by Blade
         </Typography>
         <div
@@ -177,11 +288,17 @@ const Deck = () => {
           </IconButton>
           <IconButton
             onClick={() => {
-              toggleDarkmode()
+              handleToggleDarkmode()
             }}
             sx={{ opacity: 0.3 }}
           >
-            {darkMode ? <LightMode color="primary" /> : <DarkMode color="primary" />}
+            {appDarkMode ? <LightMode color="primary" /> : <DarkMode color="primary" />}
+          </IconButton>
+          <IconButton
+            onClick={() => setDeckShowSettings(!showSettings)}
+            title="Toggle Layout Edit Mode"
+          >
+            <Settings color={showSettings ? 'primary' : 'action'} />
           </IconButton>
         </div>
       </footer>

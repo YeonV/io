@@ -3,7 +3,7 @@
 import type { FC } from 'react'
 import { useEffect } from 'react' // useEffect might not be strictly needed if action is sync
 import { useMainStore } from '@/store/mainStore'
-import type { ModuleConfig, OutputData, Row, ProfileDefinition } from '@shared/types'
+import type { ModuleConfig, OutputData, Row } from '@shared/types'
 import {
   Box,
   FormControl,

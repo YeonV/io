@@ -33,6 +33,7 @@ const Home: FC = () => {
   const rows = useMainStore((state) => state.rows)
   const activeProfileId = useMainStore((state) => state.activeProfileId)
   const profiles = useMainStore((state) => state.profiles)
+  const setActiveProfile = useMainStore((state) => state.setActiveProfile)
 
   const rowsToDisplay = useMemo(() => {
     const allRowsArray = Object.values(rows)
@@ -148,6 +149,21 @@ const Home: FC = () => {
       console.warn("Renderer (Home.tsx): ipcRenderer not available, cannot send 'rows' update.")
     }
   }, [rows])
+
+  useEffect(() => {
+    if (!ipcRenderer) return
+    const handleApiSetActiveProfile = (_event: any, profileId: string | null) => {
+      console.log(
+        "Renderer: Received 'ipc-api-set-active-profile' from main, calling store action:",
+        profileId
+      )
+      setActiveProfile(profileId) // This will update Zustand & send 'set' for 'activeProfileId' back to main
+    }
+    ipcRenderer.on('ipc-api-set-active-profile', handleApiSetActiveProfile)
+    return () => {
+      ipcRenderer.removeListener('ipc-api-set-active-profile', handleApiSetActiveProfile)
+    }
+  }, [])
 
   // --- Prepare data for rendering ---
   const usedModules = useMemo(

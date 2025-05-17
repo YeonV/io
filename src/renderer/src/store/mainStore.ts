@@ -188,7 +188,7 @@ export const useMainStore = create<State>()(
           const newProfile: ProfileDefinition = {
             id: newProfileId,
             name: name || `Profile ${Object.keys(get().profiles).length + 1}`,
-            icon: icon || 'inventory_2', // Default icon
+            icon: icon || 'people',
             includedRowIds: initialIncludedRowIds || []
           }
           set(
@@ -198,8 +198,10 @@ export const useMainStore = create<State>()(
             false,
             'addProfile'
           )
+          // SYNC TO MAIN/ELECTRON-STORE
+          if (ipcRenderer) ipcRenderer.send('set', ['profiles', get().profiles])
           log.info(`Profile added: ${newProfile.name} (ID: ${newProfileId})`)
-          return newProfileId // Return ID so UI can auto-select it
+          return newProfileId
         },
         updateProfile: (profileId: string, updates: Partial<Omit<ProfileDefinition, 'id'>>) => {
           set(
@@ -211,45 +213,67 @@ export const useMainStore = create<State>()(
             false,
             `updateProfile/${profileId}`
           )
+          // SYNC TO MAIN/ELECTRON-STORE
+          if (ipcRenderer) ipcRenderer.send('set', ['profiles', get().profiles])
         },
         deleteProfile: (profileId: string) => {
           set(
             produce((state: State) => {
               delete state.profiles[profileId]
               if (state.activeProfileId === profileId) {
-                state.activeProfileId = null // Deactivate if current profile is deleted
+                state.activeProfileId = null
               }
             }),
             false,
             `deleteProfile/${profileId}`
           )
+          // SYNC TO MAIN/ELECTRON-STORE
+          if (ipcRenderer) {
+            ipcRenderer.send('set', ['profiles', get().profiles])
+            // Also sync activeProfileId if it changed
+            if (
+              get().activeProfileId === null &&
+              get().activeProfileId !== get().profiles[profileId]?.id
+            ) {
+              // check if active was deleted
+              ipcRenderer.send('set', ['activeProfileId', null])
+            }
+          }
         },
         setActiveProfile: (profileId: string | null) => {
-          set({ activeProfileId: profileId }, false, `setActiveProfile/${profileId || 'none'}`)
-          log.info(`Active profile set to: ${profileId || 'None'}`)
+          const currentActiveId = get().activeProfileId
+          // Optimization: Only proceed if the profileId is actually changing
+          if (currentActiveId === profileId) {
+            log.info(`setActiveProfile: Profile ${profileId} is already active.`)
+            return
+          }
 
-          // --- NEW: Send active profile info to main process ---
-          const newActiveProfile = profileId ? get().profiles[profileId] : null
-          const includedRowIdsForMain = newActiveProfile ? newActiveProfile.includedRowIds : null // Send null if no profile active
+          set({ activeProfileId: profileId }, false, `setActiveProfile/${profileId || 'none'}`)
+          log.info(`Active profile set in Zustand to: ${profileId || 'None'}`)
 
           if (ipcRenderer) {
+            // --- Sync this new activeProfileId to electron-store via main process ---
+            log.info(`setActiveProfile: Sending 'set' IPC for activeProfileId: ${profileId}`)
+            ipcRenderer.send('set', ['activeProfileId', profileId])
+            // --- END SYNC ---
+
+            // Send info for main-side modules that need to react immediately (like Keyboard)
+            const newActiveProfile = profileId ? get().profiles[profileId] : null
             ipcRenderer.send('active-profile-changed-for-main', {
               activeProfileId: profileId,
-              includedRowIds: includedRowIdsForMain
+              includedRowIds: newActiveProfile?.includedRowIds || null
             })
-          }
-          // --- END NEW ---
 
-          // Trigger re-evaluation of shortcuts in main AFTER profile change is sent
-          // This is important because the set of active rows might have changed.
-          // We can do this by re-sending the current 'rows' object which will trigger onRowsUpdated
-          // This assumes the main process will then combine this new profile info with the rows.
-          if (ipcRenderer) {
-            const currentRows = get().rows
-            ipcRenderer.send('set', ['rows', currentRows])
+            // Optional: Re-send rows if main process modules need to re-evaluate based on
+            // the combination of new profile AND existing rows immediately.
+            // This is good practice as `notifyMainModulesOnRowsUpdate` in moduleLoader
+            // passes both rows and the latest activeProfileInfo.
+            // log.info("setActiveProfile: Re-sending rows to main process for re-evaluation with new profile.");
+            // ipcRenderer.send('set', ['rows', get().rows]);
+            // Actually, moduleLoader's listener for 'active-profile-changed-for-main' should
+            // trigger a re-evaluation of rows itself. Let's ensure that.
           }
         }
-        // --- End Profile Actions ---
       }),
 
       {
