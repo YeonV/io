@@ -1,4 +1,3 @@
-// src/renderer/src/components/Row/IoNewRow.tsx
 import { produce } from 'immer'
 import { FC, useCallback, useMemo, useState } from 'react'
 import { Button, Stack, Box, Typography } from '@mui/material'
@@ -7,7 +6,6 @@ import { InputSelector } from './InputSelector'
 import { OutputSelector } from './OutputSelector'
 import { useMainStore } from '@/store/mainStore'
 import type { Row, InputData, OutputData, ModuleId } from '@shared/types'
-import { log } from '@/utils'
 import { moduleImplementations, ModuleImplementationMap } from '@/modules/moduleRegistry'
 
 export interface PrefillData {
@@ -15,24 +13,23 @@ export interface PrefillData {
   input: Partial<Omit<InputData, 'data'> & { data?: Record<string, any> }>
 }
 
-// For the 'value' prop passed to Selectors
 interface SelectorValue {
   name?: string
   icon?: string
-  inputModuleId?: ModuleId // For InputSelector
-  outputModuleId?: ModuleId // For OutputSelector
+  inputModuleId?: ModuleId
+  outputModuleId?: ModuleId
 }
 
 export const IoNewRow: FC<{
   onComplete: () => void
   startNewPrefilledRow: (prefill: PrefillData) => void
   initialPrefill?: PrefillData
-  key?: string | number // Accept key for remounting
+  key?: string | number
 }> = ({ onComplete, startNewPrefilledRow, initialPrefill }) => {
   const addRow = useMainStore((state) => state.addRow)
 
   const [templateRow, setRow] = useState<Partial<Row> & Pick<Row, 'id'>>(() => {
-    log.info('IoNewRow initializing state with initialPrefill:', initialPrefill)
+    console.debug('IoNewRow', 'initializing state with initialPrefill:', initialPrefill)
     const newRowId = uuidv4()
     if (initialPrefill) {
       return {
@@ -42,7 +39,7 @@ export const IoNewRow: FC<{
           name: initialPrefill.input.name || '',
           icon: initialPrefill.input.icon || '',
           data: initialPrefill.input.data || {}
-        } as InputData, // Assert as InputData after ensuring properties
+        } as InputData,
         outputModule: undefined,
         output: undefined
       }
@@ -50,7 +47,7 @@ export const IoNewRow: FC<{
     return { id: newRowId }
   })
 
-  const [isInputLocked, setIsInputLocked] = useState(!!initialPrefill)
+  const [isInputLocked, _setIsInputLocked] = useState(!!initialPrefill)
   const [separateOffAction, setSeparateOffAction] = useState(
     initialPrefill?.input?.data?.separateOffAction ?? false
   )
@@ -78,12 +75,9 @@ export const IoNewRow: FC<{
       ...prevRow,
       inputModule: modId,
       input: { ...inp, data: {} }
-      // Optionally reset output when input changes
-      // outputModule: undefined,
-      // output: undefined,
     }))
-    setSeparateOffAction(false) // Reset for new input type
-    log.info('Input selected:', modId, inp)
+    setSeparateOffAction(false)
+    console.debug('Input selected:', modId, inp)
   }, [])
 
   const handleOutputSelect = useCallback((modId: ModuleId, outp: Omit<OutputData, 'data'>) => {
@@ -92,13 +86,12 @@ export const IoNewRow: FC<{
       outputModule: modId,
       output: { ...outp, data: {} }
     }))
-    log.info('Output selected:', modId, outp)
+    console.debug('Output selected:', modId, outp)
   }, [])
 
   const handleInputChange = useCallback((data: Record<string, any>) => {
     setRow(
       produce((draft: Partial<Row>) => {
-        // Ensure draft is typed
         if (draft.input) {
           if (
             draft.inputModule === 'alexa-module' &&
@@ -113,19 +106,18 @@ export const IoNewRow: FC<{
         }
       })
     )
-    log.info('Input data changed:', data)
+    console.debug('Input data changed:', data)
   }, [])
 
   const handleOutputChange = useCallback((data: Record<string, any>) => {
     setRow(
       produce((draft: Partial<Row>) => {
-        // Ensure draft is typed
         if (draft.output) {
           Object.assign(draft.output.data, data)
         }
       })
     )
-    log.info('Output data changed:', data)
+    console.debug('Output data changed:', data)
   }, [])
 
   const handleSave = () => {
@@ -135,7 +127,7 @@ export const IoNewRow: FC<{
       !templateRow.output ||
       !templateRow.outputModule
     ) {
-      log.info1('IoNewRow: Cannot save, input or output missing.')
+      console.warn('IoNewRow: Cannot save, input or output missing.')
       return
     }
 
@@ -167,23 +159,24 @@ export const IoNewRow: FC<{
     }
 
     const rowToSave: Row = {
-      id: templateRow.id!, // Assert id is present
+      id: templateRow.id!,
       inputModule: templateRow.inputModule,
+      enabled: true,
       input: {
         name: templateRow.input.name,
         icon: templateRow.input.icon,
         data: {
           ...templateRow.input.data,
           ...(finalTriggerState !== undefined && { triggerState: finalTriggerState }),
-          separateOffAction: undefined // Ensure this temporary flag is not saved
+          separateOffAction: undefined
         }
       },
       outputModule: templateRow.outputModule,
       output: {
-        name: templateRow.output.name, // Ensure name and icon are present
+        name: templateRow.output.name,
         icon: templateRow.output.icon,
-        data: { ...(templateRow.output.data || {}) }, // Ensure data is an object
-        settings: { ...(templateRow.output.settings || {}) } // Ensure settings is an object
+        data: { ...(templateRow.output.data || {}) },
+        settings: { ...(templateRow.output.settings || {}) }
       }
     }
 
@@ -195,11 +188,10 @@ export const IoNewRow: FC<{
     }
 
     if (rowToSave.inputModule === 'midi-module' && !rowToSave.input.data.value) {
-      // Potentially set a default value if MIDI note wasn't captured, or validate
-      log.info1('MIDI row saved without a specific note value in input.data.value')
+      console.debug('MIDI row saved without a specific note value in input.data.value')
     }
 
-    log.success('Saving row:', rowToSave)
+    console.debug('Saving row:', rowToSave)
     addRow(rowToSave)
 
     if (triggerNextPrefill) {

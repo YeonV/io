@@ -2,7 +2,7 @@
 import { ipcMain, type BrowserWindow } from 'electron'
 import { getMainWindow, getStore } from './windowManager.js'
 import { mainModuleHandlers } from '../renderer/src/modules/modules.main.js' // Path from out/main to out/renderer
-import type { ProfileDefinition, Row } from '../shared/types.js'
+import type { Row } from '../shared/types.js'
 
 let currentActiveProfileForMain: { id: string | null; includedRowIds: string[] | null } = {
   id: null,
@@ -21,14 +21,17 @@ export async function loadAndInitializeAllMainModules(): Promise<void> {
   ipcMain.on(
     'active-profile-changed-for-main',
     (_event, profileData: { activeProfileId: string | null; includedRowIds: string[] | null }) => {
-      console.log(`Main (moduleLoader): Received 'active-profile-changed-for-main'`, profileData)
+      console.debug(`Main (moduleLoader): Received 'active-profile-changed-for-main'`, profileData)
       currentActiveProfileForMain = {
         id: profileData.activeProfileId,
         includedRowIds: profileData.includedRowIds
       }
-      // When profile changes, it's crucial to re-evaluate things that depend on it, like shortcuts
-      // This is already handled because renderer's setActiveProfile also re-sends 'rows' via 'set' IPC
-      // which triggers notifyMainModulesOnRowsUpdate.
+      const storeInstance = getStore()
+      const currentRows = storeInstance?.get('rows')
+      if (currentRows) {
+        console.debug('Main (moduleLoader): Profile changed, notifying modules with current rows.')
+        notifyMainModulesOnRowsUpdate(currentRows)
+      }
     }
   )
 
@@ -37,7 +40,7 @@ export async function loadAndInitializeAllMainModules(): Promise<void> {
   for (const modulePart of mainModuleHandlers) {
     if (modulePart && typeof modulePart.initialize === 'function' && modulePart.moduleId) {
       try {
-        console.log(
+        console.debug(
           `Main (moduleLoader): Initializing main part for module ID: ${modulePart.moduleId}`
         )
         await Promise.resolve(
@@ -50,7 +53,7 @@ export async function loadAndInitializeAllMainModules(): Promise<void> {
         )
       }
     } else if (modulePart && modulePart.moduleId) {
-      console.log(
+      console.debug(
         `Main (moduleLoader): Registered main part for module ID: ${modulePart.moduleId} (no initialize function).`
       )
     } else {
@@ -60,15 +63,15 @@ export async function loadAndInitializeAllMainModules(): Promise<void> {
       )
     }
   }
-  console.log('Main (moduleLoader): Finished initializing main module parts.')
+  console.debug('Main (moduleLoader): Finished initializing main module parts.')
 }
 
 export async function cleanupAllMainModules(): Promise<void> {
-  console.log('Main (moduleLoader): Cleaning up all main module parts...')
+  console.debug('Main (moduleLoader): Cleaning up all main module parts...')
   for (const modulePart of mainModuleHandlers) {
     if (modulePart && typeof modulePart.cleanup === 'function') {
       try {
-        console.log(
+        console.debug(
           `Main (moduleLoader): Cleaning up main part for module ID: ${modulePart.moduleId}`
         )
         await Promise.resolve(modulePart.cleanup())
@@ -83,7 +86,7 @@ export async function cleanupAllMainModules(): Promise<void> {
 }
 
 export async function notifyMainModulesOnRowsUpdate(rows: Record<string, Row>): Promise<void> {
-  console.log('Main (moduleLoader): Notifying main module parts of row update...')
+  console.debug('Main (moduleLoader): Notifying main module parts of row update...')
   const deps: MainModuleDeps = {
     ipcMain,
     getMainWindow,
@@ -93,7 +96,7 @@ export async function notifyMainModulesOnRowsUpdate(rows: Record<string, Row>): 
   for (const modulePart of mainModuleHandlers) {
     if (modulePart && typeof modulePart.onRowsUpdated === 'function') {
       try {
-        console.log(
+        console.debug(
           `Main (moduleLoader): Notifying ${modulePart.moduleId} of row update. Row count: ${Object.keys(rows).length}`
         )
         await Promise.resolve(modulePart.onRowsUpdated(rows, deps))

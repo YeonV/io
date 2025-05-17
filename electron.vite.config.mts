@@ -21,6 +21,10 @@ export default defineConfig({
         '@shared': resolve('src/shared')
       }
     },
-    plugins: [react()]
+    plugins: [react()],
+    server: {
+      host: '0.0.0.0', // Listen on all available network interfaces
+      port: 5173 // Your Vite dev port
+    }
   }
 })
