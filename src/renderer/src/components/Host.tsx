@@ -47,21 +47,6 @@ const Host = ({
             error={success !== undefined ? !success : false}
             label="Host:Port"
             value={innerHost}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  {loading ? (
-                    <CircularProgress size="1rem" />
-                  ) : success === true ? (
-                    <IoIcon name="check_circle_outlined" />
-                  ) : success === false ? (
-                    <IoIcon name="highlight_off" />
-                  ) : (
-                    <></>
-                  )}
-                </InputAdornment>
-              )
-            }}
             onBlur={async (e) => {
               try {
                 setLoading(true)
@@ -103,13 +88,30 @@ const Host = ({
               }
             }}
             sx={{ mt: 2 }}
-            inputProps={{
-              style: {
-                paddingLeft: '20px'
-              }
-            }}
             variant="outlined"
-          />
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    {loading ? (
+                      <CircularProgress size="1rem" />
+                    ) : success === true ? (
+                      <IoIcon name="check_circle_outlined" />
+                    ) : success === false ? (
+                      <IoIcon name="highlight_off" />
+                    ) : (
+                      <></>
+                    )}
+                  </InputAdornment>
+                )
+              },
+
+              htmlInput: {
+                style: {
+                  paddingLeft: '20px'
+                }
+              }
+            }} />
         </div>
         <Button
           size="small"
@@ -181,6 +183,6 @@ const Host = ({
         <></>
       )}
     </>
-  )
+  );
 }
 export default Host
