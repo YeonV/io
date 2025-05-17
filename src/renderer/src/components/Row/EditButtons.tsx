@@ -20,12 +20,14 @@ const EditButtons = ({
           onChange({ command: e.target.value })
         }}
         sx={{ mt: 2 }}
-        inputProps={{
-          style: {
-            paddingLeft: '20px'
+        variant="outlined"
+        slotProps={{
+          htmlInput: {
+            style: {
+              paddingLeft: '20px'
+            }
           }
         }}
-        variant="outlined"
       />
       <TextField
         fullWidth
@@ -35,15 +37,17 @@ const EditButtons = ({
           onChange({ text: e.target.value })
         }}
         sx={{ mt: 2 }}
-        inputProps={{
-          style: {
-            paddingLeft: '20px'
+        variant="outlined"
+        slotProps={{
+          htmlInput: {
+            style: {
+              paddingLeft: '20px'
+            }
           }
         }}
-        variant="outlined"
       />
     </>
-  )
+  );
 }
 
 export default EditButtons

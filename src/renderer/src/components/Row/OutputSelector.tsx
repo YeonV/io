@@ -89,16 +89,18 @@ export const OutputSelector: FC<{
           {...params}
           label="Select Output"
           disabled={disabled}
-          InputProps={{
-            ...params.InputProps,
-            startAdornment: (
-              <>
-                <IoIcon
-                  style={{ marginLeft: '10px', marginRight: '5px' }}
-                  name={selectedOption?.icon}
-                />
-              </>
-            )
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              startAdornment: (
+                <>
+                  <IoIcon
+                    style={{ marginLeft: '10px', marginRight: '5px' }}
+                    name={selectedOption?.icon}
+                  />
+                </>
+              )
+            }
           }}
         />
       )}
@@ -117,5 +119,5 @@ export const OutputSelector: FC<{
       }}
       readOnly={disabled}
     />
-  )
+  );
 }

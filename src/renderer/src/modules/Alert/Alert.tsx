@@ -48,21 +48,6 @@ export const OutputEdit: FC<{
     'info' as 'default' | 'error' | 'success' | 'warning' | 'info'
   )
   return (
-    <>
-      <div style={{ marginTop: '1rem', width: '100%' }} />
-      <Select
-        fullWidth
-        label={'Variant'}
-        value={variant}
-        onChange={(e: any) => onChange({ variant: e.target.value })}
-      >
-        <MenuItem value={'success'}>Success</MenuItem>
-        <MenuItem value={'info'}>Info</MenuItem>
-        <MenuItem value={'warning'}>Warning</MenuItem>
-        <MenuItem value={'error'}>Error</MenuItem>
-      </Select>
-      <EditButtons data={output} onChange={onChange} title="Message" />
-    </>
     // <TextField
     //   fullWidth
     //   value={output.data.text ?? ''}
@@ -78,7 +63,22 @@ export const OutputEdit: FC<{
     //   }}
     //   variant='standard'
     // />
-  )
+    <>
+      <div style={{ marginTop: '1rem', width: '100%' }} />
+      <Select
+        fullWidth
+        label={'Variant'}
+        value={variant}
+        onChange={(e: any) => onChange({ variant: e.target.value })}
+      >
+        <MenuItem value={'success'}>Success</MenuItem>
+        <MenuItem value={'info'}>Info</MenuItem>
+        <MenuItem value={'warning'}>Warning</MenuItem>
+        <MenuItem value={'error'}>Error</MenuItem>
+      </Select>
+      <EditButtons data={output} onChange={onChange} title="Message" />
+    </>
+  );
 }
 
 export const useOutputActions = (row: Row) => {

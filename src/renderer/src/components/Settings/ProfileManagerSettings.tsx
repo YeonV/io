@@ -301,7 +301,6 @@ export const ProfileManagerSettings: FC = () => {
           ))}
         </Select>
       </FormControl>
-
       <Button
         startIcon={<Settings />}
         onClick={handleOpenProfileManager}
@@ -312,7 +311,6 @@ export const ProfileManagerSettings: FC = () => {
       >
         Manage Profiles
       </Button>
-
       {/* Dialog to List/Edit/Delete Profiles */}
       <Dialog
         open={manageProfilesDialogOpen}
@@ -364,8 +362,10 @@ export const ProfileManagerSettings: FC = () => {
                   <ListItemText
                     primary={p.name}
                     secondary={`${p.includedRowIds.length} rows included. ${activeProfileId === p.id ? '(Active)' : ''}`}
-                    primaryTypographyProps={{
-                      fontWeight: activeProfileId === p.id ? 'bold' : 'normal'
+                    slotProps={{
+                      primary: {
+                        fontWeight: activeProfileId === p.id ? 'bold' : 'normal'
+                      }
                     }}
                   />
                 </ListItem>
@@ -377,7 +377,6 @@ export const ProfileManagerSettings: FC = () => {
           <Button onClick={handleCloseProfileManager}>Close</Button>
         </DialogActions>
       </Dialog>
-
       {/* Dialog for Adding/Editing a single profile (reused) */}
       <ProfileEditorDialog
         open={profileEditorOpen}
@@ -390,7 +389,7 @@ export const ProfileManagerSettings: FC = () => {
         allRows={allRows}
       />
     </Paper>
-  )
+  );
 }
 
 // Make sure to export it if it's not the default, or make it default

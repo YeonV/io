@@ -55,15 +55,17 @@ export const OutputEdit: FC<{
           })
         }}
         sx={{ mt: 2 }}
-        inputProps={{
-          style: {
-            paddingLeft: '20px'
+        variant="outlined"
+        slotProps={{
+          htmlInput: {
+            style: {
+              paddingLeft: '20px'
+            }
           }
         }}
-        variant="outlined"
       />
     </>
-  )
+  );
 }
 
 export const useOutputActions = (row: Row) => {

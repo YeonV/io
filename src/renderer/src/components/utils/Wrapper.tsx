@@ -118,7 +118,7 @@ const Wrapper = ({ children }: any) => {
         </footer>
       </div>
     </Box>
-  )
+  );
 }
 
 export default Wrapper

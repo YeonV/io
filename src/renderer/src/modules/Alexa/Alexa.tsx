@@ -51,8 +51,10 @@ export const InputEdit: FC<{
         value={deviceName}
         onChange={handleDeviceNameChange}
         sx={{ mt: 2 }}
-        inputProps={{ style: { paddingLeft: '20px' } }}
         variant="outlined"
+        slotProps={{
+          htmlInput: { style: { paddingLeft: '20px' } }
+        }}
       />
       <FormControlLabel
         control={
@@ -74,7 +76,7 @@ export const InputEdit: FC<{
         }}
       />
     </>
-  )
+  );
 }
 
 // --- InputDisplay Component ---

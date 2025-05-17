@@ -113,7 +113,9 @@ const Shortkey = ({
         onKeyDown={handleKeyDown}
         onKeyUp={handleKeyUp}
         onBlur={handleBlur}
-        InputLabelProps={{ shrink: true }}
+        slotProps={{
+          inputLabel: { shrink: true }
+        }}
       />
       <Stack
         direction={'row'}
@@ -163,7 +165,7 @@ const Shortkey = ({
         <Typography sx={{ fontSize: '12px', color: 'text.disabled' }}>Not Set</Typography>
       )}
     </Stack>
-  )
+  );
 }
 
 export default Shortkey

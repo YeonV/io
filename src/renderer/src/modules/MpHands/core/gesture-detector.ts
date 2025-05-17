@@ -63,12 +63,11 @@ function isFingerStretched(
   const f = fingers[finger]
   if (finger === 'thumb') {
     return (
-      landmarks[f[0]].x < landmarks[f[1]].x &&
-      landmarks[f[1]].x < landmarks[f[3]].x &&
-      distance(landmarks[f[2]], landmarks[fingers.index[0]]) > 0.1
       // distance(landmarks[f[3]], landmarks[fingers.index[0]]) >
       //   distance(landmarks[f[2]], landmarks[f[3]]) &&
-    )
+      (landmarks[f[0]].x < landmarks[f[1]].x &&
+      landmarks[f[1]].x < landmarks[f[3]].x && distance(landmarks[f[2]], landmarks[fingers.index[0]]) > 0.1)
+    );
   }
   return (
     (landmarks[f[0]].x < landmarks[f[1]].x && landmarks[f[1]].x < landmarks[f[3]].x) ||

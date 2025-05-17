@@ -41,13 +41,15 @@ export const OutputEdit: FC<{
           onChange({ host: e.target.value })
         }}
         sx={{ mt: 2 }}
-        inputProps={{
-          style: {
-            height: '50px',
-            paddingLeft: '10px'
+        variant="outlined"
+        slotProps={{
+          htmlInput: {
+            style: {
+              height: '50px',
+              paddingLeft: '10px'
+            }
           }
         }}
-        variant="outlined"
       />
       <TextField
         fullWidth
@@ -60,13 +62,15 @@ export const OutputEdit: FC<{
           // onChange({ host: e.target.value })
         }}
         sx={{ mt: 2 }}
-        inputProps={{
-          style: {
-            height: '50px',
-            paddingLeft: '10px'
+        variant="outlined"
+        slotProps={{
+          htmlInput: {
+            style: {
+              height: '50px',
+              paddingLeft: '10px'
+            }
           }
         }}
-        variant="outlined"
       />
       <TextField
         fullWidth
@@ -79,13 +83,15 @@ export const OutputEdit: FC<{
           // onChange({ host: e.target.value })
         }}
         sx={{ mt: 2 }}
-        inputProps={{
-          style: {
-            height: '50px',
-            paddingLeft: '10px'
+        variant="outlined"
+        slotProps={{
+          htmlInput: {
+            style: {
+              height: '50px',
+              paddingLeft: '10px'
+            }
           }
         }}
-        variant="outlined"
       />
       <TextField
         fullWidth
@@ -98,16 +104,18 @@ export const OutputEdit: FC<{
           // onChange({ host: e.target.value })
         }}
         sx={{ mt: 2 }}
-        inputProps={{
-          style: {
-            height: '50px',
-            paddingLeft: '10px'
+        variant="outlined"
+        slotProps={{
+          htmlInput: {
+            style: {
+              height: '50px',
+              paddingLeft: '10px'
+            }
           }
         }}
-        variant="outlined"
       />
     </>
-  )
+  );
 }
 
 export const OutputDisplay: FC<{

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   Box,
   FormControl,
-  Grid2 as Grid,
+  Grid,
   IconButton,
   MenuItem,
   Select,
