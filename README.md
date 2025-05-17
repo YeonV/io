@@ -119,23 +119,93 @@ Create custom "Rows" where you define an input trigger and link it to a desired 
 
 ## 💡 Vision & Future Ideas
 
-IO is designed to be a flexible automation hub. Here are some directions we're exploring or could explore in the future:
 
-*   **Advanced Workflow Engine:**
-    *   Multiple Inputs triggering the same Row/Action.
-    *   A single Input triggering a chain of multiple Outputs (sequentially or in parallel).
-    *   Conditional logic within workflows.
-    *   (Inspired by Home Assistant's script editor UI or Node-RED for a visual approach).
-*   **More Modules!** The sky's the limit:
-    *   Other voice assistants (Google Assistant).
-    *   Integrations with specific apps (OBS, Spotify, Discord).
-    *   Hardware integrations (Elgato Stream Deck, Philips Hue directly).
-    *   Webhooks as inputs.
-*   **Enhanced Deck Functionality:**
-    *   Real-time state feedback on Deck buttons.
-    *   More customization options for Deck layout.
-*   **User Accounts & Cloud Sync (Optional):** For syncing configurations across devices.
-*   **Improved "Edit Row" Functionality:** Currently, rows are delete-and-recreate; full editing is a planned improvement.
+
+<details><summary>Completed tasks</summary>
+
+## ✅ Recently Completed - Major Architectural Overhaul!
+
+*   **Core Architecture:**
+    *   [X] Zustand `mainStore` holds only data (`ModuleConfig`).
+    *   [X] `moduleRegistry` (renderer) for FCs/hooks.
+    *   [X] `sync-modules.js` script generates `modules.ts` and `modules.main.ts`.
+    *   [X] `moduleLoader.ts` (main) dynamically initializes main-side modules from co-located `ModuleName.main.ts` files.
+    *   [X] `index.ts` (main) fully refactored into manager files.
+*   **Legacy Store (`OLD/useStore`):**
+    *   [X] **COMPLETELY REMOVED!**
+*   **Key Modules Refactored:**
+    *   [X] Keyboard: Global shortcuts via `Keyboard.main.ts`, profile-aware.
+    *   [X] Alexa: Main logic in `Alexa.main.ts`, debounce, port management.
+    *   [X] Shell: Main logic in `Shell.main.ts`.
+    *   [X] MQTT: Full refactor - UI uses Profiles, Main process client, IPC, input triggering with topic/payload matching works, output works.
+    *   [X] Say: Profile-aware, speech cancellation fixed.
+    *   [X] Mediapipe (Hands, Holistic): Refactored for `cameraActive` config.
+*   **Row Functionality:**
+    *   [X] Per-row `enabled` toggle implemented and functional.
+*   **Profiles (Phase P1 & P2 - Core Manual Functionality):**
+    *   [X] Data structures for `ProfileDefinition` in `mainStore`.
+    *   [X] `mainStore` actions for profile CRUD & activation.
+    *   [X] `ProfileManagerSettings.tsx` UI: Create, edit (incl. row selection), delete, and manually activate profiles.
+    *   [X] `useRowActivation` hook integrated; rows respect `row.enabled` AND active profile.
+    *   [X] Main process modules (Keyboard, MQTT via `onRowsUpdated`) made profile-aware.
+*   **Deck Real-Time Updates:**
+    *   [X] Implemented "Event-Driven Polling" using SSE. Deck connects to an SSE endpoint and re-fetches data upon receiving an update signal from the main IO app.
+*   **Activate Profile Output Module:**
+    *   [X] Create `ActivateProfile.tsx` module.
+    *   [X] `OutputEdit`: Dropdown to select a target `ProfileDefinition` ID.
+    *   [X] `useOutputActions`: Calls `mainStore.setActiveProfile(targetProfileId)`.
+
+</details>
+
+<details><summary>Upcoming tasks</summary>
+
+## 🚀 Next Up: Enhancing Profiles & Core Functionality
+
+
+*   **2. Time-Based Input Module:**
+    *   Create `TimeTrigger.tsx` module.
+    *   `InputEdit`: UI for HH:MM, days of week, recurring/once.
+    *   `useGlobalActions`: Manages `setInterval` to check time against active TimeTrigger rows.
+*   **3. MQTT Module - Final Polish & Testing:**
+    *   Rigorously test MQTT Input with various `matchPayload` / `matchType` / `jsonPath` combinations.
+    *   Review client lifecycle management in `MQTT.main.ts` for robustness (e.g., explicit client closing if no rows use it after a while).
+
+## 💡 Future Features & Ideas (The Big List - Not Strictly Ordered)
+
+*   **Profiles - Phase 3+:**
+    *   [x] Deck UI uses `deckStore` to save its layout *per IO Profile* (e.g., to `localStorage` on Deck client, or synced back to main app).
+    *   [ ] Allow profiles to override specific module global settings (e.g., a profile could set `midiActive` to `false`).
+*   **REST Module - Presets/Blueprints:**
+    *   [ ] UI to save/load/manage named REST request configurations.
+    *   [ ] `REST.tsx -> OutputEdit` allows selecting a preset or defining custom.
+*   **mDNS/Bonjour Integration:**
+    *   [ ] Announce IO instance (Deck URL, API port).
+    *   [ ] Announce specific triggerable input endpoints (e.g., REST inputs if implemented).
+    *   [ ] mDNS-based discovery in output modules (WLED, LedFx) to simplify device IP config.
+*   **LedFx-Inspired Input Modules (Deferred "Monkey Work"):**
+    *   [ ] MIDI Controller Input (Full refactor/enhancement of existing IO MIDI for notes, CCs, etc.).
+    *   [ ] Gamepad Input Module.
+*   **Advanced Workflow / Scripting Engine (Major Feature):**
+    *   [ ] "Sequence" Output Module (MVP: run existing outputs in order, delays).
+    *   [ ] Ability to reference "defined outputs" in sequences.
+    *   [ ] More complex conditional logic for inputs/outputs.
+*   **More Input/Output Modules:**
+    *   [ ] Spotify Song Trigger (OAuth, API polling).
+    *   [ ] System Audio Level / Active Window Title Inputs (OS-level integration).
+*   **UI/UX Polish & General Enhancements:**
+    *   [ ] **"Edit Row" Functionality:** Allow full editing of existing rows, not just delete & re-create.
+    *   [ ] MQTT Message Monitor/Viewer in IO UI.
+    *   [ ] More granular error feedback to the user.
+    *   [ ] Improved styling consistency, theming options.
+    *   [ ] Internationalization (i18n).
+    *   [ ] Comprehensive user documentation.
+*   **Developer Experience:**
+    *   [X] Example Module (`Example.tsx`, `Example.main.ts`) as a template. (We just defined it!)
+    *   [ ] Refine `sync-modules.js` for robustness (e.g., better ID extraction if not relying on var name).
+
+</details>
+
+
 
 ## 🤝 Contributing
 
