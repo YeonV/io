@@ -43,6 +43,10 @@ try {
             if (fs.existsSync(mainLogicSourceFile)) {
                 const mainModuleVarName = `${moduleName.toLowerCase().replace(/-/g, '')}Main`
                 // Assumes ModuleName.main.ts default exports the IOMainModulePart compatible object
+                if (moduleName.toLowerCase() === 'example') {
+                    console.log("SYNC-MODULES: Skipping 'Example' module for production registries.");
+                    continue; // Skip this directory
+                }
                 mainRegistryImportsArray.push(`import ${mainModuleVarName} from '${mainLogicFileForImport}'`)
                 mainRegistryHandlersArray.push(`  ${mainModuleVarName}`)
             }

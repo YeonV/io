@@ -27,6 +27,8 @@ const Deck = () => {
     rowsForCurrentProfile,
     deckLayouts,
     showSettings,
+    initializeSse,
+    closeSse,
     fetchAllProfiles,
     fetchCurrentActiveIoProfile,
     // fetchRowsForProfile,
@@ -47,6 +49,7 @@ const Deck = () => {
   // const [showSettings, setShowSettings] = useState(false)
 
   useEffect(() => {
+    initializeSse()
     fetchAllProfiles()
     fetchCurrentActiveIoProfile()
     console.info(
@@ -59,29 +62,10 @@ const Deck = () => {
     console.log('Deck: rowsForCurrentProfile:', rowsForCurrentProfile)
     console.log('Deck: allProfiles:', allProfiles)
     console.log('Deck: deckLayouts:', deckLayouts)
-  }, [fetchAllProfiles, fetchCurrentActiveIoProfile])
-
-  // console.log('Deck: showSettings:', showSettings)
-  // console.log('Deck: magicNumber:', magicNumber)
-  // console.log('Deck: width:', width)
-  // console.log('Deck: disableDrag:', disableDrag)
-  // console.log('Deck: appDarkMode:', appDarkMode)
-
-  // useEffect(() => {
-  //   const getRows = async () => {
-  //     const res = await fetch(`http://${location.hostname}:1337/rows`)
-  //     const out = await res.json()
-  //     return out
-  //   }
-  //   getRows().then((d: Record<string, Row>) => {
-  //     setData(d)
-  //   })
-  //   console.info(
-  //     '%c   IO  ' + '%c\n ReactApp by Blade ',
-  //     'padding: 10px 40px; color: #ffffff; border-radius: 5px 5px 0 0; background-color: #123456;',
-  //     'background: #fff; color: #123456; border-radius: 0 0 5px 5px;padding: 5px 0;'
-  //   )
-  // }, [])
+    return () => {
+      closeSse()
+    }
+  }, [initializeSse, closeSse, fetchAllProfiles, fetchCurrentActiveIoProfile])
 
   useEffect(() => {
     setMagicNumber(Math.floor(width / Math.floor(width / 120)) - Math.ceil(width / 120))
@@ -96,7 +80,7 @@ const Deck = () => {
 
   const handleProfileChangeOnDeck = (event: SelectChangeEvent<string>) => {
     const newProfileId = event.target.value || null
-    activateIoProfile(newProfileId) // This tells main app to switch, then Deck re-fetches
+    activateIoProfile(newProfileId)
   }
 
   return (

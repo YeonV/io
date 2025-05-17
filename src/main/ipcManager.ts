@@ -3,6 +3,7 @@ import { ipcMain, nativeTheme, app } from 'electron'
 import { getStore, getMainWindow } from './windowManager.js'
 import { notifyMainModulesOnRowsUpdate } from './moduleLoader.js'
 import type { Row } from '../shared/types.js'
+import { broadcastSseUpdateSignal } from './sseManager.js'
 
 export function initializeBaseIpcHandlers(): void {
   console.log('Main (ipcManager): Initializing Base IPC Handlers...')
@@ -32,6 +33,10 @@ export function initializeBaseIpcHandlers(): void {
           "Main (ipcManager): 'rows' key updated but value was null/undefined, notifying with empty rows."
         )
       }
+    }
+
+    if (key === 'rows' || key === 'profiles' || key === 'activeProfileId') {
+      broadcastSseUpdateSignal(key)
     }
   })
 

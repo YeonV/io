@@ -39,6 +39,8 @@ export interface DeckState {
   // or Deck could have its own darkMode if it's a separate PWA.
 
   // Actions
+  initializeSse: () => void // Initialize SSE connection to main app
+  closeSse: () => void // Close SSE connection
   fetchAllProfiles: () => Promise<void>
   fetchRowsForProfile: (profileId: string | null) => Promise<void>
   fetchCurrentActiveIoProfile: () => Promise<void> // To know what the main app is on
@@ -48,6 +50,8 @@ export interface DeckState {
   activateIoProfile: (profileId: string | null) => Promise<void> // Tells main app to switch
 }
 
+let sseEventSource: EventSource | null = null
+
 export const useDeckStore = create<DeckState>()(
   persist(
     (set, get) => ({
@@ -56,6 +60,57 @@ export const useDeckStore = create<DeckState>()(
       rowsForCurrentProfile: {},
       deckLayouts: {}, // Persist this
       showSettings: false,
+
+      initializeSse: () => {
+        if (
+          sseEventSource &&
+          (sseEventSource.readyState === EventSource.OPEN ||
+            sseEventSource.readyState === EventSource.CONNECTING)
+        ) {
+          console.debug('DeckStore SSE: Already connected or connecting.')
+          return
+        }
+        if (sseEventSource) {
+          sseEventSource.close() // Close any old one
+        }
+
+        console.debug('DeckStore SSE: Attempting to connect to /api/events')
+        sseEventSource = new EventSource(`http://${location.hostname}:1337/api/events`)
+
+        sseEventSource.onopen = () => {
+          console.debug('DeckStore SSE: Connection opened!')
+        }
+
+        sseEventSource.onerror = (error) => {
+          console.error('DeckStore SSE: Error occurred', error)
+          // sseEventSource?.close(); // Optionally close on error to allow retry by re-calling initializeSse
+        }
+
+        // Listen for our custom 'io-state-updated' event
+        sseEventSource.addEventListener('io-state-updated', (event) => {
+          const eventData = JSON.parse((event as MessageEvent).data)
+          console.debug("DeckStore SSE: Received 'io-state-updated' signal!", eventData)
+
+          // When signal received, re-fetch relevant data
+          // We could be more granular based on eventData.type if the server sent it
+          get().fetchCurrentActiveIoProfile() // This fetches active profile ID and then its rows
+          get().fetchAllProfiles() // Also re-fetch all profiles in case they changed
+        })
+
+        // Optional: generic message handler
+        // sseEventSource.onmessage = (event) => {
+        //   log.debug("DeckStore SSE: Generic message received", event.data);
+        // };
+      },
+
+      // --- Action to close SSE connection ---
+      closeSse: () => {
+        if (sseEventSource) {
+          console.debug('DeckStore SSE: Closing SSE connection.')
+          sseEventSource.close()
+          sseEventSource = null
+        }
+      },
 
       fetchAllProfiles: async () => {
         try {

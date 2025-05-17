@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url'
 import { app, type BrowserWindow } from 'electron'
 import type { ProfileDefinition, Row } from '../shared/types.js'
 import { getStore } from './windowManager.js'
+import { initializeSseEndpoint } from './sseManager.js'
 
 const currentModuleDir = dirname(fileURLToPath(import.meta.url))
 
@@ -24,6 +25,9 @@ export async function startExpressApi(mainWindow: BrowserWindow | null): Promise
     const cors = await import('cors')
 
     webapp.use(cors.default())
+    webapp.use(express.json())
+
+    initializeSseEndpoint(webapp)
 
     webapp.get('/rows', async (req: any, res: any) => {
       const rowsFromStore: Record<string, Row> | undefined = storeInstance.get('rows')

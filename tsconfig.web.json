@@ -14,6 +14,7 @@
     "src/renderer/src/**/*.test.ts",
     "scripts/*.ts",
     "scripts/*.js",
+    "src/renderer/src/modules/Example/*"
   ],
   "compilerOptions": {
     "composite": true,
