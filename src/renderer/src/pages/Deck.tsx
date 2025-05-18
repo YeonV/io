@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import {
   Box,
   FormControl,
@@ -6,19 +6,21 @@ import {
   IconButton,
   MenuItem,
   Select,
-  SelectChangeEvent,
+  type SelectChangeEvent,
   Typography
 } from '@mui/material'
-import { Rnd } from 'react-rnd'
-import { useMainStore } from '@/store/mainStore'
-import { useDeckStore } from '@/store/deckStore'
+import { Rnd, type ResizeEnable } from 'react-rnd' // Import ResizeEnable for explicit typing
+import { useDeckStore, type DeckTileLayout } from '@/store/deckStore' // Assuming path is correct
 import { DarkMode, LightMode, Settings, Sync } from '@mui/icons-material'
-import DeckButton from '@/components/DeckButton'
+import DeckButton from '@/components/DeckButton' // Assuming path
 import 'react-resizable/css/styles.css'
-import 'react-grid-layout/css/styles.css'
-import { useWindowDimensions } from '@/utils'
+// 'react-grid-layout/css/styles.css'; // Only if you were using react-grid-layout directly
+
+import { useWindowDimensions } from '@/utils' // Assuming path
 import { useShallow } from 'zustand/react/shallow'
-// import { Row } from '@shared/types'
+import { useMainStore } from '@/store/mainStore' // For main app's dark mode
+
+const DEFAULT_MAGIC_NUMBER_RENDER = 120 // Base size for calculations
 
 const Deck = () => {
   const {
@@ -31,56 +33,94 @@ const Deck = () => {
     closeSse,
     fetchAllProfiles,
     fetchCurrentActiveIoProfile,
-    // fetchRowsForProfile,
     setDeckShowSettings,
-    updateDeckLayout,
-    // saveFullDeckLayoutForProfile,
+    updateAndSyncDeckTileLayout,
     activateIoProfile
-  } = useDeckStore(useShallow((state) => ({ ...state })))
+    // magicNumber: storeMagicNumber, // Get from store if managed there
+    // setMagicNumber: setStoreMagicNumber // Action to update store's magicNumber
+  } = useDeckStore(useShallow((state) => state)) // Get all state and actions
 
+  // For main app's dark mode if Deck is part of the same renderer context
   const appDarkMode = useMainStore((state) => state.ui.darkMode)
   const appSetDarkMode = useMainStore((state) => state.setDarkMode)
 
   const [disableDrag, setDisableDrag] = useState(false)
-  const { width } = useWindowDimensions()
-  const [magicNumber, setMagicNumber] = useState(120)
+  const { width: windowWidth } = useWindowDimensions() // Renamed to avoid conflict if 'width' is a prop
 
-  // const [data, setData] = useState({} as Record<string, Row>)
-  // const [showSettings, setShowSettings] = useState(false)
+  // Calculate magicNumber locally for rendering based on current window width
+  // This ensures the grid adapts, but w/h in store are grid units
+  const magicNumber = useMemo(() => {
+    if (windowWidth <= 0) return DEFAULT_MAGIC_NUMBER_RENDER
+    const preliminaryMaxCells = Math.floor(windowWidth / DEFAULT_MAGIC_NUMBER_RENDER) || 1
+    // This calculation can be simplified, aim is to get a cell size that fits well
+    // Example: const cellSize = windowWidth / preliminaryMaxCells; (would make cells fill width)
+    // For now, keeping your existing logic, but ensure it results in a sane positive number.
+    let calculated =
+      Math.floor(windowWidth / preliminaryMaxCells) -
+      Math.ceil(windowWidth / (preliminaryMaxCells * DEFAULT_MAGIC_NUMBER_RENDER)) // This formula seems off
+    calculated = Math.floor(
+      windowWidth / (Math.floor(windowWidth / DEFAULT_MAGIC_NUMBER_RENDER) || 1)
+    ) // Simplified attempt
+
+    // A more direct way to get a grid cell size that aims for around 120px
+    const numCols = Math.max(1, Math.floor(windowWidth / DEFAULT_MAGIC_NUMBER_RENDER))
+    const cellPaddingAndGaps = 16 // Estimate for Grid spacing and Rnd padding
+    const effectiveWidth = windowWidth - cellPaddingAndGaps
+    calculated = Math.max(30, Math.floor(effectiveWidth / numCols))
+
+    return calculated > 0 ? calculated : DEFAULT_MAGIC_NUMBER_RENDER
+  }, [windowWidth])
 
   useEffect(() => {
     initializeSse()
     fetchAllProfiles()
-    fetchCurrentActiveIoProfile()
+    fetchCurrentActiveIoProfile() // This will also trigger fetchRowsForProfile
+
     console.info(
-      '%c   IO  ' + '%c\n ReactApp by Blade ',
-      'padding: 10px 40px; color: #ffffff; border-radius: 5px 5px 0 0; background-color: #123456;',
+      '%c   IO Deck  %c\n   by Blade    ',
+      'padding: 10px 20px; color: #ffffff; border-radius: 5px 5px 0 0; background-color: #123456;',
       'background: #fff; color: #123456; border-radius: 0 0 5px 5px;padding: 5px 0;'
     )
-
-    console.log('Deck: currentIoProfileId:', currentIoProfileId)
-    console.log('Deck: rowsForCurrentProfile:', rowsForCurrentProfile)
-    console.log('Deck: allProfiles:', allProfiles)
-    console.log('Deck: deckLayouts:', deckLayouts)
     return () => {
       closeSse()
     }
   }, [initializeSse, closeSse, fetchAllProfiles, fetchCurrentActiveIoProfile])
 
+  // Debug logs for state changes
   useEffect(() => {
-    setMagicNumber(Math.floor(width / Math.floor(width / 120)) - Math.ceil(width / 120))
-  }, [width])
+    console.log('Deck State: currentIoProfileId changed to:', currentIoProfileId)
+    // fetchRowsForProfile is called within fetchCurrentActiveIoProfile
+  }, [currentIoProfileId])
 
-  const currentProfileLayout = currentIoProfileId ? deckLayouts[currentIoProfileId] : []
+  useEffect(() => {
+    console.log('Deck State: rowsForCurrentProfile changed:', rowsForCurrentProfile)
+  }, [rowsForCurrentProfile])
+
+  useEffect(() => {
+    console.log('Deck State: deckLayouts changed:', deckLayouts)
+  }, [deckLayouts])
+
+  const currentProfileLayout = currentIoProfileId ? deckLayouts[currentIoProfileId] || [] : []
 
   const handleToggleDarkmode = () => {
     if (appSetDarkMode) appSetDarkMode(!appDarkMode)
-    // If Deck had its own darkMode: deckStore.toggleDarkMode();
   }
 
   const handleProfileChangeOnDeck = (event: SelectChangeEvent<string>) => {
     const newProfileId = event.target.value || null
-    activateIoProfile(newProfileId)
+    activateIoProfile(newProfileId) // This tells main IO app to switch, SSE will update Deck's view
+  }
+
+  const resizeEnableOptions: ResizeEnable = {
+    // Explicit type for enableResizing
+    top: false,
+    right: false,
+    bottom: false,
+    left: false,
+    topRight: false,
+    bottomRight: showSettings && !disableDrag,
+    bottomLeft: false,
+    topLeft: false
   }
 
   return (
@@ -89,26 +129,25 @@ const Deck = () => {
         bgcolor: 'background.default',
         color: 'text.primary',
         overflowX: 'hidden',
-        minHeight: 'calc(100vh - 4px)',
+        minHeight: 'calc(100vh - 4px)', // Small gap for potential scrollbars
         paddingTop: '2px',
         paddingBottom: '2px',
-        flexDirection: 'column'
+        display: 'flex',
+        flexDirection: 'column', // Ensure flex for footer
+        position: 'relative' // For Rnd bounds if parent is not body
       }}
     >
       <Grid
-        container
-        spacing={1}
-        padding={1}
-        alignItems={'center'}
-        justifyContent={'center'}
+        container // Use MUI Grid container for overall structure
+        spacing={1} // Spacing between Rnd items (effectively margins for Rnd)
         sx={{
-          fontFamily: 'Montserrat-Alt1',
-          marginTop: '0',
-          paddingTop: '2px',
-          marginLeft: '2px',
-          marginRight: '2px',
-          minHeight: 'calc(100vh - 44px)',
-          border: showSettings ? '2px dashed #9993' : '',
+          flexGrow: 1, // Allow grid to take available space
+          fontFamily: 'Montserrat-Alt1', // Consider moving to theme
+          padding: '8px', // Padding around the grid
+          minHeight: 'calc(100vh - 50px)', // Adjust based on footer height
+          border: showSettings ? '2px dashed #9993' : '2px dashed transparent', // Keep space even when not shown
+          position: 'relative', // Rnd bounds='parent' needs a positioned parent
+          // Animation styles (as before)
           '& .icon:nth-of-type(2n)': {
             animationDelay: '-.75s',
             animationDuration: '.25s',
@@ -125,125 +164,142 @@ const Deck = () => {
             transformOrigin: '30% 5%'
           },
           '@keyframes keyframes1': {
-            '0%': {
-              transform: 'rotate(-1deg)',
-              animationTimingFunction: 'ease-in'
-            },
-            '50%': {
-              transform: 'rotate(1.5deg)',
-              animationTimingFunction: 'ease-out'
-            }
+            '0%': { transform: 'rotate(-1deg)', animationTimingFunction: 'ease-in' },
+            '50%': { transform: 'rotate(1.5deg)', animationTimingFunction: 'ease-out' }
           },
           '@keyframes keyframes2': {
-            '0%': {
-              transform: 'rotate(1deg)',
-              animationTimingFunction: 'ease-in'
-            },
-            '50%': {
-              transform: 'rotate(-1.5deg)',
-              animationTimingFunction: 'ease-out'
-            }
+            '0%': { transform: 'rotate(1deg)', animationTimingFunction: 'ease-in' },
+            '50%': { transform: 'rotate(-1.5deg)', animationTimingFunction: 'ease-out' }
           }
         }}
       >
-        <>
-          {Object.values(rowsForCurrentProfile).map((row, i) => {
-            const layoutProps = currentProfileLayout?.find((tile) => tile.id === row.id)
-            const defaultLayout = {
-              width: magicNumber,
-              height: magicNumber,
-              x: (i % Math.floor(width / magicNumber)) * magicNumber,
-              y: Math.floor(i / Math.floor(width / magicNumber)) * magicNumber
-            }
-            return (
-              <Rnd
-                key={row.id}
-                default={defaultLayout}
-                size={{
-                  width: layoutProps?.w || magicNumber,
-                  height: layoutProps?.h || magicNumber
-                }}
-                position={{
-                  x: layoutProps?.x || defaultLayout.x,
-                  y: layoutProps?.y || defaultLayout.y
-                }}
-                bounds={'parent'}
-                resizeGrid={[magicNumber, magicNumber]}
-                dragGrid={[magicNumber, magicNumber]}
-                disableDragging={!showSettings || disableDrag}
-                enableResizing={{
-                  top: false,
-                  right: false,
-                  bottom: false,
-                  left: false,
-                  topRight: false,
-                  bottomRight: showSettings && !disableDrag,
-                  bottomLeft: false,
-                  topLeft: false
-                }}
-                style={{
-                  padding: '4px',
-                  border: showSettings ? '1px dashed #9999' : ''
-                }}
-                onClick={(e) => e.preventDefault()}
-                onDragStop={(_e, d) => {
-                  console.log('Deck: onDragStop:', d)
-                  if (currentIoProfileId && showSettings) {
-                    // Only update if in edit mode
-                    const newPosition = {
-                      x: Math.round(d.x / magicNumber) * magicNumber,
-                      y: Math.round(d.y / magicNumber) * magicNumber
-                    }
-                    // updateDeckLayout should merge this position with existing w/h for the tile
-                    updateDeckLayout(currentIoProfileId, row.id, newPosition)
+        {Object.values(rowsForCurrentProfile).map((row, index) => {
+          const layoutProps = currentProfileLayout?.find((tile) => tile.id === row.id)
+
+          // Default position in pixels, calculated based on index if not in layout
+          const numCols = Math.max(1, Math.floor(windowWidth / magicNumber))
+          const defaultX = (index % numCols) * magicNumber
+          const defaultY = Math.floor(index / numCols) * magicNumber
+
+          // w/h in store are GRID UNITS. x/y in store are PIXELS.
+          const tileWidthGridUnits = layoutProps?.w || 1 // Default 1 grid unit wide
+          const tileHeightGridUnits = layoutProps?.h || 1 // Default 1 grid unit tall
+
+          const tilePixelWidth = tileWidthGridUnits * magicNumber
+          const tilePixelHeight = tileHeightGridUnits * magicNumber
+
+          const tilePixelX = layoutProps?.x ?? defaultX
+          const tilePixelY = layoutProps?.y ?? defaultY
+
+          return (
+            // Rnd items are direct children of the Grid for bounds='parent' to work with Grid's relative positioning.
+            // Grid item wrapping can interfere with Rnd's absolute positioning logic if not careful.
+            // For direct Rnd children, the Grid acts as the bounds.
+            <Rnd
+              key={row.id}
+              default={{
+                // Initial size and position if not in layout (in pixels)
+                width: tilePixelWidth,
+                height: tilePixelHeight,
+                x: tilePixelX,
+                y: tilePixelY
+              }}
+              size={{
+                // Controlled size (in pixels)
+                width: tilePixelWidth,
+                height: tilePixelHeight
+              }}
+              position={{
+                // Controlled position (in pixels)
+                x: tilePixelX,
+                y: tilePixelY
+              }}
+              minWidth={magicNumber} // Min width is one grid unit
+              minHeight={magicNumber} // Min height is one grid unit
+              bounds="parent" // Constrain to the Grid container
+              dragGrid={[magicNumber, magicNumber]}
+              resizeGrid={[magicNumber, magicNumber]}
+              disableDragging={!showSettings || disableDrag}
+              enableResizing={resizeEnableOptions}
+              style={{
+                // Rnd sets position: absolute. Padding is for content inside.
+                // Border visualizes the Rnd bounds during edit mode.
+                border: showSettings ? '1px dashed #9999' : 'none',
+                display: 'flex', // To help content within DeckButton fill Rnd
+                padding: '4px' // Padding around the DeckButton inside Rnd
+              }}
+              // onClick={(e) => e.preventDefault()} // Already handled by useLongPress in DeckButton for short press
+              onDragStop={(_e, d) => {
+                if (currentIoProfileId && showSettings) {
+                  const layoutChanges = {
+                    // x, y are pixels
+                    x: d.x, // Rnd provides final pixel position snapped to dragGrid
+                    y: d.y
                   }
-                }}
-                onResizeStop={(_e, _direction, refElement, _delta, position) => {
-                  console.log('Deck: onResizeStop:', position)
-                  if (currentIoProfileId && showSettings) {
-                    // Only update if in edit mode
-                    const newLayout = {
-                      // x: Math.round(position.x / magicNumber) * magicNumber,
-                      // y: Math.round(position.y / magicNumber) * magicNumber,
-                      x: position.x,
-                      y: position.y,
-                      w: Math.round(refElement.offsetWidth / magicNumber) * magicNumber,
-                      h: Math.round(refElement.offsetHeight / magicNumber) * magicNumber
-                    }
-                    updateDeckLayout(currentIoProfileId, row.id, newLayout)
+                  // w, h are not changed by drag, so they remain as per current tile state
+                  updateAndSyncDeckTileLayout(currentIoProfileId, row.id, layoutChanges)
+                }
+              }}
+              onResizeStop={(_e, _direction, refElement, _delta, position) => {
+                if (currentIoProfileId && showSettings) {
+                  const newLayoutChanges = {
+                    // x,y are pixels; w,h are GRID UNITS
+                    x: position.x,
+                    y: position.y,
+                    w: Math.max(1, Math.round(refElement.offsetWidth / magicNumber)),
+                    h: Math.max(1, Math.round(refElement.offsetHeight / magicNumber))
                   }
-                }}
-              >
-                <DeckButton
-                  row={row}
-                  showSettings={showSettings}
-                  profileId={currentIoProfileId}
-                  setShowSettings={setDeckShowSettings}
-                  setDisableDrag={setDisableDrag}
-                />
-              </Rnd>
-            )
-          })}
-          {Object.keys(rowsForCurrentProfile).length === 0 && 'NO ROWS IN THIS PROFILE'}
-        </>
+                  updateAndSyncDeckTileLayout(currentIoProfileId, row.id, newLayoutChanges)
+                }
+              }}
+            >
+              <DeckButton
+                row={row}
+                showSettings={showSettings}
+                profileId={currentIoProfileId}
+                setShowSettings={setDeckShowSettings}
+                setDisableDrag={setDisableDrag}
+              />
+            </Rnd>
+          )
+        })}
+        {Object.keys(rowsForCurrentProfile).length === 0 && (
+          <Grid size={{ xs: 12 }} sx={{ textAlign: 'center', mt: 4 }}>
+            {' '}
+            {/* Wrap message in Grid item for centering */}
+            <Typography variant="h6" color="textSecondary">
+              NO ROWS IN THIS PROFILE
+            </Typography>
+          </Grid>
+        )}
       </Grid>
-      <footer
-        style={{
+
+      <Box // Footer
+        component="footer"
+        sx={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          background: appDarkMode ? '#090909' : '#ddd'
+          p: '2px 8px', // Consistent padding
+          background: appDarkMode ? '#1e1e1e' : '#e0e0e0', // Slightly adjusted footer colors
+          borderTop: '1px solid',
+          borderColor: 'divider',
+          height: '44px', // Fixed height for footer
+          flexShrink: 0 // Prevent footer from shrinking
         }}
       >
-        <Box sx={{ p: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
-          <FormControl size="small" sx={{ minWidth: 200 }}>
+        {/* ... (Footer content: Profile Select, Typography, IconButtons as before) ... */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <FormControl size="small" sx={{ minWidth: 180, maxWidth: 300 }}>
             <Select
               value={currentIoProfileId || ''}
               onChange={handleProfileChangeOnDeck}
               displayEmpty
+              variant="outlined"
+              sx={{ fontSize: '0.875rem' }}
             >
               <MenuItem value="">
-                <em>None</em>
+                <em>View All Enabled</em>
               </MenuItem>
               {Object.values(allProfiles).map((p) => (
                 <MenuItem key={p.id} value={p.id}>
@@ -253,40 +309,30 @@ const Deck = () => {
             </Select>
           </FormControl>
         </Box>
-        <Typography fontFamily={'Montserrat-Alt1'} color={appDarkMode ? '#333' : '#999'}>
-          Hacked by Blade
-        </Typography>
-        <div
-          style={{
-            flexBasis: '100px',
-            justifyContent: 'flex-end',
-            display: 'flex'
+        <Typography
+          variant="caption"
+          sx={{
+            fontFamily: 'Montserrat-Alt1',
+            color: appDarkMode ? 'text.disabled' : 'text.secondary'
           }}
         >
-          <IconButton
-            onClick={() => {
-              window.location.reload()
-            }}
-            sx={{ opacity: 0.3 }}
-          >
-            <Sync />
+          IO Deck
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton onClick={() => window.location.reload()} title="Reload Deck">
+            <Sync fontSize="small" />
           </IconButton>
-          <IconButton
-            onClick={() => {
-              handleToggleDarkmode()
-            }}
-            sx={{ opacity: 0.3 }}
-          >
-            {appDarkMode ? <LightMode color="primary" /> : <DarkMode color="primary" />}
+          <IconButton onClick={handleToggleDarkmode} title="Toggle Dark Mode">
+            {appDarkMode ? <LightMode fontSize="small" /> : <DarkMode fontSize="small" />}
           </IconButton>
           <IconButton
             onClick={() => setDeckShowSettings(!showSettings)}
             title="Toggle Layout Edit Mode"
           >
-            <Settings color={showSettings ? 'primary' : 'action'} />
+            <Settings fontSize="small" color={showSettings ? 'primary' : 'action'} />
           </IconButton>
-        </div>
-      </footer>
+        </Box>
+      </Box>
     </Box>
   )
 }

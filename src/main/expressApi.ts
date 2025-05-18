@@ -108,6 +108,67 @@ export async function startExpressApi(mainWindow: BrowserWindow | null): Promise
       app.exit()
     })
 
+    webapp.post('/api/rows/:rowId/update-display', express.json(), (req, res) => {
+      const { rowId } = req.params
+      const { icon, label } = req.body // These are strings
+
+      if (!mainWindow) {
+        res.status(500).json({ error: 'Main window not available' })
+        return
+      }
+
+      const updatePayload: { rowId: string; icon?: string; label?: string } = { rowId }
+      if (icon !== undefined) updatePayload.icon = icon
+      if (label !== undefined) updatePayload.label = label
+
+      if (Object.keys(updatePayload).length > 1) {
+        // Ensure there's something to update besides rowId
+        console.log(
+          `Main (expressApi): IPC 'deck-update-row-display' for row ${rowId}`,
+          updatePayload
+        )
+        mainWindow.webContents.send('deck-update-row-display', updatePayload)
+        res.json({ success: true, message: 'Row display update request sent to renderer.' })
+      } else {
+        res.status(400).json({ error: 'No icon or label provided for update.' })
+      }
+    })
+
+    // Optional NEW: Endpoint for Deck to backup its full tile overrides (x,y,w,h,colors,variant etc.)
+    webapp.post('/api/deck/tile-override', express.json(), async (req, res): Promise<void> => {
+      const { profileId, rowId, overrideData } = req.body
+      if (!profileId || !rowId || !overrideData) {
+        res.status(400).json({ error: 'Missing data for tile override' })
+        return
+      }
+      const storeInstance = getStore()
+      if (!storeInstance) {
+        res.status(500).json({ error: 'Main store not available' })
+        return
+      }
+
+      try {
+        const allOverrides = storeInstance.get('deckTileOverrides', {}) as Record<
+          string,
+          Record<string, any>
+        >
+        if (!allOverrides[profileId]) {
+          allOverrides[profileId] = {}
+        }
+        allOverrides[profileId][rowId] = overrideData
+        await storeInstance.set('deckTileOverrides', allOverrides)
+        console.log(`Main (expressApi): Saved Deck tile override for ${profileId}/${rowId}`)
+        // Optionally broadcast an SSE if other Decks need to know about this backup change
+        // broadcastSseUpdateSignal(`deckTileOverride:${profileId}:${rowId}`);
+        res.json({ success: true })
+        return
+      } catch (error) {
+        console.error('Main (expressApi): Error saving deck tile override', error)
+        res.status(500).json({ error: 'Failed to save deck tile override' })
+        return
+      }
+    })
+
     // Serve static files for Deck UI
     // Ensure paths are correct relative to 'out/main' where this script runs
     webapp.use('/', express.static(join(currentModuleDir, '../renderer'))) // Serves main app (if needed by Deck)

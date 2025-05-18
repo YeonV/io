@@ -90,12 +90,12 @@ export const OutputEdit: FC<{
 }
 
 export const OutputDisplay: FC<{ output: OutputData }> = ({ output }) => {
-  const data = output.data as KeyboardOutputData
-  const desktop = useMediaQuery('(min-width:980px)')
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1 }}>
-      <DisplayButtons data={{ ...output, name: output.name || 'Press Keys' }} />
-      {desktop && <Shortkey value={data.shortcut || ''} />}
+      <DisplayButtons
+        data={{ ...output, name: output.label || output.name || 'Press Keys' }}
+        variant="text"
+      />
     </Box>
   )
 }

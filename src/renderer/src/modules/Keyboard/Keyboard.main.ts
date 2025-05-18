@@ -46,7 +46,7 @@ const keyboardMainModule: IOMainModulePart = {
           console.debug(
             `Main (${KEYBOARD_MODULE_ID}): RobotJS tapping key: '${key}' with modifiers: [${modifiers.join(', ')}]`
           )
-          robot.keyToggle(key, 'down', modifiers)
+          robot.keyTap(key, modifiers)
         } catch (e) {
           console.error(`Main (${KEYBOARD_MODULE_ID}): RobotJS error tapping key:`, e)
         }

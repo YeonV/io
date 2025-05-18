@@ -31,7 +31,7 @@ export const moduleConfig: ModuleConfig<{}> = {
   menuLabel: 'Application Control', // Or 'System', 'Profiles'
   inputs: [], // This is an output-only module
   outputs: [
-    { name: 'useShallow', icon: 'switch_account' } // Or 'group_work', 'person_play'
+    { name: 'Activate Profile', icon: 'switch_account' } // Or 'group_work', 'person_play'
   ],
   config: {
     enabled: true
