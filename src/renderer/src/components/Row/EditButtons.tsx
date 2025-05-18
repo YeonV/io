@@ -1,13 +1,16 @@
 import { InputData, OutputData } from '@shared/types'
-import { TextField } from '@mui/material'
+import { IconButton, TextField } from '@mui/material'
+import { RecordVoiceOver } from '@mui/icons-material'
 
 const EditButtons = ({
   data,
   title,
+  speak,
   onChange
 }: {
   data: InputData | OutputData
   title?: string
+  speak?: boolean
   onChange: (data: Record<string, any>) => void
 }) => {
   return (
@@ -26,6 +29,17 @@ const EditButtons = ({
             style: {
               paddingLeft: '20px'
             }
+          },
+          input: {
+            endAdornment: speak ? (
+              <IconButton
+                onClick={() =>
+                  window.speechSynthesis.speak(new SpeechSynthesisUtterance(data.data.command))
+                }
+              >
+                <RecordVoiceOver />
+              </IconButton>
+            ) : null
           }
         }}
       />

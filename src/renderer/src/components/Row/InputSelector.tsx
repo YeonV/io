@@ -67,10 +67,14 @@ export const InputSelector: FC<{
       disableClearable
       getOptionLabel={(option) => option?.label ?? ''}
       renderOption={(
-        props,
+        { key, ...props },
         option // MUI provides props with key
       ) => (
-        <ListItem {...props} style={{ display: 'flex', padding: '5px 15px', minWidth: '100px' }}>
+        <ListItem
+          {...props}
+          key={key}
+          style={{ display: 'flex', padding: '5px 15px', minWidth: '100px' }}
+        >
           <IoIcon style={{ marginRight: '10px' }} name={option.icon} />
           {option.label}
         </ListItem>

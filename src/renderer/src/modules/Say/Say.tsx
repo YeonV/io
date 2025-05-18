@@ -37,7 +37,7 @@ export const OutputEdit: FC<{
   output: OutputData
   onChange: (data: Record<string, any>) => void
 }> = ({ output, onChange }) => {
-  return <EditButtons data={output} onChange={onChange} title="Spoken Text" />
+  return <EditButtons data={output} onChange={onChange} title="Spoken Text" speak />
 }
 
 export const useOutputActions = (row: Row) => {
