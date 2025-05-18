@@ -8,7 +8,8 @@
     "src/shared/**/*",
     "src/renderer/src/modules/modules.main.ts",
     "src/renderer/src/modules/**/*.main.ts",
-    "src/renderer/src/modules/**/*.types.ts"
+    "src/renderer/src/modules/**/*.types.ts",
+    "src/renderer/src/modules/**/*.helper.ts",
   ],
   "exclude": [
     "scripts/*.ts",

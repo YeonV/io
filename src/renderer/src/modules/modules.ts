@@ -17,6 +17,7 @@ import * as mqttModule from './MQTT/MQTT'
 import * as restModule from './REST/REST'
 import * as sayModule from './Say/Say'
 import * as shellModule from './Shell/Shell'
+import * as timeModule from './Time/Time'
 import * as wledModule from './Wled/Wled'
 
 export default {
@@ -37,5 +38,6 @@ export default {
   [restModule.id]: restModule,
   [sayModule.id]: sayModule,
   [shellModule.id]: shellModule,
+  [timeModule.id]: timeModule,
   [wledModule.id]: wledModule
 }

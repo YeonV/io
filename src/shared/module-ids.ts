@@ -18,6 +18,7 @@ export type ModuleId =
   | 'rest-module'
   | 'say-module'
   | 'shell-module'
+  | 'time-module'
   | 'wled-module'
 
 export const ALL_MODULE_IDS: ModuleId[] = [
@@ -38,5 +39,6 @@ export const ALL_MODULE_IDS: ModuleId[] = [
   'rest-module',
   'say-module',
   'shell-module',
+  'time-module',
   'wled-module'
 ]

@@ -1,9 +1,10 @@
-import type { ModuleConfig, InputData, Row } from '@shared/types'
-import type { FC } from 'react'
+import type { ModuleConfig, InputData, Row, OutputData } from '@shared/types'
+import { useEffect, type FC } from 'react'
 import { log } from '@/utils'
-import { useMediaQuery } from '@mui/material'
+import { Box, Typography, useMediaQuery } from '@mui/material'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import Shortkey from '@/modules/Keyboard/Shortkey'
+import { KeyboardOutputData } from './Keyboard.types'
 
 type KeyboardConfigExample = {}
 
@@ -17,7 +18,12 @@ export const moduleConfig: ModuleConfig<KeyboardConfigExample> = {
       icon: 'keyboard'
     }
   ],
-  outputs: [],
+  outputs: [
+    {
+      name: 'Keyboard',
+      icon: 'keyboard'
+    }
+  ],
   config: {
     enabled: true
   }
@@ -50,8 +56,83 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   )
 }
 
+export const OutputEdit: FC<{
+  output: OutputData
+  onChange: (data: Partial<KeyboardOutputData>) => void
+}> = ({ output, onChange }) => {
+  const currentData = output.data as Partial<KeyboardOutputData>
+  return (
+    <Box sx={{ mt: 1 }}>
+      {' '}
+      {/* Added margin top for spacing */}
+      <Typography variant="caption" color="textSecondary" gutterBottom>
+        Keys to Press:
+      </Typography>
+      <Shortkey
+        edit
+        value={currentData.shortcut || ''}
+        onChange={(shortcut) => {
+          onChange({ shortcut })
+        }}
+      />
+      {/* 
+        Later, you could add a dropdown here for special keys:
+        <Select value={currentData.specialKey || ''} onChange={...}>
+          <MenuItem value="MediaPlayPause">Play/Pause</MenuItem>
+          <MenuItem value="MediaNextTrack">Next Track</MenuItem>
+          ...
+        </Select>
+        And then the Shortkey component could be disabled if a specialKey is selected,
+        or Shortkey could be one mode and "Special Key" another via tabs/radio.
+      */}
+    </Box>
+  )
+}
+
+export const OutputDisplay: FC<{ output: OutputData }> = ({ output }) => {
+  const data = output.data as KeyboardOutputData
+  const desktop = useMediaQuery('(min-width:980px)')
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1 }}>
+      <DisplayButtons data={{ ...output, name: output.name || 'Press Keys' }} />
+      {desktop && <Shortkey value={data.shortcut || ''} />}
+    </Box>
+  )
+}
+
 export const useInputActions = (row: Row) => {
   log.info('per-row keyboard', row)
+}
+
+export const useOutputActions = (row: Row) => {
+  useEffect(() => {
+    const outputData = row.output.data as KeyboardOutputData
+    const shortcutToSend = outputData.shortcut
+
+    if (!shortcutToSend) return // Nothing to send
+
+    const ioListener = (event: CustomEvent) => {
+      if (event.detail === row.id) {
+        // This row's input was triggered
+        console.info(
+          `Keyboard Output: Row ${row.id} triggered. Sending shortcut: "${shortcutToSend}" to main process.`
+        )
+        if (window.electron?.ipcRenderer) {
+          window.electron.ipcRenderer.send('keyboard-press-keys', {
+            shortcut: shortcutToSend
+            // Potentially add other options here if needed (e.g., modifiers, key up/down)
+          })
+        } else {
+          console.warn(`Keyboard Output: ipcRenderer not available for row ${row.id}.`)
+        }
+      }
+    }
+
+    window.addEventListener('io_input', ioListener as EventListener)
+    return () => {
+      window.removeEventListener('io_input', ioListener as EventListener)
+    }
+  }, [row.id, row.output.data]) // Re-run if row.id or shortcut changes
 }
 
 export const useGlobalActions = () => {
