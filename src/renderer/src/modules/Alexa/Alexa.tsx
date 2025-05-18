@@ -76,7 +76,7 @@ export const InputEdit: FC<{
         }}
       />
     </>
-  );
+  )
 }
 
 // --- InputDisplay Component ---

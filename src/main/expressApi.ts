@@ -2,9 +2,9 @@
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { app, type BrowserWindow } from 'electron'
-import type { ProfileDefinition, Row } from '../shared/types.js'
-import { getStore } from './windowManager.js'
-import { initializeSseEndpoint } from './sseManager.js'
+import type { ProfileDefinition, Row } from '../shared/types'
+import { getStore } from './windowManager'
+import { initializeSseEndpoint } from './sseManager'
 
 const currentModuleDir = dirname(fileURLToPath(import.meta.url))
 

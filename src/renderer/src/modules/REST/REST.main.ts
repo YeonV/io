@@ -1,19 +1,10 @@
 // src/renderer/src/modules/REST/REST.main.ts
 import { ipcMain } from 'electron'
-// Node's built-in fetch is available in Electron 18+ main process.
-// If you need to support older Electron or want more features (like axios), you'd import that.
-// For now, assuming global fetch is available and sufficient.
-import type { IOMainModulePart } from '../../../../shared/types.js' // Adjust path
-import { MainModuleDeps } from '../../../../main/moduleLoader.js' // Adjust path
+import type { IOMainModulePart } from '../../../../shared/types'
+import { MainModuleDeps } from '../../../../main/moduleLoader'
+import { RestRequestArgs } from './REST.types'
 
 const REST_MODULE_ID = 'rest-module'
-
-interface RestRequestArgs {
-  url: string
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS'
-  headers?: Record<string, string>
-  body?: string // Body is expected to be a string (e.g., stringified JSON)
-}
 
 const restMainModule: IOMainModulePart = {
   moduleId: REST_MODULE_ID,

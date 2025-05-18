@@ -38,21 +38,9 @@ import DisplayButtons from '@/components/Row/DisplayButtons'
 import type { IClientPublishOptions } from 'mqtt' // Corrected import for MQTT types
 import { mqttTopicMatch } from './MQTThelper'
 import { useRowActivation } from '@/hooks/useRowActivation'
+import { MqttBrokerConfig, MqttModuleCustomConfig } from './MQTT.types'
 
 const ipcRenderer = window.electron?.ipcRenderer
-
-// --- Types Specific to this Module (Exported for MQTT.main.ts) ---
-export interface MqttBrokerConfig {
-  id: string
-  name: string
-  host: string
-  username?: string
-  password?: string
-  clientId?: string
-}
-export interface MqttModuleCustomConfig {
-  brokerConnections: MqttBrokerConfig[]
-}
 
 // --- Row Data Types for this Module ---
 export interface MqttInputRowData {

@@ -4,8 +4,8 @@
 import { type IpcMain, type BrowserWindow, ipcMain } from 'electron'
 // Path to shared types will differ based on actual location of this .main.ts file
 // Assuming co-location for this example:
-import type { IOMainModulePart, Row } from '../../../../shared/types.js'
-import type { MainModuleDeps } from '../../../../main/moduleLoader.js' // Adjust path
+import type { IOMainModulePart, Row } from '../../../../shared/types'
+import type { MainModuleDeps } from '../../../../main/moduleLoader' // Adjust path
 
 const id = 'example-module' // Must match id from Example.tsx
 

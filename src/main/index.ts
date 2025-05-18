@@ -5,13 +5,14 @@ import {
   performEarlyAppSetup,
   enforceSingleInstanceLock,
   initializeBaseAppLifecycleEvents
-} from './appSetup.js'
-import { createMainWindow, getMainWindow, loadElectronStore } from './windowManager.js'
-import { createTray, destroyTray } from './trayManager.js'
+} from './appSetup'
+import { createMainWindow, getMainWindow, loadElectronStore } from './windowManager'
+import { createTray, destroyTray } from './trayManager'
 // initializeIpcHandlers now only handles base IPCs like set/get, theme, app control
-import { initializeBaseIpcHandlers } from './ipcManager.js'
-import { startExpressApi } from './expressApi.js'
-import { installDevTools } from './devtools.js'
+import { initializeBaseIpcHandlers } from './ipcManager'
+import { startExpressApi } from './expressApi'
+import { installDevTools } from './devtools'
+// @ts-ignore
 import iconAsset from '../../resources/icon.png?asset'
 
 // Import the dynamic module loader for main process parts
@@ -19,7 +20,7 @@ import {
   loadAndInitializeAllMainModules,
   cleanupAllMainModules
   // notifyMainModulesOnRowsUpdate is called by ipcManager's 'set' handler
-} from './moduleLoader.js'
+} from './moduleLoader'
 
 performEarlyAppSetup()
 enforceSingleInstanceLock()

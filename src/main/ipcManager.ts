@@ -1,9 +1,9 @@
 // src/main/ipcManager.ts
 import { ipcMain, nativeTheme, app } from 'electron'
-import { getStore, getMainWindow } from './windowManager.js'
-import { notifyMainModulesOnRowsUpdate } from './moduleLoader.js'
-import type { Row } from '../shared/types.js'
-import { broadcastSseUpdateSignal } from './sseManager.js'
+import { getStore, getMainWindow } from './windowManager'
+import { notifyMainModulesOnRowsUpdate } from './moduleLoader'
+import type { Row } from '../shared/types'
+import { broadcastSseUpdateSignal } from './sseManager'
 
 export function initializeBaseIpcHandlers(): void {
   console.log('Main (ipcManager): Initializing Base IPC Handlers...')

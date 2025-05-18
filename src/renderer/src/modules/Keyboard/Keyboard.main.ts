@@ -1,7 +1,7 @@
 // src/renderer/src/modules/Keyboard/Keyboard.main.ts
 import { globalShortcut } from 'electron'
-import type { IOMainModulePart, Row } from '../../../../shared/types.js'
-import { MainModuleDeps } from '../../../../main/moduleLoader.js'
+import type { IOMainModulePart, Row } from '../../../../shared/types'
+import { MainModuleDeps } from '../../../../main/moduleLoader'
 
 const KEYBOARD_MODULE_ID = 'keyboard-module'
 const registeredShortcuts = new Set<string>()

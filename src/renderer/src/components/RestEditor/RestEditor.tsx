@@ -4,7 +4,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Dialog from '@mui/material/Dialog'
 import { DialogActions, DialogContent, MenuItem, Select, Stack, TextField } from '@mui/material'
 import JSONInput from 'react-json-editor-ajrm'
-import locale from './en.js'
+import locale from './en'
 
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
