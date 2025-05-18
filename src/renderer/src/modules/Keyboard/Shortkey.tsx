@@ -165,7 +165,7 @@ const Shortkey = ({
         <Typography sx={{ fontSize: '12px', color: 'text.disabled' }}>Not Set</Typography>
       )}
     </Stack>
-  );
+  )
 }
 
 export default Shortkey

@@ -47,7 +47,7 @@ const EditButtons = ({
         }}
       />
     </>
-  );
+  )
 }
 
 export default EditButtons

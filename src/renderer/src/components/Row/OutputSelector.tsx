@@ -119,5 +119,5 @@ export const OutputSelector: FC<{
       }}
       readOnly={disabled}
     />
-  );
+  )
 }

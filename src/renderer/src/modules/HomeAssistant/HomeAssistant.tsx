@@ -115,7 +115,7 @@ export const OutputEdit: FC<{
         }}
       />
     </>
-  );
+  )
 }
 
 export const OutputDisplay: FC<{

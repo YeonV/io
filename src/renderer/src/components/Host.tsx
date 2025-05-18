@@ -111,7 +111,8 @@ const Host = ({
                   paddingLeft: '20px'
                 }
               }
-            }} />
+            }}
+          />
         </div>
         <Button
           size="small"
@@ -183,6 +184,6 @@ const Host = ({
         <></>
       )}
     </>
-  );
+  )
 }
 export default Host

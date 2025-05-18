@@ -78,7 +78,7 @@ export const OutputEdit: FC<{
       </Select>
       <EditButtons data={output} onChange={onChange} title="Message" />
     </>
-  );
+  )
 }
 
 export const useOutputActions = (row: Row) => {
