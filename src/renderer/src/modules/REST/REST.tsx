@@ -26,15 +26,16 @@ export const groupId = 'Network'
 export const moduleConfig: ModuleConfig<RestConfigExample> = {
   menuLabel: 'Network',
   inputs: [
-    {
-      name: 'REST',
-      icon: 'webhook'
-    }
+    // {
+    //   name: 'REST',
+    //   icon: 'webhook'
+    // }
   ],
   outputs: [
     {
       name: 'REST',
-      icon: 'webhook'
+      icon: 'webhook',
+      editable: true
     }
   ],
   config: {

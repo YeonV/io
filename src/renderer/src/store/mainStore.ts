@@ -44,7 +44,7 @@ type State = {
   enableModule: (moduleId: ModuleId) => void
   disableModule: (moduleId: ModuleId) => void
   addRow: (row: Row) => void
-  editRow: (rowId: string, updates: Partial<Pick<Row, 'input' | 'output'>>) => void // More specific for what editRow changes
+  editRow: (rowId: string, updatedRowData: Partial<Row>) => void // More specific for what editRow changes
   deleteRow: (row: Row) => void
   setEdit: (edit: boolean) => void
   setDarkMode: ReturnType<typeof storeUIActions>['setDarkMode']
@@ -134,36 +134,47 @@ export const useMainStore = create<State>()(
             `toggleRowEnabled/${rowId}`
           )
         },
-        editRow: (rowId: string, updates: Partial<Pick<Row, 'input' | 'output'>>) => {
+        editRow: (rowId: string, updates: Partial<Row>) => {
           set(
             produce((state: State) => {
-              const row = state.rows[rowId]
-              if (row) {
+              const rowToUpdate = state.rows[rowId]
+              if (rowToUpdate) {
+                // Merge top-level updates
+                Object.assign(rowToUpdate, updates)
+                // If input or output objects are part of updates, deep merge their 'data' and 'settings'
                 if (updates.input) {
-                  row.input = {
-                    ...row.input,
-                    ...updates.input,
-                    data: { ...row.input.data, ...updates.input.data }
+                  rowToUpdate.input = { ...rowToUpdate.input, ...updates.input }
+                  if (updates.input.data) {
+                    rowToUpdate.input.data = {
+                      ...(rowToUpdate.input.data || {}),
+                      ...updates.input.data
+                    }
                   }
                 }
                 if (updates.output) {
-                  row.output = {
-                    ...row.output,
-                    ...updates.output,
-                    data: { ...row.output.data, ...updates.output.data }
+                  rowToUpdate.output = { ...rowToUpdate.output, ...updates.output }
+                  if (updates.output.data) {
+                    rowToUpdate.output.data = {
+                      ...(rowToUpdate.output.data || {}),
+                      ...updates.output.data
+                    }
+                  }
+                  if (updates.output.settings) {
+                    rowToUpdate.output.settings = {
+                      ...(rowToUpdate.output.settings || {}),
+                      ...updates.output.settings
+                    }
                   }
                 }
-                // This specifically handles the payload from Deck for output settings
-                // If 'updates' contains a 'settings' key for Deck, it gets merged into output.
-                // This was based on previous editRow structure. Re-evaluate if this is still the desired merge.
-                // For now, assuming 'updates' could be like { output: { settings: { ... } } }
-                // or { output: { label: 'new', icon: 'new', settings: { ... } } }
+                // Ensure 'id' is not changed by updates, if it was accidentally included
+                rowToUpdate.id = rowId
               }
             }),
             false,
-            'editRow'
+            `editRow/${rowId}`
           )
         },
+
         setEdit: (editState: boolean) => {
           set({ edit: editState }, false, 'setEdit')
         },

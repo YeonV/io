@@ -16,7 +16,8 @@ export const moduleConfig: ModuleConfig<LedFxConfigExample> = {
   outputs: [
     {
       name: 'LedFx',
-      icon: 'ledfx'
+      icon: 'ledfx',
+      editable: true
     }
   ],
   config: {

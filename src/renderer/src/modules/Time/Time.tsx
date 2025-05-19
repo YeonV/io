@@ -41,7 +41,7 @@ export const id = 'time-module'
 
 export const moduleConfig: ModuleConfig<TimeModuleCustomConfig> = {
   menuLabel: 'Time & Schedule',
-  inputs: [{ icon: 'schedule', name: 'Time Trigger' }],
+  inputs: [{ icon: 'schedule', name: 'Time Trigger', editable: true }],
   outputs: [],
   config: {
     enabled: true
@@ -136,7 +136,10 @@ export const InputEdit: FC<{
   }
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Paper elevation={0} sx={{ p: 2, mt: 1, border: '1px dashed grey', borderRadius: 1 }}>
+      <Paper
+        elevation={0}
+        sx={{ p: 2, pt: 0, mt: '19px', border: '1px solid #666', borderRadius: 1 }}
+      >
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
           <Tabs
             value={isRecurringMode ? 'recurring' : 'one-shot'}
@@ -144,8 +147,20 @@ export const InputEdit: FC<{
             aria-label="Trigger mode tabs"
             variant="fullWidth"
           >
-            <Tab label="Recurring" value="recurring" icon={<EventRepeat />} iconPosition="start" />
-            <Tab label="One-Time" value="one-shot" icon={<LooksOne />} iconPosition="start" />
+            <Tab
+              label="Recurring"
+              value="recurring"
+              icon={<EventRepeat />}
+              iconPosition="start"
+              sx={{ pt: 0, pb: 0, minHeight: 55 }}
+            />
+            <Tab
+              label="One-Time"
+              value="one-shot"
+              icon={<LooksOne />}
+              iconPosition="start"
+              sx={{ pt: 0, pb: 0, minHeight: 55 }}
+            />
           </Tabs>
         </Box>
 
@@ -155,7 +170,6 @@ export const InputEdit: FC<{
               label="Trigger Time Daily"
               value={recurringTimeValue}
               onChange={handleRecurringTimeChange}
-              slotProps={{ textField: { size: 'small', fullWidth: true } }}
               ampm={false}
             />
             <FormControl fullWidth size="small">

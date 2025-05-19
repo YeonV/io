@@ -19,7 +19,8 @@ export const moduleConfig: ModuleConfig<AlertConfigExample> = {
   outputs: [
     {
       name: 'alert',
-      icon: 'info'
+      icon: 'info',
+      editable: true
     }
   ],
   config: {

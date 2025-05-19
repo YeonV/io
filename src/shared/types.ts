@@ -6,12 +6,14 @@ export type { ModuleId }
 export type Input = {
   name: string
   icon: string
+  editable?: boolean
 }
 export type InputData = Input & { data: Record<string, any> }
 
 export type Output = {
   name: string
   icon: string
+  editable?: boolean
 }
 
 export type OutputData = Output & {

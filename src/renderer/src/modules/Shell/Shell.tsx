@@ -18,7 +18,8 @@ export const moduleConfig: ModuleConfig<ShellConfigExample> = {
   outputs: [
     {
       name: 'shell',
-      icon: 'terminal'
+      icon: 'terminal',
+      editable: true
     }
   ],
   config: {

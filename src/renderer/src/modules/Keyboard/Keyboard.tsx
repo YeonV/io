@@ -15,13 +15,15 @@ export const moduleConfig: ModuleConfig<KeyboardConfigExample> = {
   inputs: [
     {
       name: 'Keyboard',
-      icon: 'keyboard'
+      icon: 'keyboard',
+      editable: true
     }
   ],
   outputs: [
     {
       name: 'Keyboard',
-      icon: 'keyboard'
+      icon: 'keyboard',
+      editable: true
     }
   ],
   config: {
@@ -63,11 +65,6 @@ export const OutputEdit: FC<{
   const currentData = output.data as Partial<KeyboardOutputData>
   return (
     <Box sx={{ mt: 1 }}>
-      {' '}
-      {/* Added margin top for spacing */}
-      <Typography variant="caption" color="textSecondary" gutterBottom>
-        Keys to Press:
-      </Typography>
       <Shortkey
         edit
         value={currentData.shortcut || ''}

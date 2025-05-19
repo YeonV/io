@@ -15,7 +15,8 @@ export const moduleConfig: ModuleConfig<SayConfigExample> = {
   outputs: [
     {
       name: 'say',
-      icon: 'record_voice_over'
+      icon: 'record_voice_over',
+      editable: true
     }
   ],
   config: {

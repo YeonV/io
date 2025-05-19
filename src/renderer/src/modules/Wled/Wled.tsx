@@ -16,7 +16,8 @@ export const moduleConfig: ModuleConfig<WledConfigExample> = {
   outputs: [
     {
       name: 'WLED',
-      icon: 'wled'
+      icon: 'wled',
+      editable: true
     }
   ],
   config: {
