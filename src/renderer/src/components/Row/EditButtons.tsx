@@ -22,7 +22,7 @@ const EditButtons = ({
         onChange={(e) => {
           onChange({ command: e.target.value })
         }}
-        sx={{ mt: 1 }}
+        sx={{ mt: '4px' }}
         variant="outlined"
         slotProps={{
           htmlInput: {

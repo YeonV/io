@@ -71,6 +71,7 @@ export const OutputEdit: FC<{
         label={'Variant'}
         value={variant}
         onChange={(e: any) => onChange({ variant: e.target.value })}
+        sx={{ mb: 1 }}
       >
         <MenuItem value={'success'}>Success</MenuItem>
         <MenuItem value={'info'}>Info</MenuItem>

@@ -15,6 +15,7 @@ export type ModuleId =
   | 'mpobjectron-module'
   | 'mppose-module'
   | 'mqtt-module'
+  | 'playsound-module'
   | 'rest-module'
   | 'say-module'
   | 'shell-module'
@@ -36,6 +37,7 @@ export const ALL_MODULE_IDS: ModuleId[] = [
   'mpobjectron-module',
   'mppose-module',
   'mqtt-module',
+  'playsound-module',
   'rest-module',
   'say-module',
   'shell-module',

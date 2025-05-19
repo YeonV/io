@@ -14,6 +14,7 @@ import * as mpholisticModule from './MpHolistic/MpHolistic'
 import * as mpobjectronModule from './MpObjectron/MpObjectron'
 import * as mpposeModule from './MpPose/MpPose'
 import * as mqttModule from './MQTT/MQTT'
+import * as playsoundModule from './PlaySound/PlaySound'
 import * as restModule from './REST/REST'
 import * as sayModule from './Say/Say'
 import * as shellModule from './Shell/Shell'
@@ -35,6 +36,7 @@ export default {
   [mpobjectronModule.id]: mpobjectronModule,
   [mpposeModule.id]: mpposeModule,
   [mqttModule.id]: mqttModule,
+  [playsoundModule.id]: playsoundModule,
   [restModule.id]: restModule,
   [sayModule.id]: sayModule,
   [shellModule.id]: shellModule,

@@ -138,7 +138,7 @@ export const InputEdit: FC<{
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Paper
         elevation={0}
-        sx={{ p: 2, pt: 0, mt: '19px', border: '1px solid #666', borderRadius: 1 }}
+        sx={{ p: 2, pt: 0, mt: '16px', border: '1px solid #666', borderRadius: 1 }}
       >
         <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
           <Tabs

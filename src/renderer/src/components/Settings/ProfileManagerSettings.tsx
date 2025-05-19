@@ -256,7 +256,7 @@ export const ProfileManagerSettings: FC = () => {
       elevation={2}
       sx={{
         p: 2,
-        minWidth: 320,
+        minWidth: 250,
         display: 'flex',
         flexDirection: 'column',
         gap: 1,

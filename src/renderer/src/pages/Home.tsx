@@ -1,7 +1,7 @@
 // src/renderer/src/pages/Home.tsx
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useMainStore } from '@/store/mainStore'
-import { Box, Button } from '@mui/material'
+import { Box, Button, Collapse } from '@mui/material'
 import { Add } from '@mui/icons-material'
 import IoRow from '@/components/Row/IoRow'
 import IoNewRow, { PrefillData } from '@/components/Row/IoNewRow'
@@ -291,15 +291,7 @@ const Home: FC = () => {
         ))}
       </div>
 
-      {!showAddRow ? (
-        <Button
-          variant="contained"
-          onClick={handleAddNewRowClick}
-          style={{ margin: '1rem auto', display: 'flex' }}
-        >
-          <Add /> Add New IO Row
-        </Button>
-      ) : (
+      <Collapse in={showAddRow} timeout={500} unmountOnExit>
         <Box sx={{ mt: 2, mb: 2 }}>
           <IoNewRow
             key={ioNewRowKey}
@@ -308,7 +300,15 @@ const Home: FC = () => {
             initialPrefill={prefillData}
           />
         </Box>
-      )}
+      </Collapse>
+      <Button
+        disabled={showAddRow}
+        variant="contained"
+        onClick={handleAddNewRowClick}
+        style={{ margin: '1rem auto', display: 'flex' }}
+      >
+        <Add /> Add New IO Row
+      </Button>
     </Wrapper>
   )
 }

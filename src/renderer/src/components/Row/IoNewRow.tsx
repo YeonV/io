@@ -8,7 +8,8 @@ import {
   Divider,
   Paper,
   FormControlLabel,
-  Switch
+  Switch,
+  Collapse
 } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
 import { InputSelector } from './InputSelector'
@@ -411,14 +412,14 @@ export const IoNewRow: FC<IoNewRowProps> = ({
             value={inputSelectorValue}
           />
 
-          {showInputEditComponent && (
+          <Collapse in={showInputEditComponent} timeout="auto" unmountOnExit>
             <Box mt={1.5}>
               <SelectedModuleInputEdit
                 input={templateRow.input as InputData}
                 onChange={handleInputChange}
               />
             </Box>
-          )}
+          </Collapse>
           {inputConfigMessage &&
             !showInputEditComponent && ( // Show message only if InputEdit isn't shown but a module is selected
               <Typography
@@ -457,14 +458,14 @@ export const IoNewRow: FC<IoNewRowProps> = ({
             value={outputSelectorValue}
           />
 
-          {showOutputEditComponent && (
+          <Collapse in={showOutputEditComponent} timeout="auto" unmountOnExit>
             <Box mt={1.5}>
               <SelectedModuleOutputEdit
                 output={templateRow.output as OutputData}
                 onChange={handleOutputChange}
               />
             </Box>
-          )}
+          </Collapse>
           {outputConfigMessage &&
             !showOutputEditComponent && ( // Show message only if OutputEdit isn't shown but a module is selected
               <Typography
