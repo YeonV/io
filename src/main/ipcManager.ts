@@ -71,6 +71,27 @@ export function initializeBaseIpcHandlers(): void {
     }
   })
 
+  if (process.env.NODE_ENV === 'development') {
+    ipcMain.handle('dev:clear-electron-store', async () => {
+      console.warn('[MAIN DEV] Received request to clear electron-store.')
+      const storeInstance = getStore()
+      if (storeInstance && typeof storeInstance.clear === 'function') {
+        try {
+          storeInstance.clear() // Clears all data in electron-store
+          console.log('[MAIN DEV] electron-store cleared successfully.')
+          return true
+        } catch (e) {
+          console.error('[MAIN DEV] Error clearing electron-store:', e)
+          return false
+        }
+      } else {
+        console.error('[MAIN DEV] electron-store instance or .clear() method not available.')
+        return false
+      }
+    })
+    console.log("[MAIN DEV] 'dev:clear-electron-store' IPC handler initialized.")
+  }
+
   console.log(
     'Main (ipcManager): Base IPC Handlers (ping, set, get, theme, app control) initialized.'
   )

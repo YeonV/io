@@ -1,11 +1,9 @@
-import type { FC, DragEvent, ChangeEvent } from 'react' // Added ChangeEvent
-import { useEffect, useState, useRef, useCallback } from 'react'
-import { useMainStore } from '@/store/mainStore' // For actions like toggleRowEnabled if used by mini-player for one-shot
+import type { FC, DragEvent, ChangeEvent } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import type { ModuleConfig, OutputData, Row } from '@shared/types'
 import {
   Box,
   Button,
-  // TextField, // Not directly used in OutputEdit for file path anymore
   Typography,
   Switch,
   FormControlLabel,
@@ -14,7 +12,15 @@ import {
   Stack,
   IconButton,
   Tooltip,
-  LinearProgress
+  LinearProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  List,
+  ListItem,
+  ListItemText,
+  DialogActions,
+  ListItemIcon
 } from '@mui/material'
 import {
   Audiotrack,
@@ -22,17 +28,19 @@ import {
   StopCircle,
   Loop as LoopIcon,
   PlayArrow,
-  Pause as PauseIcon
-  // VolumeUp, // Already available on Slider marks
-  // VolumeDown, // Already available on Slider marks
-  // VolumeMute, // Already available on Slider marks
+  Pause as PauseIcon,
+  Delete as DeleteIcon,
+  Storage // Added Storage for manage cache
 } from '@mui/icons-material'
-// import { log } from '@/utils'; // Using console for now
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import type { PlaySoundOutputData, PlaySoundModuleCustomConfig } from './PlaySound.types'
-
-// ipcRenderer is no longer needed in this file if file dialog is fully renderer-side via <input type="file">
-// const ipcRenderer = window.electron?.ipcRenderer || false;
+import {
+  addAudioToDB,
+  getAudioBufferFromDB,
+  getAllAudioInfoFromDB,
+  deleteAudioFromDB,
+  clearAllAudioFromDB
+} from './lib/db' // Correct path
 
 // --- Module Definition ---
 export const id = 'playsound-module'
@@ -46,15 +54,17 @@ export const moduleConfig: ModuleConfig<PlaySoundModuleCustomConfig> = {
   }
 }
 
-// --- Helper: Manage active audio players (Module Scoped) ---
+// --- Active Audio Player Management (Module Scoped) ---
 interface ActivePlayer {
   audio: HTMLAudioElement
   rowId: string
   isLooping: boolean
+  audioId?: string
   originalFileName?: string
 }
-const activeAudioPlayers = new Map<string, ActivePlayer>() // rowId -> ActivePlayer
-const previewPlayer = new Audio() // Single, module-scoped audio element for previews
+const activeAudioPlayers = new Map<string, ActivePlayer>()
+const previewPlayer = new Audio() // Single audio element for previews in OutputEdit
+const blobUrlCache = new Map<string, string>() // Cache Blob URLs: audioId -> blobUrl
 
 function stopPlayer(rowIdOrPlayer: string | HTMLAudioElement) {
   let playerKey: string | undefined
@@ -63,56 +73,65 @@ function stopPlayer(rowIdOrPlayer: string | HTMLAudioElement) {
 
   if (typeof rowIdOrPlayer === 'string') {
     playerKey = rowIdOrPlayer
-    audioToStop = activeAudioPlayers.get(playerKey)?.audio
+    const playerEntry = activeAudioPlayers.get(playerKey)
+    audioToStop = playerEntry?.audio
+    if (playerEntry?.audioId && blobUrlCache.has(playerEntry.audioId)) {
+      URL.revokeObjectURL(blobUrlCache.get(playerEntry.audioId)!)
+      blobUrlCache.delete(playerEntry.audioId)
+    }
   } else {
-    // Assumes HTMLAudioElement is passed
     audioToStop = rowIdOrPlayer
-    if (audioToStop === previewPlayer) {
-      wasPlayingPreview = true
-    } else {
+    if (audioToStop === previewPlayer) wasPlayingPreview = true
+    else {
       for (const [key, player] of activeAudioPlayers.entries()) {
         if (player.audio === audioToStop) {
           playerKey = key
+          if (player.audioId && blobUrlCache.has(player.audioId)) {
+            URL.revokeObjectURL(blobUrlCache.get(player.audioId)!)
+            blobUrlCache.delete(player.audioId)
+          }
           break
         }
       }
     }
   }
 
-  if (audioToStop && !audioToStop.paused) {
-    audioToStop.pause()
-  }
+  if (audioToStop && !audioToStop.paused) audioToStop.pause()
   if (audioToStop) {
     audioToStop.currentTime = 0
     if (audioToStop.loop) audioToStop.loop = false
-    // Don't removeAttribute('src') immediately if we might replay it soon,
-    // but good for full cleanup if the player instance is being discarded.
-    // For previewPlayer, we'll clear src on stop to ensure it's fresh.
-    if (wasPlayingPreview) {
-      audioToStop.removeAttribute('src')
-      audioToStop.load() // Resets the audio element after removing src
+    if (audioToStop.src && audioToStop.src.startsWith('blob:')) {
+      // Blob URLs are already revoked above or will be when new sound loads
     }
+    audioToStop.removeAttribute('src')
+    audioToStop.load()
     console.debug(
       `[PlaySound] Stopped player: ${playerKey || (wasPlayingPreview ? 'preview' : 'unknown')}`
     )
   }
-
-  if (playerKey && activeAudioPlayers.has(playerKey)) {
-    activeAudioPlayers.delete(playerKey)
-    console.debug(`[PlaySound] Removed active player entry for: ${playerKey}`)
-  }
+  if (playerKey) activeAudioPlayers.delete(playerKey)
 }
 
 function stopAllPlayers(stopThePreviewPlayer = true) {
   console.debug('[PlaySound] Stopping all active IO row players.')
-  activeAudioPlayers.forEach((player, key) => {
-    stopPlayer(key) // stopPlayer will handle map deletion
-  })
-  // activeAudioPlayers.clear(); // stopPlayer handles deletion
+  activeAudioPlayers.forEach((_player, key) => stopPlayer(key))
 
   if (stopThePreviewPlayer && previewPlayer && !previewPlayer.paused) {
-    stopPlayer(previewPlayer) // Stop the preview player
+    stopPlayer(previewPlayer)
     console.debug('[PlaySound] Stopped preview player via StopAll.')
+  }
+}
+
+if (process.env.NODE_ENV === 'development') {
+  if (!window.IO_DEV_TOOLS) {
+    // @ts-ignore
+    window.IO_DEV_TOOLS = {}
+  }
+  // @ts-ignore
+  window.IO_DEV_TOOLS.clearPlaySoundCache = async () => {
+    console.log('[DEV TOOLS] Clearing PlaySound IndexedDB cache via window.IO_DEV_TOOLS...')
+    await clearAllAudioFromDB()
+    console.log('[DEV TOOLS] PlaySound IndexedDB cache clear request complete.')
   }
 }
 
@@ -125,98 +144,85 @@ export const OutputEdit: FC<{
   const [isDraggingOver, setIsDraggingOver] = useState(false)
   const [isPreviewPlaying, setIsPreviewPlaying] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null)
 
-  // Effect for cleaning up the preview player when the component unmounts
-  // or when the audioDataUrl changes (meaning a new file is selected).
   useEffect(() => {
-    const currentPreviewSrc = previewPlayer.currentSrc // src before Data URL, currentSrc after
-    const isThisAudioDataLoaded =
-      currentData.audioDataUrl &&
-      (previewPlayer.src === currentData.audioDataUrl ||
-        currentPreviewSrc === currentData.audioDataUrl)
-
-    // If the component unmounts or the audioDataUrl changes while preview is playing *this* sound
+    // Cleanup preview player and revoke Blob URL when component unmounts or audioId changes
     return () => {
-      if (isThisAudioDataLoaded && !previewPlayer.paused) {
-        console.debug(
-          '[PlaySound OutputEdit] Cleanup: Stopping preview player for',
-          currentData.originalFileName
-        )
-        stopPlayer(previewPlayer) // Use the helper
-        setIsPreviewPlaying(false)
+      if (!previewPlayer.paused) stopPlayer(previewPlayer)
+      if (previewBlobUrl) {
+        URL.revokeObjectURL(previewBlobUrl)
+        setPreviewBlobUrl(null)
       }
     }
-  }, [currentData.audioDataUrl]) // Dependency: if the source changes, cleanup old one
+  }, [currentData.audioId]) // Re-run cleanup if the audioId changes
 
-  const updateAudioDataInState = (audioDataUrl?: string, originalFileName?: string) => {
-    // Stop any ongoing preview before changing the source
-    if (!previewPlayer.paused) {
-      stopPlayer(previewPlayer)
-      setIsPreviewPlaying(false)
-    }
-    onChange({ audioDataUrl, originalFileName })
-  }
-
-  const readFileAsDataURL = (
-    file: File
-  ): Promise<{ audioDataUrl: string; originalFileName: string }> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () =>
-        resolve({ audioDataUrl: reader.result as string, originalFileName: file.name })
-      reader.onerror = (error) => reject(error)
-      reader.readAsDataURL(file)
+  const updateAudioDataInState = (audioId?: string, originalFileName?: string) => {
+    if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl) // Revoke old preview Blob URL
+    setPreviewBlobUrl(null)
+    if (!previewPlayer.paused) stopPlayer(previewPlayer)
+    setIsPreviewPlaying(false)
+    onChange({
+      audioId,
+      originalFileName,
+      volume: currentData.volume,
+      loop: currentData.loop,
+      cancelPrevious: currentData.cancelPrevious
     })
   }
 
   const processFile = async (file: File | null | undefined) => {
     if (!file) return
-    if (/\.(mp3|wav|ogg|aac|m4a|flac)$/i.test(file.name)) {
+    const validAudioTypes = [
+      'audio/mpeg',
+      'audio/wav',
+      'audio/ogg',
+      'audio/aac',
+      'audio/mp4',
+      'audio/flac'
+    ]
+    // Checking file.type is more reliable than extension for web File objects
+    if (validAudioTypes.includes(file.type) || /\.(mp3|wav|ogg|aac|m4a|flac)$/i.test(file.name)) {
       try {
-        const { audioDataUrl, originalFileName } = await readFileAsDataURL(file)
-        updateAudioDataInState(audioDataUrl, originalFileName)
+        const audioBuffer = await file.arrayBuffer()
+        const mimeType = file.type || `audio/${file.name.split('.').pop()?.toLowerCase()}` // Guess MIME if not present
+        const newAudioId = await addAudioToDB(file.name, mimeType, audioBuffer)
+        updateAudioDataInState(newAudioId, file.name)
+        console.debug(
+          `[PlaySound OutputEdit] Processed and stored file: ${file.name}, ID: ${newAudioId}`
+        )
       } catch (error) {
-        console.error('[PlaySound OutputEdit] Error processing file:', error)
-        alert('Failed to load audio file.')
-        updateAudioDataInState(undefined, undefined) // Clear on error
+        console.error('[PlaySound OutputEdit] Error processing file into IndexedDB:', error)
+        alert('Failed to load and store audio file.')
+        updateAudioDataInState(undefined, undefined)
       }
     } else {
-      alert(
-        'Invalid file type. Please drop or select an audio file (mp3, wav, ogg, aac, m4a, flac).'
-      )
+      alert('Invalid file type. Please drop or select a common audio file.')
     }
   }
 
   const handleHiddenInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      processFile(event.target.files[0])
-    }
+    if (event.target.files && event.target.files[0]) processFile(event.target.files[0])
     if (event.target) event.target.value = ''
   }
-
-  const handleSelectFileClick = () => {
-    fileInputRef.current?.click()
-  }
-
+  const handleSelectFileClick = () => fileInputRef.current?.click()
   const handleDrop = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
+    /* ... calls processFile ... */ event.preventDefault()
     event.stopPropagation()
     setIsDraggingOver(false)
-    if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+    if (event.dataTransfer.files && event.dataTransfer.files[0])
       processFile(event.dataTransfer.files[0])
-    }
   }
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
+    /* ... */ event.preventDefault()
     event.stopPropagation()
     setIsDraggingOver(true)
   }
   const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
+    /* ... */ event.preventDefault()
     event.stopPropagation()
     setIsDraggingOver(false)
   }
-
   const handleVolumeChange = (_event: Event, newValue: number | number[]) =>
     onChange({ volume: parseFloat((newValue as number).toFixed(2)) })
   const handleCancelPreviousToggle = (event: React.ChangeEvent<HTMLInputElement>) =>
@@ -224,34 +230,51 @@ export const OutputEdit: FC<{
   const handleLoopToggle = (event: React.ChangeEvent<HTMLInputElement>) =>
     onChange({ loop: event.target.checked })
 
-  const handlePreview = () => {
-    if (!currentData.audioDataUrl) return
+  const handlePreview = async () => {
+    if (!currentData.audioId) return
 
-    console.debug('[PlaySound OutputEdit] Previewing audioDataUrl:', currentData.audioDataUrl)
-    if (!previewPlayer.paused && previewPlayer.src === currentData.audioDataUrl) {
-      // If it's playing THIS sound
+    if (!previewPlayer.paused && previewBlobUrl) {
+      // If it's playing THIS sound via previewBlobUrl
       stopPlayer(previewPlayer)
       setIsPreviewPlaying(false)
+      if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl) // Revoke immediately after stopping
+      setPreviewBlobUrl(null)
     } else {
-      stopPlayer(previewPlayer) // Stop any other preview first
+      if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl) // Revoke any old one
+      setPreviewBlobUrl(null)
+      if (!previewPlayer.paused) stopPlayer(previewPlayer) // Stop any other preview sound
 
-      console.debug('[PlaySound OutputEdit] Previewing audioDataUrl:', currentData.audioDataUrl)
-      previewPlayer.src = currentData.audioDataUrl
-      previewPlayer.volume = currentData.volume === undefined ? 1.0 : currentData.volume
-      previewPlayer.loop = false // Preview explicitly does not loop from this button
-      previewPlayer
-        .play()
-        .then(() => {
-          setIsPreviewPlaying(true)
-        })
-        .catch((e) => {
-          console.error('[PlaySound OutputEdit] Preview play error:', e)
+      const audioRecord = await getAudioBufferFromDB(currentData.audioId)
+      if (audioRecord?.audioBuffer) {
+        const blob = new Blob([audioRecord.audioBuffer], { type: audioRecord.mimeType })
+        const newBlobUrl = URL.createObjectURL(blob)
+        setPreviewBlobUrl(newBlobUrl) // Store for cleanup
+
+        previewPlayer.src = newBlobUrl
+        previewPlayer.volume = currentData.volume === undefined ? 1.0 : currentData.volume
+        previewPlayer.loop = false
+        previewPlayer
+          .play()
+          .then(() => setIsPreviewPlaying(true))
+          .catch((e) => {
+            console.error('[PlaySound OutputEdit] Preview play error:', e)
+            setIsPreviewPlaying(false)
+            URL.revokeObjectURL(newBlobUrl) // Cleanup on error
+            setPreviewBlobUrl(null)
+          })
+        previewPlayer.onended = () => {
           setIsPreviewPlaying(false)
-        })
-      previewPlayer.onended = () => setIsPreviewPlaying(false)
-      previewPlayer.onpause = () => {
-        // If paused by other means (e.g. stopAll)
-        if (previewPlayer.src === currentData.audioDataUrl) setIsPreviewPlaying(false)
+          if (newBlobUrl) URL.revokeObjectURL(newBlobUrl) // Cleanup after playing
+          setPreviewBlobUrl(null)
+        }
+        previewPlayer.onpause = () => {
+          // Check if it was this specific preview that was paused
+          if (previewPlayer.src === newBlobUrl && isPreviewPlaying) {
+            setIsPreviewPlaying(false)
+          }
+        }
+      } else {
+        alert('Audio data not found in cache for preview.')
       }
     }
   }
@@ -287,14 +310,10 @@ export const OutputEdit: FC<{
           }}
         >
           <Audiotrack sx={{ fontSize: 30, color: 'text.secondary', mb: 1 }} />
-          {currentData.audioDataUrl && currentData.originalFileName ? (
+          {currentData.audioId && currentData.originalFileName ? (
             <Stack alignItems="center" spacing={1}>
               <Tooltip title={currentData.originalFileName}>
-                <Typography
-                  variant="body2"
-                  sx={{ wordBreak: 'break-all', maxWidth: '100%' }}
-                  noWrap
-                >
+                <Typography variant="body2" noWrap sx={{ maxWidth: '100%' }}>
                   {currentData.originalFileName}
                 </Typography>
               </Tooltip>
@@ -317,22 +336,10 @@ export const OutputEdit: FC<{
                   }}
                   size="small"
                   variant="text"
-                  startIcon={
-                    isPreviewPlaying && previewPlayer.src === currentData.audioDataUrl ? (
-                      <PauseIcon />
-                    ) : (
-                      <PlayArrow />
-                    )
-                  }
-                  color={
-                    isPreviewPlaying && previewPlayer.src === currentData.audioDataUrl
-                      ? 'warning'
-                      : 'primary'
-                  }
+                  startIcon={isPreviewPlaying ? <PauseIcon /> : <PlayArrow />}
+                  color={isPreviewPlaying ? 'warning' : 'primary'}
                 >
-                  {isPreviewPlaying && previewPlayer.src === currentData.audioDataUrl
-                    ? 'Stop'
-                    : 'Preview'}
+                  {isPreviewPlaying ? 'Stop' : 'Preview'}
                 </Button>
               </Stack>
             </Stack>
@@ -342,15 +349,14 @@ export const OutputEdit: FC<{
             </Typography>
           )}
         </Box>
-
         <Box>
-          <Typography gutterBottom variant="caption" color="textSecondary" id="volume-slider-label">
+          {' '}
+          <Typography gutterBottom variant="caption">
             Volume
-          </Typography>
+          </Typography>{' '}
           <Slider
-            value={currentData.volume === undefined ? 1 : currentData.volume}
+            value={currentData.volume ?? 1}
             onChange={handleVolumeChange}
-            aria-labelledby="volume-slider-label"
             min={0}
             max={1}
             step={0.01}
@@ -360,12 +366,12 @@ export const OutputEdit: FC<{
               { value: 0.5, label: '50%' },
               { value: 1, label: '100%' }
             ]}
-          />
+          />{' '}
         </Box>
         <FormControlLabel
           control={
             <Switch
-              checked={currentData.cancelPrevious === undefined ? true : currentData.cancelPrevious}
+              checked={currentData.cancelPrevious ?? true}
               onChange={handleCancelPreviousToggle}
               size="small"
             />
@@ -383,84 +389,70 @@ export const OutputEdit: FC<{
   )
 }
 
-// --- OutputDisplay Component (with Mini Player elements) ---
-// Using a sub-component for the player controls to manage its own state based on the global player
+// --- MiniPlayer Sub-Component for OutputDisplay ---
 const MiniPlayer: FC<{ rowId: string; outputData: PlaySoundOutputData }> = ({
   rowId,
   outputData
 }) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
-  const audioRef = useRef<HTMLAudioElement | null>(null) // Ref to the specific audio element
+  const audioInstanceRef = useRef<HTMLAudioElement | null>(null) // To hold the specific Audio object
 
   useEffect(() => {
     const playerEntry = activeAudioPlayers.get(rowId)
-    audioRef.current = playerEntry ? playerEntry.audio : null
+    audioInstanceRef.current = playerEntry ? playerEntry.audio : null
+    const audio = audioInstanceRef.current
 
-    if (audioRef.current) {
-      const audio = audioRef.current
-      const handlePlay = () => setIsPlaying(true)
-      const handlePause = () => setIsPlaying(false)
-      const handleEnded = () => {
-        setIsPlaying(false)
-        setProgress(0)
-        // If it wasn't looping, it would have been removed from activeAudioPlayers by useOutputActions's onended
-      }
-      const handleTimeUpdate = () => {
+    if (audio) {
+      const handleStateChange = () => {
+        setIsPlaying(!audio.paused && audio.readyState > 0 && audio.duration > 0 && !audio.ended)
         if (audio.duration) {
           setProgress(Math.min(100, (audio.currentTime / audio.duration) * 100))
+        } else {
+          setProgress(0)
         }
       }
 
-      audio.addEventListener('play', handlePlay)
-      audio.addEventListener('playing', handlePlay) // For when it actually starts after buffering
-      audio.addEventListener('pause', handlePause)
-      audio.addEventListener('ended', handleEnded)
-      audio.addEventListener('timeupdate', handleTimeUpdate)
+      audio.addEventListener('play', handleStateChange)
+      audio.addEventListener('playing', handleStateChange)
+      audio.addEventListener('pause', handleStateChange)
+      audio.addEventListener('ended', handleStateChange)
+      audio.addEventListener('timeupdate', handleStateChange)
+      audio.addEventListener('emptied', handleStateChange) // When src is removed
+      audio.addEventListener('loadeddata', handleStateChange) // After src is set and data loaded
 
-      // Set initial state
-      setIsPlaying(!audio.paused && audio.readyState > 0 && audio.duration > 0) // More robust check
-      if (audio.duration && audio.currentTime > 0) {
-        setProgress((audio.currentTime / audio.duration) * 100)
-      } else {
-        setProgress(0)
-      }
+      handleStateChange() // Set initial state
 
       return () => {
-        audio.removeEventListener('play', handlePlay)
-        audio.removeEventListener('playing', handlePlay)
-        audio.removeEventListener('pause', handlePause)
-        audio.removeEventListener('ended', handleEnded)
-        audio.removeEventListener('timeupdate', handleTimeUpdate)
+        audio.removeEventListener('play', handleStateChange)
+        audio.removeEventListener('playing', handleStateChange)
+        audio.removeEventListener('pause', handleStateChange)
+        audio.removeEventListener('ended', handleStateChange)
+        audio.removeEventListener('timeupdate', handleStateChange)
+        audio.removeEventListener('emptied', handleStateChange)
+        audio.removeEventListener('loadeddata', handleStateChange)
       }
     } else {
       setIsPlaying(false)
       setProgress(0)
     }
-    // Re-run when the specific audio element for this rowId potentially changes in activeAudioPlayers
-    // This requires activeAudioPlayers to be a reactive source or to pass a dependency that changes.
-    // For simplicity, let's rely on IoRow re-rendering if outputData changes, which might re-mount MiniPlayer.
-    // A more robust solution might involve a global state for active players or event bus.
-    // For now, let's add outputData.audioDataUrl to trigger re-check if the sound file itself changes for the row.
-  }, [rowId, outputData.audioDataUrl, activeAudioPlayers.get(rowId)?.audio])
+  }, [rowId, activeAudioPlayers.get(rowId)?.audio]) // Depend on the specific audio instance
 
   const handlePlayPauseToggle = () => {
-    if (audioRef.current) {
-      if (audioRef.current.paused)
-        audioRef.current.play().catch((e) => console.error('MiniPlayer play error:', e))
-      else audioRef.current.pause()
+    if (audioInstanceRef.current) {
+      if (audioInstanceRef.current.paused)
+        audioInstanceRef.current
+          .play()
+          .catch((e) => console.error('[PlaySound MiniPlayer] Play error:', e))
+      else audioInstanceRef.current.pause()
     } else {
-      // No active player for this row, means it's not playing. Trigger it.
       window.dispatchEvent(new CustomEvent('io_input', { detail: rowId }))
     }
   }
 
-  const handleStop = () => {
-    stopPlayer(rowId) // Use the global stopPlayer, it will update activeAudioPlayers map
-    // The useEffect above will catch the change to activeAudioPlayers and update isPlaying/progress
-  }
+  const handleStop = () => stopPlayer(rowId)
 
-  if (!outputData.audioDataUrl) return null // Don't show player if no file
+  if (!outputData.audioId || !outputData.originalFileName) return null
 
   return (
     <Stack direction="row" spacing={0.5} alignItems="center" sx={{ px: 0.5, width: '100%' }}>
@@ -483,12 +475,12 @@ const MiniPlayer: FC<{ rowId: string; outputData: PlaySoundOutputData }> = ({
   )
 }
 
+// --- OutputDisplay Component ---
 export const OutputDisplay: FC<{ output: OutputData; rowId: string }> = ({ output, rowId }) => {
   const data = output.data as PlaySoundOutputData
   const displayFileName = data.originalFileName || 'No file selected'
-
   const displayInfo: string[] = []
-  if (data.cancelPrevious === false) displayInfo.push('Parallel')
+  if (data.cancelPrevious === false) displayInfo.push('||') // Using "||" for parallel
   if (data.loop) displayInfo.push('Loop')
 
   return (
@@ -510,10 +502,18 @@ export const OutputDisplay: FC<{ output: OutputData; rowId: string }> = ({ outpu
               noWrap
               sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
             >
-              {data.loop && <LoopIcon sx={{ fontSize: '0.9rem' }} />}
-              {data.cancelPrevious === false && <Typography variant="caption">||</Typography>}{' '}
-              {/* Simple indicator for parallel */}
-              {/* {displayInfo.join(', ')} */}
+              {data.loop && (
+                <Tooltip title="Looping">
+                  <LoopIcon sx={{ fontSize: '0.9rem' }} />
+                </Tooltip>
+              )}
+              {data.cancelPrevious === false && (
+                <Tooltip title="Plays in Parallel">
+                  <Typography variant="caption" sx={{ fontWeight: 'bold' }}>
+                    ||
+                  </Typography>
+                </Tooltip>
+              )}
             </Typography>
           )}
         </Stack>
@@ -526,107 +526,133 @@ export const OutputDisplay: FC<{ output: OutputData; rowId: string }> = ({ outpu
 // --- useOutputActions (Renderer) ---
 export const useOutputActions = (row: Row) => {
   const { id: rowId, output } = row
-  // This effect runs when the component for THIS ROW mounts, or if its output.data changes.
+
   useEffect(() => {
     const outputData = output.data as PlaySoundOutputData
 
-    const ioListener = (event: CustomEvent) => {
-      if (event.detail === rowId) {
-        // Trigger is for THIS row
-        if (!outputData.audioDataUrl) {
-          console.warn(`[PlaySound] Row ${rowId} triggered, but no audioDataUrl configured.`)
+    const playAudioFromDb = async (audioId: string) => {
+      const audioRecord = await getAudioBufferFromDB(audioId)
+      if (!audioRecord?.audioBuffer) {
+        console.warn(`[PlaySound] Audio data for ID ${audioId} not found in DB for row ${rowId}.`)
+        return null
+      }
+      const blob = new Blob([audioRecord.audioBuffer], { type: audioRecord.mimeType })
+      const newBlobUrl = URL.createObjectURL(blob)
+      // Cache the blob URL for potential reuse by MiniPlayer if it re-renders quickly
+      // and for cleanup.
+      if (blobUrlCache.has(audioId)) URL.revokeObjectURL(blobUrlCache.get(audioId)!)
+      blobUrlCache.set(audioId, newBlobUrl)
+      return newBlobUrl
+    }
+
+    const ioListener = async (event: Event) => {
+      // Parameter is Event
+      // Type guard to ensure it's the CustomEvent with string detail you expect
+      if (
+        event instanceof CustomEvent &&
+        typeof event.detail === 'string' && // Ensure detail is a string
+        event.detail === rowId // Check if it's for this row
+      ) {
+        // Now TypeScript knows event.detail is a string within this block
+        const eventRowId = event.detail // Which is === rowId
+
+        if (!outputData.audioId) {
+          console.warn(`[PlaySound] Row ${eventRowId} triggered, but no audioId configured.`)
           return
         }
         console.info(
-          `[PlaySound] Row ${rowId} triggered. Playing: ${outputData.originalFileName}`,
+          `[PlaySound] Row ${eventRowId} triggered. Playing: ${outputData.originalFileName}`,
           outputData
         )
 
         if (outputData.cancelPrevious === undefined || outputData.cancelPrevious === true) {
           console.debug(
-            `[PlaySound] CancelPrevious active for row ${rowId}. Stopping other players.`
+            `[PlaySound] CancelPrevious active for row ${eventRowId}. Stopping other players.`
           )
           activeAudioPlayers.forEach((player, key) => {
-            if (key !== rowId) {
+            if (key !== eventRowId) {
+              // Use eventRowId from the event
               stopPlayer(key)
             }
           })
         }
 
-        let playerEntry = activeAudioPlayers.get(rowId)
+        let playerEntry = activeAudioPlayers.get(eventRowId)
 
         if (playerEntry && !playerEntry.audio.paused) {
-          // If already playing this row's sound
           if (playerEntry.isLooping) {
-            // If it's looping and triggered again, stop it
-            console.debug(`[PlaySound] Row ${rowId} is looping and re-triggered. Stopping loop.`)
-            stopPlayer(rowId)
-            return // Don't proceed to play again immediately
-          } else {
-            // If not looping and retriggered, restart it
             console.debug(
-              `[PlaySound] Row ${rowId} is playing (not loop) and re-triggered. Restarting.`
+              `[PlaySound] Row ${eventRowId} is looping and re-triggered. Stopping loop.`
+            )
+            stopPlayer(eventRowId)
+            return
+          } else {
+            console.debug(
+              `[PlaySound] Row ${eventRowId} is playing (not loop) and re-triggered. Restarting.`
             )
             playerEntry.audio.currentTime = 0
-            // Volume and loop properties might have changed in row.output.data since last play
-            playerEntry.audio.volume = outputData.volume === undefined ? 1.0 : outputData.volume
+            playerEntry.audio.volume = outputData.volume ?? 1.0
             playerEntry.audio.loop = outputData.loop || false
             playerEntry.isLooping = outputData.loop || false
             playerEntry.audio
               .play()
               .catch((e) => console.error('[PlaySound] Error restarting audio:', e))
-            return // Done
+            return
           }
         }
 
-        // If player doesn't exist, or existed but was paused (or stopped above)
+        const blobUrl = await playAudioFromDb(outputData.audioId)
+        if (!blobUrl) {
+          console.error(
+            `[PlaySound] Could not get blobUrl for audioId ${outputData.audioId} on row ${eventRowId}`
+          )
+          return
+        }
+
         if (playerEntry && playerEntry.audio.paused) {
-          // Reuse paused player
-          console.debug(`[PlaySound] Row ${rowId} reusing paused player.`)
-          playerEntry.audio.src = outputData.audioDataUrl // Re-assign src in case it changed
-          playerEntry.audio.currentTime = 0
+          console.debug(`[PlaySound] Row ${eventRowId} reusing existing audio element.`)
+          playerEntry.audio.src = blobUrl
         } else {
-          // Create new player
-          console.debug(`[PlaySound] Row ${rowId} creating new player.`)
-          console.debug('[PlaySound] audioDataUrl to be used:', outputData.audioDataUrl)
-          const audio = new Audio()
-          audio.src = outputData.audioDataUrl
+          console.debug(`[PlaySound] Row ${eventRowId} creating new audio element.`)
+          const audio = new Audio(blobUrl) // blobUrl is from playAudioFromDb
           playerEntry = {
             audio,
-            rowId,
-            isLooping: false,
+            rowId: eventRowId,
+            isLooping: false, // Will be set below
+            audioId: outputData.audioId,
             originalFileName: outputData.originalFileName
-          } // isLooping will be set below
-          activeAudioPlayers.set(rowId, playerEntry)
-        }
-
-        const audio = playerEntry.audio
-        audio.volume = outputData.volume === undefined ? 1.0 : outputData.volume
-        audio.loop = outputData.loop || false
-        playerEntry.isLooping = audio.loop // Update isLooping in our map
-        playerEntry.originalFileName = outputData.originalFileName // Update filename in map
-
-        audio.oncanplaythrough = () =>
-          console.debug(
-            `[PlaySound] Audio can play through for row ${rowId}: ${outputData.originalFileName}`
-          )
-        audio.onerror = (e) => {
-          console.error(`[PlaySound] Error with audio element for row ${rowId}:`, audio.error)
-          stopPlayer(rowId)
-        }
-        audio.onended = () => {
-          console.debug(
-            `[PlaySound] Audio ended for row ${rowId}: ${playerEntry?.originalFileName}`
-          )
-          if (!playerEntry?.isLooping) {
-            // Use the state from our map
-            stopPlayer(rowId)
           }
+          activeAudioPlayers.set(eventRowId, playerEntry)
         }
 
-        audio.play().catch((e) => {
+        // This must be playerEntry.audio from the if/else block above
+        const audioToPlay = playerEntry.audio
+        audioToPlay.volume = outputData.volume ?? 1.0
+        audioToPlay.loop = outputData.loop || false
+        playerEntry.isLooping = audioToPlay.loop // Update isLooping in our map entry
+        playerEntry.originalFileName = outputData.originalFileName // Update filename in map entry
+
+        audioToPlay.oncanplaythrough = () =>
+          console.debug(
+            `[PlaySound] Audio can play through for row ${eventRowId}: ${playerEntry?.originalFileName}`
+          )
+        audioToPlay.onerror = () => {
+          console.error(
+            `[PlaySound] Error with audio element for row ${eventRowId}:`,
+            audioToPlay.error
+          )
+          stopPlayer(eventRowId)
+        }
+        audioToPlay.onended = () => {
+          console.debug(
+            `[PlaySound] Audio ended for row ${eventRowId}: ${playerEntry?.originalFileName}`
+          )
+          if (!playerEntry?.isLooping) stopPlayer(eventRowId)
+        }
+
+        audioToPlay.play().catch((e) => {
           console.error('[PlaySound] Error playing audio:', e)
-          stopPlayer(rowId)
+          stopPlayer(eventRowId)
         })
       }
     }
@@ -634,9 +660,6 @@ export const useOutputActions = (row: Row) => {
     window.addEventListener('io_input', ioListener as EventListener)
     return () => {
       window.removeEventListener('io_input', ioListener as EventListener)
-      // When row unmounts or its output.data changes significantly (re-running effect)
-      // Stop the sound associated with this specific row to prevent orphaned playback
-      // This is important if the audioDataUrl changes, or if loop status changes.
       console.debug(`[PlaySound] useOutputActions cleanup for row ${rowId}. Stopping its player.`)
       stopPlayer(rowId)
     }
@@ -644,18 +667,77 @@ export const useOutputActions = (row: Row) => {
 }
 
 // --- Settings Component (Module Global Settings) ---
+interface CachedAudioInfo {
+  id: string
+  originalFileName: string
+  dateAdded: Date
+}
+
 export const Settings: FC = () => {
+  const [manageCacheOpen, setManageCacheOpen] = useState(false)
+  const [cachedFiles, setCachedFiles] = useState<CachedAudioInfo[]>([])
+
+  const fetchCachedFiles = async () => {
+    try {
+      const files = await getAllAudioInfoFromDB()
+      files.sort((a, b) => b.dateAdded.getTime() - a.dateAdded.getTime()) // Newest first
+      setCachedFiles(files)
+    } catch (error) {
+      console.error('[PlaySound Settings] Error fetching cached files:', error)
+      setCachedFiles([])
+    }
+  }
+
+  const handleOpenManageCache = () => {
+    fetchCachedFiles()
+    setManageCacheOpen(true)
+  }
+  const handleCloseManageCache = () => setManageCacheOpen(false)
+
+  const handleDeleteCachedFile = async (audioId: string) => {
+    if (window.confirm('Delete this cached sound? Rows using it will need a new file.')) {
+      // Check if any active player is using this audioId and stop it
+      activeAudioPlayers.forEach((player) => {
+        if (player.audioId === audioId) stopPlayer(player.rowId)
+      })
+      await deleteAudioFromDB(audioId)
+      fetchCachedFiles() // Refresh list
+    }
+  }
+
+  const handleClearAllCache = async () => {
+    if (
+      window.confirm(
+        'Delete ALL cached sounds? This cannot be undone. Rows using them will need new files.'
+      )
+    ) {
+      stopAllPlayers(true) // Stop all sounds first
+      await clearAllAudioFromDB()
+      fetchCachedFiles() // Refresh list
+    }
+  }
+
   const handleStopAllSounds = () => {
     console.info('[PlaySound Settings] User requested Stop All Sounds.')
-    stopAllPlayers(true) // true to also stop preview player
+    stopAllPlayers(true)
   }
 
   return (
     <Paper
       elevation={2}
-      sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1, minWidth: 200 }}
+      sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1, minWidth: 220 }}
     >
       <Typography variant="overline">Global Audio Control</Typography>
+      <Button
+        variant="outlined"
+        color="info"
+        onClick={handleOpenManageCache}
+        startIcon={<Storage />}
+        fullWidth
+        size="small"
+      >
+        Manage Cached Sounds ({cachedFiles.length})
+      </Button>
       <Button
         variant="contained"
         color="error"
@@ -666,6 +748,50 @@ export const Settings: FC = () => {
       >
         Stop All Sounds
       </Button>
+
+      <Dialog open={manageCacheOpen} onClose={handleCloseManageCache} fullWidth maxWidth="sm">
+        <DialogTitle>Manage Cached Audio Snippets</DialogTitle>
+        <DialogContent>
+          {cachedFiles.length === 0 ? (
+            <Typography sx={{ p: 2, textAlign: 'center' }} color="textSecondary">
+              No audio snippets cached in IndexedDB.
+            </Typography>
+          ) : (
+            <List dense>
+              {cachedFiles.map((file) => (
+                <ListItem
+                  key={file.id}
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
+                      aria-label="delete"
+                      onClick={() => handleDeleteCachedFile(file.id)}
+                      color="error"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  }
+                >
+                  <ListItemIcon sx={{ minWidth: 36 }}>
+                    <Audiotrack fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={file.originalFileName}
+                    secondary={`Cached: ${file.dateAdded.toLocaleDateString()}`}
+                    primaryTypographyProps={{ noWrap: true, title: file.originalFileName }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'space-between', px: 3, pb: 2 }}>
+          <Button onClick={handleClearAllCache} color="error" disabled={cachedFiles.length === 0}>
+            Clear All Cache
+          </Button>
+          <Button onClick={handleCloseManageCache}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   )
 }

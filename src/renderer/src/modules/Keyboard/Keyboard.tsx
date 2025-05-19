@@ -1,7 +1,7 @@
 import type { ModuleConfig, InputData, Row, OutputData } from '@shared/types'
 import { useEffect, type FC } from 'react'
 import { log } from '@/utils'
-import { Box, Typography, useMediaQuery } from '@mui/material'
+import { Box, useMediaQuery } from '@mui/material'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import Shortkey from '@/modules/Keyboard/Shortkey'
 import { KeyboardOutputData } from './Keyboard.types'
