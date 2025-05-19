@@ -5,9 +5,7 @@ import {
   Box,
   Button,
   Typography,
-  Switch,
-  FormControlLabel,
-  Slider,
+  //   Slider,
   Paper,
   Stack,
   IconButton,
@@ -20,7 +18,14 @@ import {
   ListItem,
   ListItemText,
   DialogActions,
-  ListItemIcon
+  ListItemIcon,
+  SelectChangeEvent,
+  FormControl,
+  InputLabel,
+  Select,
+  CircularProgress,
+  MenuItem,
+  Divider
 } from '@mui/material'
 import {
   Audiotrack,
@@ -30,7 +35,12 @@ import {
   PlayArrow,
   Pause as PauseIcon,
   Delete as DeleteIcon,
-  Storage // Added Storage for manage cache
+  Storage,
+  Cached,
+  Repeat,
+  RepeatOne,
+  LayersClear,
+  Layers
 } from '@mui/icons-material'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import type { PlaySoundOutputData, PlaySoundModuleCustomConfig } from './PlaySound.types'
@@ -40,7 +50,7 @@ import {
   getAllAudioInfoFromDB,
   deleteAudioFromDB,
   clearAllAudioFromDB
-} from './lib/db' // Correct path
+} from './lib/db'
 
 // --- Module Definition ---
 export const id = 'playsound-module'
@@ -145,6 +155,29 @@ export const OutputEdit: FC<{
   const [isPreviewPlaying, setIsPreviewPlaying] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null)
+  const [cachedAudioFiles, setCachedAudioFiles] = useState<
+    Array<{ id: string; originalFileName: string }>
+  >([])
+  const [isLoadingCache, setIsLoadingCache] = useState(false)
+
+  // Fetch cached files when component mounts or edit mode starts for this output
+  useEffect(() => {
+    const fetchFiles = async () => {
+      setIsLoadingCache(true)
+      try {
+        const filesInfo = await getAllAudioInfoFromDB()
+        // Sort by name for the dropdown
+        filesInfo.sort((a, b) => a.originalFileName.localeCompare(b.originalFileName))
+        setCachedAudioFiles(
+          filesInfo.map((f) => ({ id: f.id, originalFileName: f.originalFileName }))
+        )
+      } catch (error) {
+        console.error('[PlaySound OutputEdit] Error fetching cached audio files:', error)
+      }
+      setIsLoadingCache(false)
+    }
+    fetchFiles()
+  }, [])
 
   useEffect(() => {
     // Cleanup preview player and revoke Blob URL when component unmounts or audioId changes
@@ -169,7 +202,19 @@ export const OutputEdit: FC<{
       loop: currentData.loop,
       cancelPrevious: currentData.cancelPrevious
     })
+    if (audioId && !cachedAudioFiles.find((f) => f.id === audioId)) {
+      const fetchFiles = async () => {
+        const filesInfo = await getAllAudioInfoFromDB()
+        filesInfo.sort((a, b) => a.originalFileName.localeCompare(b.originalFileName))
+        setCachedAudioFiles(
+          filesInfo.map((f) => ({ id: f.id, originalFileName: f.originalFileName }))
+        )
+      }
+      fetchFiles()
+    }
   }
+
+  const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => file.arrayBuffer()
 
   const processFile = async (file: File | null | undefined) => {
     if (!file) return
@@ -223,12 +268,18 @@ export const OutputEdit: FC<{
     event.stopPropagation()
     setIsDraggingOver(false)
   }
-  const handleVolumeChange = (_event: Event, newValue: number | number[]) =>
-    onChange({ volume: parseFloat((newValue as number).toFixed(2)) })
-  const handleCancelPreviousToggle = (event: React.ChangeEvent<HTMLInputElement>) =>
-    onChange({ cancelPrevious: event.target.checked })
-  const handleLoopToggle = (event: React.ChangeEvent<HTMLInputElement>) =>
-    onChange({ loop: event.target.checked })
+  //   const handleVolumeChange = (_event: Event, newValue: number | number[]) =>
+  //     onChange({ volume: parseFloat((newValue as number).toFixed(2)) })
+
+  //   const handleCancelPreviousToggle = (event: React.ChangeEvent<HTMLInputElement>) =>
+  //     onChange({ cancelPrevious: event.target.checked })
+
+  const handleCancelPreviousToggle = (_event: any) => {
+    onChange({ cancelPrevious: !currentData.cancelPrevious })
+  }
+  //   const handleLoopToggle = (event: React.ChangeEvent<HTMLInputElement>) =>
+  // onChange({ loop: event.target.checked })
+  const handleLoopToggle = (_event: any) => onChange({ loop: !currentData.loop })
 
   const handlePreview = async () => {
     if (!currentData.audioId) return
@@ -279,9 +330,48 @@ export const OutputEdit: FC<{
     }
   }
 
+  const handleCachedAudioSelect = (event: SelectChangeEvent<string>) => {
+    const selectedAudioId = event.target.value
+    if (selectedAudioId) {
+      const selectedFile = cachedAudioFiles.find((f) => f.id === selectedAudioId)
+      if (selectedFile) {
+        updateAudioDataInState(selectedFile.id, selectedFile.originalFileName)
+      }
+    } else {
+      // "None" or empty selection
+      updateAudioDataInState(undefined, undefined)
+    }
+  }
   return (
-    <Paper elevation={0} sx={{ p: 2, mt: 1, border: '1px dashed grey', borderRadius: 1 }}>
-      <Stack spacing={2.5}>
+    <>
+      <FormControl fullWidth size="medium" disabled={isLoadingCache} sx={{ mt: '4px', mb: '0' }}>
+        <InputLabel id="cached-audio-select-label">Select Sound</InputLabel>
+        <Select
+          labelId="cached-audio-select-label"
+          label="Select Sound"
+          value={currentData.audioId || ''}
+          onChange={handleCachedAudioSelect}
+          startAdornment={
+            isLoadingCache ? (
+              <CircularProgress size={20} sx={{ mr: 1 }} />
+            ) : (
+              <Cached sx={{ mr: 1, color: 'action.active' }} />
+            )
+          }
+        >
+          <MenuItem value="">
+            <em>None / Add New Below</em>
+          </MenuItem>
+          {cachedAudioFiles.map((file) => (
+            <MenuItem key={file.id} value={file.id}>
+              {file.originalFileName.length > 40
+                ? `${file.originalFileName.substring(0, 37)}...`
+                : file.originalFileName}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <Stack spacing={2}>
         <input
           type="file"
           accept="audio/*,.mp3,.wav,.ogg,.aac,.m4a,.flac"
@@ -295,7 +385,7 @@ export const OutputEdit: FC<{
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           sx={{
-            border: `2px dashed ${isDraggingOver ? 'primary.dark' : 'grey.400'}`,
+            border: `2px dashed ${isDraggingOver ? '#999' : '#666'}`,
             borderRadius: 1,
             p: 2,
             textAlign: 'center',
@@ -317,31 +407,6 @@ export const OutputEdit: FC<{
                   {currentData.originalFileName}
                 </Typography>
               </Tooltip>
-              <Stack direction="row" spacing={1}>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleSelectFileClick()
-                  }}
-                  size="small"
-                  variant="text"
-                  startIcon={<FolderOpen />}
-                >
-                  Change
-                </Button>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handlePreview()
-                  }}
-                  size="small"
-                  variant="text"
-                  startIcon={isPreviewPlaying ? <PauseIcon /> : <PlayArrow />}
-                  color={isPreviewPlaying ? 'warning' : 'primary'}
-                >
-                  {isPreviewPlaying ? 'Stop' : 'Preview'}
-                </Button>
-              </Stack>
             </Stack>
           ) : (
             <Typography variant="body2" color="text.secondary">
@@ -349,8 +414,32 @@ export const OutputEdit: FC<{
             </Typography>
           )}
         </Box>
-        <Box>
-          {' '}
+        <Stack direction="row" spacing={1} justifyContent={'center'}>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation()
+              handleSelectFileClick()
+            }}
+            size="small"
+            variant="text"
+            startIcon={<FolderOpen />}
+          >
+            Change
+          </Button>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation()
+              handlePreview()
+            }}
+            size="small"
+            variant="text"
+            startIcon={isPreviewPlaying ? <PauseIcon /> : <PlayArrow />}
+            color={isPreviewPlaying ? 'warning' : 'primary'}
+          >
+            {isPreviewPlaying ? 'Stop' : 'Preview'}
+          </Button>
+        </Stack>
+        {/* <Box>
           <Typography gutterBottom variant="caption">
             Volume
           </Typography>{' '}
@@ -366,26 +455,39 @@ export const OutputEdit: FC<{
               { value: 0.5, label: '50%' },
               { value: 1, label: '100%' }
             ]}
-          />{' '}
-        </Box>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={currentData.cancelPrevious ?? true}
-              onChange={handleCancelPreviousToggle}
-              size="small"
-            />
+          />
+        </Box> */}
+        <Divider />
+        <Button
+          variant="text"
+          sx={{ textTransform: 'capitalize', justifyContent: 'flex-start' }}
+          startIcon={
+            currentData.cancelPrevious ? (
+              <LayersClear sx={{ fontSize: '1.2rem' }} />
+            ) : (
+              <Layers sx={{ fontSize: '1.2rem' }} />
+            )
           }
-          label="Stop other active sounds first"
-        />
-        <FormControlLabel
-          control={
-            <Switch checked={currentData.loop || false} onChange={handleLoopToggle} size="small" />
+          onClick={handleCancelPreviousToggle}
+        >
+          {currentData.cancelPrevious ? 'Stop other sounds' : 'Play in parallel'}
+        </Button>
+        <Button
+          variant="text"
+          sx={{ textTransform: 'capitalize', justifyContent: 'flex-start' }}
+          startIcon={
+            currentData.loop ? (
+              <Repeat sx={{ fontSize: '1.2rem' }} />
+            ) : (
+              <RepeatOne sx={{ fontSize: '1.2rem' }} />
+            )
           }
-          label="Loop audio playback"
-        />
+          onClick={handleLoopToggle}
+        >
+          {currentData.loop ? 'Looping' : 'Play once (Loop off)'}
+        </Button>
       </Stack>
-    </Paper>
+    </>
   )
 }
 
@@ -666,6 +768,12 @@ export const useOutputActions = (row: Row) => {
   }, [rowId, output.data])
 }
 
+interface CachedAudioInfo {
+  id: string
+  originalFileName: string
+  dateAdded: Date
+}
+
 // --- Settings Component (Module Global Settings) ---
 interface CachedAudioInfo {
   id: string
@@ -676,6 +784,16 @@ interface CachedAudioInfo {
 export const Settings: FC = () => {
   const [manageCacheOpen, setManageCacheOpen] = useState(false)
   const [cachedFiles, setCachedFiles] = useState<CachedAudioInfo[]>([])
+  const [isBatchImportDragging, setIsBatchImportDragging] = useState(false)
+  const [batchImportProgress, setBatchImportProgress] = useState(0)
+  const [isBatchImporting, setIsBatchImporting] = useState(false)
+  const [manageCacheDialogOpenFromSettings, setManageCacheDialogOpenFromSettings] = useState(false) // Renamed to avoid confusion
+  const [cachedAudioFilesList, setCachedAudioFilesList] = useState<
+    Pick<CachedAudioInfo, 'id' | 'originalFileName' | 'dateAdded'>[]
+  >([]) // For the dialog
+  const [initialCachedFileCount, setInitialCachedFileCount] = useState(0) // For the button label
+  const [isLoadingInitialCount, setIsLoadingInitialCount] = useState(true)
+  const batchFileInputRef = useRef<HTMLInputElement>(null)
 
   const fetchCachedFiles = async () => {
     try {
@@ -688,32 +806,55 @@ export const Settings: FC = () => {
     }
   }
 
-  const handleOpenManageCache = () => {
-    fetchCachedFiles()
-    setManageCacheOpen(true)
+  const fetchCachedFilesData = async (forCountOnly = false) => {
+    if (!forCountOnly) setIsLoadingInitialCount(true) // Show loading for full fetch for dialog
+    try {
+      const files = await getAllAudioInfoFromDB() // This gets all info
+      if (forCountOnly) {
+        setInitialCachedFileCount(files.length)
+      } else {
+        files.sort((a, b) => b.dateAdded.getTime() - a.dateAdded.getTime())
+        setCachedAudioFilesList(files) // For the dialog list
+        setInitialCachedFileCount(files.length) // Also update count
+      }
+    } catch (error) {
+      console.error('[PlaySound Settings] Error fetching cached files:', error)
+      if (forCountOnly) setInitialCachedFileCount(0)
+      else setCachedAudioFilesList([])
+    }
+    if (!forCountOnly) setIsLoadingInitialCount(false)
   }
-  const handleCloseManageCache = () => setManageCacheOpen(false)
+
+  // Fetch initial count on mount
+  useEffect(() => {
+    setIsLoadingInitialCount(true) // Set loading true for initial count fetch
+    fetchCachedFilesData(true).finally(() => setIsLoadingInitialCount(false)) // Fetch only count, then set loading false
+  }, [])
+
+  const handleOpenManageCacheDialog = () => {
+    fetchCachedFilesData(false) // Fetch full data for the dialog
+    setManageCacheDialogOpenFromSettings(true)
+  }
+  const handleCloseManageCacheDialog = () => setManageCacheDialogOpenFromSettings(false)
 
   const handleDeleteCachedFile = async (audioId: string) => {
     if (window.confirm('Delete this cached sound? Rows using it will need a new file.')) {
-      // Check if any active player is using this audioId and stop it
       activeAudioPlayers.forEach((player) => {
+        // `activeAudioPlayers` needs to be accessible or passed
         if (player.audioId === audioId) stopPlayer(player.rowId)
       })
       await deleteAudioFromDB(audioId)
-      fetchCachedFiles() // Refresh list
+      fetchCachedFilesData(false) // Refresh full list for dialog
+      fetchCachedFilesData(true) // And refresh count for button
     }
   }
 
   const handleClearAllCache = async () => {
-    if (
-      window.confirm(
-        'Delete ALL cached sounds? This cannot be undone. Rows using them will need new files.'
-      )
-    ) {
-      stopAllPlayers(true) // Stop all sounds first
+    if (window.confirm('Delete ALL cached sounds? This cannot be undone...')) {
+      stopAllPlayers(true)
       await clearAllAudioFromDB()
-      fetchCachedFiles() // Refresh list
+      fetchCachedFilesData(false) // Refresh full list
+      fetchCachedFilesData(true) // And refresh count
     }
   }
 
@@ -721,6 +862,75 @@ export const Settings: FC = () => {
     console.info('[PlaySound Settings] User requested Stop All Sounds.')
     stopAllPlayers(true)
   }
+
+  const processBatchFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return
+
+    setIsBatchImporting(true)
+    setBatchImportProgress(0)
+    const totalFiles = files.length
+    let filesProcessed = 0
+
+    console.info(`[PlaySound Settings] Starting batch import of ${totalFiles} files...`)
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      const validAudioTypes = [
+        'audio/mpeg',
+        'audio/wav',
+        'audio/ogg',
+        'audio/aac',
+        'audio/mp4',
+        'audio/flac'
+      ]
+      if (validAudioTypes.includes(file.type) || /\.(mp3|wav|ogg|aac|m4a|flac)$/i.test(file.name)) {
+        try {
+          const audioBuffer = await file.arrayBuffer()
+          const mimeType =
+            file.type || `audio/${file.name.split('.').pop()?.toLowerCase() || 'mpeg'}`
+          await addAudioToDB(file.name, mimeType, audioBuffer) // ID is generated by addAudioToDB
+          console.debug(`[PlaySound Settings] Batch imported: ${file.name}`)
+        } catch (error) {
+          console.error(`[PlaySound Settings] Error importing file ${file.name} in batch:`, error)
+          // Optionally collect errors to show user
+        }
+      } else {
+        console.warn(`[PlaySound Settings] Skipped non-audio file in batch: ${file.name}`)
+      }
+      filesProcessed++
+      setBatchImportProgress((filesProcessed / totalFiles) * 100)
+    }
+    setIsBatchImporting(false)
+    setBatchImportProgress(100) // Show complete for a moment
+    console.info(
+      `[PlaySound Settings] Batch import finished. Processed ${filesProcessed}/${totalFiles}.`
+    )
+    alert(`Batch import complete. Processed ${filesProcessed} of ${totalFiles} files.`)
+    fetchCachedFiles() // Refresh cache list if manager dialog is open
+    setTimeout(() => setBatchImportProgress(0), 1500) // Reset progress bar
+  }
+
+  const handleBatchFileDrop = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setIsBatchImportDragging(false)
+    processBatchFiles(event.dataTransfer.files)
+  }
+  const handleBatchDragOver = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setIsBatchImportDragging(true)
+  }
+  const handleBatchDragLeave = (event: DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setIsBatchImportDragging(false)
+  }
+  const handleBatchFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    processBatchFiles(event.target.files)
+    if (event.target) event.target.value = '' // Reset input
+  }
+  const handleBatchSelectClick = () => batchFileInputRef.current?.click()
 
   return (
     <Paper
@@ -730,13 +940,15 @@ export const Settings: FC = () => {
       <Typography variant="overline">Global Audio Control</Typography>
       <Button
         variant="outlined"
-        color="info"
-        onClick={handleOpenManageCache}
+        color="primary"
+        onClick={handleOpenManageCacheDialog} // Use new handler
         startIcon={<Storage />}
         fullWidth
         size="small"
+        sx={{ height: 40 }}
+        disabled={isLoadingInitialCount} // Disable while fetching count
       >
-        Manage Cached Sounds ({cachedFiles.length})
+        Manage Cached Sounds ({isLoadingInitialCount ? '...' : initialCachedFileCount})
       </Button>
       <Button
         variant="contained"
@@ -745,13 +957,49 @@ export const Settings: FC = () => {
         startIcon={<StopCircle />}
         fullWidth
         size="small"
+        sx={{ height: 40 }}
       >
         Stop All Sounds
       </Button>
 
-      <Dialog open={manageCacheOpen} onClose={handleCloseManageCache} fullWidth maxWidth="sm">
+      <Dialog
+        open={manageCacheDialogOpenFromSettings}
+        onClose={handleCloseManageCacheDialog}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogTitle>Manage Cached Audio Snippets</DialogTitle>
         <DialogContent>
+          <input
+            type="file"
+            multiple
+            accept="audio/*,..."
+            style={{ display: 'none' }}
+            ref={batchFileInputRef}
+            onChange={handleBatchFileInputChange}
+          />
+          <Box
+            onClick={handleBatchSelectClick}
+            onDrop={handleBatchFileDrop}
+            onDragOver={handleBatchDragOver}
+            onDragLeave={handleBatchDragLeave}
+            sx={{
+              /* ... drop zone styles similar to OutputEdit, but maybe distinct ... */
+              border: `2px dashed ${isBatchImportDragging ? '#999' : '#666'}`,
+              p: 2,
+              textAlign: 'center',
+              cursor: 'pointer',
+              bgcolor: isBatchImportDragging ? 'success.lightest' : 'transparent'
+            }}
+          >
+            <Audiotrack sx={{ fontSize: 24, color: 'text.secondary', mb: 0.5 }} />
+            <Typography variant="body2" color="textSecondary">
+              Drop Audio Files Here or Click to Batch Import
+            </Typography>
+          </Box>
+          {isBatchImporting && (
+            <LinearProgress variant="determinate" value={batchImportProgress} sx={{ my: 1 }} />
+          )}
           {cachedFiles.length === 0 ? (
             <Typography sx={{ p: 2, textAlign: 'center' }} color="textSecondary">
               No audio snippets cached in IndexedDB.
@@ -789,7 +1037,7 @@ export const Settings: FC = () => {
           <Button onClick={handleClearAllCache} color="error" disabled={cachedFiles.length === 0}>
             Clear All Cache
           </Button>
-          <Button onClick={handleCloseManageCache}>Close</Button>
+          <Button onClick={handleCloseManageCacheDialog}>Close</Button>
         </DialogActions>
       </Dialog>
     </Paper>

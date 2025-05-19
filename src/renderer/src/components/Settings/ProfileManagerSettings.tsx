@@ -1,8 +1,9 @@
 // src/renderer/src/components/Settings/ProfileManagerSettings.tsx
-import type { FC } from 'react'
-import { useState, useEffect, useMemo } from 'react'
+import type { ChangeEvent, FC } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useMainStore } from '@/store/mainStore'
-import type { ProfileDefinition, Row } from '@shared/types'
+import type { ProfileDefinition, Row } from '@shared/types' // Ensure all used types are imported
+import { v4 as uuidv4 } from 'uuid'
 import {
   Box,
   Button,
@@ -24,7 +25,9 @@ import {
   Checkbox,
   Tooltip,
   Stack,
-  SelectChangeEvent
+  SelectChangeEvent,
+  FormControlLabel,
+  Switch
 } from '@mui/material'
 import {
   Delete,
@@ -32,21 +35,35 @@ import {
   CheckCircle,
   RadioButtonUnchecked,
   PersonAdd,
-  Settings
+  Settings,
+  FileUpload as ImportIcon,
+  FileDownload as ExportIcon
 } from '@mui/icons-material'
 import IoIcon from '../IoIcon/IoIcon'
-// Assume you have an IconPicker component or a simple TextField for icon names for now
-// import IconPicker from '../IconPicker';
+import { PlaySoundOutputData } from '@/modules/PlaySound/PlaySound.types'
+import { addAudioToDB, getAudioBufferFromDB } from '@/modules/PlaySound/lib/db' // Assuming these are correctly exported
+import { arrayBufferToBase64, base64ToArrayBuffer, downloadJsonFile } from '@/utils/utils'
 
-// --- Profile Editor Dialog ---
+// --- Data Structures for Export/Import ---
+interface ProfileExportAudioEntry {
+  originalFileName: string
+  mimeType: string
+  base64Data: string
+}
+interface ProfileExportFormat {
+  profile: ProfileDefinition
+  rows: Row[]
+  audioData?: Record<string, ProfileExportAudioEntry> // audioId (from exporting system) -> data
+}
+
+// --- Profile Editor Dialog (Sub-component) ---
 interface ProfileEditorDialogProps {
   open: boolean
   onClose: () => void
-  onSave: (profileData: Omit<ProfileDefinition, 'id'> & { id?: string }) => void // id is optional for new
+  onSave: (profileData: Omit<ProfileDefinition, 'id'> & { id?: string }) => void
   initialProfile?: ProfileDefinition | null
-  allRows: Record<string, Row> // To list rows for inclusion
+  allRows: Record<string, Row>
 }
-
 const ProfileEditorDialog: FC<ProfileEditorDialogProps> = ({
   open,
   onClose,
@@ -54,12 +71,16 @@ const ProfileEditorDialog: FC<ProfileEditorDialogProps> = ({
   initialProfile,
   allRows
 }) => {
+  // ... (Your existing, working ProfileEditorDialog implementation)
+  // This component doesn't need to change for the import/export of profiles themselves,
+  // only for how it gets `allRows` if that's impacted.
   const [name, setName] = useState('')
   const [icon, setIcon] = useState('people')
   const [selectedRowIds, setSelectedRowIds] = useState<string[]>([])
   const [currentProfileId, setCurrentProfileId] = useState<string | null>(null)
 
   useEffect(() => {
+    /* ... logic to set state from initialProfile ... */
     if (open) {
       if (initialProfile) {
         setName(initialProfile.name || '')
@@ -74,12 +95,11 @@ const ProfileEditorDialog: FC<ProfileEditorDialogProps> = ({
       }
     }
   }, [open, initialProfile])
-
   const handleRowToggle = (rowId: string) =>
     setSelectedRowIds((prev) =>
       prev.includes(rowId) ? prev.filter((id) => id !== rowId) : [...prev, rowId]
     )
-  const handleSave = () => {
+  const handleSaveDialog = () => {
     if (!name.trim()) {
       alert('Profile name is required.')
       return
@@ -90,7 +110,7 @@ const ProfileEditorDialog: FC<ProfileEditorDialogProps> = ({
   const sortedRowsArray = useMemo(
     () =>
       Object.values(allRows).sort((a, b) =>
-        (a.output.name || a.id).localeCompare(b.output.name || b.id)
+        (a.input.name || a.id).localeCompare(b.input.name || b.id)
       ),
     [allRows]
   )
@@ -105,7 +125,7 @@ const ProfileEditorDialog: FC<ProfileEditorDialogProps> = ({
         component: 'form',
         onSubmit: (e) => {
           e.preventDefault()
-          handleSave()
+          handleSaveDialog()
         }
       }}
     >
@@ -159,8 +179,10 @@ const ProfileEditorDialog: FC<ProfileEditorDialogProps> = ({
                       )}
                     </ListItemIcon>
                     <ListItemText
-                      primary={row.output.name || `Row ${row.id.substring(0, 8)}...`}
-                      secondary={`${row.inputModule} → ${row.outputModule}`}
+                      primary={
+                        row.output.label || row.output.name || `Row ${row.id.substring(0, 8)}`
+                      }
+                      secondary={`${row.input.name} (${row.inputModule.replace('-module', '')}) → ${row.output.name} (${row.outputModule.replace('-module', '')})`}
                     />
                   </ListItem>
                 ))}
@@ -190,31 +212,29 @@ export const ProfileManagerSettings: FC = () => {
   const updateProfile = useMainStore((state) => state.updateProfile)
   const deleteProfile = useMainStore((state) => state.deleteProfile)
   const setActiveProfile = useMainStore((state) => state.setActiveProfile)
+  const addRowAction = useMainStore((state) => state.addRow)
 
-  const [manageProfilesDialogOpen, setManageProfilesDialogOpen] = useState(false) // For the list of profiles
-  const [profileEditorOpen, setProfileEditorOpen] = useState(false) // For Add/Edit individual profile
+  const [manageProfilesDialogOpen, setManageProfilesDialogOpen] = useState(false)
+  const [profileEditorOpen, setProfileEditorOpen] = useState(false)
   const [editingProfile, setEditingProfile] = useState<ProfileDefinition | null>(null)
+
+  const importFileInputRef = useRef<HTMLInputElement>(null)
+  const [includeAudioOnExport, setIncludeAudioOnExport] = useState(true)
 
   const sortedProfiles = useMemo(
     () => Object.values(profiles).sort((a, b) => a.name.localeCompare(b.name)),
     [profiles]
   )
-
   const handleOpenProfileManager = () => setManageProfilesDialogOpen(true)
   const handleCloseProfileManager = () => setManageProfilesDialogOpen(false)
-
   const handleAddNewProfileFromManager = () => {
-    setEditingProfile(null) // Clear for new profile
-    setProfileEditorOpen(true) // Open editor
-    // setManageProfilesDialogOpen(false); // Keep manager open or close? User preference. Let's keep it open.
+    setEditingProfile(null)
+    setProfileEditorOpen(true)
   }
-
   const handleEditProfileFromManager = (profile: ProfileDefinition) => {
     setEditingProfile(profile)
     setProfileEditorOpen(true)
-    // setManageProfilesDialogOpen(false); // Keep manager open.
   }
-
   const handleDeleteProfileInManager = (profileId: string) => {
     if (
       window.confirm(
@@ -229,7 +249,6 @@ export const ProfileManagerSettings: FC = () => {
       }
     }
   }
-
   const handleSaveProfileFromEditor = (
     profileData: Omit<ProfileDefinition, 'id'> & { id?: string }
   ) => {
@@ -239,16 +258,155 @@ export const ProfileManagerSettings: FC = () => {
     } else {
       // Adding new
       addProfile(profileData.name, profileData.icon, profileData.includedRowIds)
-      console.log('EYYYYY', profileData)
     }
     setProfileEditorOpen(false) // Close editor after save
     setEditingProfile(null)
     // setManageProfilesDialogOpen(true); // Ensure manager dialog is visible if it was closed
   }
-
   const handleSetActiveProfile = (event: SelectChangeEvent<string>) => {
-    console.log('WTF', event.target.value)
     setActiveProfile(event.target.value || null)
+  }
+
+  const handleExportProfile = async (profileIdToExport: string) => {
+    const profileToExport = profiles[profileIdToExport]
+    if (!profileToExport) {
+      alert('Profile not found.')
+      return
+    }
+
+    const includedRowsArray: Row[] = profileToExport.includedRowIds
+      .map((rowId) => allRows[rowId])
+      .filter((row) => !!row)
+
+    const exportData: ProfileExportFormat = {
+      profile: { ...profileToExport }, // Export a clean copy
+      rows: includedRowsArray.map((r) => ({ ...r })), // Deep copy rows
+      ...(includeAudioOnExport && { audioData: {} })
+    }
+
+    if (includeAudioOnExport && exportData.audioData) {
+      console.debug('[ExportProfile] Including audio data...')
+      for (const row of includedRowsArray) {
+        if (row.outputModule === 'playsound-module') {
+          const soundData = row.output.data as PlaySoundOutputData
+          if (soundData.audioId && !exportData.audioData[soundData.audioId]) {
+            try {
+              const audioRecord = await getAudioBufferFromDB(soundData.audioId)
+              if (audioRecord?.audioBuffer && audioRecord?.mimeType) {
+                const base64Data = arrayBufferToBase64(audioRecord.audioBuffer)
+                exportData.audioData[soundData.audioId] = {
+                  originalFileName: audioRecord.originalFileName,
+                  mimeType: audioRecord.mimeType,
+                  base64Data: base64Data
+                }
+                console.debug(`[ExportProfile] Added audio for ${audioRecord.originalFileName}`)
+              }
+            } catch (err) {
+              console.error(`Error fetching/encoding audio ${soundData.audioId}:`, err)
+            }
+          }
+        }
+      }
+    }
+    const fileName = `${profileToExport.name.replace(/[^a-z0-9]/gi, '_') || 'IO_Profile'}.ioProfile`
+    downloadJsonFile(exportData, fileName)
+    console.info(`[ExportProfile] Profile "${profileToExport.name}" download initiated.`)
+  }
+
+  const handleImportProfileClick = () => {
+    importFileInputRef.current?.click()
+  }
+
+  const handleImportFileSelected = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    console.debug('[ImportProfile] File selected:', file.name)
+    const reader = new FileReader()
+    reader.onload = async (e) => {
+      try {
+        const fileContent = e.target?.result as string
+        const importedData = JSON.parse(fileContent) as ProfileExportFormat
+        console.debug('[ImportProfile] Parsed data:', JSON.parse(JSON.stringify(importedData)))
+
+        if (!importedData.profile || !Array.isArray(importedData.rows)) {
+          // Check rows is array
+          throw new Error('Invalid profile export file structure (missing profile or rows array).')
+        }
+
+        const audioIdMap: Record<string, string> = {} // oldAudioId (from file) -> newAudioId (in local DB)
+        if (importedData.audioData) {
+          console.debug('[ImportProfile] Processing embedded audio data...')
+          for (const oldAudioIdFromFile in importedData.audioData) {
+            const audioEntry = importedData.audioData[oldAudioIdFromFile]
+            try {
+              const audioBuffer = base64ToArrayBuffer(audioEntry.base64Data)
+              const newLocalAudioId = await addAudioToDB(
+                audioEntry.originalFileName,
+                audioEntry.mimeType,
+                audioBuffer
+              )
+              audioIdMap[oldAudioIdFromFile] = newLocalAudioId
+              console.debug(
+                `[ImportProfile] Imported audio "${audioEntry.originalFileName}" -> new ID ${newLocalAudioId}`
+              )
+            } catch (err) {
+              console.error(`Error importing audio entry ${oldAudioIdFromFile}:`, err)
+            }
+          }
+        }
+
+        const newImportedRowIdsForProfile: string[] = []
+        for (const importedRow of importedData.rows) {
+          const newRowId = uuidv4() // Always generate new ID for imported row
+
+          const newRowData = { ...importedRow, id: newRowId }
+          newImportedRowIdsForProfile.push(newRowId)
+
+          if (newRowData.outputModule === 'playsound-module' && newRowData.output.data.audioId) {
+            const oldAudioId = newRowData.output.data.audioId
+            const newLocalAudioId = audioIdMap[oldAudioId]
+            if (newLocalAudioId) {
+              newRowData.output.data.audioId = newLocalAudioId
+              // originalFileName should be part of audioEntry and thus re-set from DB or passed along
+              const audioEntryFromImport = importedData.audioData?.[oldAudioId]
+              newRowData.output.data.originalFileName =
+                audioEntryFromImport?.originalFileName || 'Unknown Imported Audio'
+              console.debug(
+                `[ImportProfile] Mapped audio for new row ${newRowId}: old ${oldAudioId} -> new ${newLocalAudioId}`
+              )
+            } else {
+              console.warn(
+                `[ImportProfile] Audio ID ${oldAudioId} for row ${newRowId} not found in mapped audio or import file's audioData. Sound needs re-linking.`
+              )
+              delete newRowData.output.data.audioId
+              delete newRowData.output.data.originalFileName
+            }
+          }
+          addRowAction(newRowData) // Add the processed row to mainStore
+        }
+
+        // Create the new profile with new ID, using imported name/icon, and NEW row IDs
+        const newProfileName = importedData.profile.name || `Imported Profile ${Date.now()}`
+        const newProfileIcon = importedData.profile.icon || 'file_upload'
+        const newProfileActualId = addProfile(
+          newProfileName,
+          newProfileIcon,
+          newImportedRowIdsForProfile
+        )
+
+        alert(
+          `Profile "${newProfileName}" imported successfully with ${newImportedRowIdsForProfile.length} rows!`
+        )
+        handleCloseProfileManager()
+        setActiveProfile(newProfileActualId)
+      } catch (error: any) {
+        console.error('[ImportProfile] Error parsing or processing profile file:', error)
+        alert(`Failed to import profile: ${error.message}`)
+      }
+    }
+    if (file) reader.readAsText(file)
+    if (event.target) event.target.value = '' // Reset file input
   }
 
   return (
@@ -261,7 +419,7 @@ export const ProfileManagerSettings: FC = () => {
         flexDirection: 'column',
         gap: 1,
         height: '100%',
-        boxsizing: 'border-box',
+        boxSizing: 'border-box',
         marginTop: '0.5rem'
       }}
     >
@@ -269,7 +427,6 @@ export const ProfileManagerSettings: FC = () => {
         <Typography variant="overline">Active Profile</Typography>
       </Box>
       <FormControl fullWidth size="small">
-        {/* Removed InputLabel and FormHelperText for cleaner look if desired for this specific dropdown */}
         <Select
           value={activeProfileId || ''}
           onChange={handleSetActiveProfile}
@@ -277,12 +434,12 @@ export const ProfileManagerSettings: FC = () => {
           sx={{ '& .MuiSelect-select': { display: 'flex', alignItems: 'center' } }}
         >
           <MenuItem value="">
-            <em>None (All Rows Considered)</em>
+            <em>None (All Rows Active)</em>
           </MenuItem>
           {sortedProfiles.map((p) => (
             <MenuItem key={p.id} value={p.id} sx={{ '& .MuiSelect-select': { display: 'flex' } }}>
               <ListItemIcon sx={{ minWidth: 32, mr: 0.5 }}>
-                <IoIcon name={p.icon && p.icon !== '' ? p.icon : 'people'} />
+                <IoIcon name={p.icon || 'people'} />
               </ListItemIcon>
               {p.name}
             </MenuItem>
@@ -299,7 +456,7 @@ export const ProfileManagerSettings: FC = () => {
       >
         Manage Profiles
       </Button>
-      {/* Dialog to List/Edit/Delete Profiles */}
+
       <Dialog
         open={manageProfilesDialogOpen}
         onClose={handleCloseProfileManager}
@@ -310,19 +467,36 @@ export const ProfileManagerSettings: FC = () => {
           sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
         >
           Manage IO Profiles
-          <Button
-            onClick={handleAddNewProfileFromManager}
-            startIcon={<PersonAdd />}
-            variant="outlined"
-            size="small"
-          >
-            Add New Profile
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <input
+              type="file"
+              accept=".json,.ioProfile"
+              style={{ display: 'none' }}
+              ref={importFileInputRef}
+              onChange={handleImportFileSelected}
+            />
+            <Button
+              onClick={handleImportProfileClick}
+              startIcon={<ImportIcon />}
+              variant="text"
+              size="small"
+            >
+              Import
+            </Button>
+            <Button
+              onClick={handleAddNewProfileFromManager}
+              startIcon={<PersonAdd />}
+              variant="text"
+              size="small"
+            >
+              Add New
+            </Button>
+          </Stack>
         </DialogTitle>
         <DialogContent dividers>
           {sortedProfiles.length === 0 ? (
             <Typography sx={{ p: 2, textAlign: 'center' }} color="textSecondary">
-              No profiles defined yet. Click &quot;Add New Profile&quot; to create one.
+              No profiles. Click &quot;Add New&quot; to create.
             </Typography>
           ) : (
             <List dense>
@@ -330,7 +504,16 @@ export const ProfileManagerSettings: FC = () => {
                 <ListItem
                   key={p.id}
                   secondaryAction={
-                    <>
+                    <Stack direction="row" spacing={0.5}>
+                      <Tooltip title="Export Profile">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleExportProfile(p.id)}
+                          color="primary"
+                        >
+                          <ExportIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                       <Tooltip title="Edit Profile">
                         <IconButton size="small" onClick={() => handleEditProfileFromManager(p)}>
                           <Edit fontSize="small" />
@@ -341,19 +524,17 @@ export const ProfileManagerSettings: FC = () => {
                           <Delete fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                    </>
+                    </Stack>
                   }
                 >
                   <ListItemIcon sx={{ minWidth: 32 }}>
-                    <IoIcon name={p.icon && p.icon !== '' ? p.icon : 'people'} />
+                    <IoIcon name={p.icon || 'people'} />
                   </ListItemIcon>
                   <ListItemText
                     primary={p.name}
-                    secondary={`${p.includedRowIds.length} rows included. ${activeProfileId === p.id ? '(Active)' : ''}`}
-                    slotProps={{
-                      primary: {
-                        fontWeight: activeProfileId === p.id ? 'bold' : 'normal'
-                      }
+                    secondary={`${p.includedRowIds.length} rows. ${activeProfileId === p.id ? '(Active)' : ''}`}
+                    primaryTypographyProps={{
+                      fontWeight: activeProfileId === p.id ? 'bold' : 'normal'
                     }}
                   />
                 </ListItem>
@@ -361,11 +542,30 @@ export const ProfileManagerSettings: FC = () => {
             </List>
           )}
         </DialogContent>
-        <DialogActions>
+        <DialogActions
+          sx={{
+            justifyContent: 'space-between',
+            px: 2,
+            pb: 1,
+            pt: 1,
+            borderTop: '1px solid',
+            borderColor: 'divider'
+          }}
+        >
+          <FormControlLabel
+            control={
+              <Switch
+                checked={includeAudioOnExport}
+                onChange={(e) => setIncludeAudioOnExport(e.target.checked)}
+                size="small"
+              />
+            }
+            label={<Typography variant="caption">Include audio data in export</Typography>}
+          />
           <Button onClick={handleCloseProfileManager}>Close</Button>
         </DialogActions>
       </Dialog>
-      {/* Dialog for Adding/Editing a single profile (reused) */}
+
       <ProfileEditorDialog
         open={profileEditorOpen}
         onClose={() => {
@@ -380,5 +580,4 @@ export const ProfileManagerSettings: FC = () => {
   )
 }
 
-// Make sure to export it if it's not the default, or make it default
 export default ProfileManagerSettings

@@ -276,7 +276,7 @@ const Home: FC = () => {
           flexWrap: 'wrap'
         }}
       >
-        {rowsToDisplay.length > 0 && <ProfileManagerSettings key="profile-manager" />}
+        <ProfileManagerSettings key="profile-manager" />
         {SettingsWidgets.length > 0 &&
           SettingsWidgets.map((widget, index) => (
             <div key={(widget as any)?.key || index} style={{ padding: '8px' }}>

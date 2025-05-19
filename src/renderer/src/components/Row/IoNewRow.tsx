@@ -491,7 +491,7 @@ export const IoNewRow: FC<IoNewRowProps> = ({
         </Box>
       </Stack>
 
-      {isEditMode && (
+      {/* {isEditMode && (
         <Paper variant="outlined" sx={{ mt: 3, p: 2 }}>
           <Typography variant="overline" display="block" sx={{ mb: 1 }}>
             {' '}
@@ -508,7 +508,7 @@ export const IoNewRow: FC<IoNewRowProps> = ({
             label={rowEnabledState ? 'Row Active' : 'Row Inactive'}
           />
         </Paper>
-      )}
+      )} */}
 
       <Stack direction="row" sx={{ justifyContent: 'flex-end', mt: 3, gap: 1 }}>
         <Button variant="outlined" size="small" onClick={onComplete} sx={{ minWidth: 90 }}>
