@@ -17,6 +17,8 @@
     "src/renderer/src/modules/Example/*"
   ],
   "compilerOptions": {
+		"module": "esnext",
+		"moduleResolution": "bundler",
     "composite": true,
     "jsx": "react-jsx",
     "baseUrl": ".",

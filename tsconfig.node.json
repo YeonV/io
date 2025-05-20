@@ -4,9 +4,12 @@
     "electron.vite.config.*",
     "src/main/**/*",
     "src/preload/**/*",
+    "src/preload/*.d.ts",
     "src/shared/**/*",
-    "src/renderer/src/modules/modules.ts",
-    "src/renderer/src/modules/**/*.main.ts" 
+    "src/renderer/src/modules/modules.main.ts",
+    "src/renderer/src/modules/**/*.main.ts",
+    "src/renderer/src/modules/**/*.types.ts",
+    "src/renderer/src/modules/**/*.helper.ts",
   ],
   "exclude": [
     "scripts/*.ts",
@@ -14,15 +17,16 @@
     "src/renderer/src/modules/**/*.tsx"
   ],
   "compilerOptions": {
-		"module": "nodenext",
-		"moduleResolution": "nodenext",
+		"module": "esnext",
+		"moduleResolution": "bundler",
     "composite": true,
-    "types": ["electron-vite/node"]
-  },
-  "baseUrl": ".", // If not already inherited
+    "types": ["electron-vite/node"],
+    "baseUrl": ".",
     "paths": {
-        // This alias might be needed if .main.ts files try to import from @shared
-        "@shared/*": ["src/shared/*"],
-        // We generally DON'T want to add renderer aliases like "@/*" here
-    }
+      // This alias might be needed if .main.ts files try to import from @shared
+      "@shared/*": ["src/shared/*"],
+      // "@/*": ["src/renderer/src/*"]
+    },    
+    "skipLibCheck": true 
+  }
 }

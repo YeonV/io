@@ -1,37 +1,12 @@
 // src/renderer/src/modules/Keyboard/Keyboard.main.ts
-import { globalShortcut } from 'electron'
-import type { IOMainModulePart, Row } from '../../../../shared/types.js'
-import { MainModuleDeps } from '../../../../main/moduleLoader.js'
+import { globalShortcut, ipcMain } from 'electron'
+import type { IOMainModulePart, Row } from '../../../../shared/types'
+import { MainModuleDeps } from '../../../../main/moduleLoader'
+import robot from 'robotjs'
+import { getElectronAccelerator, parseShortcutForRobotJS } from './Keyboard.helper'
 
 const KEYBOARD_MODULE_ID = 'keyboard-module'
 const registeredShortcuts = new Set<string>()
-
-function getElectronAccelerator(accelerator: string): string {
-  return accelerator
-    .split('+')
-    .map((part) => {
-      const lowerPart = part.toLowerCase()
-      switch (lowerPart) {
-        case 'ctrl':
-          return 'Control'
-        case 'alt':
-          return 'Alt'
-        case 'shift':
-          return 'Shift'
-        case 'cmd':
-          return 'Command'
-        case 'win':
-          return 'Super'
-        case 'meta':
-          return process.platform === 'darwin' ? 'Command' : 'Super'
-        case 'option':
-          return 'Alt'
-        default:
-          return lowerPart.length === 1 ? lowerPart.toUpperCase() : part
-      }
-    })
-    .join('+')
-}
 
 interface KeyboardMainDeps extends MainModuleDeps {}
 
@@ -53,6 +28,41 @@ const keyboardMainModule: IOMainModulePart = {
     } else {
       console.warn(`Main (${KEYBOARD_MODULE_ID}): Store not available during init.`)
     }
+
+    ipcMain.on('keyboard-press-keys', (_event, args: { shortcut: string }) => {
+      const { shortcut } = args
+      if (!shortcut) {
+        console.warn(
+          `Main (${KEYBOARD_MODULE_ID}): Received 'keyboard-press-keys' with no shortcut.`
+        )
+        return
+      }
+
+      console.log(`Main (${KEYBOARD_MODULE_ID}): Received IPC to press keys: "${shortcut}"`)
+      const { key, modifiers } = parseShortcutForRobotJS(shortcut)
+
+      if (key) {
+        try {
+          console.debug(
+            `Main (${KEYBOARD_MODULE_ID}): RobotJS tapping key: '${key}' with modifiers: [${modifiers.join(', ')}]`
+          )
+          robot.keyTap(key, modifiers)
+        } catch (e) {
+          console.error(`Main (${KEYBOARD_MODULE_ID}): RobotJS error tapping key:`, e)
+        }
+      } else if (modifiers.length > 0) {
+        // Handle modifier-only "presses" if needed, though typically a key is tapped.
+        // For example, hold down modifiers, then release. RobotJS supports keyToggle.
+        console.warn(
+          `Main (${KEYBOARD_MODULE_ID}): Shortcut "${shortcut}" parsed to modifiers only, no specific key to tap.`
+        )
+      } else {
+        console.warn(
+          `Main (${KEYBOARD_MODULE_ID}): Could not parse shortcut "${shortcut}" for RobotJS.`
+        )
+      }
+    })
+    console.log(`Main (${KEYBOARD_MODULE_ID}): IPC listener for 'keyboard-press-keys' initialized.`)
   },
 
   onRowsUpdated: (rows: Record<string, Row>, deps: KeyboardMainDeps) => {

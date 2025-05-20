@@ -1,56 +1,83 @@
-// src/renderer/src/store/deckStore.ts (New file, assuming Deck is part of renderer build for now)
-// Or if Deck is a truly separate app, it would have its own store file.
-// For now, let's assume it's a route within the same renderer bundle.
+// src/renderer/src/store/deckStore.ts
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import type { Row, ProfileDefinition } from '@shared/types' // Import shared types
+import type { Row, ProfileDefinition } from '@shared/types'
 
-// Define the structure for how Deck stores layout per profile
+// Define the structure for how Deck stores layout and appearance per tile
 export interface DeckTileLayout {
   id: string // Corresponds to row.id
-  x: number
-  y: number
-  w: number // In grid units
-  h: number // In grid units
-  buttonColor?: string // Optional: Override for button color
-  icon?: string // Optional: Override for icon
-  label?: string // Optional: Override for label
-  fontFamily?: string // Optional: Override for font family
-  iconColor?: string // Optional: Override for icon color
-  textColor?: string // Optional: Override for text color
-  variant?: string // Optional: Variant for the button (e.g., 'primary', 'secondary')
-
-  // Add any other DeckButton-specific appearance overrides here
-  // like customIcon, customLabel, customColor for THIS Deck button under THIS profile
+  x: number // Pixel position
+  y: number // Pixel position
+  w: number // In GRID UNITS
+  h: number // In GRID UNITS
+  // Deck-specific appearance overrides
+  buttonColor?: string
+  icon?: string // Deck's override for the icon display
+  label?: string // Deck's override for the label display
+  fontFamily?: string
+  iconColor?: string
+  textColor?: string
+  variant?: 'outlined' | 'text' | 'contained' // Match your Button variants
 }
 export type DeckProfileLayoutConfig = DeckTileLayout[]
 
 export interface DeckState {
   // Data fetched from main IO app
-  allProfiles: Record<string, ProfileDefinition> // All available IO profiles
-  currentIoProfileId: string | null // The ID of the profile currently active in the MAIN IO app
-  rowsForCurrentProfile: Record<string, Row> // Rows relevant to currentIoProfileId
+  allProfiles: Record<string, ProfileDefinition>
+  currentIoProfileId: string | null
+  rowsForCurrentProfile: Record<string, Row>
 
-  // Deck's own UI state
-  deckLayouts: Record<string, DeckProfileLayoutConfig> // profileId -> layout config for that profile
-  showSettings: boolean // For Deck's own edit mode
-  // darkMode is still from mainStore if Deck is a route in the same app,
-  // or Deck could have its own darkMode if it's a separate PWA.
+  // Deck's own UI state & persisted data
+  deckLayouts: Record<string, DeckProfileLayoutConfig> // profileId -> layout config
+  showSettings: boolean // For Deck's layout edit mode
+  magicNumber: number // Grid cell size (used for rendering, might not need to be in store if Deck.tsx manages it)
 
   // Actions
-  initializeSse: () => void // Initialize SSE connection to main app
-  closeSse: () => void // Close SSE connection
+  initializeSse: () => void
+  closeSse: () => void
   fetchAllProfiles: () => Promise<void>
   fetchRowsForProfile: (profileId: string | null) => Promise<void>
-  fetchCurrentActiveIoProfile: () => Promise<void> // To know what the main app is on
+  fetchCurrentActiveIoProfile: () => Promise<void>
   setDeckShowSettings: (show: boolean) => void
-  updateDeckLayout: (profileId: string, rowId: string, layout: Partial<DeckTileLayout>) => void
-  saveFullDeckLayoutForProfile: (profileId: string, layout: DeckProfileLayoutConfig) => void
+  setMagicNumber: (num: number) => void // Action to update magicNumber if needed
+
+  // Action for Rnd drag/resize to update local layout AND sync the tile's full state
+  updateAndSyncDeckTileLayout: (
+    profileId: string,
+    rowId: string,
+    layoutChanges: Partial<Pick<DeckTileLayout, 'x' | 'y' | 'w' | 'h'>> // x,y in px; w,h in grid units
+  ) => void
+
+  // Action for DeckButton dialog to save ONLY Deck-specific appearance AND sync the tile's full state
+  saveAndSyncDeckButtonAppearance: (
+    profileId: string,
+    rowId: string,
+    appearanceChanges: Partial<
+      Omit<DeckTileLayout, 'id' | 'x' | 'y' | 'w' | 'h' | 'icon' | 'label'>
+    >
+    // Note: 'icon' and 'label' here are Deck's *display overrides*, not the ones that sync to main app's Row.output
+  ) => void
+
+  // Action for DeckButton to update main app's Row.output.settings (specifically for icon/label that should reflect in main app)
+  updateMainAppRowDisplay: (
+    rowId: string,
+    mainAppDisplayUpdates: { icon?: string; label?: string }
+  ) => Promise<void>
+
   activateIoProfile: (profileId: string | null) => Promise<void> // Tells main app to switch
+
+  // Internal helper for syncing (not typically called directly from components)
+  _syncSingleDeckTileOverride: (
+    profileId: string,
+    rowId: string,
+    tileData: DeckTileLayout
+  ) => Promise<void>
 }
 
 let sseEventSource: EventSource | null = null
+
+const DEFAULT_MAGIC_NUMBER = 120 // Default grid cell size
 
 export const useDeckStore = create<DeckState>()(
   persist(
@@ -58,8 +85,11 @@ export const useDeckStore = create<DeckState>()(
       allProfiles: {},
       currentIoProfileId: null,
       rowsForCurrentProfile: {},
-      deckLayouts: {}, // Persist this
+      deckLayouts: {},
       showSettings: false,
+      magicNumber: DEFAULT_MAGIC_NUMBER,
+
+      setMagicNumber: (num: number) => set({ magicNumber: num }),
 
       initializeSse: () => {
         if (
@@ -70,40 +100,22 @@ export const useDeckStore = create<DeckState>()(
           console.debug('DeckStore SSE: Already connected or connecting.')
           return
         }
-        if (sseEventSource) {
-          sseEventSource.close() // Close any old one
-        }
+        if (sseEventSource) sseEventSource.close()
 
         console.debug('DeckStore SSE: Attempting to connect to /api/events')
         sseEventSource = new EventSource(`http://${location.hostname}:1337/api/events`)
 
-        sseEventSource.onopen = () => {
-          console.debug('DeckStore SSE: Connection opened!')
-        }
+        sseEventSource.onopen = () => console.debug('DeckStore SSE: Connection opened!')
+        sseEventSource.onerror = (error) => console.error('DeckStore SSE: Error occurred', error)
 
-        sseEventSource.onerror = (error) => {
-          console.error('DeckStore SSE: Error occurred', error)
-          // sseEventSource?.close(); // Optionally close on error to allow retry by re-calling initializeSse
-        }
-
-        // Listen for our custom 'io-state-updated' event
         sseEventSource.addEventListener('io-state-updated', (event) => {
           const eventData = JSON.parse((event as MessageEvent).data)
           console.debug("DeckStore SSE: Received 'io-state-updated' signal!", eventData)
-
-          // When signal received, re-fetch relevant data
-          // We could be more granular based on eventData.type if the server sent it
-          get().fetchCurrentActiveIoProfile() // This fetches active profile ID and then its rows
-          get().fetchAllProfiles() // Also re-fetch all profiles in case they changed
+          get().fetchCurrentActiveIoProfile()
+          get().fetchAllProfiles()
         })
-
-        // Optional: generic message handler
-        // sseEventSource.onmessage = (event) => {
-        //   log.debug("DeckStore SSE: Generic message received", event.data);
-        // };
       },
 
-      // --- Action to close SSE connection ---
       closeSse: () => {
         if (sseEventSource) {
           console.debug('DeckStore SSE: Closing SSE connection.')
@@ -114,7 +126,7 @@ export const useDeckStore = create<DeckState>()(
 
       fetchAllProfiles: async () => {
         try {
-          const res = await fetch(`http://${location.hostname}:1337/api/profiles`) // API endpoint needed
+          const res = await fetch(`http://${location.hostname}:1337/api/profiles`)
           if (!res.ok) throw new Error('Failed to fetch profiles')
           const profilesArray: ProfileDefinition[] = await res.json()
           const profilesMap = profilesArray.reduce(
@@ -130,89 +142,168 @@ export const useDeckStore = create<DeckState>()(
           set({ allProfiles: {} })
         }
       },
+
       fetchCurrentActiveIoProfile: async () => {
         try {
-          const res = await fetch(`http://${location.hostname}:1337/api/active-profile`) // API endpoint needed
+          const res = await fetch(`http://${location.hostname}:1337/api/active-profile`)
           if (!res.ok) throw new Error('Failed to fetch active profile')
           const data: { activeProfileId: string | null } = await res.json()
           set({ currentIoProfileId: data.activeProfileId })
-          await get().fetchRowsForProfile(data.activeProfileId) // Fetch rows for this profile
+          await get().fetchRowsForProfile(data.activeProfileId)
         } catch (error) {
           console.error('DeckStore: Failed to fetch active IO profile', error)
           set({ currentIoProfileId: null, rowsForCurrentProfile: {} })
         }
       },
+
       fetchRowsForProfile: async (profileId: string | null) => {
-        if (profileId === null) {
-          // "None" profile selected, what to show? All enabled?
-          // For "None" profile, fetch all rows that are individually enabled in the main app.
-          // This requires a new API endpoint or modification to /api/rows
-          // GET /api/rows?filter=enabled (example)
-          // For now, let's assume "None" means show no profile-specific rows, or we handle it differently.
-          // Or, if "None" means all rows from the main app that are enabled:
-          try {
-            const res = await fetch(`http://${location.hostname}:1337/api/rows?profileId=none`) // Special query
-            if (!res.ok) throw new Error('Failed to fetch all enabled rows')
-            const rows: Record<string, Row> = await res.json()
-            set({ rowsForCurrentProfile: rows, currentIoProfileId: null }) // Update currentIoProfileId to null
-            return
-          } catch (error) {
-            console.error("DeckStore: Failed to fetch all enabled rows for 'None' profile", error)
-            set({ rowsForCurrentProfile: {}, currentIoProfileId: null })
-            return
-          }
-        }
+        const endpoint = profileId
+          ? `http://${location.hostname}:1337/api/rows?profileId=${profileId}`
+          : `http://${location.hostname}:1337/api/rows?profileId=none` // "none" for all enabled
         try {
-          // API endpoint needs to filter rows based on profileId's includedRowIds
-          const res = await fetch(
-            `http://${location.hostname}:1337/api/rows?profileId=${profileId}`
-          )
-          if (!res.ok) throw new Error(`Failed to fetch rows for profile ${profileId}`)
+          const res = await fetch(endpoint)
+          if (!res.ok) throw new Error(`Failed to fetch rows for profile: ${profileId || 'none'}`)
           const rows: Record<string, Row> = await res.json()
           set({ rowsForCurrentProfile: rows })
+          if (profileId === null) set({ currentIoProfileId: null }) // Ensure if fetching for "none", currentIoProfileId reflects that
         } catch (error) {
-          console.error(`DeckStore: Failed to fetch rows for profile ${profileId}`, error)
+          console.error(
+            `DeckStore: Failed to fetch rows for profile: ${profileId || 'none'}`,
+            error
+          )
           set({ rowsForCurrentProfile: {} })
         }
       },
+
       setDeckShowSettings: (show) => set({ showSettings: show }),
-      saveFullDeckLayoutForProfile: (profileId: string, layout: DeckProfileLayoutConfig) => {
-        set((state) => ({
-          deckLayouts: {
-            ...state.deckLayouts,
-            [profileId]: layout
-          }
-        }))
-        // Optional: POST this to main app to save centrally /api/deck-layout/<profileId>
-      },
-      updateDeckLayout: (
+
+      // Called by Rnd onDragStop/onResizeStop
+      updateAndSyncDeckTileLayout: (
         profileId: string,
         rowId: string,
-        newLayoutProps: Partial<Omit<DeckTileLayout, 'id'>>
+        layoutChanges: Partial<Pick<DeckTileLayout, 'x' | 'y' | 'w' | 'h'>> // x,y in PX; w,h in GRID UNITS
       ) => {
+        let finalTileState: DeckTileLayout | undefined = undefined
         set((state) => {
-          const profileLayouts = state.deckLayouts[profileId] || []
-          const tileIndex = profileLayouts.findIndex((tile) => tile.id === rowId)
-          let newProfileLayouts
+          const currentProfileLayout = state.deckLayouts[profileId] || []
+          const tileIndex = currentProfileLayout.findIndex((tile) => tile.id === rowId)
+          let newFullLayoutForProfile: DeckProfileLayoutConfig
+
           if (tileIndex > -1) {
-            newProfileLayouts = profileLayouts.map(
-              (tile, index) =>
-                index === tileIndex ? { ...tile, ...newLayoutProps, id: rowId } : tile // Merge with existing
+            finalTileState = { ...currentProfileLayout[tileIndex], ...layoutChanges, id: rowId }
+            newFullLayoutForProfile = currentProfileLayout.map(
+              (t, i): DeckTileLayout => (i === tileIndex ? (finalTileState as DeckTileLayout) : t)
             )
           } else {
-            // If adding for the first time (e.g., after drag of a new button)
-            // We need default w/h if not provided.
-            // For onDragStop, newLayoutProps only has x,y. For onResizeStop, it has x,y,w,h.
-            const defaultSize = { w: 120, h: 120 }
-            newProfileLayouts = [
-              ...profileLayouts,
-              { ...defaultSize, ...newLayoutProps, id: rowId } as DeckTileLayout
-            ]
+            // New tile being added to layout (e.g. first drag)
+            // It should have default appearance from DeckButton if not already in deckLayouts
+            // For now, let's assume it might need some basic defaults here if not already set.
+            finalTileState = {
+              id: rowId,
+              x: layoutChanges.x ?? 0,
+              y: layoutChanges.y ?? 0,
+              w: layoutChanges.w ?? 1, // Default 1 grid unit width
+              h: layoutChanges.h ?? 1 // Default 1 grid unit height
+              // Default appearance if not set (DeckButton should initialize its own state from row first)
+              // variant: 'outlined',
+              // label: 'New Action', // This should come from the row
+            }
+            newFullLayoutForProfile = [...currentProfileLayout, finalTileState]
           }
           return {
-            deckLayouts: { ...state.deckLayouts, [profileId]: newProfileLayouts }
+            deckLayouts: { ...state.deckLayouts, [profileId]: newFullLayoutForProfile }
           }
         })
+
+        if (finalTileState) {
+          get()._syncSingleDeckTileOverride(profileId, rowId, finalTileState)
+        }
+      },
+
+      // Called by DeckButton settings dialog to save appearance changes
+      saveAndSyncDeckButtonAppearance: (
+        profileId: string,
+        rowId: string,
+        appearanceChanges: Partial<
+          Omit<DeckTileLayout, 'id' | 'x' | 'y' | 'w' | 'h' | 'icon' | 'label'>
+        >
+      ) => {
+        let finalTileState: DeckTileLayout | undefined = undefined
+        set((state) => {
+          const currentProfileLayout = state.deckLayouts[profileId] || []
+          const tileIndex = currentProfileLayout.findIndex((tile) => tile.id === rowId)
+          let newFullLayoutForProfile: DeckProfileLayoutConfig
+
+          if (tileIndex > -1) {
+            finalTileState = { ...currentProfileLayout[tileIndex], ...appearanceChanges, id: rowId }
+            newFullLayoutForProfile = currentProfileLayout.map((t, i) =>
+              i === tileIndex ? (finalTileState as DeckTileLayout) : t
+            )
+          } else {
+            // This case means setting appearance for a tile not yet in layout (e.g. a new button before first drag)
+            finalTileState = {
+              id: rowId,
+              x: 0,
+              y: 0,
+              w: 1,
+              h: 1, // Default layout
+              ...appearanceChanges
+            } as DeckTileLayout
+            newFullLayoutForProfile = [...currentProfileLayout, finalTileState]
+          }
+          return {
+            deckLayouts: { ...state.deckLayouts, [profileId]: newFullLayoutForProfile }
+          }
+        })
+
+        if (finalTileState) {
+          get()._syncSingleDeckTileOverride(profileId, rowId, finalTileState)
+        }
+      },
+
+      // Internal helper to POST a single tile's full Deck override state (layout + appearance) to main app
+      _syncSingleDeckTileOverride: async (
+        profileId: string,
+        rowId: string,
+        tileData: DeckTileLayout
+      ) => {
+        try {
+          console.debug(`DeckStore: Syncing full tile override for ${profileId}/${rowId}`, tileData)
+          const res = await fetch(`http://${location.hostname}:1337/api/deck/tile-override`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              profileId,
+              rowId,
+              overrideData: tileData // Send the whole DeckTileLayout object
+            })
+          })
+          if (!res.ok) throw new Error('Failed to sync Deck tile override')
+          console.debug(`DeckStore: Full tile override synced for ${profileId}/${rowId}`)
+        } catch (error) {
+          console.error('DeckStore: Failed to sync Deck tile override', error)
+        }
+      },
+
+      // Action to tell main IO app to update its Row.output.settings (icon/label)
+      updateMainAppRowDisplay: async (
+        rowId: string,
+        mainAppDisplayUpdates: { icon?: string; label?: string }
+      ) => {
+        try {
+          const res = await fetch(
+            `http://${location.hostname}:1337/api/rows/${rowId}/update-display`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(mainAppDisplayUpdates)
+            }
+          )
+          if (!res.ok) throw new Error('Failed to update main app row display')
+          console.debug(`DeckStore: Update request for main app row ${rowId} display sent.`)
+        } catch (error) {
+          console.error('DeckStore: Failed to update main app row display', error)
+        }
       },
 
       activateIoProfile: async (profileId: string | null) => {
@@ -223,20 +314,21 @@ export const useDeckStore = create<DeckState>()(
             body: JSON.stringify({ profileId: profileId })
           })
           if (!res.ok) throw new Error('Failed to activate IO profile')
-          // After successfully telling main app to switch, re-fetch current active profile
-          // and its rows for the Deck to update its display.
-          set({ currentIoProfileId: profileId }) // Optimistically set
+          set({ currentIoProfileId: profileId })
           await get().fetchRowsForProfile(profileId)
         } catch (error) {
           console.error('DeckStore: Failed to activate IO profile', error)
-          // Potentially re-fetch currentIoProfileId from main app to re-sync
         }
       }
     }),
     {
-      name: 'io-deck-storage', // Persist deckLayouts primarily
-      storage: createJSONStorage(() => localStorage), // Or sessionStorage
-      partialize: (state) => ({ deckLayouts: state.deckLayouts })
+      name: 'io-deck-v1-storage', // Changed name slightly to clear old storage if structure changed significantly
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        deckLayouts: state.deckLayouts
+        // magicNumber: state.magicNumber // Optionally persist magicNumber if it's user-configurable or important
+      })
+      // merge: (persisted, current) => { ... } // Add custom merge if needed for schema migrations
     }
   )
 )

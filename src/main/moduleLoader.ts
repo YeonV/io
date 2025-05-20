@@ -1,8 +1,8 @@
 // src/main/moduleLoader.ts
 import { ipcMain, type BrowserWindow } from 'electron'
-import { getMainWindow, getStore } from './windowManager.js'
-import { mainModuleHandlers } from '../renderer/src/modules/modules.main.js' // Path from out/main to out/renderer
-import type { Row } from '../shared/types.js'
+import { getMainWindow, getStore } from './windowManager'
+import { mainModuleHandlers } from '../renderer/src/modules/modules.main'
+import type { Row } from '../shared/types'
 
 let currentActiveProfileForMain: { id: string | null; includedRowIds: string[] | null } = {
   id: null,

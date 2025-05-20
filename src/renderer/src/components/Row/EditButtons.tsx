@@ -1,13 +1,16 @@
 import { InputData, OutputData } from '@shared/types'
-import { TextField } from '@mui/material'
+import { IconButton, TextField } from '@mui/material'
+import { RecordVoiceOver } from '@mui/icons-material'
 
 const EditButtons = ({
   data,
   title,
+  speak,
   onChange
 }: {
   data: InputData | OutputData
   title?: string
+  speak?: boolean
   onChange: (data: Record<string, any>) => void
 }) => {
   return (
@@ -19,13 +22,26 @@ const EditButtons = ({
         onChange={(e) => {
           onChange({ command: e.target.value })
         }}
-        sx={{ mt: 2 }}
-        inputProps={{
-          style: {
-            paddingLeft: '20px'
+        sx={{ mt: '4px' }}
+        variant="outlined"
+        slotProps={{
+          htmlInput: {
+            style: {
+              paddingLeft: '20px'
+            }
+          },
+          input: {
+            endAdornment: speak ? (
+              <IconButton
+                onClick={() =>
+                  window.speechSynthesis.speak(new SpeechSynthesisUtterance(data.data.command))
+                }
+              >
+                <RecordVoiceOver />
+              </IconButton>
+            ) : null
           }
         }}
-        variant="outlined"
       />
       <TextField
         fullWidth
@@ -35,12 +51,14 @@ const EditButtons = ({
           onChange({ text: e.target.value })
         }}
         sx={{ mt: 2 }}
-        inputProps={{
-          style: {
-            paddingLeft: '20px'
+        variant="outlined"
+        slotProps={{
+          htmlInput: {
+            style: {
+              paddingLeft: '20px'
+            }
           }
         }}
-        variant="outlined"
       />
     </>
   )

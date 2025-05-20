@@ -50,9 +50,11 @@ export const InputEdit: FC<{
         label="Alexa Device Name"
         value={deviceName}
         onChange={handleDeviceNameChange}
-        sx={{ mt: 2 }}
-        inputProps={{ style: { paddingLeft: '20px' } }}
+        sx={{ mt: '4px' }}
         variant="outlined"
+        slotProps={{
+          htmlInput: { style: { paddingLeft: '20px' } }
+        }}
       />
       <FormControlLabel
         control={

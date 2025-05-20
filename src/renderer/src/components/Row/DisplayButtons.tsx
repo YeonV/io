@@ -19,9 +19,9 @@ const DisplayButtons = ({ data, variant }: { data: InputData | OutputData; varia
         }}
       >
         <IoIcon name={data.icon} style={{ marginRight: '10px' }} />
-        {desktop && data.name}
+        {desktop ? data.name : (data as OutputData).label || data.name || data.data.text}
       </Button>
-      {data.data.text &&
+      {(data.data.text || (data as OutputData).label) &&
         (variant === 'text' ? (
           <Typography
             noWrap
@@ -29,7 +29,7 @@ const DisplayButtons = ({ data, variant }: { data: InputData | OutputData; varia
             title={data.data.text?.slice(-31) || 'No Profile Selected'}
             sx={{ ml: 1 }}
           >
-            {data.data.text?.slice(-31) || 'Not Set'}
+            {(data as OutputData).label || data.data.text?.slice(-31) || 'Not Set'}
           </Typography>
         ) : (
           <Button
@@ -46,7 +46,7 @@ const DisplayButtons = ({ data, variant }: { data: InputData | OutputData; varia
               whiteSpace: 'nowrap'
             }}
           >
-            {data.data.text?.slice(-31)}
+            {(data as OutputData).label || data.data.text?.slice(-31)}
           </Button>
         ))}
     </>
@@ -70,7 +70,7 @@ const DisplayButtons = ({ data, variant }: { data: InputData | OutputData; varia
             marginRight: data.data.text || data.data.value ? '10px' : 0
           }}
         />
-        {data.data.text?.slice(-31) || data.data.value?.slice(-31)}
+        {(data as OutputData).label || data.data.text?.slice(-31) || data.data.value?.slice(-31)}
       </Button>
     </>
   )

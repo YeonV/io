@@ -1,5 +1,5 @@
-import mpHolistic, { HAND_CONNECTIONS, Results } from '@mediapipe/holistic'
-import drawingUtils, { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils'
+import mpHolistic, { Results } from '@mediapipe/holistic'
+import drawingUtils from '@mediapipe/drawing_utils'
 
 export class VideoScene {
   constructor(private canvas: HTMLCanvasElement) {}

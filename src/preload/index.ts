@@ -4,8 +4,8 @@
 import { contextBridge, ipcRenderer as preloadIpcRenderer } from 'electron' // Import ipcRenderer for preload's own use
 import { electronAPI } from '@electron-toolkit/preload'
 import { Titlebar, TitlebarColor } from 'custom-electron-titlebar'
-import { domReady } from './utils.js'
-import { useLoading } from './loading.js'
+import { domReady } from './utils'
+import { useLoading } from './loading'
 import pkg from '../../package.json' with { type: 'json' }
 
 const { appendLoading, removeLoading } = useLoading()

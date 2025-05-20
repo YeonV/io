@@ -10,7 +10,7 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src https://cdn.jsdelivr.net/npm/@mediapipe/ 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;connect-src https://cdn.jsdelivr.net/npm/@mediapipe/ http://localhost:8888/ http://localhost:1337/ ws: mqtt: wss: 'self'"
+      content="default-src 'self' data: blob: filesystem: ws: wss: mqtt: http://localhost:8888 http://localhost:1337 https://cdn.jsdelivr.net/npm/@mediapipe/; script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net/npm/@mediapipe/; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self' data: blob: filesystem:; connect-src 'self' data: blob: ws: wss: mqtt: http://localhost:8888 http://localhost:1337 https://cdn.jsdelivr.net/npm/@mediapipe/ http: https:;"
     />
     <style>
       @font-face {

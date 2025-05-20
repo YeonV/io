@@ -15,7 +15,9 @@ import {
   Popover,
   Box, // Added Box
   FormControl,
-  Stack
+  Stack,
+  ToggleButtonGroup,
+  ToggleButton
 } from '@mui/material'
 import DeckButtonBase from '@/components/DeckButtonBase'
 import { Settings } from '@mui/icons-material'
@@ -44,10 +46,16 @@ const DeckButton: FC<DeckButtonProps> = ({
   setShowSettings,
   setDisableDrag
 }) => {
-  const { deckLayouts, saveDeckButtonAppearance } = useDeckStore(
+  const {
+    saveAndSyncDeckButtonAppearance,
+    updateMainAppRowDisplay,
+    deckLayouts /* syncDeckOverridesToMain */
+  } = useDeckStore(
     useShallow((state) => ({
-      deckLayouts: state.deckLayouts,
-      saveDeckButtonAppearance: state.saveFullDeckLayoutForProfile // Or a new action: updateDeckButtonAppearance
+      saveAndSyncDeckButtonAppearance: state.saveAndSyncDeckButtonAppearance,
+      updateMainAppRowDisplay: state.updateMainAppRowDisplay,
+      deckLayouts: state.deckLayouts
+      // syncDeckOverridesToMain: state.syncDeckOverridesToMain, // If using this for backup
     }))
   )
 
@@ -76,11 +84,9 @@ const DeckButton: FC<DeckButtonProps> = ({
     deckButtonSpecifics?.iconColor || row.output.settings?.iconColor
   )
   // For icon and label, Deck can override, or use row's output icon/label, or output data text
-  const [icon, setIcon] = useState(
-    deckButtonSpecifics?.icon || row.output.settings?.icon || row.output.icon || 'help_outline'
-  )
+  const [icon, setIcon] = useState(row.output.icon || row.output.settings?.icon || 'help_outline')
   const [label, setLabel] = useState(
-    deckButtonSpecifics?.label ||
+    row.output.label ||
       row.output.settings?.label ||
       row.output.data.text ||
       row.output.name ||
@@ -89,25 +95,25 @@ const DeckButton: FC<DeckButtonProps> = ({
   const [variant, setVariant] = useState<'outlined' | 'text' | 'contained'>(
     deckButtonSpecifics?.variant || row.output.settings?.variant || 'outlined'
   )
-  const [innerFontFamily, _setFontFamily] = useState(deckButtonSpecifics?.fontFamily || fontFamily)
+  const [innerFontFamily, setInnerFontFamily] = useState(
+    deckButtonSpecifics?.fontFamily || fontFamily
+  )
 
   // Effect to update local state if deckButtonSpecifics or row data changes from store/props
   useEffect(() => {
     setButtonColor(deckButtonSpecifics?.buttonColor || row.output.settings?.buttonColor)
     setTextColor(deckButtonSpecifics?.textColor || row.output.settings?.textColor)
     setIconColor(deckButtonSpecifics?.iconColor || row.output.settings?.iconColor)
-    setIcon(
-      deckButtonSpecifics?.icon || row.output.settings?.icon || row.output.icon || 'help_outline'
-    )
+    setIcon(row.output.settings?.icon || row.output.icon || 'help_outline')
     setLabel(
-      deckButtonSpecifics?.label ||
+      row.output.label ||
         row.output.settings?.label ||
         row.output.name ||
         row.output.data.text ||
         row.id.substring(0, 8)
     )
     setVariant(deckButtonSpecifics?.variant || row.output.settings?.variant || 'outlined')
-    _setFontFamily(deckButtonSpecifics?.fontFamily || fontFamily)
+    setInnerFontFamily(deckButtonSpecifics?.fontFamily || fontFamily)
   }, [deckButtonSpecifics, row, fontFamily])
 
   // Long press toggles Deck's general layout edit mode
@@ -139,7 +145,10 @@ const DeckButton: FC<DeckButtonProps> = ({
     }
   )
 
-  const handleColorPopoverClose = () => setAnchorEl(null)
+  const handleColorPopoverClose = () => {
+    setAnchorEl(null)
+    setColorOpen(undefined)
+  }
   const handleOpenColorPicker = (
     event: React.MouseEvent<HTMLButtonElement>,
     type: 'button-color' | 'icon-color' | 'text-color'
@@ -154,90 +163,62 @@ const DeckButton: FC<DeckButtonProps> = ({
   }
 
   const handleSaveDeckButtonSettings = () => {
-    if (profileId) {
-      // This should be an action that updates a specific tile's appearance properties
-      // in the deckLayouts[profileId] array.
-      // For now, let's construct the appearance part of DeckTileLayout
-      const appearanceUpdate: Partial<Omit<DeckTileLayout, 'id' | 'x' | 'y' | 'w' | 'h'>> = {
+    if (profileId && row) {
+      // 1. DECK-SPECIFIC VISUAL OVERRIDES (colors, variant, fontFamily for DECK LAYOUTS)
+      const deckVisualOverrides: Partial<
+        Omit<DeckTileLayout, 'id' | 'x' | 'y' | 'w' | 'h' | 'icon' | 'label'>
+      > = {
         buttonColor,
         textColor,
         iconColor,
-        icon,
-        label,
         variant,
         fontFamily: innerFontFamily
       }
+      saveAndSyncDeckButtonAppearance(profileId, row.id, deckVisualOverrides)
 
-      // Need an action in deckStore: updateDeckButtonAppearance(profileId, row.id, appearanceUpdate)
-      // For simplicity with existing saveFullDeckLayoutForProfile:
-      const currentLayouts = useDeckStore.getState().deckLayouts
-      const currentProfileLayout = currentLayouts[profileId] || []
-      const existingTileIndex = currentProfileLayout.findIndex((tile) => tile.id === row.id)
+      // 2. UPDATES FOR THE MAIN IO APP'S ROW (top-level output.icon and output.label)
+      const mainAppDisplayUpdates: { icon?: string; label?: string } = {}
 
-      let newTileData: Partial<DeckTileLayout> = appearanceUpdate
-      if (existingTileIndex > -1) {
-        // Merge with existing layout data (x,y,w,h)
-        newTileData = { ...currentProfileLayout[existingTileIndex], ...appearanceUpdate }
-      } else {
-        // No existing layout data, just save appearance (layout will be default)
-        newTileData = appearanceUpdate
+      // Master values are directly from row.output
+      const masterIcon = row.output.icon || row.output.settings?.icon || 'help_outline' // Fallback if row.output.icon is cleared
+      const masterLabel =
+        row.output.label ||
+        row.output.settings?.label ||
+        row.output.data?.text ||
+        row.output.name ||
+        row.id.substring(0, 8)
+
+      if (icon !== masterIcon) {
+        // 'icon' is from DeckButton's local state (dialog edit)
+        mainAppDisplayUpdates.icon = icon
       }
-      // This uses the existing updateDeckLayout that expects x,y,w,h etc.
-      // We might need a more specific saveDeckButtonAppearance action.
-      // For now, this will create/update the entry but might miss x,y,w,h if it was a new tile.
-      // Let's assume updateDeckLayout merges intelligently or we call a more specific action.
-
-      const { deckLayouts, updateDeckLayout } = useDeckStore.getState()
-      const profileCurrentLayout = deckLayouts[profileId] || []
-      const tileIndex = profileCurrentLayout.findIndex((tile) => tile.id === row.id)
-      let newLayoutData: DeckTileLayout
-
-      if (tileIndex > -1) {
-        newLayoutData = { ...profileCurrentLayout[tileIndex], ...appearanceUpdate, id: row.id }
-      } else {
-        // If no layout data exists, we are only saving appearance.
-        // The Rnd component will use default x,y,w,h.
-        // So, when saving, we only need to store the appearance overrides.
-        // The full DeckTileLayout expects x,y,w,h so this needs care.
-        // Let's just pass the overrides and let an action in store handle it.
-        newLayoutData = {
-          id: row.id,
-          x: 0,
-          y: 0,
-          w: 0,
-          h: 0, // These would be default/ignored if not set
-          ...appearanceUpdate
-        } as DeckTileLayout
+      if (label !== masterLabel) {
+        // 'label' is from DeckButton's local state (dialog edit)
+        mainAppDisplayUpdates.label = label
       }
-      // A better action would be: saveDeckTileAppearance(profileId, row.id, appearanceUpdate)
-      // For now, using the full save function as an example:
-      const newProfileLayout =
-        tileIndex > -1
-          ? profileCurrentLayout.map((t) => (t.id === row.id ? newLayoutData : t))
-          : [...profileCurrentLayout, newLayoutData]
-      saveDeckButtonAppearance(profileId, newProfileLayout)
+
+      if (Object.keys(mainAppDisplayUpdates).length > 0) {
+        updateMainAppRowDisplay(row.id, mainAppDisplayUpdates)
+      }
     }
     handleDialogSettingsClose()
   }
-
   useEffect(() => {
-    // To control Rnd dragging when settings dialog is open
     if (setDisableDrag) setDisableDrag(settingsDialogOpen)
   }, [settingsDialogOpen, setDisableDrag])
 
   return (
     <>
       <DeckButtonBase
-        {...bind()} // Spread long press bindings
+        {...bind()}
         label={label}
         icon={icon}
-        // onClick is handled by useLongPress onCancel for short press
         buttonColor={buttonColor}
         textColor={textColor}
         iconColor={iconColor}
         variant={variant}
         fontFamily={innerFontFamily}
-        className={showSettings ? 'icon' : ''} // For wiggle animation in Deck edit mode
+        className={showSettings ? 'icon' : ''}
       >
         {/* Settings icon appears only when Deck is in general layout edit mode */}
         {showSettings && (
@@ -260,7 +241,6 @@ const DeckButton: FC<DeckButtonProps> = ({
       <Dialog
         open={settingsDialogOpen}
         onClose={handleDialogSettingsClose}
-        aria-labelledby={`deck-button-settings-title-${row.id}`}
         PaperProps={{
           component: 'form',
           onSubmit: (e) => {
@@ -270,12 +250,10 @@ const DeckButton: FC<DeckButtonProps> = ({
         }}
         maxWidth="xs"
       >
-        <DialogTitle id={`deck-button-settings-title-${row.id}`}>
-          Deck Button Settings for {row.output.name}
-        </DialogTitle>
+        <DialogTitle>Deck Button Settings for {row.output.name || row.input.name}</DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2} sx={{ pt: 1 }}>
-            {/* Color Pickers */}
+            {/* Color Pickers (as before) */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography>Button Color:</Typography>
               <Button
@@ -291,7 +269,7 @@ const DeckButton: FC<DeckButtonProps> = ({
             >
               <HexColorPicker color={buttonColor} onChange={setButtonColor} />
             </Popover>
-
+            {/* ... Other color pickers ... */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography>Text Color:</Typography>
               <Button
@@ -307,7 +285,6 @@ const DeckButton: FC<DeckButtonProps> = ({
             >
               <HexColorPicker color={textColor} onChange={setTextColor} />
             </Popover>
-
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography>Icon Color:</Typography>
               <Button
@@ -324,54 +301,97 @@ const DeckButton: FC<DeckButtonProps> = ({
               <HexColorPicker color={iconColor} onChange={setIconColor} />
             </Popover>
 
-            {/* Label and Icon TextFields */}
+            {/* Label and Icon TextFields - These update the 'master' row data */}
             <TextField
-              label="Custom Label"
+              label="Label (updates main app)"
               value={label}
               onChange={(e) => setLabel(e.target.value)}
               fullWidth
               size="small"
-              helperText="Overrides default row label on Deck."
+              helperText="This label updates the main IO app's row."
             />
             <TextField
-              label="Custom Icon (MUI Name)"
+              label="Icon (updates main app)"
               value={icon}
               onChange={(e) => setIcon(e.target.value)}
               fullWidth
               size="small"
-              helperText="Overrides default row icon on Deck."
+              helperText="This icon (MUI name) updates the main IO app's row."
             />
 
-            {/* Variant RadioGroup */}
-            <FormControl>
-              <Typography variant="caption" gutterBottom>
-                Button Variant
-              </Typography>
-              <RadioGroup
-                row
-                value={variant}
-                onChange={(e) => setVariant(e.target.value as 'outlined' | 'text' | 'contained')}
+            {/* Button Variant ToggleButtonGroup - This is a Deck-specific override */}
+            <Box sx={{ width: '100%' }}>
+              <Typography
+                variant="caption"
+                display="block"
+                gutterBottom
+                sx={{ textAlign: 'left', mb: 1 }}
               >
-                <FormControlLabel
+                Button Style (Deck only)
+              </Typography>
+              <ToggleButtonGroup
+                value={variant}
+                exclusive
+                onChange={(_event, newVariant) => {
+                  if (newVariant !== null) {
+                    setVariant(newVariant as 'outlined' | 'text' | 'contained')
+                  }
+                }}
+                aria-label="Button variant"
+                fullWidth
+                size="small"
+              >
+                <ToggleButton
                   value="outlined"
-                  control={<Radio size="small" />}
-                  label="Outlined"
-                />
-                <FormControlLabel
+                  aria-label="outlined"
+                  sx={{ flexGrow: 1, textTransform: 'capitalize' }}
+                >
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    disabled
+                    sx={{
+                      pointerEvents: 'none',
+                      color: 'inherit !important',
+                      borderColor: 'inherit !important'
+                    }}
+                  >
+                    Outlined
+                  </Button>
+                </ToggleButton>
+                <ToggleButton
                   value="contained"
-                  control={<Radio size="small" />}
-                  label="Contained"
-                />
-                <FormControlLabel value="text" control={<Radio size="small" />} label="Text" />
-              </RadioGroup>
-            </FormControl>
+                  aria-label="contained"
+                  sx={{ flexGrow: 1, textTransform: 'capitalize' }}
+                >
+                  <Button variant="contained" size="small" disabled sx={{ pointerEvents: 'none' }}>
+                    Contained
+                  </Button>
+                </ToggleButton>
+                <ToggleButton
+                  value="text"
+                  aria-label="text"
+                  sx={{ flexGrow: 1, textTransform: 'capitalize' }}
+                >
+                  <Button
+                    variant="text"
+                    size="small"
+                    disabled
+                    sx={{ pointerEvents: 'none', color: 'inherit !important' }}
+                  >
+                    Text
+                  </Button>
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogSettingsClose}>Cancel</Button>
-          <Button type="submit" variant="contained">
-            Save Appearance
-          </Button>
+          <Button variant="contained" type="submit">
+            Save Changes
+          </Button>{' '}
+          {/* Changed to "Save Changes" */}
         </DialogActions>
       </Dialog>
     </>

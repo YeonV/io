@@ -28,7 +28,7 @@ const DeckButtonBase = ({
   ...rest
 }: DeckButton) => {
   return (
-    <div style={{ color: buttonColor, position: 'relative', height: '100%' }}>
+    <div style={{ color: buttonColor, position: 'relative', height: '100%', width: '100%' }}>
       <Button
         {...rest}
         className={className}

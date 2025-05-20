@@ -1,9 +1,9 @@
 // src/renderer/src/modules/MQTT/MQTT.main.ts
-import { type IpcMain, type BrowserWindow, ipcMain } from 'electron'
+import { type BrowserWindow, ipcMain } from 'electron'
+import type { IOMainModulePart } from '../../../../shared/types'
+import type { MqttBrokerConfig } from './MQTT.types'
+import { MainModuleDeps } from '../../../../main/moduleLoader'
 import mqtt from 'mqtt'
-import type { IOMainModulePart } from '../../../../shared/types.js'
-import { type MqttBrokerConfig } from './MQTT.js'
-import { MainModuleDeps } from '../../../../main/moduleLoader.js'
 
 const id = 'mqtt-module' // Unique ID for this module
 interface MqttMainInitDeps extends MainModuleDeps {}

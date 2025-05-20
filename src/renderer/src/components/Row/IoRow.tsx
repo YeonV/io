@@ -1,5 +1,5 @@
 // src/renderer/src/components/Row/IoRow.tsx
-import { FC, useMemo, useState } from 'react'
+import { FC, MouseEvent, useMemo, useState } from 'react'
 import {
   Stack,
   IconButton,
@@ -11,13 +11,19 @@ import {
   DialogActions,
   useMediaQuery,
   Box,
-  Switch
+  Switch,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Tooltip
 } from '@mui/material'
-import { Delete, Help, PlayArrow } from '@mui/icons-material'
+import { Delete, Help, MoreVert, Edit as EditIcon, PlayCircleOutline } from '@mui/icons-material'
 import type { ModuleId, Row } from '@shared/types'
 import { useMainStore } from '@/store/mainStore'
 import { moduleImplementations, ModuleImplementationMap } from '@/modules/moduleRegistry'
 import { useRowActivation } from '@/hooks/useRowActivation'
+import IoNewRow, { PrefillData } from './IoNewRow'
 
 const InputActionRunner: FC<{ moduleId?: ModuleId | null; row: Row }> = ({ moduleId, row }) => {
   const hookToRun = useMemo(
@@ -53,20 +59,82 @@ const OutputActionRunner: FC<{ moduleId?: ModuleId | null; row: Row }> = ({ modu
 const IoRow: FC<{ row: Row }> = ({ row }) => {
   const desktop = useMediaQuery('(min-width:980px)')
   const mobile = useMediaQuery('(max-width:600px)')
+  const [anchorElMenu, setAnchorElMenu] = useState<null | HTMLElement>(null) // For the 3-dot menu
+  const openMenu = Boolean(anchorElMenu)
+
+  const [isEditingRow, setIsEditingRow] = useState(false) // State to control IoNewRow for editing
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const deleteRowAction = useMainStore((state) => state.deleteRow)
   const toggleRowEnabledAction = useMainStore((state) => state.toggleRowEnabled)
-  const { isEnabled } = useRowActivation(row)
+  const { isEnabled, isActive } = useRowActivation(row)
+
+  const handleMenuOpen = (event: MouseEvent<HTMLElement>) => {
+    setAnchorElMenu(event.currentTarget)
+  }
+  const handleMenuClose = () => {
+    setAnchorElMenu(null)
+  }
 
   const handleToggleEnable = () => {
     toggleRowEnabledAction(row.id)
   }
 
-  const handlePopupClickOpen = () => setOpenDeleteDialog(true)
-  const handlePopupClose = () => setOpenDeleteDialog(false)
-  const handleDelete = () => {
+  const handleDeleteClick = () => {
+    setOpenDeleteDialog(true)
+    handleMenuClose()
+  }
+  const handleConfirmDelete = () => {
     deleteRowAction(row)
-    setOpenDeleteDialog(false)
+    setOpenDeleteDialog(false) // Already closed by handleDeleteClick if menu was open
+  }
+  const handleCloseDeleteDialog = () => setOpenDeleteDialog(false)
+
+  const handleManualTrigger = () => {
+    window.dispatchEvent(new CustomEvent('io_input', { detail: row.id }))
+    handleMenuClose()
+  }
+
+  // --- Determine if Edit option should be available ---
+  const inputModuleDef = useMemo(
+    () => (row.inputModule ? moduleImplementations[row.inputModule] : undefined),
+    [row.inputModule]
+  )
+  const outputModuleDef = useMemo(
+    () => (row.outputModule ? moduleImplementations[row.outputModule] : undefined),
+    [row.outputModule]
+  )
+
+  // Get the static config part from mainStore for the module
+  const inputModuleStaticConfig = useMainStore((state) =>
+    row.inputModule ? state.modules[row.inputModule] : undefined
+  )
+  const outputModuleStaticConfig = useMainStore((state) =>
+    row.outputModule ? state.modules[row.outputModule] : undefined
+  )
+
+  const isInputEditable = useMemo(() => {
+    // Check if the Input definition in the module's static config says it's editable
+    const inputTypeDefinition = inputModuleStaticConfig?.inputs.find(
+      (inp) => inp.name === row.input.name
+    )
+    return inputTypeDefinition?.editable === true && !!inputModuleDef?.InputEdit
+  }, [inputModuleStaticConfig, row.input.name, inputModuleDef])
+
+  const isOutputEditable = useMemo(() => {
+    const outputTypeDefinition = outputModuleStaticConfig?.outputs.find(
+      (out) => out.name === row.output.name
+    )
+    return outputTypeDefinition?.editable === true && !!outputModuleDef?.OutputEdit
+  }, [outputModuleStaticConfig, row.output.name, outputModuleDef])
+
+  const canEditRow = isInputEditable || isOutputEditable
+
+  const handleEditClick = () => {
+    setIsEditingRow(true)
+    handleMenuClose()
+  }
+  const handleEditComplete = () => {
+    setIsEditingRow(false)
   }
 
   const SelectedModuleInputDisplay = useMemo(
@@ -86,8 +154,22 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
     [row.outputModule]
   )
 
-  const handleManualTrigger = () => {
-    window.dispatchEvent(new CustomEvent('io_input', { detail: row.id }))
+  if (isEditingRow) {
+    return (
+      <IoNewRow
+        key={`edit-${row.id}`}
+        edit={row} // Pass the current row data to IoNewRow for editing
+        onComplete={handleEditComplete} // Callback when editing is finished (Save or Cancel in IoNewRow)
+        // startNewPrefilledRow is not used in edit mode, pass a dummy function
+        startNewPrefilledRow={(_prefill: PrefillData) => {
+          console.warn(
+            "startNewPrefilledRow called in edit mode - this shouldn't happen for Alexa logic from edit."
+          )
+        }}
+        // initialPrefill is not used in edit mode
+        initialPrefill={undefined}
+      />
+    )
   }
 
   return (
@@ -143,63 +225,84 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
               flexGrow: 1,
               display: 'flex',
               alignItems: 'center',
-              color: 'text.secondary',
-              pointerEvents: 'none'
+              color: 'text.secondary'
             }}
           >
             {SelectedModuleOutputDisplay ? (
-              <SelectedModuleOutputDisplay output={row.output} />
+              <SelectedModuleOutputDisplay output={row.output} rowId={row.id} />
             ) : (
               <Help fontSize="large" sx={{ color: 'text.disabled' }} />
             )}
           </Box>
-          {/* Action Buttons */}
-          <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          {/* Actions: Switch + 3-dot Menu */}
+          <Box sx={{ display: 'flex', alignItems: 'center', flexShrink: 0, ml: 1 }}>
+            <Tooltip title={isEnabled ? 'Disable Row' : 'Enable Row'}>
+              <Switch
+                checked={isEnabled} // Use isEnabled from useRowActivation for visual consistency
+                onChange={handleToggleEnable}
+                size="small"
+                // disabled={!isActive && isEnabled === false && activeProfileId !== null} // More nuanced disable for the switch itself
+              />
+            </Tooltip>
             <IconButton
-              color="primary"
-              sx={{ mr: 0.5 }}
-              onClick={handleManualTrigger}
-              title="Manually Trigger Row"
-            >
-              <PlayArrow />
-            </IconButton>
-            <IconButton
-              color="primary"
-              sx={{ mr: 0 }}
-              onClick={handlePopupClickOpen}
-              title="Delete Row"
-            >
-              <Delete />
-            </IconButton>
-            <Switch
-              checked={row.enabled === undefined ? true : row.enabled}
-              onChange={handleToggleEnable}
+              aria-label="more actions"
+              id={`actions-menu-button-${row.id}`}
+              aria-controls={openMenu ? `actions-menu-${row.id}` : undefined}
+              aria-expanded={openMenu ? 'true' : undefined}
+              aria-haspopup="true"
+              onClick={handleMenuOpen}
               size="small"
-              title={row.enabled ? 'Disable Row' : 'Enable Row'}
-            />
+            >
+              <MoreVert />
+            </IconButton>
+            <Menu
+              id={`actions-menu-${row.id}`}
+              MenuListProps={{ 'aria-labelledby': `actions-menu-button-${row.id}` }}
+              anchorEl={anchorElMenu}
+              open={openMenu}
+              onClose={handleMenuClose}
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+              <MenuItem onClick={handleManualTrigger} disabled={!isActive}>
+                {' '}
+                {/* Disable if row isn't active */}
+                <ListItemIcon>
+                  <PlayCircleOutline fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Trigger Manually</ListItemText>
+              </MenuItem>
+              {canEditRow && ( // Conditionally render Edit option
+                <MenuItem onClick={handleEditClick}>
+                  <ListItemIcon>
+                    <EditIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Edit Row</ListItemText>
+                </MenuItem>
+              )}
+              <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>
+                <ListItemIcon>
+                  <Delete fontSize="small" sx={{ color: 'error.main' }} />
+                </ListItemIcon>
+                <ListItemText>Delete Row</ListItemText>
+              </MenuItem>
+            </Menu>
           </Box>
         </Box>
-
-        {/* Delete Confirmation Dialog */}
-        <Dialog
-          open={openDeleteDialog}
-          onClose={handlePopupClose}
-          aria-labelledby="delete-dialog-title"
-        >
-          <DialogTitle id="delete-dialog-title">Delete this IO Row?</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Are you sure you want to delete this row? This action cannot be undone.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handlePopupClose}>Cancel</Button>
-            <Button onClick={handleDelete} color="error" autoFocus>
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
       </Stack>
+
+      <Dialog open={openDeleteDialog} onClose={handleCloseDeleteDialog} /* ... */>
+        <DialogTitle>Delete this IO Row?</DialogTitle>
+        <DialogContent>
+          <DialogContentText>Are you sure?</DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   )
 }

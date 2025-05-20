@@ -26,6 +26,9 @@ export const InputEdit: FC<{
   input: InputData
   onChange: (data: Record<string, any>) => void
 }> = ({ input, onChange }) => {
+  if (typeof onChange === 'function') {
+    console.log('onChange')
+  }
   return (
     <div style={{ textAlign: 'left', marginTop: '10px' }}>
       <Button variant="outlined">{input?.data?.data?.value || ''}</Button>

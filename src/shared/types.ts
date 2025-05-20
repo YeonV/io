@@ -1,15 +1,21 @@
 import type { FC } from 'react'
-import modules from '../renderer/src/modules/modules.js'
+import type { ModuleId } from './module-ids'
+
+export type { ModuleId }
 
 export type Input = {
   name: string
   icon: string
+  editable?: boolean
+  supportedContexts?: ModuleContext[]
 }
 export type InputData = Input & { data: Record<string, any> }
 
 export type Output = {
   name: string
   icon: string
+  editable?: boolean
+  supportedContexts?: ModuleContext[]
 }
 
 export type OutputData = Output & {
@@ -45,6 +51,7 @@ export type IOModule = {
 export type ModuleDefaultConfig = {
   enabled: boolean
 }
+export type ModuleContext = 'electron' | 'web'
 
 // T now represents ONLY the custom fields
 export type ModuleConfig<T = {}> = {
@@ -71,7 +78,6 @@ export interface ProfileDefinition {
   // Stores only the IDs of rows that are part of this profile's "set"
   includedRowIds: string[]
 }
-export type ModuleId = keyof typeof modules
 
 export interface IOMainModulePart {
   moduleId: string // Should match the id from the renderer module's IOModule export
@@ -98,15 +104,4 @@ export interface IOMainModulePart {
   ) => void | Promise<void>
   cleanup?: () => void | Promise<void>
   // Add any other lifecycle methods main module parts might need
-}
-
-export interface RestPresetDefinition {
-  id: string // uuid
-  name: string
-  icon?: string
-  url: string
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'OPTIONS' | 'HEAD'
-  headers?: Record<string, string>
-  bodyTemplate?: string // Stored as string, might contain placeholders
-  description?: string
 }

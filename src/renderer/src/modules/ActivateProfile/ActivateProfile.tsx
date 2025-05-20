@@ -31,7 +31,12 @@ export const moduleConfig: ModuleConfig<{}> = {
   menuLabel: 'Application Control', // Or 'System', 'Profiles'
   inputs: [], // This is an output-only module
   outputs: [
-    { name: 'useShallow', icon: 'switch_account' } // Or 'group_work', 'person_play'
+    {
+      name: 'Activate Profile',
+      icon: 'switch_account',
+      editable: true,
+      supportedContexts: ['electron', 'web']
+    }
   ],
   config: {
     enabled: true
@@ -73,7 +78,7 @@ export const OutputEdit: FC<{
 }> = ({ output, onChange }) => {
   const profiles = useMainStore(
     useShallow((state) => {
-      console.log('ActivateProfile.OutputEdit: Recalculating profiles from store') // Check frequency
+      // console.log('ActivateProfile.OutputEdit: Recalculating profiles from store') // Check frequency
       return Object.values(state.profiles).sort((a, b) => a.name.localeCompare(b.name))
     })
   )

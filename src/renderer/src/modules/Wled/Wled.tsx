@@ -1,4 +1,4 @@
-import type { ModuleConfig, OutputData, Row  } from '@shared/types'
+import type { ModuleConfig, OutputData, Row } from '@shared/types'
 import type { FC } from 'react'
 import { TextField } from '@mui/material'
 import { useEffect } from 'react'
@@ -16,7 +16,8 @@ export const moduleConfig: ModuleConfig<WledConfigExample> = {
   outputs: [
     {
       name: 'WLED',
-      icon: 'wled'
+      icon: 'wled',
+      editable: true
     }
   ],
   config: {
@@ -55,12 +56,14 @@ export const OutputEdit: FC<{
           })
         }}
         sx={{ mt: 2 }}
-        inputProps={{
-          style: {
-            paddingLeft: '20px'
+        variant="outlined"
+        slotProps={{
+          htmlInput: {
+            style: {
+              paddingLeft: '20px'
+            }
           }
         }}
-        variant="outlined"
       />
     </>
   )

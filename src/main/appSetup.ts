@@ -3,7 +3,7 @@ import { app } from 'electron'
 import { release } from 'os'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import pkg from '../../package.json' with { type: 'json' } // For app UserModelId
-import { getMainWindow } from './windowManager.js' // For focusing on second instance
+import { getMainWindow } from './windowManager' // For focusing on second instance
 
 /**
  * Performs early application setup tasks.

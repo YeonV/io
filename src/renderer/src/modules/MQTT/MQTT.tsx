@@ -31,28 +31,16 @@ import {
   Switch,
   Tooltip
 } from '@mui/material'
-import { AddCircleOutline, Delete, Edit, AddLink } from '@mui/icons-material'
+import { AddCircleOutline, Delete, Edit, AddLink, Add } from '@mui/icons-material'
 import { log } from '@/utils'
 import { v4 as uuidv4 } from 'uuid'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import type { IClientPublishOptions } from 'mqtt' // Corrected import for MQTT types
 import { mqttTopicMatch } from './MQTThelper'
 import { useRowActivation } from '@/hooks/useRowActivation'
+import { MqttBrokerConfig, MqttModuleCustomConfig } from './MQTT.types'
 
 const ipcRenderer = window.electron?.ipcRenderer
-
-// --- Types Specific to this Module (Exported for MQTT.main.ts) ---
-export interface MqttBrokerConfig {
-  id: string
-  name: string
-  host: string
-  username?: string
-  password?: string
-  clientId?: string
-}
-export interface MqttModuleCustomConfig {
-  brokerConnections: MqttBrokerConfig[]
-}
 
 // --- Row Data Types for this Module ---
 export interface MqttInputRowData {
@@ -74,8 +62,8 @@ export interface MqttOutputRowData {
 export const id = 'mqtt-module'
 export const moduleConfig: ModuleConfig<MqttModuleCustomConfig> = {
   menuLabel: 'Network & Web',
-  inputs: [{ icon: 'rss_feed', name: 'MQTT Message Received' }],
-  outputs: [{ icon: 'publish', name: 'Publish MQTT Message' }],
+  inputs: [{ icon: 'rss_feed', name: 'MQTT Message Received', editable: true }],
+  outputs: [{ icon: 'publish', name: 'Publish MQTT Message', editable: true }],
   config: {
     enabled: true,
     brokerConnections: [
@@ -83,12 +71,6 @@ export const moduleConfig: ModuleConfig<MqttModuleCustomConfig> = {
         id: uuidv4(),
         name: 'Local Mosquitto (Example)',
         host: 'mqtt://localhost:1883',
-        clientId: `io_client_${Math.random().toString(16).slice(2, 6)}`
-      },
-      {
-        id: uuidv4(),
-        name: 'EMQX Public Broker (WS)',
-        host: 'ws://broker.emqx.io:8083/mqtt',
         clientId: `io_client_${Math.random().toString(16).slice(2, 6)}`
       }
     ]
@@ -268,7 +250,7 @@ export const Settings: FC = () => {
   return (
     <Paper
       elevation={2}
-      sx={{ p: 2, minWidth: 320, display: 'flex', flexDirection: 'column', gap: 1 }}
+      sx={{ p: 2, minWidth: 250, display: 'flex', flexDirection: 'column', gap: 1 }}
     >
       <Typography variant="overline">MQTT Broker Profiles</Typography>
       <Button
@@ -383,7 +365,7 @@ export const InputEdit: FC<{
       <Typography variant="caption" color="textSecondary">
         Broker Connection
       </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0 }}>
         <FormControl fullWidth margin="dense" size="small" sx={{ flexGrow: 1 }}>
           <InputLabel id={`mqtt-input-profile-label-${input.name}`}>Broker Profile *</InputLabel>
           <Select
@@ -392,6 +374,7 @@ export const InputEdit: FC<{
             label="Broker Profile *"
             onChange={handleProfileSelectChange}
             required
+            sx={{ height: '56px' }}
           >
             <MenuItem value="" disabled>
               <em>Select a profile...</em>
@@ -402,12 +385,6 @@ export const InputEdit: FC<{
               </MenuItem>
             ))}
           </Select>
-          {brokerProfiles.length === 0 && (
-            <FormHelperText error>No profiles. Add one with the (+) button.</FormHelperText>
-          )}
-          {!currentData.profileId && brokerProfiles.length > 0 && (
-            <FormHelperText error>Profile selection is required.</FormHelperText>
-          )}
         </FormControl>
         <Tooltip title="Add New Broker Profile">
           <span>
@@ -438,6 +415,7 @@ export const InputEdit: FC<{
         size="small"
         margin="dense"
         required
+        sx={{ m: 0 }}
       />
       <TextField
         label="JSONPath Filter (Optional)"
@@ -447,13 +425,14 @@ export const InputEdit: FC<{
         size="small"
         margin="dense"
         helperText="e.g., $.value or data.temperature"
+        sx={{ m: 0 }}
       />
 
       <Typography variant="caption" color="textSecondary" sx={{ mt: 1 }}>
         Payload Condition (Optional)
       </Typography>
       <Grid container spacing={1} alignItems="center">
-        <Grid item xs={12} sm={7}>
+        <Grid size={{ xs: 12, sm: 7 }}>
           <TextField
             label="Trigger if payload..."
             value={currentData.matchPayload || ''}
@@ -461,10 +440,9 @@ export const InputEdit: FC<{
             fullWidth
             size="small"
             margin="dense"
-            helperText="Value to check payload against."
           />
         </Grid>
-        <Grid item xs={12} sm={5}>
+        <Grid size={{ xs: 12, sm: 5 }}>
           <FormControl fullWidth size="small" margin="dense" disabled={!currentData.matchPayload}>
             <InputLabel>Match Type</InputLabel>
             <Select
@@ -481,9 +459,7 @@ export const InputEdit: FC<{
           </FormControl>
         </Grid>
       </Grid>
-      <FormHelperText sx={{ ml: 1 }}>
-        If &quot;Trigger if payload...&quot; is empty, any message on the topic triggers.
-      </FormHelperText>
+      <FormHelperText sx={{ ml: 1 }}>empty triggers on any message...</FormHelperText>
     </Box>
   )
 }
@@ -547,7 +523,7 @@ export const OutputEdit: FC<{
         <Tooltip title="Add New Broker Profile">
           <span>
             <IconButton onClick={handleAddNewProfile} size="medium" sx={{ mb: '4px' }}>
-              <AddLink />
+              <Add />
             </IconButton>
           </span>
         </Tooltip>
@@ -583,7 +559,7 @@ export const OutputEdit: FC<{
         rows={2}
       />
       <Grid container spacing={1} alignItems="center">
-        <Grid item>
+        <Grid>
           <FormControlLabel
             control={
               <Switch
@@ -595,7 +571,7 @@ export const OutputEdit: FC<{
             label="Retain"
           />
         </Grid>
-        <Grid item xs>
+        <Grid>
           <FormControl fullWidth size="small" margin="dense">
             <InputLabel>QoS</InputLabel>
             <Select
@@ -736,6 +712,7 @@ export const useGlobalActions = () => {
         `MQTT Client Status [${data.host} / ${data.clientKey}]: ${data.status}`,
         data.message || ''
       )
+      log.info(`EYYYYYY`, clientStatuses)
       setClientStatuses((prev) => ({ ...prev, [data.clientKey]: data.status }))
     }
     ipcRenderer.on('mqtt-client-status', listener)
@@ -749,7 +726,7 @@ export const useGlobalActions = () => {
 
 // --- useInputActions ---
 export const useInputActions = (row: Row) => {
-  const { input, id: rowId } = row
+  const { input } = row
   const { isActive, inactiveReason } = useRowActivation(row)
   const inputData = input.data as MqttInputRowData
   const brokerProfiles = useMainStore(

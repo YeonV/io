@@ -1,9 +1,11 @@
 // src/renderer/src/components/Row/OutputSelector.tsx
-import type { Output, ModuleId } from '@shared/types'
+import type { Output, ModuleId, ModuleConfig, ModuleContext } from '@shared/types'
 import { useMainStore } from '@/store/mainStore'
-import { Autocomplete, ListItem, TextField } from '@mui/material'
+import { Autocomplete, Box, ListItem, TextField } from '@mui/material'
 import IoIcon from '../IoIcon/IoIcon'
 import { useMemo, FC } from 'react'
+import { isElectron } from '@/utils/isElectron'
+import { ProBadge } from './ProBadge'
 
 interface OutputOption {
   id: string // Output name
@@ -12,6 +14,8 @@ interface OutputOption {
   group: string
   moduleActualId: ModuleId
   moduleEnabled: boolean
+  isWebCompatible: boolean // NEW
+  supportedContexts?: ModuleContext[] // NEW - from Input type
 }
 
 interface OutputSelectorValue {
@@ -26,27 +30,39 @@ export const OutputSelector: FC<{
   onSelect: (modId: ModuleId, output: Output) => void
 }> = ({ disabled = false, value, onSelect }) => {
   const moduleConfigsRecord = useMainStore((state) => state.modules)
+  const allModulesFromStore = useMainStore((state) => state.modules)
+  const isWebEnvironment = useMemo(() => !isElectron(), [])
 
   const options = useMemo((): OutputOption[] => {
-    return Object.entries(moduleConfigsRecord)
-      .flatMap(([moduleId, modConfig]) => {
-        if (!modConfig || !modConfig.outputs) {
-          console.warn(`OutputSelector: Module ${moduleId} has no config or outputs array`)
-          return []
-        }
-        return modConfig.outputs.map(
-          (outp): OutputOption => ({
-            id: outp.name,
-            icon: outp.icon,
-            label: outp.name,
-            group: modConfig.menuLabel,
+    const opts: OutputOption[] = []
+    for (const moduleId in allModulesFromStore) {
+      const modConfig = allModulesFromStore[moduleId as ModuleId] as ModuleConfig<any> // Cast
+      if (modConfig && Array.isArray(modConfig.outputs)) {
+        modConfig.outputs.forEach((outDef) => {
+          const isWebCompatible = outDef.supportedContexts
+            ? outDef.supportedContexts.includes('web')
+            : false
+
+          opts.push({
+            id: outDef.name, // Use input definition name as part of unique option ID
+            icon: outDef.icon,
+            label: outDef.name,
+            group: modConfig.menuLabel || (moduleId as string),
             moduleActualId: moduleId as ModuleId,
-            moduleEnabled: modConfig.config.enabled
+            moduleEnabled: modConfig.config.enabled,
+            isWebCompatible: isWebCompatible,
+            supportedContexts: outDef.supportedContexts // Pass this along
           })
-        )
-      })
-      .sort((a, b) => a.group.localeCompare(b.group))
-  }, [moduleConfigsRecord])
+        })
+      }
+    }
+    return opts.sort((a, b) => {
+      // Sort by group then label
+      if (a.group < b.group) return -1
+      if (a.group > b.group) return 1
+      return a.label.localeCompare(b.label)
+    })
+  }, [allModulesFromStore, isWebEnvironment])
 
   const selectedOption = useMemo((): OutputOption | undefined => {
     if (!value?.name || !value.outputModuleId) return undefined
@@ -66,39 +82,61 @@ export const OutputSelector: FC<{
       disableClearable
       getOptionLabel={(option) => option?.label ?? ''}
       renderOption={(props, option) => {
-        const listProps = { ...props }
-        delete listProps['key']
+        // props includes key, pass it down
+        // The props passed by Autocomplete already include a key.
+        // We spread props onto ListItem, which will use that key.
         return (
           <ListItem
-            {...listProps}
-            key={option.id}
-            style={{ display: 'flex', padding: '5px 15px', minWidth: '100px' }}
+            {...props}
+            // key={option.id + option.moduleActualId} // Key is handled by Autocomplete's props
+            style={{
+              display: 'flex',
+              padding: '5px 15px',
+              minWidth: '100px',
+              justifyContent: 'space-between'
+              // background: isWebEnvironment && !option.isWebCompatible ? 'red' : 'transparent'
+            }}
+            // Disable the option visually and functionally if not web compatible in web env
+            // disabled={isWebEnvironment && !option.isWebCompatible}
           >
-            <IoIcon style={{ marginRight: '10px' }} name={option.icon} />
-            {option.label}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                opacity: isWebEnvironment && !option.isWebCompatible ? 0.5 : 1
+              }}
+            >
+              <IoIcon style={{ marginRight: '10px' }} name={option.icon} />
+              {option.label}
+            </Box>
+            {isWebEnvironment && !option.isWebCompatible && <ProBadge />}
           </ListItem>
         )
       }}
       isOptionEqualToValue={(opt, val) =>
         opt?.id === val?.id && opt?.moduleActualId === val?.moduleActualId
       }
-      getOptionDisabled={(opt) => !opt?.moduleEnabled}
+      getOptionDisabled={(option) =>
+        !option.moduleEnabled || (isWebEnvironment && !option.isWebCompatible)
+      }
       groupBy={(option) => option?.group ?? ''}
       renderInput={(params) => (
         <TextField
           {...params}
           label="Select Output"
           disabled={disabled}
-          InputProps={{
-            ...params.InputProps,
-            startAdornment: (
-              <>
-                <IoIcon
-                  style={{ marginLeft: '10px', marginRight: '5px' }}
-                  name={selectedOption?.icon}
-                />
-              </>
-            )
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              startAdornment: (
+                <>
+                  <IoIcon
+                    style={{ marginLeft: '10px', marginRight: '5px' }}
+                    name={selectedOption?.icon}
+                  />
+                </>
+              )
+            }
           }}
         />
       )}

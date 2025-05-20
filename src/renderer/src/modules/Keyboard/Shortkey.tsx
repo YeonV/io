@@ -1,6 +1,65 @@
 import { useState } from 'react'
 import { Button, Stack, TextField, Typography } from '@mui/material'
 
+const mapCodeToKeyName = (code: string): string | null => {
+  if (code.startsWith('Key')) return code.substring(3).toLowerCase() // KeyQ -> q
+  if (code.startsWith('Digit')) return code.substring(5) // Digit2 -> 2
+  if (code.startsWith('Numpad')) return `numpad_${code.substring(6).toLowerCase()}` // Numpad2 -> numpad_2
+
+  // Add more mappings as needed based on https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values
+  // and what robotjs expects for non-alphanumeric keys
+  switch (code) {
+    case 'Backquote':
+      return '`' // Or 'grave' depending on what robotjs needs
+    case 'Minus':
+      return '-'
+    case 'Equal':
+      return '='
+    case 'BracketLeft':
+      return '['
+    case 'BracketRight':
+      return ']'
+    case 'Backslash':
+      return '\\'
+    case 'Semicolon':
+      return ';'
+    case 'Quote':
+      return "'"
+    case 'Comma':
+      return ','
+    case 'Period':
+      return '.'
+    case 'Slash':
+      return '/'
+    case 'Space':
+      return 'space' // robotjs uses 'space'
+    case 'Enter':
+      return 'enter' // robotjs uses 'enter'
+    case 'Tab':
+      return 'tab'
+    case 'Escape':
+      return 'escape'
+    case 'Backspace':
+      return 'backspace'
+    case 'Delete':
+      return 'delete'
+    // Add Arrow keys, F-keys etc. if needed, mapping to robotjs names
+    // e.g. case 'ArrowUp': return 'up'; robotjs might use 'up' or 'arrow_up'
+    // For F-keys, robotjs uses 'f1', 'f2', etc.
+    case 'F1':
+      return 'f1'
+    case 'F2':
+      return 'f2'
+    /* ... up to F12 ... */ case 'F12':
+      return 'f12'
+    default:
+      // If it's a single character that event.key would produce and it's not a modifier,
+      // and we don't have a code mapping, it might be a special symbol not easily mapped.
+      // For now, return null if unmapped by 'code' to encourage using mapped keys.
+      return null
+  }
+}
+
 const Shortkey = ({
   edit = false,
   value = '',
@@ -47,10 +106,12 @@ const Shortkey = ({
       setWin(true)
     }
 
-    const pressedKey = e.key.toLowerCase()
+    console.log(e)
+    const pressedKey = mapCodeToKeyName(e.code)
+    // const pressedKey = e.key.toLowerCase()
     let finalKey = ''
 
-    if (!['control', 'alt', 'shift', 'meta'].includes(pressedKey)) {
+    if (pressedKey && !['control', 'alt', 'shift', 'meta'].includes(pressedKey)) {
       finalKey = pressedKey
       setLastKey(finalKey)
     } else {
@@ -113,7 +174,9 @@ const Shortkey = ({
         onKeyDown={handleKeyDown}
         onKeyUp={handleKeyUp}
         onBlur={handleBlur}
-        InputLabelProps={{ shrink: true }}
+        slotProps={{
+          inputLabel: { shrink: true }
+        }}
       />
       <Stack
         direction={'row'}

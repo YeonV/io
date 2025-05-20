@@ -11,9 +11,8 @@ import {
   ListSubheader,
   Tooltip,
   Box,
-  FormControlLabel,
-  Switch,
-  Typography
+  Typography,
+  Paper
 } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { detectGesture, Gesture } from './core/gesture-detector'
@@ -33,7 +32,7 @@ export const id = 'mphands-module'
 
 export const moduleConfig: ModuleConfig<HandsModuleCustomConfig> = {
   menuLabel: 'A.I.',
-  inputs: [{ name: 'Hand Gesture', icon: 'sign_language' }],
+  inputs: [{ name: 'Hand Gesture', icon: 'sign_language', supportedContexts: ['electron', 'web'] }],
   outputs: [],
   config: {
     enabled: true,
@@ -325,50 +324,64 @@ export const Settings: FC = () => {
   }
 
   return (
-    <Box
+    <Paper
+      elevation={2}
       sx={{
+        p: 2,
+        minWidth: 250,
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'flex-start',
         gap: 1,
-        p: 1,
-        border: '1px solid #555',
-        borderRadius: 1,
-        minWidth: 200
+        boxsizing: 'border-box',
+        marginTop: '0'
       }}
     >
       <Typography variant="overline">Hand Gesture Settings</Typography>
-      {cameraActive ? <Videocam /> : <VideocamOff color="disabled" />}
-      <FormControlLabel
-        control={<Switch checked={cameraActive} onChange={handleToggleCameraActive} size="small" />}
-        label={cameraActive ? 'Camera: Active' : 'Camera: Inactive'}
-      />
+      <Button
+        variant="outlined"
+        size="small"
+        onClick={handleToggleCameraActive}
+        sx={{
+          minWidth: '40px',
+          width: '100%',
+          height: '40px',
+          padding: '6px 8px',
+          color: cameraActive ? 'green' : 'red'
+        }}
+        title={cameraActive ? 'Turn Camera Off' : 'Turn Camera On'}
+        startIcon={<Videocam color="inherit" />}
+      >
+        {cameraActive ? 'Camera: Active' : 'Camera: Inactive'}
+      </Button>
+
       {/* Add other global settings for Hands module here if needed */}
-      <canvas
-      // This canvas is for global preview in settings, similar to InputEdit
-      // It should only be active if cameraActive is true.
-      // Need to manage its VideoScene and estimator instance separately or share carefully.
-      // For simplicity, it might be better NOT to have a live preview in global settings
-      // unless absolutely necessary, to avoid multiple camera streams / estimator conflicts.
-      // Let's comment out the global preview canvas for now.
-      /*
+      {/* <canvas
+        // This canvas is for global preview in settings, similar to InputEdit
+        // It should only be active if cameraActive is true.
+        // Need to manage its VideoScene and estimator instance separately or share carefully.
+        // For simplicity, it might be better NOT to have a live preview in global settings
+        // unless absolutely necessary, to avoid multiple camera streams / estimator conflicts.
+        // Let's comment out the global preview canvas for now.
         ref={useRef<HTMLCanvasElement | null>(null)} // Needs its own ref and logic
         style={{
-          height: 100, width: 133, border: '1px dashed grey',
+          height: 100,
+          width: 133,
+          border: '1px dashed grey',
           display: cameraActive ? 'block' : 'none'
         }}
-        */
-      />
-      {cameraActive && (
-        <Typography variant="caption" color="textSecondary">
-          Gesture detection is running.
-        </Typography>
-      )}
-      {!cameraActive && (
-        <Typography variant="caption" color="textSecondary">
-          Enable camera to detect hand gestures.
-        </Typography>
-      )}
-    </Box>
+      /> */}
+      <Box sx={{ height: 40 }}>
+        {cameraActive && (
+          <Typography variant="caption" color="textSecondary">
+            Gesture detection is running.
+          </Typography>
+        )}
+        {!cameraActive && (
+          <Typography variant="caption" color="textSecondary">
+            Enable camera to detect hand gestures.
+          </Typography>
+        )}
+      </Box>
+    </Paper>
   )
 }
