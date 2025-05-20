@@ -169,27 +169,28 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
 
   // Effect to handle external commands (like play/pause/stop from parent MiniPlayer)
   useEffect(() => {
-    if (!audioRef.current) return
-    const audio = audioRef.current
-    // console.debug(`[AudioPlayerCore] External command effect. Command: ${externalCommand}, Src: ${audio.src.slice(-20)}`);
-
-    if (externalCommand === 'play' && audio.paused && audio.src) {
-      audio.play().catch((e) => console.error('[AudioPlayerCore] External play error:', e))
-    } else if (externalCommand === 'pause' && !audio.paused && audio.src) {
-      audio.pause()
-    } else if (externalCommand === 'stop' && audio.src) {
-      if (!audio.paused) audio.pause()
-      audio.currentTime = 0
-      // UI state (isPlaying, progress) will be updated by the 'pause' and 'timeupdate' events
-      // triggered by the lines above, due to the listeners in the main useEffect.
-      // However, to be absolutely sure for an explicit stop command:
-      setIsPlaying(false)
-      setProgress(0)
+    if (
+      globalAudioCommandTimestamp &&
+      globalAudioCommandTimestamp !== prevGlobalAudioCommandTimestampRef.current
+    ) {
+      console.debug(
+        `[AudioPlayerCore] Detected globalAudioCommandTimestamp change: ${globalAudioCommandTimestamp}. Current src: ${audioRef.current?.src?.slice(-20)}`
+      )
+      if (audioRef.current && audioRef.current.src) {
+        // Only act if there's an audio source loaded
+        console.debug(
+          `[AudioPlayerCore] Global stop: Calling internal stop logic for src: ${audioRef.current.src.slice(-20)}`
+        )
+        // Call this component's own stop logic
+        audioRef.current.pause()
+        audioRef.current.currentTime = 0
+        // The 'pause' and 'timeupdate' (to 0) events will trigger
+        // setIsPlaying(false) and setProgress(0) via the main useEffect's listeners.
+        onStopProp?.() // Also call the onStopProp passed from MiniPlayer, which calls global stopPlayer
+      }
+      prevGlobalAudioCommandTimestampRef.current = globalAudioCommandTimestamp
     }
-    if (externalCommand && onCommandProcessed) {
-      onCommandProcessed() // Signal command was seen/processed
-    }
-  }, [externalCommand, onCommandProcessed])
+  }, [globalAudioCommandTimestamp, onStopProp])
 
   // Effect to react to globalAudioCommandTimestamp for "Stop All"
   useEffect(() => {

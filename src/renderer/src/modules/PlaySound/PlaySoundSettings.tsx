@@ -6,7 +6,6 @@ import {
   Button,
   Typography,
   Paper,
-  Stack,
   IconButton,
   LinearProgress,
   Dialog,
@@ -17,27 +16,16 @@ import {
   ListItemText,
   DialogActions,
   ListItemIcon,
-  CircularProgress // Added for loading indicator in dialog
+  CircularProgress
 } from '@mui/material'
-import {
-  Audiotrack,
-  StopCircle,
-  Delete as DeleteIcon,
-  Storage
-  // Icons below are not directly used in this Settings component's JSX
-  // FolderOpen, LoopIcon, PlayArrow, PauseIcon, Cached, RepeatOne, LayersClear, Layers
-} from '@mui/icons-material'
-// DB functions are still needed for managing the cache
+import { Audiotrack, StopCircle, Delete as DeleteIcon, Storage } from '@mui/icons-material'
+import { useMainStore } from '@/store/mainStore'
 import {
   addAudioToDB,
   getAllAudioInfoFromDB,
   deleteAudioFromDB,
   clearAllAudioFromDB
 } from './lib/db'
-// Import the main store to dispatch the global command
-import { useMainStore } from '@/store/mainStore'
-// Import from PlaySound.tsx (orchestrator) for direct player control if needed for cache deletion
-import { activeAudioPlayers, stopPlayer, stopAllPlayers } from './PlaySound'
 
 interface SettingsCachedAudioInfo {
   id: string
@@ -49,35 +37,28 @@ export const PlaySoundSettings: FC = () => {
   const [manageCacheDialogOpen, setManageCacheDialogOpen] = useState(false)
   const [cachedFilesList, setCachedFilesList] = useState<SettingsCachedAudioInfo[]>([])
   const [initialCachedFileCount, setInitialCachedFileCount] = useState(0)
-  const [isLoadingInitialCount, setIsLoadingInitialCount] = useState(true) // For button count
-  const [isLoadingDialogList, setIsLoadingDialogList] = useState(false) // For dialog list
+  const [isLoadingInitialCount, setIsLoadingInitialCount] = useState(true)
+  const [isLoadingDialogList, setIsLoadingDialogList] = useState(false) // Added this from your last version
 
   const [isBatchImportDragging, setIsBatchImportDragging] = useState(false)
   const [batchImportProgress, setBatchImportProgress] = useState(0)
   const [isBatchImporting, setIsBatchImporting] = useState(false)
   const batchFileInputRef = useRef<HTMLInputElement>(null)
 
-  // Get the action from mainStore
   const triggerGlobalAudioStop = useMainStore((state) => state.setGlobalAudioCommandTimestamp)
 
   const fetchCachedFilesData = async (forCountOnly = false) => {
-    if (forCountOnly) {
-      setIsLoadingInitialCount(true)
-    } else {
-      setIsLoadingDialogList(true) // Loading for dialog list
-    }
-
+    if (forCountOnly) setIsLoadingInitialCount(true)
+    else setIsLoadingDialogList(true)
     try {
       const filesFromDB = await getAllAudioInfoFromDB()
       const processedFiles = filesFromDB
         .map((f) => ({ ...f, dateAdded: new Date(f.dateAdded) }))
         .sort((a, b) => b.dateAdded.getTime() - a.dateAdded.getTime())
-
-      if (forCountOnly) {
+      if (forCountOnly) setInitialCachedFileCount(processedFiles.length)
+      else {
+        setCachedFilesList(processedFiles)
         setInitialCachedFileCount(processedFiles.length)
-      } else {
-        setCachedFilesList(processedFiles) // Store full objects for dialog
-        setInitialCachedFileCount(processedFiles.length) // Also update count
       }
     } catch (error) {
       console.error('[PlaySound Settings] Error fetching cached files:', error)
@@ -89,53 +70,48 @@ export const PlaySoundSettings: FC = () => {
   }
 
   useEffect(() => {
-    fetchCachedFilesData(true) // Fetch only count for the button on mount
+    fetchCachedFilesData(true)
   }, [])
 
   const handleOpenManageCacheDialog = () => {
-    fetchCachedFilesData(false) // Fetch full data for the dialog list
+    fetchCachedFilesData(false)
     setManageCacheDialogOpen(true)
   }
   const handleCloseManageCacheDialog = () => setManageCacheDialogOpen(false)
 
   const handleDeleteCachedFile = async (audioId: string) => {
     if (window.confirm('Delete this cached sound? Rows using it will need a new file selected.')) {
-      // Stop any active player using this specific audioId before deleting from DB
-      activeAudioPlayers.forEach((player) => {
-        if (player.audioId === audioId) {
-          stopPlayer(player.rowId) // Use the global stopPlayer from PlaySound.tsx
-        }
-      })
+      // To stop a specific player, we'd need access to activeAudioPlayers and stopPlayer,
+      // or dispatch a specific event. For now, deleting from DB.
+      // activeAudioPlayers.forEach((player) => { if (player.audioId === audioId) stopPlayer(player.rowId); });
+      console.warn(
+        `[PlaySound Settings] Deleting audioId ${audioId}. If playing, it might continue until row is re-triggered or app restart unless PlaySoundModule handles this.`
+      )
       await deleteAudioFromDB(audioId)
-      fetchCachedFilesData(false) // Refresh dialog list
-      // The button count will be updated when the dialog list is refreshed if it's also open
-      // Or, call fetchCachedFilesData(true) if you want to ensure button updates even if dialog not open
-      setInitialCachedFileCount((prev) => Math.max(0, prev - 1)) // Optimistic update for button
+      fetchCachedFilesData(false)
+      fetchCachedFilesData(true)
     }
   }
 
   const handleClearAllCache = async () => {
-    if (
-      window.confirm('Delete ALL cached sounds? This cannot be undone. Rows will need new files.')
-    ) {
-      stopAllPlayers(true) // Stop all sounds first, including preview
-      await clearAllAudioFromDB()
-      fetchCachedFilesData(false) // Refresh dialog list
-      setInitialCachedFileCount(0) // Directly set count to 0
+    if (window.confirm('Delete ALL cached sounds? This cannot be undone.')) {
+      // stopAllPlayers(true); // This would need to be imported from PlaySound.tsx
+      // For now, rely on the global command to signal players.
+      // The actual audio elements will be orphaned if not stopped by the global command's effect.
+      // This is fine if the global command reliably stops them.
+      triggerGlobalAudioStop() // Signal all players to stop and reset UI
+      await clearAllAudioFromDB() // Then clear the data
+      fetchCachedFilesData(false)
+      setInitialCachedFileCount(0)
     }
   }
 
-  const handleStopAllSoundsFromSettings = () => {
-    console.info('[PlaySound Settings] User clicked Stop All Sounds. Triggering global command.')
-    // This will call the module-scoped stopAllPlayers, which then emits the global command
-    // stopAllPlayers(true);
-    // OR, directly trigger the Zustand state change:
-    triggerGlobalAudioStop() // This sets globalAudioCommandTimestamp in mainStore
-    // The actual audio elements are stopped by stopAllPlayers, which should still be called.
-    // The globalAudioCommandTimestamp is for UI components like MiniPlayer to react.
-    // So, we need both:
-    stopAllPlayers(true) // Immediately stop audio elements
-    triggerGlobalAudioStop() // Signal UI components to reset
+  const handleActualStopAllSounds = () => {
+    console.info(
+      '[PlaySound Settings] User clicked Stop All Sounds. Triggering global command via store.'
+    )
+    triggerGlobalAudioStop() // ONLY set the timestamp in Zustand
+    // The AudioPlayerCore instances will react to this timestamp change.
   }
 
   const processBatchFiles = async (files: FileList | null) => {
@@ -145,7 +121,6 @@ export const PlaySoundSettings: FC = () => {
     const totalFiles = files.length
     let filesProcessed = 0
     console.info(`[PlaySound Settings] Starting batch import of ${totalFiles} files...`)
-
     for (let i = 0; i < totalFiles; i++) {
       const file = files[i]
       const validAudioTypes = [
@@ -178,8 +153,8 @@ export const PlaySoundSettings: FC = () => {
       `[PlaySound Settings] Batch import finished. Processed ${filesProcessed}/${totalFiles}.`
     )
     alert(`Batch import complete. Processed ${filesProcessed} of ${totalFiles} files.`)
-    fetchCachedFilesData(true) // Refresh button count
-    if (manageCacheDialogOpen) fetchCachedFilesData(false) // Refresh dialog list if open
+    fetchCachedFilesData(true)
+    if (manageCacheDialogOpen) fetchCachedFilesData(false)
     setTimeout(() => setBatchImportProgress(0), 1500)
   }
 
@@ -213,7 +188,7 @@ export const PlaySoundSettings: FC = () => {
       <Typography variant="overline">Global Audio Control</Typography>
       <Button
         variant="outlined"
-        color="primary" // Changed from secondary for consistency or preference
+        color="primary"
         onClick={handleOpenManageCacheDialog}
         startIcon={<Storage />}
         fullWidth
@@ -232,7 +207,7 @@ export const PlaySoundSettings: FC = () => {
       <Button
         variant="contained"
         color="error"
-        onClick={handleStopAllSoundsFromSettings} // Renamed to avoid conflict if stopAllPlayers was also directly used
+        onClick={handleActualStopAllSounds}
         startIcon={<StopCircle />}
         fullWidth
         size="small"
@@ -249,8 +224,6 @@ export const PlaySoundSettings: FC = () => {
       >
         <DialogTitle>Manage Cached Audio Snippets</DialogTitle>
         <DialogContent dividers>
-          {' '}
-          {/* Added dividers */}
           <input
             type="file"
             multiple
@@ -270,7 +243,7 @@ export const PlaySoundSettings: FC = () => {
               mb: 2,
               textAlign: 'center',
               cursor: 'pointer',
-              bgcolor: isBatchImportDragging ? 'action.hover' : 'transparent', // Use theme action.hover
+              bgcolor: isBatchImportDragging ? 'action.hover' : 'transparent',
               borderRadius: 1
             }}
           >
@@ -280,21 +253,18 @@ export const PlaySoundSettings: FC = () => {
             </Typography>
           </Box>
           {isBatchImporting && (
-            <LinearProgress variant="determinate" value={batchImportProgress} sx={{ mb: 1 }} /> // Changed my to mb
+            <LinearProgress variant="determinate" value={batchImportProgress} sx={{ mb: 1 }} />
           )}
-          {isLoadingDialogList ? ( // Show loader for dialog list
+          {isLoadingDialogList && cachedFilesList.length === 0 ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
               <CircularProgress />
             </Box>
           ) : cachedFilesList.length === 0 ? (
             <Typography sx={{ p: 2, textAlign: 'center' }} color="textSecondary">
-              No audio snippets cached in IndexedDB.
+              No audio snippets cached.
             </Typography>
           ) : (
-            <List
-              dense
-              sx={{ maxHeight: 300, overflow: 'auto', pr: 1 /* Add padding for scrollbar */ }}
-            >
+            <List dense sx={{ maxHeight: 300, overflow: 'auto', pr: 1 }}>
               {cachedFilesList.map((file) => (
                 <ListItem
                   key={file.id}
@@ -340,6 +310,3 @@ export const PlaySoundSettings: FC = () => {
     </Paper>
   )
 }
-
-// No default export if this is imported by PlaySound.tsx (orchestrator)
-// export default PlaySoundSettings;
