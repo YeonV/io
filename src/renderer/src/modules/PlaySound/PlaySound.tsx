@@ -16,7 +16,14 @@ export const id = 'playsound-module'
 export const moduleConfig: ModuleConfig<PlaySoundModuleCustomConfig> = {
   menuLabel: 'Audio',
   inputs: [], // This module is an output-only module
-  outputs: [{ name: 'Play Sound', icon: 'audiotrack', editable: true }], // Output is editable
+  outputs: [
+    {
+      name: 'Play Sound',
+      icon: 'audiotrack',
+      editable: true,
+      supportedContexts: ['electron', 'web']
+    }
+  ], // Output is editable
   config: {
     enabled: true
     // No specific dynamic config for the module itself yet

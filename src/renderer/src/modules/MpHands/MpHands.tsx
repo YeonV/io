@@ -32,7 +32,7 @@ export const id = 'mphands-module'
 
 export const moduleConfig: ModuleConfig<HandsModuleCustomConfig> = {
   menuLabel: 'A.I.',
-  inputs: [{ name: 'Hand Gesture', icon: 'sign_language' }],
+  inputs: [{ name: 'Hand Gesture', icon: 'sign_language', supportedContexts: ['electron', 'web'] }],
   outputs: [],
   config: {
     enabled: true,

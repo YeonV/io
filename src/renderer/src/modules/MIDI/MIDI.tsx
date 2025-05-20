@@ -36,7 +36,9 @@ export const id = 'midi-module'
 
 export const moduleConfig: ModuleConfig<MidiModuleCustomConfig> = {
   menuLabel: 'Input Device',
-  inputs: [{ name: 'MIDI Note', icon: 'piano', editable: true }], // Changed name for clarity
+  inputs: [
+    { name: 'MIDI Note', icon: 'piano', editable: true, supportedContexts: ['electron', 'web'] }
+  ], // Changed name for clarity
   outputs: [],
   config: {
     enabled: true, // This module is available in dropdowns by default

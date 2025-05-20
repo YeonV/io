@@ -7,6 +7,7 @@ export type Input = {
   name: string
   icon: string
   editable?: boolean
+  supportedContexts?: ModuleContext[]
 }
 export type InputData = Input & { data: Record<string, any> }
 
@@ -14,6 +15,7 @@ export type Output = {
   name: string
   icon: string
   editable?: boolean
+  supportedContexts?: ModuleContext[]
 }
 
 export type OutputData = Output & {
@@ -49,6 +51,7 @@ export type IOModule = {
 export type ModuleDefaultConfig = {
   enabled: boolean
 }
+export type ModuleContext = 'electron' | 'web'
 
 // T now represents ONLY the custom fields
 export type ModuleConfig<T = {}> = {

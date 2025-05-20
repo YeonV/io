@@ -16,7 +16,8 @@ export const moduleConfig: ModuleConfig<SayConfigExample> = {
     {
       name: 'say',
       icon: 'record_voice_over',
-      editable: true
+      editable: true,
+      supportedContexts: ['electron', 'web']
     }
   ],
   config: {

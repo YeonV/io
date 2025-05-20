@@ -20,7 +20,8 @@ export const moduleConfig: ModuleConfig<AlertConfigExample> = {
     {
       name: 'alert',
       icon: 'info',
-      editable: true
+      editable: true,
+      supportedContexts: ['electron', 'web']
     }
   ],
   config: {
