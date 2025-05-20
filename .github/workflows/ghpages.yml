@@ -21,6 +21,12 @@ jobs:
           node-version: 20.x # Recommended: Use a current LTS like 18.x or 20.x
           cache: 'yarn' # Enable caching for yarn dependencies
 
+      - name: Install Linux dependencies for robotjs
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3
+
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
