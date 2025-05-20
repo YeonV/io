@@ -1,23 +1,12 @@
 import { produce } from 'immer'
-import { FC, useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  Button,
-  Stack,
-  Box,
-  Typography,
-  Divider,
-  Paper,
-  FormControlLabel,
-  Switch,
-  Collapse
-} from '@mui/material'
+import { FC, useCallback, useMemo, useState } from 'react'
+import { Button, Stack, Box, Typography, Divider, Collapse } from '@mui/material'
 import { v4 as uuidv4 } from 'uuid'
 import { InputSelector } from './InputSelector'
 import { OutputSelector } from './OutputSelector'
 import { useMainStore } from '@/store/mainStore'
-import type { Row, InputData, OutputData, ModuleId, ModuleConfig } from '@shared/types' // Ensure ModuleConfig is imported
+import type { Row, InputData, OutputData, ModuleId } from '@shared/types'
 import { moduleImplementations, type ModuleImplementationMap } from '@/modules/moduleRegistry'
-// import { log } from '@/utils'; // Using console.debug as per previous adjustment
 
 export interface PrefillData {
   inputModule: ModuleId
@@ -90,10 +79,6 @@ export const IoNewRow: FC<IoNewRowProps> = ({
       : false
   )
 
-  const [rowEnabledState, setRowEnabledState] = useState(
-    isEditMode && editRowProp ? editRowProp.enabled : true
-  )
-
   const inputModuleStaticConfig = useMemo(() => {
     if (!templateRow.inputModule) return undefined
     return allModulesFromStore[templateRow.inputModule]
@@ -105,9 +90,6 @@ export const IoNewRow: FC<IoNewRowProps> = ({
   }, [templateRow.outputModule, allModulesFromStore])
 
   const isCurrentInputActuallyEditableByModuleDef = useMemo(() => {
-    // In ADD mode, this flag is not the primary decider for showing InputEdit,
-    // we just check if InputEdit component exists.
-    // In EDIT mode, this flag (based on moduleConfig.editable) IS the decider.
     if (!templateRow.inputModule || !templateRow.input || !inputModuleStaticConfig) return false
     const inputsArray = Array.isArray(inputModuleStaticConfig.inputs)
       ? inputModuleStaticConfig.inputs
@@ -234,7 +216,6 @@ export const IoNewRow: FC<IoNewRowProps> = ({
 
     let triggerNextPrefill: PrefillData | null = null
     if (!isEditMode && templateRow.inputModule === 'alexa-module' && finalInput.data) {
-      // ensure finalInput.data exists
       if (separateOffAction) {
         finalInput.data.triggerState = 'on'
         triggerNextPrefill = {
@@ -257,7 +238,7 @@ export const IoNewRow: FC<IoNewRowProps> = ({
       const updatesForEdit: Partial<Row> = {
         input: finalInput,
         output: finalOutput,
-        enabled: rowEnabledState
+        enabled: isEditMode && editRowProp ? editRowProp.enabled : true
       }
       console.debug(
         '[IoNewRow] Calling editRowAction for ID:',
@@ -309,7 +290,6 @@ export const IoNewRow: FC<IoNewRowProps> = ({
     return undefined
   }, [templateRow.outputModule, templateRow.output])
 
-  // Determine if the InputEdit/OutputEdit components should be shown
   const showInputEditComponent =
     templateRow.inputModule &&
     SelectedModuleInputEdit &&
@@ -319,19 +299,15 @@ export const IoNewRow: FC<IoNewRowProps> = ({
     SelectedModuleOutputEdit &&
     (isEditMode ? isCurrentOutputActuallyEditableByModuleDef : true)
 
-  // Determine message for non-configurable input
   let inputConfigMessage = ''
   if (templateRow.inputModule) {
-    // Only show a message if a module is selected
     if (isEditMode && !isCurrentInputActuallyEditableByModuleDef) {
       inputConfigMessage = "This input's configuration cannot be edited."
     } else if (!isEditMode && !SelectedModuleInputEdit) {
-      // In add mode, show if no InputEdit FC
       inputConfigMessage = 'This input type has no specific options to configure.'
     }
   }
 
-  // Determine message for non-configurable output
   let outputConfigMessage = ''
   if (templateRow.outputModule) {
     if (isEditMode && !isCurrentOutputActuallyEditableByModuleDef) {
@@ -420,22 +396,21 @@ export const IoNewRow: FC<IoNewRowProps> = ({
               />
             </Box>
           </Collapse>
-          {inputConfigMessage &&
-            !showInputEditComponent && ( // Show message only if InputEdit isn't shown but a module is selected
-              <Typography
-                sx={{
-                  mt: 1,
-                  p: 1,
-                  color: 'text.secondary',
-                  fontSize: '0.8rem',
-                  border: '1px dashed',
-                  borderColor: 'divider',
-                  borderRadius: 1
-                }}
-              >
-                {inputConfigMessage}
-              </Typography>
-            )}
+          {inputConfigMessage && !showInputEditComponent && (
+            <Typography
+              sx={{
+                mt: 1,
+                p: 1,
+                color: 'text.secondary',
+                fontSize: '0.8rem',
+                border: '1px dashed',
+                borderColor: 'divider',
+                borderRadius: 1
+              }}
+            >
+              {inputConfigMessage}
+            </Typography>
+          )}
           {!templateRow.inputModule && !isInputTypeLocked && (
             <Typography sx={{ mt: 1, color: 'text.disabled', fontSize: '0.8rem' }}>
               {' '}
@@ -466,22 +441,21 @@ export const IoNewRow: FC<IoNewRowProps> = ({
               />
             </Box>
           </Collapse>
-          {outputConfigMessage &&
-            !showOutputEditComponent && ( // Show message only if OutputEdit isn't shown but a module is selected
-              <Typography
-                sx={{
-                  mt: 1,
-                  p: 1,
-                  color: 'text.secondary',
-                  fontSize: '0.8rem',
-                  border: '1px dashed',
-                  borderColor: 'divider',
-                  borderRadius: 1
-                }}
-              >
-                {outputConfigMessage}
-              </Typography>
-            )}
+          {outputConfigMessage && !showOutputEditComponent && (
+            <Typography
+              sx={{
+                mt: 1,
+                p: 1,
+                color: 'text.secondary',
+                fontSize: '0.8rem',
+                border: '1px dashed',
+                borderColor: 'divider',
+                borderRadius: 1
+              }}
+            >
+              {outputConfigMessage}
+            </Typography>
+          )}
           {!templateRow.outputModule && !isOutputTypeLocked && (
             <Typography sx={{ mt: 1, color: 'text.disabled', fontSize: '0.8rem' }}>
               {' '}
@@ -490,30 +464,9 @@ export const IoNewRow: FC<IoNewRowProps> = ({
           )}
         </Box>
       </Stack>
-
-      {/* {isEditMode && (
-        <Paper variant="outlined" sx={{ mt: 3, p: 2 }}>
-          <Typography variant="overline" display="block" sx={{ mb: 1 }}>
-            {' '}
-            Row Status{' '}
-          </Typography>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={rowEnabledState}
-                onChange={(e) => setRowEnabledState(e.target.checked)}
-                size="small"
-              />
-            }
-            label={rowEnabledState ? 'Row Active' : 'Row Inactive'}
-          />
-        </Paper>
-      )} */}
-
       <Stack direction="row" sx={{ justifyContent: 'flex-end', mt: 3, gap: 1 }}>
         <Button variant="outlined" size="small" onClick={onComplete} sx={{ minWidth: 90 }}>
-          {' '}
-          Cancel{' '}
+          Cancel
         </Button>
         <Button
           variant="contained"

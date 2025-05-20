@@ -68,7 +68,7 @@ export interface DeckState {
   activateIoProfile: (profileId: string | null) => Promise<void> // Tells main app to switch
 
   // Internal helper for syncing (not typically called directly from components)
-  _syncSingleDeckTileOverride: (
+  syncSingleDeckTileOverride: (
     profileId: string,
     rowId: string,
     tileData: DeckTileLayout
@@ -216,7 +216,7 @@ export const useDeckStore = create<DeckState>()(
         })
 
         if (finalTileState) {
-          get()._syncSingleDeckTileOverride(profileId, rowId, finalTileState)
+          get().syncSingleDeckTileOverride(profileId, rowId, finalTileState)
         }
       },
 
@@ -257,12 +257,12 @@ export const useDeckStore = create<DeckState>()(
         })
 
         if (finalTileState) {
-          get()._syncSingleDeckTileOverride(profileId, rowId, finalTileState)
+          get().syncSingleDeckTileOverride(profileId, rowId, finalTileState)
         }
       },
 
       // Internal helper to POST a single tile's full Deck override state (layout + appearance) to main app
-      _syncSingleDeckTileOverride: async (
+      syncSingleDeckTileOverride: async (
         profileId: string,
         rowId: string,
         tileData: DeckTileLayout
