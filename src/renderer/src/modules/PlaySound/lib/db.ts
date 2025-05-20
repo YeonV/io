@@ -1,8 +1,8 @@
-// src/renderer/src/lib/db.ts
-import { v4 as uuidv4 } from 'uuid' // For generating audio IDs if needed
+// src/renderer/src/modules/PlaySound/lib/db.ts
+import { v4 as uuidv4 } from 'uuid'
 
 const DB_NAME = 'IO_AudioCache_DB'
-const DB_VERSION = 1 // Increment this if you change schema in onupgradeneeded
+const DB_VERSION = 1
 const AUDIO_STORE_NAME = 'audioSnippets'
 
 interface AudioRecord {
@@ -51,9 +51,8 @@ export async function addAudioToDB(
   mimeType: string,
   audioBuffer: ArrayBuffer
 ): Promise<string> {
-  // Returns the new audioId
   const db = await openDB()
-  const audioId = uuidv4() // Generate a unique ID for this audio entry
+  const audioId = uuidv4()
 
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(AUDIO_STORE_NAME, 'readwrite')
@@ -99,9 +98,8 @@ export async function getAudioBufferFromDB(audioId: string): Promise<AudioRecord
   })
 }
 
-export async function getAllAudioInfoFromDB(): Promise<
-  Pick<AudioRecord, 'id' | 'originalFileName' | 'dateAdded'>[]
-> {
+export async function getAllAudioInfoFromDB(): Promise<AudioRecord[]> {
+  // Return full AudioRecord for flexibility
   const db = await openDB()
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(AUDIO_STORE_NAME, 'readonly')
@@ -110,13 +108,8 @@ export async function getAllAudioInfoFromDB(): Promise<
 
     request.onsuccess = () => {
       const allRecords = request.result as AudioRecord[]
-      resolve(
-        allRecords.map((r) => ({
-          id: r.id,
-          originalFileName: r.originalFileName,
-          dateAdded: r.dateAdded
-        }))
-      )
+      // Caller can map to Pick<...> if needed
+      resolve(allRecords)
     }
     request.onerror = (event) => {
       console.error('[DB] Error fetching all audio info:', (event.target as IDBRequest).error)
@@ -161,5 +154,5 @@ export async function clearAllAudioFromDB(): Promise<void> {
   })
 }
 
-// Call openDB once when the app loads to initialize it if needed
-openDB().catch((err) => console.error('Failed to initialize Audio DB on app load:', err))
+// Initialize DB connection when module loads (or app starts if this is imported early)
+openDB().catch((err) => console.error('[DB] Failed to initialize Audio DB on module load:', err))

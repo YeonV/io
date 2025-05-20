@@ -225,12 +225,11 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
               flexGrow: 1,
               display: 'flex',
               alignItems: 'center',
-              color: 'text.secondary',
-              pointerEvents: 'none'
+              color: 'text.secondary'
             }}
           >
             {SelectedModuleOutputDisplay ? (
-              <SelectedModuleOutputDisplay output={row.output} />
+              <SelectedModuleOutputDisplay output={row.output} rowId={row.id} />
             ) : (
               <Help fontSize="large" sx={{ color: 'text.disabled' }} />
             )}
