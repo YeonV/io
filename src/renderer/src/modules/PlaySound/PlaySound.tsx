@@ -1,7 +1,7 @@
 // src/renderer/src/modules/PlaySound/PlaySoundModule.tsx
 
-import type { ModuleConfig, OutputData, Row } from '@shared/types'
-import { useEffect, useCallback } from 'react'
+import type { ModuleConfig, Row } from '@shared/types'
+import { useEffect } from 'react'
 import type { PlaySoundOutputData, PlaySoundModuleCustomConfig } from './PlaySound.types'
 import { getAudioBufferFromDB } from './lib/db' // For useOutputActions
 
@@ -204,7 +204,7 @@ export const useOutputActions = (row: Row) => {
         )
 
         if (outputData.cancelPrevious === undefined || outputData.cancelPrevious === true) {
-          activeAudioPlayers.forEach((player, key) => {
+          activeAudioPlayers.forEach((_player, key) => {
             if (key !== eventRowId) stopPlayer(key)
           })
         }

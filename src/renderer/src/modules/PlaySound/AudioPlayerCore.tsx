@@ -30,14 +30,12 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
   onEnded,
   onStopProp,
   onTimeUpdate,
-  externalCommand,
-  onCommandProcessed,
   onAudioElementCreated
 }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [duration, setDuration] = useState(0)
+  const [_duration, setDuration] = useState(0)
 
   const globalAudioCommandTimestamp = useMainStore((state) => state.globalAudioCommandTimestamp)
   const prevGlobalAudioCommandTimestampRef = useRef<string | null>(null)

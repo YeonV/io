@@ -10,7 +10,7 @@ import {
   Typography
 } from '@mui/material'
 import { Rnd, type ResizeEnable } from 'react-rnd' // Import ResizeEnable for explicit typing
-import { useDeckStore, type DeckTileLayout } from '@/store/deckStore' // Assuming path is correct
+import { useDeckStore } from '@/store/deckStore' // Assuming path is correct
 import { DarkMode, LightMode, Settings, Sync } from '@mui/icons-material'
 import DeckButton from '@/components/DeckButton' // Assuming path
 import 'react-resizable/css/styles.css'

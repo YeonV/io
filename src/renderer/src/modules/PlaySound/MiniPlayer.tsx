@@ -145,42 +145,42 @@ export const MiniPlayer: FC<MiniPlayerProps> = ({ rowId, outputData }) => {
   }, [rowId, outputData.loop])
 
   // --- CLICK HANDLERS ---
-  const handlePlayPauseToggle = useCallback(() => {
-    console.log(`[MiniPlayer ${rowId}] !!! PlayPauseToggle CLICKED !!!`)
-    const playerEntry = activeAudioPlayers.get(rowId)
-    const audioForAction = playerEntry?.audio
+  // const handlePlayPauseToggle = useCallback(() => {
+  //   console.log(`[MiniPlayer ${rowId}] !!! PlayPauseToggle CLICKED !!!`)
+  //   const playerEntry = activeAudioPlayers.get(rowId)
+  //   const audioForAction = playerEntry?.audio
 
-    if (audioForAction === managedAudioElementRef.current && audioForAction) {
-      // Ensure we're controlling the one we think we are
-      if (audioForAction.paused) {
-        audioForAction.play().catch((e) => console.error('[PlaySound MiniPlayer] Play error:', e))
-      } else {
-        audioForAction.pause()
-      }
-    } else if (audioSrcForPlayer) {
-      // If we have a src but no active player yet or ref mismatch
-      console.warn(
-        `[MiniPlayer ${rowId}] PlayPauseToggle: Ref mismatch or no player in map. Dispatching io_input.`
-      )
-      window.dispatchEvent(new CustomEvent('io_input', { detail: rowId }))
-    } else {
-      console.debug(
-        `[MiniPlayer ${rowId}] No audio src available for toggle, dispatching io_input to load & play.`
-      )
-      window.dispatchEvent(new CustomEvent('io_input', { detail: rowId }))
-    }
-  }, [rowId, audioSrcForPlayer])
+  //   if (audioForAction === managedAudioElementRef.current && audioForAction) {
+  //     // Ensure we're controlling the one we think we are
+  //     if (audioForAction.paused) {
+  //       audioForAction.play().catch((e) => console.error('[PlaySound MiniPlayer] Play error:', e))
+  //     } else {
+  //       audioForAction.pause()
+  //     }
+  //   } else if (audioSrcForPlayer) {
+  //     // If we have a src but no active player yet or ref mismatch
+  //     console.warn(
+  //       `[MiniPlayer ${rowId}] PlayPauseToggle: Ref mismatch or no player in map. Dispatching io_input.`
+  //     )
+  //     window.dispatchEvent(new CustomEvent('io_input', { detail: rowId }))
+  //   } else {
+  //     console.debug(
+  //       `[MiniPlayer ${rowId}] No audio src available for toggle, dispatching io_input to load & play.`
+  //     )
+  //     window.dispatchEvent(new CustomEvent('io_input', { detail: rowId }))
+  //   }
+  // }, [rowId, audioSrcForPlayer])
 
-  const handleStop = useCallback(() => {
-    console.log(`[MiniPlayer ${rowId}] !!! Stop CLICKED !!!`)
-    // Command the BaseAudioPlayer to stop, which will also call onStop.
-    // Or, directly call the global stopPlayer which targets the entry in activeAudioPlayers.
-    setPlayerCommand('stop') // Command BaseAudioPlayer
-    // stopPlayer(rowId); // This is more direct for ensuring cleanup from the map.
-    // Let's use the command for now, if BaseAudioPlayer handles it.
-    // Actually, for global map management, stopPlayer(rowId) is better.
-    stopPlayer(rowId)
-  }, [rowId])
+  // const handleStop = useCallback(() => {
+  //   console.log(`[MiniPlayer ${rowId}] !!! Stop CLICKED !!!`)
+  //   // Command the BaseAudioPlayer to stop, which will also call onStop.
+  //   // Or, directly call the global stopPlayer which targets the entry in activeAudioPlayers.
+  //   setPlayerCommand('stop') // Command BaseAudioPlayer
+  //   // stopPlayer(rowId); // This is more direct for ensuring cleanup from the map.
+  //   // Let's use the command for now, if BaseAudioPlayer handles it.
+  //   // Actually, for global map management, stopPlayer(rowId) is better.
+  //   stopPlayer(rowId)
+  // }, [rowId])
 
   const handleCommandProcessed = useCallback(() => {
     setPlayerCommand(null)

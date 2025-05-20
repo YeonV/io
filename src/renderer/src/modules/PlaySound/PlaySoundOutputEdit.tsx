@@ -6,18 +6,9 @@ import {
   Box,
   Button,
   Typography,
-  Paper,
   Stack,
   IconButton,
   Tooltip,
-  Dialog, // Keep if manage cache dialog is part of settings, not here
-  DialogTitle,
-  DialogContent,
-  List,
-  ListItem,
-  ListItemText,
-  DialogActions,
-  ListItemIcon,
   SelectChangeEvent,
   FormControl,
   InputLabel,
@@ -25,36 +16,26 @@ import {
   CircularProgress,
   MenuItem,
   Divider,
-  Switch,
-  FormControlLabel,
-  Slider // Assuming Slider was intended for volume
+  Slider
 } from '@mui/material'
 import {
   Audiotrack,
   FolderOpen,
-  StopCircle, // For preview player stop
   PlayArrow,
   Pause as PauseIcon,
   Cached,
-  RepeatOne, // For Loop off
-  Loop as LoopIcon, // For Loop on
-  LayersClear, // For Cancel Previous true
-  Layers, // For Cancel Previous false
+  RepeatOne,
+  Loop as LoopIcon,
+  LayersClear,
+  Layers,
   VolumeUp
 } from '@mui/icons-material'
 import type { PlaySoundOutputData } from './PlaySound.types'
-import {
-  addAudioToDB,
-  getAudioBufferFromDB,
-  getAllAudioInfoFromDB
-  // deleteAudioFromDB, // Not typically used in OutputEdit directly
-  // clearAllAudioFromDB, // Not typically used in OutputEdit directly
-} from './lib/db'
-// Import a reference to the shared previewPlayer and its stop function
+import { addAudioToDB, getAudioBufferFromDB, getAllAudioInfoFromDB } from './lib/db'
 import { previewPlayer, stopPlayer as stopAnyPlayer } from './PlaySound'
 
 export interface PlaySoundOutputEditProps {
-  output: OutputData // This is row.output
+  output: OutputData
   onChange: (dataChanges: Partial<PlaySoundOutputData>) => void
 }
 
@@ -135,7 +116,7 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
     }
   }
 
-  const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => file.arrayBuffer()
+  // const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => file.arrayBuffer()
 
   const processFile = async (file: File | null | undefined) => {
     if (!file) return
