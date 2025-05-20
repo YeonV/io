@@ -50,7 +50,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [22.x]
+        node-version: [20.x]
 
         os: [macos-latest, ubuntu-latest, windows-latest]
         # os: [ubuntu-latest, windows-latest]
@@ -71,17 +71,29 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Install Linux dependencies for robotjs
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev libgconf-2-4 build-essential python3
+        # libx11-dev provides Xutil.h
+        # libxtst-dev is often needed for XTest extension (sending events)
+        # libpng++-dev might be needed for screen capture parts of robotjs (good to have)
+        # libxkbfile-dev for keyboard mapping
+        # libsecret-1-dev and libgconf-2-4 are common Electron build dependencies on Linux
+        # build-essential provides make, g++, etc.
+        # python3 is needed for node-gyp
       - name: Install Node Modules
-        run: yarn
+        run: yarn install --frozen-lockfile
 
       - name: Build Non-Win project
         if: matrix.OSNAME != 'win'
@@ -106,4 +118,4 @@ jobs:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
           asset_path: ./dist/io-${{ needs.create_release.outputs.current-version}}-${{matrix.FILEPART}}.${{matrix.OSEND}}
           asset_name: io.${{matrix.OSEND}}
-          asset_content_type: application/${{matrix.OSEND}}
+          asset_content_type: application/octet-stream
