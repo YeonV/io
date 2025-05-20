@@ -84,7 +84,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev libgconf-2-4 build-essential python3
+          sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3
         # libx11-dev provides Xutil.h
         # libxtst-dev is often needed for XTest extension (sending events)
         # libpng++-dev might be needed for screen capture parts of robotjs (good to have)
