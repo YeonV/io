@@ -10,7 +10,7 @@
 <!-- Add more relevant badges as your project grows -->
 
 <p align="center">
-  <img width="400" src="https://user-images.githubusercontent.com/28861537/164577641-6264ac42-c9a7-4859-a307-4bdcbf00321d.png#gh-dark-mode-only" alt="IO Application Screenshot - Dark Mode" style="max-width: 450px; border-radius: 8px; margin: 10px;" />
+  <img width="400" src="https://github.com/user-attachments/assets/99497aee-7eaa-4fcf-a409-e51be6d289e5#gh-dark-mode-only" alt="IO Application Screenshot - Dark Mode" style="max-width: 450px; border-radius: 8px; margin: 10px;" />
   <img width="400" src="https://user-images.githubusercontent.com/28861537/164577765-eb489963-cc7c-4f82-a126-7f1582574930.png#gh-light-mode-only" alt="IO Application Screenshot - Light Mode" style="max-width: 450px; border-radius: 8px; margin: 10px;" />
 </p>
 
