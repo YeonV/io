@@ -7,67 +7,77 @@ on:
 
 jobs:
   build:
-    name: Build
-    if: "startsWith(github.event.head_commit.message, 'web:')"
+    name: Build Web App
+    if: "startsWith(github.event.head_commit.message, 'web:')" # Trigger on commit messages starting with 'web:'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4 # Updated
 
-      - name: Install Node.js
-        uses: actions/setup-node@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4 # Updated
         with:
-          node-version: 16.x
+          node-version: 20.x # Recommended: Use a current LTS like 18.x or 20.x
+          cache: 'yarn' # Enable caching for yarn dependencies
 
-      - name: Install NPM packages
-        run: yarn
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
 
-      - name: Build project
-        run: GHPAGES=TRUE yarn build
+      - name: Build project for GitHub Pages
+        env:
+          # This env var is used by your build script to set the correct base path for Vite
+          # Ensure your vite.config.ts or build script uses this.
+          # Example: base: process.env.GHPAGES === 'TRUE' ? '/io/' : '/'
+          GHPAGES: 'TRUE' 
+        run: yarn build # Assumes your build script handles output to ./dist/renderer
 
       - name: Upload production-ready build files
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4 # Updated
         with:
-          name: production-files
-          path: ./dist/renderer
+          name: production-web-files # More specific name
+          path: ./dist/renderer # Path to your web build output
 
   deploy:
-    name: Deploy
-    needs: build
+    name: Deploy to GitHub Pages
+    needs: build # Depends on the build job completing successfully
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    # This job will only run if the build job ran (due to 'web:' commit) AND it's a push to the main branch.
+    # The 'if' condition from the build job implicitly carries over because of 'needs'.
+    # If you want to be extra explicit or have different conditions for deploy:
+    if: "github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'web:')"
 
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4 # Updated
         with:
-          name: production-files
-          path: ./dist/renderer
+          name: production-web-files # Must match the upload name
+          path: ./dist/renderer # Download to the same path structure expected by gh-pages action
 
       - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v3
+        uses: peaceiris/actions-gh-pages@v4 # Updated to v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist/renderer
+          # Optional: add user_name and user_email if needed for commit attribution
+          # user_name: 'github-actions[bot]'
+          # user_email: 'github-actions[bot]@users.noreply.github.com'
+          # Optional: commit_message: 'Deploy web release to GitHub Pages'
 
-      - name: Send Discord-Message
-        uses: Ilshidur/action-discord@0.3.2
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-
-  discord:
-    name: Discord OnWebRelease
-    needs: deploy
-    if: "startsWith(github.event.head_commit.message, 'web:')"
+  notify_discord: # Renamed job for clarity
+    name: Notify Discord of Web Release
+    needs: deploy # Depends on successful deployment
     runs-on: ubuntu-latest
+    # This job will only run if deploy job ran (due to 'web:' commit and main branch)
+    if: "github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'web:') && success()" # success() ensures deploy job was successful
+
     steps:
-      - name: Send Discord-Message
-        if: env.DISCORD_WEBHOOK != null
-        uses: Ilshidur/action-discord@0.3.2
+      - name: Send Discord Release Message
+        uses: Ilshidur/action-discord@0.3.2 # This action is a bit old, consider alternatives if issues arise
         env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_RELEASE_WEBHOOK }} # Use the specific release webhook
         with:
           args: |
-            New Web Release
-            [IO](https://yeonv.github.io/io/)
+            🚀 New IO Web Version Deployed! 🚀
+            Access it here: https://yeonv.github.io/io/
+            Commit: `${{ github.event.head_commit.message }}`
