@@ -1,21 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
   <head>
     <meta charset="UTF-8" />
     <!-- <link rel="icon" type="image/svg+xml" href="/src/assets/favicon.svg" /> -->
-    <link rel="icon" type="image/png" href="/io/assets/icon.f1bbd896.png" />
+    <link rel="icon" type="image/png" href="./assets/icon-CRKChYjf.png" />
+    <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" /> -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- <meta
-      http-equiv="Content-Security-Policy"
-      content="script-src 'self' 'unsafe-inline';"
-    /> -->
     <title>io</title>
-    <script type="module" crossorigin src="/io/assets/index.8ced4bd1.js"></script>
-    <link rel="stylesheet" href="/io/assets/index.5cc0b047.css">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self' data: blob: filesystem: ws: wss: mqtt: http://localhost:8888 http://localhost:1337 https://cdn.jsdelivr.net/npm/@mediapipe/; script-src 'self' 'unsafe-eval' https://cdn.jsdelivr.net/npm/@mediapipe/; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self' data: blob: filesystem:; connect-src 'self' data: blob: ws: wss: mqtt: http://localhost:8888 http://localhost:1337 https://cdn.jsdelivr.net/npm/@mediapipe/ http: https:;"
+    />
+    <style>
+      @font-face {
+        font-family: 'Material Icons';
+        font-style: normal;
+        font-weight: 400;
+        src:
+          local('Material Icons'),
+          local('MaterialIcons-Regular'),
+          url('./assets/MaterialIcons-kAwBdRge.woff2') format('woff2');
+      }
+      .material-icons {
+        font-family: 'Material Icons';
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px; /* Adjust size as needed */
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        display: inline-block;
+        white-space: nowrap;
+        word-wrap: normal;
+        direction: ltr;
+        -webkit-font-feature-settings: 'liga';
+        font-feature-settings: 'liga';
+        -webkit-font-smoothing: antialiased;
+      }
+    </style>
+    <script type="module" crossorigin src="./assets/index-CSdEUjsw.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BdrUtvyR.css">
   </head>
+
   <body>
     <div id="root"></div>
-    <canvas style="height: 150px; width: 150px; position: absolute; bottom:0;" id="video-canvas"></canvas>
-    
   </body>
 </html>
