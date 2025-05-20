@@ -41,7 +41,7 @@ jobs:
         uses: actions/upload-artifact@v4 # Updated
         with:
           name: production-web-files # More specific name
-          path: ./dist/renderer # Path to your web build output
+          path: ./out/renderer # Path to your web build output
 
   deploy:
     name: Deploy to GitHub Pages
