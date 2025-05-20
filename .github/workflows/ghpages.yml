@@ -35,7 +35,7 @@ jobs:
           # Ensure your vite.config.ts or build script uses this.
           # Example: base: process.env.GHPAGES === 'TRUE' ? '/io/' : '/'
           GHPAGES: 'TRUE' 
-        run: yarn build # Assumes your build script handles output to ./dist/renderer
+        run: yarn build && ls -la # Assumes your build script handles output to ./dist/renderer
 
       - name: Upload production-ready build files
         uses: actions/upload-artifact@v4 # Updated
