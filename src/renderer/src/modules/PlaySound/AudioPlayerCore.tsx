@@ -1,11 +1,12 @@
 // src/renderer/src/modules/PlaySound/AudioPlayerCore.tsx
 import type { FC } from 'react'
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { Stack, IconButton, Tooltip, LinearProgress } from '@mui/material'
+import { Stack, IconButton, Tooltip, LinearProgress, Typography } from '@mui/material'
 import { PlayArrow, Pause as PauseIcon, StopCircle } from '@mui/icons-material'
 import { useMainStore } from '@/store/mainStore'
 
 interface AudioPlayerCoreProps {
+  title?: string
   audioSrc?: string | null
   volume?: number
   loop?: boolean
@@ -21,6 +22,7 @@ interface AudioPlayerCoreProps {
 }
 
 export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
+  title,
   audioSrc,
   volume = 1.0,
   loop = false,
@@ -242,8 +244,33 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
     }
   }, [onStopProp])
 
+  const namePart = title?.replace('.mp3', '')
+  const displayName = namePart
+    ? namePart?.length > 17
+      ? `${namePart.substring(0, 17)}...`
+      : namePart
+    : undefined
+
   return (
-    <Stack direction="row" spacing={0.5} alignItems="center" sx={{ px: 0.5, width: '100%' }}>
+    <Stack direction="row" spacing={1} alignItems="center" sx={{ width: '100%' }}>
+      <Stack sx={{ flexGrow: 1, pr: 1 }}>
+        {title && (
+          <Tooltip title={namePart} placement="top" arrow>
+            <Typography variant="caption">{displayName}</Typography>
+          </Tooltip>
+        )}
+        <LinearProgress
+          variant="determinate"
+          value={!audioSrc ? 0 : progress}
+          sx={{
+            flexGrow: 1,
+            height: 6,
+            borderRadius: 3,
+            mt: '3px',
+            bgcolor: !audioSrc ? 'action.disabledBackground' : undefined
+          }}
+        />
+      </Stack>
       <Tooltip title={isPlaying ? 'Pause' : 'Play'}>
         <span>
           <IconButton onClick={handlePlayPauseToggle} size="small" disabled={!audioSrc}>
@@ -262,16 +289,6 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
           </IconButton>
         </span>
       </Tooltip>
-      <LinearProgress
-        variant="determinate"
-        value={!audioSrc ? 0 : progress}
-        sx={{
-          flexGrow: 1,
-          height: 6,
-          borderRadius: 3,
-          bgcolor: !audioSrc ? 'action.disabledBackground' : undefined
-        }}
-      />
     </Stack>
   )
 }

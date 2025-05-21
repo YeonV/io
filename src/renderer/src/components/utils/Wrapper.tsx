@@ -26,6 +26,7 @@ import logo from '@/assets/icon.png'
 import logoTitle from '@/assets/logo-cropped.svg'
 import pkg from '../../../../../package.json'
 import { useMainStore } from '@/store/mainStore'
+import FiledropProvider from './FiledropProvider'
 
 // import { Link } from 'react-router-dom'
 
@@ -111,100 +112,103 @@ const Wrapper = ({ children }: any) => {
   }
 
   return (
-    <Box
-      sx={{
-        bgcolor: 'background.default',
-        color: 'text.primary',
-        overflowX: 'hidden'
-      }}
-      className={styles.app}
-    >
-      <div
-        className={styles.appWrapper}
-        style={{
-          margin: '0 auto',
-          justifyContent: 'space-between',
-          minHeight: ipcRenderer && pkg.env.VITRON_CUSTOM_TITLEBAR ? 'calc(100vh - 30px)' : '100vh'
+    <FiledropProvider>
+      <Box
+        sx={{
+          bgcolor: 'background.default',
+          color: 'text.primary',
+          overflowX: 'hidden'
         }}
+        className={styles.app}
       >
-        <header className={styles.logos}>
-          <img src={logo} style={{ width: '100px', filter: 'invert(0)' }} alt="logoIO" />
-          <div className={styles.imgBox}>
-            <img
-              src={logoTitle}
-              style={{ width: '480px', filter: 'invert(0)' }}
-              alt="InputOutput"
-            />
-          </div>
-        </header>
-        <main style={{ width: '100%', maxWidth: 960 }}>
-          {children}
-
-          {!ipcRenderer && (
-            <Typography variant="body2" color="#666" sx={{ mt: 5 }}>
-              If you are accessing this site via httpS, but want to communicate with your local
-              network (mqtt, http, ws), you need to allow insecure content in your browser&apos;s
-              site settings either via lock icon next to the url or copy:
-              <br />
-              <code>{`chrome://settings/content/siteDetails?site=${encodeURIComponent(
-                window.location.href.replace(/\/+$/, '')
-              )}`}</code>
-            </Typography>
-          )}
-        </main>
-        <footer
+        <div
+          className={styles.appWrapper}
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
+            margin: '0 auto',
+            justifyContent: 'space-between',
+            minHeight:
+              ipcRenderer && pkg.env.VITRON_CUSTOM_TITLEBAR ? 'calc(100vh - 30px)' : '100vh'
           }}
         >
-          <div style={{ flexBasis: '150px' }}></div>
-          <Typography>hacked by Blade </Typography>
-          <div style={{ flexBasis: '225px' }}>
-            {/* DEV ONLY - NUKE BUTTON */}
-            {process.env.NODE_ENV === 'development' &&
-              ipcRenderer && ( // Show only in dev + Electron
-                <Tooltip title="DEV ONLY: Reset All App Data">
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                    onClick={handleNukeEverything}
-                    startIcon={<DeleteSweep />}
-                    sx={{ mr: 1, fontSize: '0.7rem' }}
-                  >
-                    Nuke All
-                  </Button>
-                </Tooltip>
+          <header className={styles.logos}>
+            <img src={logo} style={{ width: '100px', filter: 'invert(0)' }} alt="logoIO" />
+            <div className={styles.imgBox}>
+              <img
+                src={logoTitle}
+                style={{ width: '480px', filter: 'invert(0)' }}
+                alt="InputOutput"
+              />
+            </div>
+          </header>
+          <main style={{ width: '100%', maxWidth: 960 }}>
+            {children}
+
+            {!ipcRenderer && (
+              <Typography variant="body2" color="#666" sx={{ mt: 5 }}>
+                If you are accessing this site via httpS, but want to communicate with your local
+                network (mqtt, http, ws), you need to allow insecure content in your browser&apos;s
+                site settings either via lock icon next to the url or copy:
+                <br />
+                <code>{`chrome://settings/content/siteDetails?site=${encodeURIComponent(
+                  window.location.href.replace(/\/+$/, '')
+                )}`}</code>
+              </Typography>
+            )}
+          </main>
+          <footer
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}
+          >
+            <div style={{ flexBasis: '150px' }}></div>
+            <Typography>hacked by Blade </Typography>
+            <div style={{ flexBasis: '225px' }}>
+              {/* DEV ONLY - NUKE BUTTON */}
+              {process.env.NODE_ENV === 'development' &&
+                ipcRenderer && ( // Show only in dev + Electron
+                  <Tooltip title="DEV ONLY: Reset All App Data">
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={handleNukeEverything}
+                      startIcon={<DeleteSweep />}
+                      sx={{ mr: 1, fontSize: '0.7rem' }}
+                    >
+                      Nuke All
+                    </Button>
+                  </Tooltip>
+                )}
+              {process.env.NODE_ENV === 'development' && (
+                <IconButton
+                  onClick={() => {
+                    window.open(
+                      `${location.protocol}//${location.hostname}:1337/deck`,
+                      '_blank',
+                      'noopener,noreferrer'
+                    )
+                  }}
+                  sx={{ opacity: 0.3 }}
+                >
+                  <GridView color="primary" />
+                </IconButton>
               )}
-            {process.env.NODE_ENV === 'development' && (
               <IconButton
                 onClick={() => {
-                  window.open(
-                    `${location.protocol}//${location.hostname}:1337/deck`,
-                    '_blank',
-                    'noopener,noreferrer'
-                  )
+                  // setDarkMode(!darkMode)
+                  toggleDarkmode()
                 }}
                 sx={{ opacity: 0.3 }}
               >
-                <GridView color="primary" />
+                {darkMode ? <LightMode color="primary" /> : <DarkMode color="primary" />}
               </IconButton>
-            )}
-            <IconButton
-              onClick={() => {
-                // setDarkMode(!darkMode)
-                toggleDarkmode()
-              }}
-              sx={{ opacity: 0.3 }}
-            >
-              {darkMode ? <LightMode color="primary" /> : <DarkMode color="primary" />}
-            </IconButton>
-          </div>
-        </footer>
-      </div>
-    </Box>
+            </div>
+          </footer>
+        </div>
+      </Box>
+    </FiledropProvider>
   )
 }
 

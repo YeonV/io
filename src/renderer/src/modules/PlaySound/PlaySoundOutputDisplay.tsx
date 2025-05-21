@@ -14,7 +14,7 @@ export interface PlaySoundOutputDisplayProps {
 
 export const PlaySoundOutputDisplay: FC<PlaySoundOutputDisplayProps> = ({ output, rowId }) => {
   const data = output.data as PlaySoundOutputData
-  const displayFileName = data.originalFileName || 'No file selected'
+  // const displayFileName = data.originalFileName || 'No file selected'
 
   // Determine what extra info to show (Loop, Parallel)
   const displayInfoBadges: JSX.Element[] = []
@@ -48,14 +48,17 @@ export const PlaySoundOutputDisplay: FC<PlaySoundOutputDisplayProps> = ({ output
         <DisplayButtons data={{ ...output, name: 'Play Sound' }} />
 
         <Stack sx={{ textAlign: 'left', flexGrow: 1, overflow: 'hidden', minWidth: 0 }}>
-          <Tooltip title={displayFileName}>
+          {/* <Tooltip title={displayFileName}>
             <Typography variant="body2" noWrap>
               {displayFileName.length > 20
                 ? `${displayFileName.substring(0, 17)}...`
                 : displayFileName}
             </Typography>
-          </Tooltip>
-          {displayInfoBadges.length > 0 && (
+          </Tooltip> */}
+          {/* Render the MiniPlayer for interactive controls */}
+          {/* Only render MiniPlayer if an audioId is actually configured */}
+          {data.audioId && data.originalFileName && <MiniPlayer rowId={rowId} outputData={data} />}
+          {/* {displayInfoBadges.length > 0 && (
             <Box
               sx={{
                 display: 'flex',
@@ -67,12 +70,9 @@ export const PlaySoundOutputDisplay: FC<PlaySoundOutputDisplayProps> = ({ output
             >
               {displayInfoBadges}
             </Box>
-          )}
+          )} */}
         </Stack>
       </Box>
-      {/* Render the MiniPlayer for interactive controls */}
-      {/* Only render MiniPlayer if an audioId is actually configured */}
-      {data.audioId && data.originalFileName && <MiniPlayer rowId={rowId} outputData={data} />}
     </Box>
   )
 }

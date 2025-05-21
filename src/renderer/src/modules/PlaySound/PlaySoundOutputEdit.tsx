@@ -7,7 +7,7 @@ import {
   Button,
   Typography,
   Stack,
-  IconButton,
+  // IconButton,
   Tooltip,
   SelectChangeEvent,
   FormControl,
@@ -15,8 +15,8 @@ import {
   Select,
   CircularProgress,
   MenuItem,
-  Divider,
-  Slider
+  Divider
+  // Slider
 } from '@mui/material'
 import {
   Audiotrack,
@@ -25,10 +25,11 @@ import {
   Pause as PauseIcon,
   Cached,
   RepeatOne,
-  Loop as LoopIcon,
+  // Loop as LoopIcon,
   LayersClear,
   Layers,
-  VolumeUp
+  // VolumeUp,
+  Repeat
 } from '@mui/icons-material'
 import type { PlaySoundOutputData } from './PlaySound.types'
 import { addAudioToDB, getAudioBufferFromDB, getAllAudioInfoFromDB } from './lib/db'
@@ -160,6 +161,7 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
       processFile(event.dataTransfer.files[0])
   }
   const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
+    console.log('[PlaySound OutputEdit] Dragging over drop area')
     event.preventDefault()
     event.stopPropagation()
     setIsDraggingOver(true)
@@ -170,8 +172,9 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
     setIsDraggingOver(false)
   }
 
-  const handleVolumeChange = (_event: Event, newValue: number | number[]) =>
-    onChange({ volume: parseFloat((newValue as number).toFixed(2)) })
+  // const handleVolumeChange = (_event: Event, newValue: number | number[]) =>
+  //   onChange({ volume: parseFloat((newValue as number).toFixed(2)) })
+
   const handleCancelPreviousToggle = () =>
     onChange({
       cancelPrevious: !(currentData.cancelPrevious === undefined
@@ -262,14 +265,12 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
   }
 
   return (
-    <Box sx={{ mt: 1 }}>
-      {' '}
-      {/* Changed from Paper to Box, or keep Paper if you prefer the distinct background */}
-      <FormControl fullWidth size="small" disabled={isLoadingCache} sx={{ mb: 2 }}>
-        <InputLabel id="cached-audio-select-label">Select Cached Sound</InputLabel>
+    <>
+      <FormControl fullWidth size="medium" disabled={isLoadingCache} sx={{ mt: '4px', mb: '0' }}>
+        <InputLabel id="cached-audio-select-label">Select Sound</InputLabel>
         <Select
           labelId="cached-audio-select-label"
-          label="Select Cached Sound"
+          label="Select Sound"
           value={currentData.audioId || ''}
           onChange={handleCachedAudioSelect}
           startAdornment={
@@ -281,14 +282,13 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
           }
         >
           <MenuItem value="">
-            <em>None / Add New Sound Below</em>
+            <em>None / Add New Below</em>
           </MenuItem>
           {cachedAudioFiles.map((file) => (
             <MenuItem key={file.id} value={file.id}>
-              {' '}
               {file.originalFileName.length > 40
                 ? `${file.originalFileName.substring(0, 37)}...`
-                : file.originalFileName}{' '}
+                : file.originalFileName}
             </MenuItem>
           ))}
         </Select>
@@ -302,12 +302,12 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
           onChange={handleHiddenInputChange}
         />
         <Box
-          onClick={handleSelectFileClick} // Now triggers file input even if a file is selected
+          onClick={handleSelectFileClick}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           sx={{
-            border: `2px dashed ${isDraggingOver ? 'primary.dark' : 'grey.400'}`,
+            border: `2px dashed ${isDraggingOver ? '#999' : '#666'}`,
             borderRadius: 1,
             p: 2,
             textAlign: 'center',
@@ -317,119 +317,99 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            bgcolor: isDraggingOver ? 'primary.lightest' : 'transparent',
+            bgcolor: isDraggingOver ? 'primary.lightest' : 'transparent', // Updated colors
             transition: 'background-color 0.2s ease-in-out, border-color 0.2s ease-in-out'
           }}
         >
           <Audiotrack sx={{ fontSize: 30, color: 'text.secondary', mb: 1 }} />
           {currentData.audioId && currentData.originalFileName ? (
-            <Stack alignItems="center" spacing={0.5}>
+            <Stack alignItems="center" spacing={1}>
               <Tooltip title={currentData.originalFileName}>
                 <Typography variant="body2" noWrap sx={{ maxWidth: '100%' }}>
                   {currentData.originalFileName}
                 </Typography>
               </Tooltip>
-              <Stack direction="row" spacing={1} mt={0.5}>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleSelectFileClick()
-                  }}
-                  size="small"
-                  variant="text"
-                  startIcon={<FolderOpen />}
-                >
-                  Change File
-                </Button>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handlePreview()
-                  }}
-                  size="small"
-                  variant="text"
-                  startIcon={
-                    isPreviewPlaying && previewPlayer.src === previewBlobUrl ? (
-                      <PauseIcon />
-                    ) : (
-                      <PlayArrow />
-                    )
-                  }
-                  color={
-                    isPreviewPlaying && previewPlayer.src === previewBlobUrl ? 'warning' : 'primary'
-                  }
-                >
-                  {isPreviewPlaying && previewPlayer.src === previewBlobUrl ? 'Stop' : 'Preview'}
-                </Button>
-              </Stack>
             </Stack>
           ) : (
             <Typography variant="body2" color="text.secondary">
-              Drop audio file, or click to select new
+              Drop audio file, or click to select
             </Typography>
           )}
         </Box>
-
-        <Divider sx={{ pt: 1 }} />
-        <Stack direction="row" justifyContent="space-around" alignItems="center" sx={{ pt: 1 }}>
-          <Tooltip
-            title={
-              currentData.volume === undefined || typeof currentData.volume !== 'number'
-                ? 'Volume: Default (100%)'
-                : `Volume: ${Math.round(currentData.volume * 100)}%`
-            }
+        <Stack direction="row" spacing={1} justifyContent={'center'}>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation()
+              handleSelectFileClick()
+            }}
+            size="small"
+            variant="text"
+            startIcon={<FolderOpen />}
           >
-            <VolumeUp
-              sx={{ color: currentData.volume === 0 ? 'text.disabled' : 'action.active' }}
-            />
-          </Tooltip>
+            Change
+          </Button>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation()
+              handlePreview()
+            }}
+            size="small"
+            variant="text"
+            startIcon={isPreviewPlaying ? <PauseIcon /> : <PlayArrow />}
+            color={isPreviewPlaying ? 'warning' : 'primary'}
+          >
+            {isPreviewPlaying ? 'Stop' : 'Preview'}
+          </Button>
+        </Stack>
+        {/* <Box>
+          <Typography gutterBottom variant="caption">
+            Volume
+          </Typography>{' '}
           <Slider
-            value={currentData.volume === undefined ? 1 : currentData.volume}
+            value={currentData.volume ?? 1}
             onChange={handleVolumeChange}
             min={0}
             max={1}
             step={0.01}
-            sx={{ flexGrow: 1, mx: 2 }}
-            aria-label="Volume"
+            valueLabelDisplay="auto"
+            marks={[
+              { value: 0, label: 'Mute' },
+              { value: 0.5, label: '50%' },
+              { value: 1, label: '100%' }
+            ]}
           />
-          <Typography variant="caption" sx={{ minWidth: '3ch', textAlign: 'right' }}>
-            {Math.round((currentData.volume ?? 1) * 100)}%
-          </Typography>
-        </Stack>
-        <Stack direction="row" justifyContent="space-around" alignItems="center">
-          <Tooltip
-            title={
-              (currentData.cancelPrevious ?? true)
-                ? 'Mode: Stop other sounds first'
-                : 'Mode: Play in parallel'
-            }
-          >
-            <IconButton
-              onClick={handleCancelPreviousToggle}
-              size="medium"
-              color={(currentData.cancelPrevious ?? true) ? 'primary' : 'default'}
-            >
-              {(currentData.cancelPrevious ?? true) ? <LayersClear /> : <Layers />}
-            </IconButton>
-          </Tooltip>
-          <Typography variant="body2" sx={{ flexGrow: 1, textAlign: 'center' }}>
-            {(currentData.cancelPrevious ?? true) ? 'Stop Others' : 'Play Parallel'}
-          </Typography>
-          <Tooltip title={currentData.loop ? 'Playback: Looping' : 'Playback: Play Once'}>
-            <IconButton
-              onClick={handleLoopToggle}
-              size="medium"
-              color={currentData.loop ? 'primary' : 'default'}
-            >
-              {currentData.loop ? <LoopIcon /> : <RepeatOne />}
-            </IconButton>
-          </Tooltip>
-          <Typography variant="body2" sx={{ flexGrow: 1, textAlign: 'center' }}>
-            {currentData.loop ? 'Loop' : 'Play Once'}
-          </Typography>
-        </Stack>
+        </Box> */}
+        <Divider />
+        <Button
+          variant="text"
+          sx={{ textTransform: 'capitalize', justifyContent: 'flex-start' }}
+          startIcon={
+            currentData.cancelPrevious ? (
+              <LayersClear sx={{ fontSize: '1.2rem' }} />
+            ) : (
+              <Layers sx={{ fontSize: '1.2rem' }} />
+            )
+          }
+          onClick={handleCancelPreviousToggle}
+        >
+          {currentData.cancelPrevious ? 'Stop other sounds' : 'Play in parallel'}
+        </Button>
+        <Button
+          variant="text"
+          sx={{ textTransform: 'capitalize', justifyContent: 'flex-start' }}
+          startIcon={
+            currentData.loop ? (
+              <Repeat sx={{ fontSize: '1.2rem' }} />
+            ) : (
+              <RepeatOne sx={{ fontSize: '1.2rem' }} />
+            )
+          }
+          onClick={handleLoopToggle}
+        >
+          {currentData.loop ? 'Looping' : 'Play once (Loop off)'}
+        </Button>
       </Stack>
-    </Box>
+    </>
   )
 }
 
