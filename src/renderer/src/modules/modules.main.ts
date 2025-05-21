@@ -2,6 +2,7 @@
 
 import type { IOMainModulePart } from '../../../shared/types'
 import alexaMain from './Alexa/Alexa.main'
+import gamepadMain from './Gamepad/Gamepad.main'
 import keyboardMain from './Keyboard/Keyboard.main'
 import mqttMain from './MQTT/MQTT.main'
 import restMain from './REST/REST.main'
@@ -10,6 +11,7 @@ import timeMain from './Time/Time.main'
 
 export const mainModuleHandlers: IOMainModulePart[] = [
   alexaMain,
+  gamepadMain,
   keyboardMain,
   mqttMain,
   restMain,
