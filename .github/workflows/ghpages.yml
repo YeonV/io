@@ -23,11 +23,11 @@ jobs:
 
       - name: Install Linux dependencies for robotjs
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3
+          rm -rf yarn.lock
+          node ./scripts/prepare-web-build.js
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install
 
       - name: Build project for GitHub Pages
         env:
@@ -35,7 +35,7 @@ jobs:
           # Ensure your vite.config.ts or build script uses this.
           # Example: base: process.env.GHPAGES === 'TRUE' ? '/io/' : '/'
           GHPAGES: 'TRUE' 
-        run: yarn build && ls -la # Assumes your build script handles output to ./dist/renderer
+        run: yarn build:web
 
       - name: Upload production-ready build files
         uses: actions/upload-artifact@v4 # Updated

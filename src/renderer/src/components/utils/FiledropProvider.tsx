@@ -262,6 +262,9 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
             outlineOffset: '-3px',
             boxSizing: 'border-box'
           }}
+          onClick={() => {
+            setIsWindowBeingDraggedOver(false)
+          }}
         >
           <Box
             sx={{

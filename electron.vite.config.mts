@@ -2,18 +2,20 @@ import { resolve } from 'path'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import react from '@vitejs/plugin-react'
 
+const isWebBuild = process.env.BUILD_TARGET === 'web'
+// const isGhPagesBuild = process.env.GHPAGES === 'TRUE'
+
 export default defineConfig({
-  main: {
-    plugins: [externalizeDepsPlugin()]
-    // resolve: {
-    //   alias: {
-    //     '@': resolve('src/renderer/src')
-    //   }
-    // }
-  },
-  preload: {
-    plugins: [externalizeDepsPlugin()]
-  },
+  main: isWebBuild
+    ? undefined
+    : {
+        plugins: [externalizeDepsPlugin()]
+      },
+  preload: isWebBuild
+    ? undefined
+    : {
+        plugins: [externalizeDepsPlugin()]
+      },
   renderer: {
     resolve: {
       alias: {
