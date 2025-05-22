@@ -12782,6 +12782,26 @@ const extractConnectionInformation = (store, extensionConnector, options) => {
   trackedConnections.set(options.name, newConnection);
   return { type: "tracked", store, ...newConnection };
 };
+const removeStoreFromTrackedConnections = (name, store) => {
+  if (store === void 0) return;
+  const connectionInfo = trackedConnections.get(name);
+  if (!connectionInfo) return;
+  delete connectionInfo.stores[store];
+  if (Object.keys(connectionInfo.stores).length === 0) {
+    trackedConnections.delete(name);
+  }
+};
+const findCallerName = (stack) => {
+  var _a, _b;
+  if (!stack) return void 0;
+  const traceLines = stack.split("\n");
+  const apiSetStateLineIndex = traceLines.findIndex(
+    (traceLine) => traceLine.includes("api.setState")
+  );
+  if (apiSetStateLineIndex < 0) return void 0;
+  const callerLine = ((_a = traceLines[apiSetStateLineIndex + 1]) == null ? void 0 : _a.trim()) || "";
+  return (_b = /.+ (.+) .+/.exec(callerLine)) == null ? void 0 : _b[1];
+};
 const devtoolsImpl = (fn2, devtoolsOptions = {}) => (set2, get, api) => {
   const { enabled, anonymousActionType, store, ...options } = devtoolsOptions;
   let extensionConnector;
@@ -12797,7 +12817,8 @@ const devtoolsImpl = (fn2, devtoolsOptions = {}) => (set2, get, api) => {
   api.setState = (state, replace2, nameOrAction) => {
     const r2 = set2(state, replace2);
     if (!isRecording) return r2;
-    const action = nameOrAction === void 0 ? { type: anonymousActionType || "anonymous" } : typeof nameOrAction === "string" ? { type: nameOrAction } : nameOrAction;
+    const inferredActionType = findCallerName(new Error().stack);
+    const action = nameOrAction === void 0 ? { type: anonymousActionType || inferredActionType || "anonymous" } : typeof nameOrAction === "string" ? { type: nameOrAction } : nameOrAction;
     if (store === void 0) {
       connection == null ? void 0 : connection.send(action, get());
       return r2;
@@ -12813,6 +12834,14 @@ const devtoolsImpl = (fn2, devtoolsOptions = {}) => (set2, get, api) => {
       }
     );
     return r2;
+  };
+  api.devtools = {
+    cleanup: () => {
+      if (connection && typeof connection.unsubscribe === "function") {
+        connection.unsubscribe();
+      }
+      removeStoreFromTrackedConnections(options.name, store);
+    }
   };
   const setStateFromDevtools = (...a2) => {
     const originalIsRecording = isRecording;
@@ -12982,10 +13011,7 @@ function createJSONStorage(getStorage, options) {
       }
       return parse2(str);
     },
-    setItem: (name, newValue) => storage.setItem(
-      name,
-      JSON.stringify(newValue, void 0)
-    ),
+    setItem: (name, newValue) => storage.setItem(name, JSON.stringify(newValue, void 0)),
     removeItem: (name) => storage.removeItem(name)
   };
   return persistStorage;
@@ -38681,16 +38707,19 @@ function shallow(valueA, valueB) {
   if (typeof valueA !== "object" || valueA === null || typeof valueB !== "object" || valueB === null) {
     return false;
   }
-  if (!isIterable(valueA) || !isIterable(valueB)) {
-    return compareEntries(
-      { entries: () => Object.entries(valueA) },
-      { entries: () => Object.entries(valueB) }
-    );
+  if (Object.getPrototypeOf(valueA) !== Object.getPrototypeOf(valueB)) {
+    return false;
   }
-  if (hasIterableEntries(valueA) && hasIterableEntries(valueB)) {
-    return compareEntries(valueA, valueB);
+  if (isIterable(valueA) && isIterable(valueB)) {
+    if (hasIterableEntries(valueA) && hasIterableEntries(valueB)) {
+      return compareEntries(valueA, valueB);
+    }
+    return compareIterables(valueA, valueB);
   }
-  return compareIterables(valueA, valueB);
+  return compareEntries(
+    { entries: () => Object.entries(valueA) },
+    { entries: () => Object.entries(valueB) }
+  );
 }
 function useShallow(selector) {
   const prev2 = e$1.useRef(void 0);
@@ -50186,871 +50215,50 @@ const midiModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePr
   useGlobalActions: useGlobalActions$7,
   useInputActions: useInputActions$8
 }, Symbol.toStringTag, { value: "Module" }));
-function mqttTopicMatch(topic, pattern) {
-  if (pattern === "#") {
-    return !topic.startsWith("$");
-  }
-  if (pattern === topic) {
-    return true;
-  }
-  const patternSegments = pattern.split("/");
-  const topicSegments = topic.split("/");
-  if (patternSegments.length > topicSegments.length) {
-    return false;
-  }
-  if (patternSegments[patternSegments.length - 1] === "#") {
-    if (patternSegments.length - 1 > topicSegments.length) return false;
-    for (let i2 = 0; i2 < patternSegments.length - 1; i2++) {
-      if (patternSegments[i2] !== "+" && patternSegments[i2] !== topicSegments[i2]) {
-        return false;
-      }
-    }
-    return true;
-  }
-  if (patternSegments.length !== topicSegments.length) {
-    return false;
-  }
-  for (let i2 = 0; i2 < patternSegments.length; i2++) {
-    if (patternSegments[i2] === "+") {
-      continue;
-    }
-    if (patternSegments[i2] !== topicSegments[i2]) {
-      return false;
-    }
-  }
-  return true;
-}
-const ipcRenderer$6 = window.electron?.ipcRenderer;
-const id$c = "mqtt-module";
+const id$c = "mpfacedetect-module";
 const moduleConfig$c = {
-  menuLabel: "Network & Web",
-  inputs: [{ icon: "rss_feed", name: "MQTT Message Received", editable: true }],
-  outputs: [{ icon: "publish", name: "Publish MQTT Message", editable: true }],
-  config: {
-    enabled: true,
-    brokerConnections: [
-      {
-        id: v4(),
-        name: "Local Mosquitto (Example)",
-        host: "mqtt://localhost:1883",
-        clientId: `io_client_${Math.random().toString(16).slice(2, 6)}`
-      }
-    ]
-  }
-};
-const BrokerProfileDialog = ({ open, onClose, onSave, initialProfile }) => {
-  const [profileName, setProfileName] = reactExports.useState("");
-  const [host, setHost] = reactExports.useState("mqtt://");
-  const [username, setUsername] = reactExports.useState("");
-  const [password, setPassword] = reactExports.useState("");
-  const [clientId, setClientId] = reactExports.useState("");
-  const [currentProfileId, setCurrentProfileId] = reactExports.useState(null);
-  reactExports.useEffect(() => {
-    if (open) {
-      if (initialProfile) {
-        setProfileName(initialProfile.name || "");
-        setHost(initialProfile.host || "mqtt://");
-        setUsername(initialProfile.username || "");
-        setPassword(initialProfile.password || "");
-        setClientId(initialProfile.clientId || "");
-        setCurrentProfileId(initialProfile.id);
-      } else {
-        setProfileName("");
-        setHost("mqtt://");
-        setUsername("");
-        setPassword("");
-        setClientId(`io_client_${Math.random().toString(16).slice(2, 10)}`);
-        setCurrentProfileId(null);
-      }
-    }
-  }, [open, initialProfile]);
-  const handleSaveAction = () => {
-    if (!profileName.trim() || !host.trim()) {
-      alert("Profile Name and Host URL are required.");
-      return;
-    }
-    if (!host.startsWith("mqtt://") && !host.startsWith("ws://") && !host.startsWith("mqtts://") && !host.startsWith("wss://")) {
-      alert("Host URL must start with a valid protocol (e.g., mqtt://, ws://, mqtts://, wss://).");
-      return;
-    }
-    onSave({
-      id: currentProfileId || v4(),
-      // Use existing ID if editing, else new
-      name: profileName,
-      host,
-      username,
-      password,
-      clientId
-    });
-    onClose();
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    Dialog,
-    {
-      open,
-      onClose,
-      maxWidth: "xs",
-      fullWidth: true,
-      PaperProps: {
-        component: "form",
-        onSubmit: (e2) => {
-          e2.preventDefault();
-          handleSaveAction();
-        }
-      },
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
-          initialProfile ? "Edit" : "Add New",
-          " MQTT Broker Profile"
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 2, sx: { mt: 1 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            TextField,
-            {
-              label: "Profile Name",
-              value: profileName,
-              onChange: (e2) => setProfileName(e2.target.value),
-              fullWidth: true,
-              autoFocus: true,
-              required: true
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            TextField,
-            {
-              label: "Host URL (e.g., mqtt://host:port)",
-              value: host,
-              onChange: (e2) => setHost(e2.target.value),
-              fullWidth: true,
-              required: true
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            TextField,
-            {
-              label: "Username (Optional)",
-              value: username,
-              onChange: (e2) => setUsername(e2.target.value),
-              fullWidth: true
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            TextField,
-            {
-              label: "Password (Optional)",
-              type: "password",
-              value: password,
-              onChange: (e2) => setPassword(e2.target.value),
-              fullWidth: true
-            }
-          ),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(
-            TextField,
-            {
-              label: "Client ID (Optional)",
-              value: clientId,
-              onChange: (e2) => setClientId(e2.target.value),
-              fullWidth: true,
-              helperText: "Leave blank for auto-generated if supported by broker for custom."
-            }
-          )
-        ] }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: onClose, children: "Cancel" }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", variant: "contained", children: "Save Profile" })
-        ] })
-      ]
-    }
-  );
-};
-const Settings$3 = () => {
-  const moduleCfg = useMainStore(
-    (state) => state.modules[id$c]?.config
-  );
-  const brokerConnections = moduleCfg?.brokerConnections || [];
-  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
-  const [manageDialogOpen, setManageDialogOpen] = reactExports.useState(false);
-  const [addEditDialogOpen, setAddEditDialogOpen] = reactExports.useState(false);
-  const [editingProfile, setEditingProfile] = reactExports.useState(null);
-  const openAddDialog = () => {
-    setEditingProfile(null);
-    setAddEditDialogOpen(true);
-    setManageDialogOpen(false);
-  };
-  const openEditDialogFromManage = (profile) => {
-    setEditingProfile(profile);
-    setAddEditDialogOpen(true);
-    setManageDialogOpen(false);
-  };
-  const handleDeleteProfile = (profileId) => {
-    if (window.confirm("Delete profile? Rows using it will need reconfiguration.")) {
-      setModuleConfig(
-        id$c,
-        "brokerConnections",
-        brokerConnections.filter((p2) => p2.id !== profileId)
-      );
-    }
-  };
-  const handleSaveProfileCallback = (profileToSave) => {
-    let updatedConnections;
-    const existing = brokerConnections.find((p2) => p2.id === profileToSave.id);
-    if (existing) {
-      updatedConnections = brokerConnections.map(
-        (p2) => p2.id === profileToSave.id ? profileToSave : p2
-      );
-    } else {
-      updatedConnections = [...brokerConnections, profileToSave];
-    }
-    setModuleConfig(id$c, "brokerConnections", updatedConnections);
-    setAddEditDialogOpen(false);
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
-    Paper,
-    {
-      elevation: 2,
-      sx: { p: 2, minWidth: 250, display: "flex", flexDirection: "column", gap: 1 },
-      children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "overline", children: "MQTT Broker Profiles" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, {}),
-            onClick: () => setManageDialogOpen(true),
-            variant: "outlined",
-            size: "small",
-            sx: { height: 41 },
-            fullWidth: true,
-            children: [
-              "Manage Profiles (",
-              brokerConnections.length,
-              ")"
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
-          {
-            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(AddCircleOutline, {}),
-            onClick: openAddDialog,
-            variant: "outlined",
-            size: "small",
-            sx: { height: 41 },
-            fullWidth: true,
-            children: "Add New Profile"
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Dialog,
-          {
-            open: manageDialogOpen,
-            onClose: () => setManageDialogOpen(false),
-            fullWidth: true,
-            maxWidth: "sm",
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Manage MQTT Broker Profiles" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(List$1, { dense: true, children: [
-                brokerConnections.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  ListItem,
-                  {
-                    secondaryAction: /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        IconButton,
-                        {
-                          title: "Edit Profile",
-                          size: "small",
-                          onClick: () => openEditDialogFromManage(p2),
-                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, { fontSize: "small" })
-                        }
-                      ),
-                      /* @__PURE__ */ jsxRuntimeExports.jsx(
-                        IconButton,
-                        {
-                          title: "Delete Profile",
-                          size: "small",
-                          onClick: () => handleDeleteProfile(p2.id),
-                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Delete, { fontSize: "small" })
-                        }
-                      )
-                    ] }),
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(ListItemText, { primary: p2.name, secondary: p2.host })
-                  },
-                  p2.id
-                )),
-                brokerConnections.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(ListItem, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ListItemText, { secondary: "No profiles. Click 'Add New Profile' to create one." }) })
-              ] }) }),
-              /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: openAddDialog, startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(AddCircleOutline, {}), children: "Add New Profile" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: () => setManageDialogOpen(false), children: "Close" })
-              ] })
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          BrokerProfileDialog,
-          {
-            open: addEditDialogOpen,
-            onClose: () => setAddEditDialogOpen(false),
-            onSave: handleSaveProfileCallback,
-            initialProfile: editingProfile
-          }
-        )
-      ]
-    }
-  );
-};
-const InputEdit$8 = ({ input, onChange }) => {
-  const brokerProfiles = useMainStore(
-    (state) => state.modules[id$c]?.config?.brokerConnections || []
-  );
-  const currentData = input.data;
-  const [addProfileDialogOpen, setAddProfileDialogOpen] = reactExports.useState(false);
-  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
-  const handleProfileSelectChange = (event) => {
-    onChange({ profileId: event.target.value || void 0 });
-  };
-  const handleAddNewProfile = () => setAddProfileDialogOpen(true);
-  const handleSaveNewProfile = (profileToSave) => {
-    const newProfileWithId = { ...profileToSave, id: profileToSave.id || v4() };
-    const currentGlobalProfiles = useMainStore.getState().modules[id$c]?.config?.brokerConnections || [];
-    setModuleConfig(id$c, "brokerConnections", [...currentGlobalProfiles, newProfileWithId]);
-    onChange({ profileId: newProfileWithId.id });
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { mt: 2, display: "flex", flexDirection: "column", gap: 2 }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "textSecondary", children: "Broker Connection" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "center", gap: 0 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, margin: "dense", size: "small", sx: { flexGrow: 1 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: `mqtt-input-profile-label-${input.name}`, children: "Broker Profile *" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Select,
-          {
-            labelId: `mqtt-input-profile-label-${input.name}`,
-            value: currentData.profileId || "",
-            label: "Broker Profile *",
-            onChange: handleProfileSelectChange,
-            required: true,
-            sx: { height: "56px" },
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "", disabled: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: "Select a profile..." }) }),
-              brokerProfiles.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(MenuItem, { value: p2.id, children: [
-                p2.name,
-                " (",
-                p2.host,
-                ")"
-              ] }, p2.id))
-            ]
-          }
-        )
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Add New Broker Profile", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-        " ",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { onClick: handleAddNewProfile, size: "medium", sx: { mb: "4px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AddLink, {}) })
-      ] }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      BrokerProfileDialog,
-      {
-        open: addProfileDialogOpen,
-        onClose: () => setAddProfileDialogOpen(false),
-        onSave: handleSaveNewProfile,
-        initialProfile: null
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { sx: { my: 1 } }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "textSecondary", children: "Subscription Details" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      TextField,
-      {
-        label: "Topic to Subscribe *",
-        value: currentData.topic || "",
-        onChange: (e2) => onChange({ topic: e2.target.value }),
-        fullWidth: true,
-        size: "small",
-        margin: "dense",
-        required: true,
-        sx: { m: 0 }
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      TextField,
-      {
-        label: "JSONPath Filter (Optional)",
-        value: currentData.jsonPath || "",
-        onChange: (e2) => onChange({ jsonPath: e2.target.value }),
-        fullWidth: true,
-        size: "small",
-        margin: "dense",
-        helperText: "e.g., $.value or data.temperature",
-        sx: { m: 0 }
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "textSecondary", sx: { mt: 1 }, children: "Payload Condition (Optional)" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { container: true, spacing: 1, alignItems: "center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 7 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        TextField,
-        {
-          label: "Trigger if payload...",
-          value: currentData.matchPayload || "",
-          onChange: (e2) => onChange({ matchPayload: e2.target.value }),
-          fullWidth: true,
-          size: "small",
-          margin: "dense"
-        }
-      ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 5 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, size: "small", margin: "dense", disabled: !currentData.matchPayload, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { children: "Match Type" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Select,
-          {
-            value: currentData.matchType || "exact",
-            label: "Match Type",
-            onChange: (e2) => onChange({ matchType: e2.target.value }),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "exact", children: "Exactly Matches" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "contains", children: "Contains" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "regex", children: "Matches Regex" })
-            ]
-          }
-        )
-      ] }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(FormHelperText, { sx: { ml: 1 }, children: "empty triggers on any message..." })
-  ] });
-};
-const OutputEdit$5 = ({ output, onChange }) => {
-  const brokerProfiles = useMainStore(
-    (state) => state.modules[id$c]?.config?.brokerConnections || []
-  );
-  const currentData = output.data;
-  const [addProfileDialogOpen, setAddProfileDialogOpen] = reactExports.useState(false);
-  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
-  const handleProfileSelectChange = (event) => onChange({ profileId: event.target.value || void 0 });
-  const handleAddNewProfile = () => setAddProfileDialogOpen(true);
-  const handleSaveNewProfile = (profileToSave) => {
-    const newProfileWithId = { ...profileToSave, id: profileToSave.id || v4() };
-    const currentGlobalProfiles = useMainStore.getState().modules[id$c]?.config?.brokerConnections || [];
-    setModuleConfig(id$c, "brokerConnections", [...currentGlobalProfiles, newProfileWithId]);
-    onChange({ profileId: newProfileWithId.id });
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { mt: 2, display: "flex", flexDirection: "column", gap: 2 }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "textSecondary", children: "Broker Connection" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "flex-end", gap: 1 }, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, margin: "dense", size: "small", sx: { flexGrow: 1 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: `mqtt-output-profile-label-${output.name}`, children: "Broker Profile *" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Select,
-          {
-            labelId: `mqtt-output-profile-label-${output.name}`,
-            value: currentData.profileId || "",
-            label: "Broker Profile *",
-            onChange: handleProfileSelectChange,
-            required: true,
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "", disabled: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: "Select a profile..." }) }),
-              brokerProfiles.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(MenuItem, { value: p2.id, children: [
-                p2.name,
-                " (",
-                p2.host,
-                ")"
-              ] }, p2.id))
-            ]
-          }
-        ),
-        brokerProfiles.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(FormHelperText, { error: true, children: "No profiles. Add one with (+)." }),
-        !currentData.profileId && brokerProfiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(FormHelperText, { error: true, children: "Profile selection is required." })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Add New Broker Profile", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { onClick: handleAddNewProfile, size: "medium", sx: { mb: "4px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Add, {}) }) }) })
-    ] }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      BrokerProfileDialog,
-      {
-        open: addProfileDialogOpen,
-        onClose: () => setAddProfileDialogOpen(false),
-        onSave: handleSaveNewProfile,
-        initialProfile: null
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { sx: { my: 1 } }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "textSecondary", children: "Publication Details" }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      TextField,
-      {
-        label: "Topic to Publish *",
-        value: currentData.topic || "",
-        onChange: (e2) => onChange({ topic: e2.target.value }),
-        fullWidth: true,
-        size: "small",
-        margin: "dense",
-        required: true
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      TextField,
-      {
-        label: "Payload (Message) *",
-        value: currentData.payload || "",
-        onChange: (e2) => onChange({ payload: e2.target.value }),
-        fullWidth: true,
-        size: "small",
-        margin: "dense",
-        required: true,
-        multiline: true,
-        rows: 2
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { container: true, spacing: 1, alignItems: "center", children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-        FormControlLabel,
-        {
-          control: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            Switch,
-            {
-              size: "small",
-              checked: currentData.retain ?? false,
-              onChange: (e2) => onChange({ retain: e2.target.checked })
-            }
-          ),
-          label: "Retain"
-        }
-      ) }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, size: "small", margin: "dense", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { children: "QoS" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Select,
-          {
-            value: currentData.qos ?? 0,
-            label: "QoS",
-            onChange: (e2) => onChange({ qos: Number(e2.target.value) }),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: 0, children: "0" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: 1, children: "1" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: 2, children: "2" })
-            ]
-          }
-        )
-      ] }) })
-    ] })
-  ] });
-};
-function resolveBrokerConfigForRowDisplay(rowData, profiles) {
-  if (rowData.profileId) {
-    const profile = profiles.find((p2) => p2.id === rowData.profileId);
-    return profile ? { name: profile.name, host: profile.host } : { name: "Invalid/No Profile" };
-  }
-  return { name: "Profile Not Set" };
-}
-const InputDisplay$8 = ({ input }) => {
-  const d2 = input.data;
-  const ps = useMainStore(
-    (s2) => s2.modules[id$c]?.config?.brokerConnections || []
-  );
-  const brokerDisplay = resolveBrokerConfigForRowDisplay(d2, ps);
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "center", width: "100%", gap: 1, overflow: "hidden" }, children: [
-    " ",
-    /* @__PURE__ */ jsxRuntimeExports.jsx(DisplayButtons, { data: { ...input, name: "MQTT In" } }),
-    " ",
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Button,
-      {
-        size: "small",
-        disabled: true,
-        variant: "outlined",
-        color: "primary",
-        sx: {
-          fontSize: 10,
-          minWidth: "45px",
-          justifyContent: "flex-start",
-          mr: 1,
-          ml: -1
-        },
-        children: brokerDisplay.name
-      }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Button,
-      {
-        size: "small",
-        disabled: true,
-        variant: "outlined",
-        sx: {
-          fontSize: 10,
-          minWidth: "45px",
-          justifyContent: "flex-start",
-          mr: 1,
-          ml: -1
-        },
-        children: d2.topic || "N/A"
-      }
-    )
-  ] });
-};
-const OutputDisplay$5 = ({ output }) => {
-  const d2 = output.data;
-  const ps = useMainStore(
-    (s2) => s2.modules[id$c]?.config?.brokerConnections || []
-  );
-  const brokerDisplay = resolveBrokerConfigForRowDisplay(d2, ps);
-  const pl = d2.payload ? d2.payload.length > 15 ? d2.payload.substring(0, 12) + "..." : d2.payload : "N/A";
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "center", width: "100%", gap: 1, overflow: "hidden" }, children: [
-    " ",
-    /* @__PURE__ */ jsxRuntimeExports.jsx(DisplayButtons, { data: { ...output, name: "MQTT Out" } }),
-    " ",
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      Box,
-      {
-        sx: {
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-          flexGrow: 1,
-          textAlign: "left"
-        },
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { noWrap: true, variant: "body2", title: d2.topic, children: [
-            "T: ",
-            d2.topic || "N/A"
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { noWrap: true, variant: "caption", title: brokerDisplay.host, children: [
-            "B: ",
-            brokerDisplay.name
-          ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { noWrap: true, variant: "caption", title: d2.payload, children: [
-            "P: ",
-            pl
-          ] })
-        ]
-      }
-    ),
-    " "
-  ] });
-};
-function resolveBrokerConfigForRow(rowData, profiles) {
-  if (rowData.profileId) {
-    const profile = profiles.find((p2) => p2.id === rowData.profileId);
-    if (!profile) log$1.info1(`MQTT: Profile ID '${rowData.profileId}' not found in global profiles.`);
-    return profile || null;
-  }
-  log$1.info1("MQTT: resolveBrokerConfigForRow - No profileId in rowData.", rowData);
-  return null;
-}
-const useGlobalActions$6 = () => {
-  const [clientStatuses, setClientStatuses] = reactExports.useState({});
-  reactExports.useEffect(() => {
-    if (!ipcRenderer$6) return;
-    const listener = (_event, data) => {
-      log$1.info(
-        `MQTT Client Status [${data.host} / ${data.clientKey}]: ${data.status}`,
-        data.message || ""
-      );
-      log$1.info(`EYYYYYY`, clientStatuses);
-      setClientStatuses((prev2) => ({ ...prev2, [data.clientKey]: data.status }));
-    };
-    ipcRenderer$6.on("mqtt-client-status", listener);
-    return () => {
-      ipcRenderer$6.removeListener("mqtt-client-status", listener);
-    };
-  }, []);
-  return null;
-};
-const useInputActions$7 = (row) => {
-  const { input } = row;
-  const { isActive, inactiveReason } = useRowActivation(row);
-  const inputData = input.data;
-  const brokerProfiles = useMainStore(
-    (state) => state.modules[id$c]?.config?.brokerConnections || []
-  );
-  const clientKeyRef = reactExports.useRef(null);
-  reactExports.useEffect(() => {
-    if (!isActive) {
-      log$1.info(`Row ${row.id} actions not running. Reason: ${inactiveReason}.`);
-      return () => {
-      };
-    }
-    if (!ipcRenderer$6 || !inputData.profileId) {
-      clientKeyRef.current = null;
-      return;
-    }
-    const effectiveConfig = resolveBrokerConfigForRow(inputData, brokerProfiles);
-    if (!effectiveConfig || !inputData.topic) {
-      log$1.info1(`MQTT Input Row ${row.id}: No valid broker config or topic for subscription.`);
-      clientKeyRef.current = null;
-      return;
-    }
-    log$1.info(
-      `MQTT Input Row ${row.id}: Requesting subscription to topic '${inputData.topic}' on broker '${effectiveConfig.host}'`
-    );
-    ipcRenderer$6.invoke("mqtt-subscribe", {
-      brokerConfig: effectiveConfig,
-      topic: inputData.topic,
-      rowId: row.id
-    }).then((result) => {
-      if (result?.success && result.clientKey) clientKeyRef.current = result.clientKey;
-      else clientKeyRef.current = null;
-      log$1.info(
-        `MQTT Input Row ${row.id}: Subscribe IPC result (ClientKey: ${clientKeyRef.current}):`,
-        result
-      );
-    }).catch((err2) => {
-      log$1.error(`MQTT Input Row ${row.id}: Subscribe IPC error:`, err2);
-      clientKeyRef.current = null;
-    });
-    const messageListener = (_event, data) => {
-      log$1.info(
-        `MQTT Row ${row.id} messageListener: IPC data received. My clientKeyRef.current='${clientKeyRef.current}', My subscribed pattern='${inputData.topic}', Msg topic='${data.topic}'`
-      );
-      if (clientKeyRef.current && data.clientKey === clientKeyRef.current && mqttTopicMatch(data.topic, inputData.topic)) {
-        log$1.info(
-          `MQTT Input Row ${row.id} (ClientKey: ${clientKeyRef.current}): Matched message for topic pattern '${inputData.topic}' (actual: '${data.topic}'). Payload:`,
-          data.payloadString
-        );
-        let finalPayload = data.payloadString;
-        let extractedValueForMatching = data.payloadString;
-        if (inputData.jsonPath) {
-          try {
-            const parsed = JSON.parse(data.payloadString);
-            const parts = inputData.jsonPath.replace(/^\$\.?/, "").split(".");
-            let val = parsed;
-            for (const p2 of parts) {
-              if (val && typeof val === "object" && p2 in val) val = val[p2];
-              else {
-                val = void 0;
-                break;
-              }
-            }
-            finalPayload = val;
-            extractedValueForMatching = finalPayload;
-          } catch (e2) {
-            log$1.info1(
-              `MQTT Input Row ${row.id}: JSONPath error for '${inputData.jsonPath}' on payload '${data.payloadString}'. Using raw.`,
-              e2
-            );
-          }
-        }
-        let trigger = true;
-        if (inputData.matchPayload !== void 0 && inputData.matchPayload.trim() !== "") {
-          const actualPayloadToMatch = String(extractedValueForMatching);
-          const targetMatch = inputData.matchPayload;
-          switch (inputData.matchType) {
-            case "contains":
-              trigger = actualPayloadToMatch.includes(targetMatch);
-              break;
-            case "regex":
-              try {
-                trigger = new RegExp(targetMatch).test(actualPayloadToMatch);
-              } catch (e2) {
-                log$1.error(`MQTT Row ${row.id}: Invalid Regex: ${targetMatch}`, e2);
-                trigger = false;
-              }
-              break;
-            default:
-              trigger = actualPayloadToMatch === targetMatch;
-              break;
-          }
-          log$1.info(
-            `MQTT Row ${row.id}: Payload matching: '${actualPayloadToMatch}' ${inputData.matchType || "exact"} '${targetMatch}' -> ${trigger}`
-          );
-        }
-        if (trigger) {
-          log$1.success(`MQTT Row ${row.id}: Triggering action. Final payload:`, finalPayload);
-          window.dispatchEvent(
-            new CustomEvent("io_input", { detail: { rowId: row.id, payload: finalPayload } })
-          );
-        }
-      }
-    };
-    ipcRenderer$6.on("mqtt-message-received", messageListener);
-    return () => {
-      const currentEffectiveConfig = resolveBrokerConfigForRow(inputData, brokerProfiles);
-      if (ipcRenderer$6 && currentEffectiveConfig && inputData.topic) {
-        log$1.info(
-          `MQTT Input Row ${row.id}: Cleaning up. Unsubscribing from '${inputData.topic}' on '${currentEffectiveConfig.host}'`
-        );
-        ipcRenderer$6.invoke("mqtt-unsubscribe", {
-          brokerConfig: currentEffectiveConfig,
-          topic: inputData.topic,
-          rowId: row.id
-        });
-      }
-      ipcRenderer$6?.removeListener("mqtt-message-received", messageListener);
-      clientKeyRef.current = null;
-    };
-  }, [
-    inputData.profileId,
-    inputData.topic,
-    inputData.jsonPath,
-    inputData.matchPayload,
-    inputData.matchType,
-    row.id,
-    brokerProfiles,
-    row.enabled
-  ]);
-};
-const useOutputActions$5 = (row) => {
-  const { output } = row;
-  const outputData = output.data;
-  const brokerProfiles = useMainStore(
-    (state) => state.modules[id$c]?.config?.brokerConnections || []
-  );
-  reactExports.useEffect(() => {
-    if (!ipcRenderer$6 || !outputData.profileId) return;
-    const effectiveConfig = resolveBrokerConfigForRow(outputData, brokerProfiles);
-    const ioListener = (event) => {
-      const eventRowId = typeof event.detail === "object" && event.detail !== null ? event.detail.rowId : event.detail;
-      if (eventRowId === row.id) {
-        if (!effectiveConfig || !outputData.topic || outputData.payload === void 0) {
-          log$1.error(
-            `MQTT Output Row ${row.id}: Incomplete config (missing profile, topic, or payload). Cannot publish.`
-          );
-          return;
-        }
-        log$1.info(
-          `MQTT Output Row ${row.id}: Triggered. Publishing to '${outputData.topic}' on broker '${effectiveConfig.host}'`
-        );
-        const publishOptions = {
-          qos: outputData.qos ?? 0,
-          retain: outputData.retain ?? false
-        };
-        ipcRenderer$6.invoke("mqtt-publish", {
-          brokerConfig: effectiveConfig,
-          topic: outputData.topic,
-          payload: outputData.payload,
-          options: publishOptions
-        }).then((result) => log$1.info(`MQTT Output Row ${row.id}: Publish IPC result:`, result)).catch((err2) => log$1.error(`MQTT Output Row ${row.id}: Publish IPC error:`, err2));
-      }
-    };
-    window.addEventListener("io_input", ioListener);
-    return () => {
-      window.removeEventListener("io_input", ioListener);
-    };
-  }, [
-    row.id,
-    outputData.profileId,
-    outputData.topic,
-    outputData.payload,
-    outputData.qos,
-    outputData.retain,
-    brokerProfiles
-  ]);
-};
-const mqttModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  InputDisplay: InputDisplay$8,
-  InputEdit: InputEdit$8,
-  OutputDisplay: OutputDisplay$5,
-  OutputEdit: OutputEdit$5,
-  Settings: Settings$3,
-  id: id$c,
-  moduleConfig: moduleConfig$c,
-  useGlobalActions: useGlobalActions$6,
-  useInputActions: useInputActions$7,
-  useOutputActions: useOutputActions$5
-}, Symbol.toStringTag, { value: "Module" }));
-const id$b = "mpfacedetect-module";
-const moduleConfig$b = {
   menuLabel: "A.I.",
   inputs: [
     {
       name: "Face Detect",
       icon: "person_search"
+    }
+  ],
+  outputs: [],
+  config: {
+    enabled: false
+  }
+};
+const InputEdit$8 = ({ input, onChange }) => {
+  if (typeof onChange === "function") {
+    console.log("onChange");
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "left", marginTop: "10px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outlined", children: input?.data?.data?.value || "" }) });
+};
+const InputDisplay$8 = ({ input }) => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    " ",
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { children: camelToSnake(input.icon) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Shortkey, { value: input.data.data.value })
+  ] });
+};
+const useInputActions$7 = (_row) => {
+};
+const mpfacedetectModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  InputDisplay: InputDisplay$8,
+  InputEdit: InputEdit$8,
+  id: id$c,
+  moduleConfig: moduleConfig$c,
+  useInputActions: useInputActions$7
+}, Symbol.toStringTag, { value: "Module" }));
+const id$b = "mpfacemesh-module";
+const moduleConfig$b = {
+  menuLabel: "A.I.",
+  inputs: [
+    {
+      name: "Face Mesh",
+      icon: "emoji_emotions"
     }
   ],
   outputs: [],
@@ -51071,53 +50279,16 @@ const InputDisplay$7 = ({ input }) => {
     /* @__PURE__ */ jsxRuntimeExports.jsx(Shortkey, { value: input.data.data.value })
   ] });
 };
-const useInputActions$6 = (_row) => {
+const useInputActions$6 = (row) => {
+  console.log("FaceMesh", row);
 };
-const mpfacedetectModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const mpfacemeshModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   InputDisplay: InputDisplay$7,
   InputEdit: InputEdit$7,
   id: id$b,
   moduleConfig: moduleConfig$b,
   useInputActions: useInputActions$6
-}, Symbol.toStringTag, { value: "Module" }));
-const id$a = "mpfacemesh-module";
-const moduleConfig$a = {
-  menuLabel: "A.I.",
-  inputs: [
-    {
-      name: "Face Mesh",
-      icon: "emoji_emotions"
-    }
-  ],
-  outputs: [],
-  config: {
-    enabled: false
-  }
-};
-const InputEdit$6 = ({ input, onChange }) => {
-  if (typeof onChange === "function") {
-    console.log("onChange");
-  }
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "left", marginTop: "10px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outlined", children: input?.data?.data?.value || "" }) });
-};
-const InputDisplay$6 = ({ input }) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    " ",
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { children: camelToSnake(input.icon) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Shortkey, { value: input.data.data.value })
-  ] });
-};
-const useInputActions$5 = (row) => {
-  console.log("FaceMesh", row);
-};
-const mpfacemeshModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  InputDisplay: InputDisplay$6,
-  InputEdit: InputEdit$6,
-  id: id$a,
-  moduleConfig: moduleConfig$a,
-  useInputActions: useInputActions$5
 }, Symbol.toStringTag, { value: "Module" }));
 function getDotProduct(a2, b2) {
   return a2.x * b2.x + a2.y * b2.y + a2.z * b2.z;
@@ -54371,8 +53542,8 @@ function requireDist$1() {
 }
 var distExports = requireDist$1();
 const useRequestAnimationFrame = /* @__PURE__ */ getDefaultExportFromCjs(distExports);
-const id$9 = "mphands-module";
-const moduleConfig$9 = {
+const id$a = "mphands-module";
+const moduleConfig$a = {
   menuLabel: "A.I.",
   inputs: [{ name: "Hand Gesture", icon: "sign_language", supportedContexts: ["electron", "web"] }],
   outputs: [],
@@ -54381,8 +53552,8 @@ const moduleConfig$9 = {
     cameraActive: false
   }
 };
-const InputEdit$5 = ({ input, onChange }) => {
-  const handsModuleFullConfig = useMainStore((state) => state.modules[id$9]?.config);
+const InputEdit$6 = ({ input, onChange }) => {
+  const handsModuleFullConfig = useMainStore((state) => state.modules[id$a]?.config);
   const handsConfig = handsModuleFullConfig;
   const cameraActive = handsConfig?.cameraActive ?? false;
   const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
@@ -54449,7 +53620,7 @@ const InputEdit$5 = ({ input, onChange }) => {
   }, [cameraActive, onChange]);
   const handleToggleCameraActive = () => {
     if (handsConfig) {
-      setModuleConfig(id$9, "cameraActive", !handsConfig.cameraActive);
+      setModuleConfig(id$a, "cameraActive", !handsConfig.cameraActive);
     }
   };
   useRequestAnimationFrame(() => {
@@ -54524,7 +53695,7 @@ const InputEdit$5 = ({ input, onChange }) => {
     )
   ] });
 };
-const InputDisplay$5 = ({ input }) => {
+const InputDisplay$6 = ({ input }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "center", width: "100%", gap: 1 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(DisplayButtons, { data: input }),
     " ",
@@ -54534,8 +53705,8 @@ const InputDisplay$5 = ({ input }) => {
     ] })
   ] });
 };
-const useGlobalActions$5 = () => {
-  const handsModuleFullConfig = useMainStore((state) => state.modules[id$9]?.config);
+const useGlobalActions$6 = () => {
+  const handsModuleFullConfig = useMainStore((state) => state.modules[id$a]?.config);
   const handsConfig = handsModuleFullConfig;
   const moduleEnabled = handsConfig?.enabled;
   const cameraActive = handsConfig?.cameraActive;
@@ -54589,7 +53760,7 @@ const useGlobalActions$5 = () => {
   }, [moduleEnabled, cameraActive, isAppEditing]);
   return null;
 };
-const useInputActions$4 = (row) => {
+const useInputActions$5 = (row) => {
   reactExports.useEffect(() => {
     const gestureListener = (event) => {
       const detectedGestureString = event.detail;
@@ -54610,14 +53781,14 @@ const useInputActions$4 = (row) => {
     };
   }, [row.id, row.input.data.value]);
 };
-const Settings$2 = () => {
-  const handsModuleFullConfig = useMainStore((state) => state.modules[id$9]?.config);
+const Settings$3 = () => {
+  const handsModuleFullConfig = useMainStore((state) => state.modules[id$a]?.config);
   const handsConfig = handsModuleFullConfig;
   const cameraActive = handsConfig?.cameraActive ?? false;
   const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
   const handleToggleCameraActive = () => {
     if (handsConfig) {
-      setModuleConfig(id$9, "cameraActive", !handsConfig.cameraActive);
+      setModuleConfig(id$a, "cameraActive", !handsConfig.cameraActive);
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -54663,13 +53834,13 @@ const Settings$2 = () => {
 };
 const mphandsModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  InputDisplay: InputDisplay$5,
-  InputEdit: InputEdit$5,
-  Settings: Settings$2,
-  id: id$9,
-  moduleConfig: moduleConfig$9,
-  useGlobalActions: useGlobalActions$5,
-  useInputActions: useInputActions$4
+  InputDisplay: InputDisplay$6,
+  InputEdit: InputEdit$6,
+  Settings: Settings$3,
+  id: id$a,
+  moduleConfig: moduleConfig$a,
+  useGlobalActions: useGlobalActions$6,
+  useInputActions: useInputActions$5
 }, Symbol.toStringTag, { value: "Module" }));
 var holistic = {};
 var hasRequiredHolistic;
@@ -60055,8 +59226,8 @@ class HolisticEstimator {
     this.listeners.forEach((fn2) => fn2(results));
   }
 }
-const id$8 = "mpholistic-module";
-const moduleConfig$8 = {
+const id$9 = "mpholistic-module";
+const moduleConfig$9 = {
   menuLabel: "A.I.",
   inputs: [
     { name: "Holistic Pose", icon: "accessibility_new" }
@@ -60069,8 +59240,8 @@ const moduleConfig$8 = {
     // Camera is OFF by default
   }
 };
-const InputEdit$4 = ({ input, onChange }) => {
-  const holisticModuleFullConfig = useMainStore((state) => state.modules[id$8]?.config);
+const InputEdit$5 = ({ input, onChange }) => {
+  const holisticModuleFullConfig = useMainStore((state) => state.modules[id$9]?.config);
   const holisticConfig = holisticModuleFullConfig;
   const cameraActive = holisticConfig?.cameraActive ?? false;
   const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
@@ -60127,7 +59298,7 @@ const InputEdit$4 = ({ input, onChange }) => {
   }, [cameraActive, onChange]);
   const handleToggleCameraActive = () => {
     if (holisticConfig) {
-      setModuleConfig(id$8, "cameraActive", !holisticConfig.cameraActive);
+      setModuleConfig(id$9, "cameraActive", !holisticConfig.cameraActive);
     }
   };
   useRequestAnimationFrame(() => {
@@ -60190,7 +59361,7 @@ const InputEdit$4 = ({ input, onChange }) => {
     )
   ] });
 };
-const InputDisplay$4 = ({ input }) => {
+const InputDisplay$5 = ({ input }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "center", width: "100%", gap: 1 }, children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(DisplayButtons, { data: input }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "body2", sx: { color: "#888", fontStyle: "italic" }, children: [
@@ -60199,7 +59370,7 @@ const InputDisplay$4 = ({ input }) => {
     ] })
   ] });
 };
-const useInputActions$3 = (row) => {
+const useInputActions$4 = (row) => {
   reactExports.useEffect(() => {
     const holisticEventListener = (event) => {
       const detectedEventDetail = event.detail;
@@ -60224,14 +59395,14 @@ const useInputActions$3 = (row) => {
     };
   }, [row.id, row.input.data.value]);
 };
-const Settings$1 = () => {
-  const holisticModuleFullConfig = useMainStore((state) => state.modules[id$8]?.config);
+const Settings$2 = () => {
+  const holisticModuleFullConfig = useMainStore((state) => state.modules[id$9]?.config);
   const holisticConfig = holisticModuleFullConfig;
   const cameraActive = holisticConfig?.cameraActive ?? false;
   const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
   const handleToggleCameraActive = () => {
     if (holisticConfig) {
-      setModuleConfig(id$8, "cameraActive", !holisticConfig.cameraActive);
+      setModuleConfig(id$9, "cameraActive", !holisticConfig.cameraActive);
     }
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -60265,20 +59436,58 @@ const Settings$1 = () => {
 };
 const mpholisticModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  InputDisplay: InputDisplay$4,
-  InputEdit: InputEdit$4,
-  Settings: Settings$1,
-  id: id$8,
-  moduleConfig: moduleConfig$8,
-  useInputActions: useInputActions$3
+  InputDisplay: InputDisplay$5,
+  InputEdit: InputEdit$5,
+  Settings: Settings$2,
+  id: id$9,
+  moduleConfig: moduleConfig$9,
+  useInputActions: useInputActions$4
 }, Symbol.toStringTag, { value: "Module" }));
-const id$7 = "mpobjectron-module";
-const moduleConfig$7 = {
+const id$8 = "mpobjectron-module";
+const moduleConfig$8 = {
   menuLabel: "A.I.",
   inputs: [
     {
       name: "Objectron",
       icon: "view_in_ar"
+    }
+  ],
+  outputs: [],
+  config: {
+    enabled: false
+  }
+};
+const InputEdit$4 = ({ input, onChange }) => {
+  if (typeof onChange === "function") {
+    console.log("onChange");
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "left", marginTop: "10px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outlined", children: input?.data?.data?.value || "" }) });
+};
+const InputDisplay$4 = ({ input }) => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    " ",
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { children: camelToSnake(input.icon) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Shortkey, { value: input.data.data.value })
+  ] });
+};
+const useInputActions$3 = (row) => {
+  console.log("Objectron", row);
+};
+const mpobjectronModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  InputDisplay: InputDisplay$4,
+  InputEdit: InputEdit$4,
+  id: id$8,
+  moduleConfig: moduleConfig$8,
+  useInputActions: useInputActions$3
+}, Symbol.toStringTag, { value: "Module" }));
+const id$7 = "mppose-module";
+const moduleConfig$7 = {
+  menuLabel: "A.I.",
+  inputs: [
+    {
+      name: "Pose",
+      icon: "accessibility_new"
     }
   ],
   outputs: [],
@@ -60300,9 +59509,9 @@ const InputDisplay$3 = ({ input }) => {
   ] });
 };
 const useInputActions$2 = (row) => {
-  console.log("Objectron", row);
+  console.log("Pose", row);
 };
-const mpobjectronModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const mpposeModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   InputDisplay: InputDisplay$3,
   InputEdit: InputEdit$3,
@@ -60310,43 +59519,863 @@ const mpobjectronModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.d
   moduleConfig: moduleConfig$7,
   useInputActions: useInputActions$2
 }, Symbol.toStringTag, { value: "Module" }));
-const id$6 = "mppose-module";
-const moduleConfig$6 = {
-  menuLabel: "A.I.",
-  inputs: [
-    {
-      name: "Pose",
-      icon: "accessibility_new"
-    }
-  ],
-  outputs: [],
-  config: {
-    enabled: false
+function mqttTopicMatch(topic, pattern) {
+  if (pattern === "#") {
+    return !topic.startsWith("$");
   }
+  if (pattern === topic) {
+    return true;
+  }
+  const patternSegments = pattern.split("/");
+  const topicSegments = topic.split("/");
+  if (patternSegments.length > topicSegments.length) {
+    return false;
+  }
+  if (patternSegments[patternSegments.length - 1] === "#") {
+    if (patternSegments.length - 1 > topicSegments.length) return false;
+    for (let i2 = 0; i2 < patternSegments.length - 1; i2++) {
+      if (patternSegments[i2] !== "+" && patternSegments[i2] !== topicSegments[i2]) {
+        return false;
+      }
+    }
+    return true;
+  }
+  if (patternSegments.length !== topicSegments.length) {
+    return false;
+  }
+  for (let i2 = 0; i2 < patternSegments.length; i2++) {
+    if (patternSegments[i2] === "+") {
+      continue;
+    }
+    if (patternSegments[i2] !== topicSegments[i2]) {
+      return false;
+    }
+  }
+  return true;
+}
+const ipcRenderer$6 = window.electron?.ipcRenderer;
+const id$6 = "mqtt-module";
+const moduleConfig$6 = {
+  menuLabel: "Network & Web",
+  inputs: [{ icon: "rss_feed", name: "MQTT Message Received", editable: true }],
+  outputs: [{ icon: "publish", name: "Publish MQTT Message", editable: true }],
+  config: {
+    enabled: true,
+    brokerConnections: [
+      {
+        id: v4(),
+        name: "Local Mosquitto (Example)",
+        host: "mqtt://localhost:1883",
+        clientId: `io_client_${Math.random().toString(16).slice(2, 6)}`
+      }
+    ]
+  }
+};
+const BrokerProfileDialog = ({ open, onClose, onSave, initialProfile }) => {
+  const [profileName, setProfileName] = reactExports.useState("");
+  const [host, setHost] = reactExports.useState("mqtt://");
+  const [username, setUsername] = reactExports.useState("");
+  const [password, setPassword] = reactExports.useState("");
+  const [clientId, setClientId] = reactExports.useState("");
+  const [currentProfileId, setCurrentProfileId] = reactExports.useState(null);
+  reactExports.useEffect(() => {
+    if (open) {
+      if (initialProfile) {
+        setProfileName(initialProfile.name || "");
+        setHost(initialProfile.host || "mqtt://");
+        setUsername(initialProfile.username || "");
+        setPassword(initialProfile.password || "");
+        setClientId(initialProfile.clientId || "");
+        setCurrentProfileId(initialProfile.id);
+      } else {
+        setProfileName("");
+        setHost("mqtt://");
+        setUsername("");
+        setPassword("");
+        setClientId(`io_client_${Math.random().toString(16).slice(2, 10)}`);
+        setCurrentProfileId(null);
+      }
+    }
+  }, [open, initialProfile]);
+  const handleSaveAction = () => {
+    if (!profileName.trim() || !host.trim()) {
+      alert("Profile Name and Host URL are required.");
+      return;
+    }
+    if (!host.startsWith("mqtt://") && !host.startsWith("ws://") && !host.startsWith("mqtts://") && !host.startsWith("wss://")) {
+      alert("Host URL must start with a valid protocol (e.g., mqtt://, ws://, mqtts://, wss://).");
+      return;
+    }
+    onSave({
+      id: currentProfileId || v4(),
+      // Use existing ID if editing, else new
+      name: profileName,
+      host,
+      username,
+      password,
+      clientId
+    });
+    onClose();
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Dialog,
+    {
+      open,
+      onClose,
+      maxWidth: "xs",
+      fullWidth: true,
+      PaperProps: {
+        component: "form",
+        onSubmit: (e2) => {
+          e2.preventDefault();
+          handleSaveAction();
+        }
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
+          initialProfile ? "Edit" : "Add New",
+          " MQTT Broker Profile"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 2, sx: { mt: 1 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TextField,
+            {
+              label: "Profile Name",
+              value: profileName,
+              onChange: (e2) => setProfileName(e2.target.value),
+              fullWidth: true,
+              autoFocus: true,
+              required: true
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TextField,
+            {
+              label: "Host URL (e.g., mqtt://host:port)",
+              value: host,
+              onChange: (e2) => setHost(e2.target.value),
+              fullWidth: true,
+              required: true
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TextField,
+            {
+              label: "Username (Optional)",
+              value: username,
+              onChange: (e2) => setUsername(e2.target.value),
+              fullWidth: true
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TextField,
+            {
+              label: "Password (Optional)",
+              type: "password",
+              value: password,
+              onChange: (e2) => setPassword(e2.target.value),
+              fullWidth: true
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TextField,
+            {
+              label: "Client ID (Optional)",
+              value: clientId,
+              onChange: (e2) => setClientId(e2.target.value),
+              fullWidth: true,
+              helperText: "Leave blank for auto-generated if supported by broker for custom."
+            }
+          )
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: onClose, children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", variant: "contained", children: "Save Profile" })
+        ] })
+      ]
+    }
+  );
+};
+const Settings$1 = () => {
+  const moduleCfg = useMainStore(
+    (state) => state.modules[id$6]?.config
+  );
+  const brokerConnections = moduleCfg?.brokerConnections || [];
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
+  const [manageDialogOpen, setManageDialogOpen] = reactExports.useState(false);
+  const [addEditDialogOpen, setAddEditDialogOpen] = reactExports.useState(false);
+  const [editingProfile, setEditingProfile] = reactExports.useState(null);
+  const openAddDialog = () => {
+    setEditingProfile(null);
+    setAddEditDialogOpen(true);
+    setManageDialogOpen(false);
+  };
+  const openEditDialogFromManage = (profile) => {
+    setEditingProfile(profile);
+    setAddEditDialogOpen(true);
+    setManageDialogOpen(false);
+  };
+  const handleDeleteProfile = (profileId) => {
+    if (window.confirm("Delete profile? Rows using it will need reconfiguration.")) {
+      setModuleConfig(
+        id$6,
+        "brokerConnections",
+        brokerConnections.filter((p2) => p2.id !== profileId)
+      );
+    }
+  };
+  const handleSaveProfileCallback = (profileToSave) => {
+    let updatedConnections;
+    const existing = brokerConnections.find((p2) => p2.id === profileToSave.id);
+    if (existing) {
+      updatedConnections = brokerConnections.map(
+        (p2) => p2.id === profileToSave.id ? profileToSave : p2
+      );
+    } else {
+      updatedConnections = [...brokerConnections, profileToSave];
+    }
+    setModuleConfig(id$6, "brokerConnections", updatedConnections);
+    setAddEditDialogOpen(false);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Paper,
+    {
+      elevation: 2,
+      sx: { p: 2, minWidth: 250, display: "flex", flexDirection: "column", gap: 1 },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "overline", children: "MQTT Broker Profiles" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Button,
+          {
+            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, {}),
+            onClick: () => setManageDialogOpen(true),
+            variant: "outlined",
+            size: "small",
+            sx: { height: 41 },
+            fullWidth: true,
+            children: [
+              "Manage Profiles (",
+              brokerConnections.length,
+              ")"
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(AddCircleOutline, {}),
+            onClick: openAddDialog,
+            variant: "outlined",
+            size: "small",
+            sx: { height: 41 },
+            fullWidth: true,
+            children: "Add New Profile"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Dialog,
+          {
+            open: manageDialogOpen,
+            onClose: () => setManageDialogOpen(false),
+            fullWidth: true,
+            maxWidth: "sm",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Manage MQTT Broker Profiles" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(List$1, { dense: true, children: [
+                brokerConnections.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  ListItem,
+                  {
+                    secondaryAction: /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        IconButton,
+                        {
+                          title: "Edit Profile",
+                          size: "small",
+                          onClick: () => openEditDialogFromManage(p2),
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, { fontSize: "small" })
+                        }
+                      ),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        IconButton,
+                        {
+                          title: "Delete Profile",
+                          size: "small",
+                          onClick: () => handleDeleteProfile(p2.id),
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Delete, { fontSize: "small" })
+                        }
+                      )
+                    ] }),
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(ListItemText, { primary: p2.name, secondary: p2.host })
+                  },
+                  p2.id
+                )),
+                brokerConnections.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(ListItem, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(ListItemText, { secondary: "No profiles. Click 'Add New Profile' to create one." }) })
+              ] }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: openAddDialog, startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(AddCircleOutline, {}), children: "Add New Profile" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: () => setManageDialogOpen(false), children: "Close" })
+              ] })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          BrokerProfileDialog,
+          {
+            open: addEditDialogOpen,
+            onClose: () => setAddEditDialogOpen(false),
+            onSave: handleSaveProfileCallback,
+            initialProfile: editingProfile
+          }
+        )
+      ]
+    }
+  );
 };
 const InputEdit$2 = ({ input, onChange }) => {
-  if (typeof onChange === "function") {
-    console.log("onChange");
-  }
-  return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { textAlign: "left", marginTop: "10px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "outlined", children: input?.data?.data?.value || "" }) });
-};
-const InputDisplay$2 = ({ input }) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    " ",
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { children: camelToSnake(input.icon) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Shortkey, { value: input.data.data.value })
+  const brokerProfiles = useMainStore(
+    (state) => state.modules[id$6]?.config?.brokerConnections || []
+  );
+  const currentData = input.data;
+  const [addProfileDialogOpen, setAddProfileDialogOpen] = reactExports.useState(false);
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
+  const handleProfileSelectChange = (event) => {
+    onChange({ profileId: event.target.value || void 0 });
+  };
+  const handleAddNewProfile = () => setAddProfileDialogOpen(true);
+  const handleSaveNewProfile = (profileToSave) => {
+    const newProfileWithId = { ...profileToSave, id: profileToSave.id || v4() };
+    const currentGlobalProfiles = useMainStore.getState().modules[id$6]?.config?.brokerConnections || [];
+    setModuleConfig(id$6, "brokerConnections", [...currentGlobalProfiles, newProfileWithId]);
+    onChange({ profileId: newProfileWithId.id });
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { mt: 2, display: "flex", flexDirection: "column", gap: 2 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "textSecondary", children: "Broker Connection" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "center", gap: 0 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, margin: "dense", size: "small", sx: { flexGrow: 1 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: `mqtt-input-profile-label-${input.name}`, children: "Broker Profile *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Select,
+          {
+            labelId: `mqtt-input-profile-label-${input.name}`,
+            value: currentData.profileId || "",
+            label: "Broker Profile *",
+            onChange: handleProfileSelectChange,
+            required: true,
+            sx: { height: "56px" },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "", disabled: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: "Select a profile..." }) }),
+              brokerProfiles.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(MenuItem, { value: p2.id, children: [
+                p2.name,
+                " (",
+                p2.host,
+                ")"
+              ] }, p2.id))
+            ]
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Add New Broker Profile", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+        " ",
+        /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { onClick: handleAddNewProfile, size: "medium", sx: { mb: "4px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AddLink, {}) })
+      ] }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      BrokerProfileDialog,
+      {
+        open: addProfileDialogOpen,
+        onClose: () => setAddProfileDialogOpen(false),
+        onSave: handleSaveNewProfile,
+        initialProfile: null
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { sx: { my: 1 } }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "textSecondary", children: "Subscription Details" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      TextField,
+      {
+        label: "Topic to Subscribe *",
+        value: currentData.topic || "",
+        onChange: (e2) => onChange({ topic: e2.target.value }),
+        fullWidth: true,
+        size: "small",
+        margin: "dense",
+        required: true,
+        sx: { m: 0 }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      TextField,
+      {
+        label: "JSONPath Filter (Optional)",
+        value: currentData.jsonPath || "",
+        onChange: (e2) => onChange({ jsonPath: e2.target.value }),
+        fullWidth: true,
+        size: "small",
+        margin: "dense",
+        helperText: "e.g., $.value or data.temperature",
+        sx: { m: 0 }
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "textSecondary", sx: { mt: 1 }, children: "Payload Condition (Optional)" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { container: true, spacing: 1, alignItems: "center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 7 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        TextField,
+        {
+          label: "Trigger if payload...",
+          value: currentData.matchPayload || "",
+          onChange: (e2) => onChange({ matchPayload: e2.target.value }),
+          fullWidth: true,
+          size: "small",
+          margin: "dense"
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 5 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, size: "small", margin: "dense", disabled: !currentData.matchPayload, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { children: "Match Type" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Select,
+          {
+            value: currentData.matchType || "exact",
+            label: "Match Type",
+            onChange: (e2) => onChange({ matchType: e2.target.value }),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "exact", children: "Exactly Matches" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "contains", children: "Contains" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "regex", children: "Matches Regex" })
+            ]
+          }
+        )
+      ] }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(FormHelperText, { sx: { ml: 1 }, children: "empty triggers on any message..." })
   ] });
 };
-const useInputActions$1 = (row) => {
-  console.log("Pose", row);
+const OutputEdit$5 = ({ output, onChange }) => {
+  const brokerProfiles = useMainStore(
+    (state) => state.modules[id$6]?.config?.brokerConnections || []
+  );
+  const currentData = output.data;
+  const [addProfileDialogOpen, setAddProfileDialogOpen] = reactExports.useState(false);
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
+  const handleProfileSelectChange = (event) => onChange({ profileId: event.target.value || void 0 });
+  const handleAddNewProfile = () => setAddProfileDialogOpen(true);
+  const handleSaveNewProfile = (profileToSave) => {
+    const newProfileWithId = { ...profileToSave, id: profileToSave.id || v4() };
+    const currentGlobalProfiles = useMainStore.getState().modules[id$6]?.config?.brokerConnections || [];
+    setModuleConfig(id$6, "brokerConnections", [...currentGlobalProfiles, newProfileWithId]);
+    onChange({ profileId: newProfileWithId.id });
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { mt: 2, display: "flex", flexDirection: "column", gap: 2 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "textSecondary", children: "Broker Connection" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "flex-end", gap: 1 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, margin: "dense", size: "small", sx: { flexGrow: 1 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: `mqtt-output-profile-label-${output.name}`, children: "Broker Profile *" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Select,
+          {
+            labelId: `mqtt-output-profile-label-${output.name}`,
+            value: currentData.profileId || "",
+            label: "Broker Profile *",
+            onChange: handleProfileSelectChange,
+            required: true,
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "", disabled: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: "Select a profile..." }) }),
+              brokerProfiles.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(MenuItem, { value: p2.id, children: [
+                p2.name,
+                " (",
+                p2.host,
+                ")"
+              ] }, p2.id))
+            ]
+          }
+        ),
+        brokerProfiles.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(FormHelperText, { error: true, children: "No profiles. Add one with (+)." }),
+        !currentData.profileId && brokerProfiles.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(FormHelperText, { error: true, children: "Profile selection is required." })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Add New Broker Profile", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { onClick: handleAddNewProfile, size: "medium", sx: { mb: "4px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Add, {}) }) }) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      BrokerProfileDialog,
+      {
+        open: addProfileDialogOpen,
+        onClose: () => setAddProfileDialogOpen(false),
+        onSave: handleSaveNewProfile,
+        initialProfile: null
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { sx: { my: 1 } }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "textSecondary", children: "Publication Details" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      TextField,
+      {
+        label: "Topic to Publish *",
+        value: currentData.topic || "",
+        onChange: (e2) => onChange({ topic: e2.target.value }),
+        fullWidth: true,
+        size: "small",
+        margin: "dense",
+        required: true
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      TextField,
+      {
+        label: "Payload (Message) *",
+        value: currentData.payload || "",
+        onChange: (e2) => onChange({ payload: e2.target.value }),
+        fullWidth: true,
+        size: "small",
+        margin: "dense",
+        required: true,
+        multiline: true,
+        rows: 2
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { container: true, spacing: 1, alignItems: "center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        FormControlLabel,
+        {
+          control: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Switch,
+            {
+              size: "small",
+              checked: currentData.retain ?? false,
+              onChange: (e2) => onChange({ retain: e2.target.checked })
+            }
+          ),
+          label: "Retain"
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, size: "small", margin: "dense", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { children: "QoS" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Select,
+          {
+            value: currentData.qos ?? 0,
+            label: "QoS",
+            onChange: (e2) => onChange({ qos: Number(e2.target.value) }),
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: 0, children: "0" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: 1, children: "1" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: 2, children: "2" })
+            ]
+          }
+        )
+      ] }) })
+    ] })
+  ] });
 };
-const mpposeModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+function resolveBrokerConfigForRowDisplay(rowData, profiles) {
+  if (rowData.profileId) {
+    const profile = profiles.find((p2) => p2.id === rowData.profileId);
+    return profile ? { name: profile.name, host: profile.host } : { name: "Invalid/No Profile" };
+  }
+  return { name: "Profile Not Set" };
+}
+const InputDisplay$2 = ({ input }) => {
+  const d2 = input.data;
+  const ps = useMainStore(
+    (s2) => s2.modules[id$6]?.config?.brokerConnections || []
+  );
+  const brokerDisplay = resolveBrokerConfigForRowDisplay(d2, ps);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "center", width: "100%", gap: 1, overflow: "hidden" }, children: [
+    " ",
+    /* @__PURE__ */ jsxRuntimeExports.jsx(DisplayButtons, { data: { ...input, name: "MQTT In" } }),
+    " ",
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Button,
+      {
+        size: "small",
+        disabled: true,
+        variant: "outlined",
+        color: "primary",
+        sx: {
+          fontSize: 10,
+          minWidth: "45px",
+          justifyContent: "flex-start",
+          mr: 1,
+          ml: -1
+        },
+        children: brokerDisplay.name
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Button,
+      {
+        size: "small",
+        disabled: true,
+        variant: "outlined",
+        sx: {
+          fontSize: 10,
+          minWidth: "45px",
+          justifyContent: "flex-start",
+          mr: 1,
+          ml: -1
+        },
+        children: d2.topic || "N/A"
+      }
+    )
+  ] });
+};
+const OutputDisplay$5 = ({ output }) => {
+  const d2 = output.data;
+  const ps = useMainStore(
+    (s2) => s2.modules[id$6]?.config?.brokerConnections || []
+  );
+  const brokerDisplay = resolveBrokerConfigForRowDisplay(d2, ps);
+  const pl = d2.payload ? d2.payload.length > 15 ? d2.payload.substring(0, 12) + "..." : d2.payload : "N/A";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "center", width: "100%", gap: 1, overflow: "hidden" }, children: [
+    " ",
+    /* @__PURE__ */ jsxRuntimeExports.jsx(DisplayButtons, { data: { ...output, name: "MQTT Out" } }),
+    " ",
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Box,
+      {
+        sx: {
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          flexGrow: 1,
+          textAlign: "left"
+        },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { noWrap: true, variant: "body2", title: d2.topic, children: [
+            "T: ",
+            d2.topic || "N/A"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { noWrap: true, variant: "caption", title: brokerDisplay.host, children: [
+            "B: ",
+            brokerDisplay.name
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { noWrap: true, variant: "caption", title: d2.payload, children: [
+            "P: ",
+            pl
+          ] })
+        ]
+      }
+    ),
+    " "
+  ] });
+};
+function resolveBrokerConfigForRow(rowData, profiles) {
+  if (rowData.profileId) {
+    const profile = profiles.find((p2) => p2.id === rowData.profileId);
+    if (!profile) log$1.info1(`MQTT: Profile ID '${rowData.profileId}' not found in global profiles.`);
+    return profile || null;
+  }
+  log$1.info1("MQTT: resolveBrokerConfigForRow - No profileId in rowData.", rowData);
+  return null;
+}
+const useGlobalActions$5 = () => {
+  const [clientStatuses, setClientStatuses] = reactExports.useState({});
+  reactExports.useEffect(() => {
+    if (!ipcRenderer$6) return;
+    const listener = (_event, data) => {
+      log$1.info(
+        `MQTT Client Status [${data.host} / ${data.clientKey}]: ${data.status}`,
+        data.message || ""
+      );
+      log$1.info(`EYYYYYY`, clientStatuses);
+      setClientStatuses((prev2) => ({ ...prev2, [data.clientKey]: data.status }));
+    };
+    ipcRenderer$6.on("mqtt-client-status", listener);
+    return () => {
+      ipcRenderer$6.removeListener("mqtt-client-status", listener);
+    };
+  }, []);
+  return null;
+};
+const useInputActions$1 = (row) => {
+  const { input } = row;
+  const { isActive, inactiveReason } = useRowActivation(row);
+  const inputData = input.data;
+  const brokerProfiles = useMainStore(
+    (state) => state.modules[id$6]?.config?.brokerConnections || []
+  );
+  const clientKeyRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    if (!isActive) {
+      log$1.info(`Row ${row.id} actions not running. Reason: ${inactiveReason}.`);
+      return () => {
+      };
+    }
+    if (!ipcRenderer$6 || !inputData.profileId) {
+      clientKeyRef.current = null;
+      return;
+    }
+    const effectiveConfig = resolveBrokerConfigForRow(inputData, brokerProfiles);
+    if (!effectiveConfig || !inputData.topic) {
+      log$1.info1(`MQTT Input Row ${row.id}: No valid broker config or topic for subscription.`);
+      clientKeyRef.current = null;
+      return;
+    }
+    log$1.info(
+      `MQTT Input Row ${row.id}: Requesting subscription to topic '${inputData.topic}' on broker '${effectiveConfig.host}'`
+    );
+    ipcRenderer$6.invoke("mqtt-subscribe", {
+      brokerConfig: effectiveConfig,
+      topic: inputData.topic,
+      rowId: row.id
+    }).then((result) => {
+      if (result?.success && result.clientKey) clientKeyRef.current = result.clientKey;
+      else clientKeyRef.current = null;
+      log$1.info(
+        `MQTT Input Row ${row.id}: Subscribe IPC result (ClientKey: ${clientKeyRef.current}):`,
+        result
+      );
+    }).catch((err2) => {
+      log$1.error(`MQTT Input Row ${row.id}: Subscribe IPC error:`, err2);
+      clientKeyRef.current = null;
+    });
+    const messageListener = (_event, data) => {
+      log$1.info(
+        `MQTT Row ${row.id} messageListener: IPC data received. My clientKeyRef.current='${clientKeyRef.current}', My subscribed pattern='${inputData.topic}', Msg topic='${data.topic}'`
+      );
+      if (clientKeyRef.current && data.clientKey === clientKeyRef.current && mqttTopicMatch(data.topic, inputData.topic)) {
+        log$1.info(
+          `MQTT Input Row ${row.id} (ClientKey: ${clientKeyRef.current}): Matched message for topic pattern '${inputData.topic}' (actual: '${data.topic}'). Payload:`,
+          data.payloadString
+        );
+        let finalPayload = data.payloadString;
+        let extractedValueForMatching = data.payloadString;
+        if (inputData.jsonPath) {
+          try {
+            const parsed = JSON.parse(data.payloadString);
+            const parts = inputData.jsonPath.replace(/^\$\.?/, "").split(".");
+            let val = parsed;
+            for (const p2 of parts) {
+              if (val && typeof val === "object" && p2 in val) val = val[p2];
+              else {
+                val = void 0;
+                break;
+              }
+            }
+            finalPayload = val;
+            extractedValueForMatching = finalPayload;
+          } catch (e2) {
+            log$1.info1(
+              `MQTT Input Row ${row.id}: JSONPath error for '${inputData.jsonPath}' on payload '${data.payloadString}'. Using raw.`,
+              e2
+            );
+          }
+        }
+        let trigger = true;
+        if (inputData.matchPayload !== void 0 && inputData.matchPayload.trim() !== "") {
+          const actualPayloadToMatch = String(extractedValueForMatching);
+          const targetMatch = inputData.matchPayload;
+          switch (inputData.matchType) {
+            case "contains":
+              trigger = actualPayloadToMatch.includes(targetMatch);
+              break;
+            case "regex":
+              try {
+                trigger = new RegExp(targetMatch).test(actualPayloadToMatch);
+              } catch (e2) {
+                log$1.error(`MQTT Row ${row.id}: Invalid Regex: ${targetMatch}`, e2);
+                trigger = false;
+              }
+              break;
+            default:
+              trigger = actualPayloadToMatch === targetMatch;
+              break;
+          }
+          log$1.info(
+            `MQTT Row ${row.id}: Payload matching: '${actualPayloadToMatch}' ${inputData.matchType || "exact"} '${targetMatch}' -> ${trigger}`
+          );
+        }
+        if (trigger) {
+          log$1.success(`MQTT Row ${row.id}: Triggering action. Final payload:`, finalPayload);
+          window.dispatchEvent(
+            new CustomEvent("io_input", { detail: { rowId: row.id, payload: finalPayload } })
+          );
+        }
+      }
+    };
+    ipcRenderer$6.on("mqtt-message-received", messageListener);
+    return () => {
+      const currentEffectiveConfig = resolveBrokerConfigForRow(inputData, brokerProfiles);
+      if (ipcRenderer$6 && currentEffectiveConfig && inputData.topic) {
+        log$1.info(
+          `MQTT Input Row ${row.id}: Cleaning up. Unsubscribing from '${inputData.topic}' on '${currentEffectiveConfig.host}'`
+        );
+        ipcRenderer$6.invoke("mqtt-unsubscribe", {
+          brokerConfig: currentEffectiveConfig,
+          topic: inputData.topic,
+          rowId: row.id
+        });
+      }
+      ipcRenderer$6?.removeListener("mqtt-message-received", messageListener);
+      clientKeyRef.current = null;
+    };
+  }, [
+    inputData.profileId,
+    inputData.topic,
+    inputData.jsonPath,
+    inputData.matchPayload,
+    inputData.matchType,
+    row.id,
+    brokerProfiles,
+    row.enabled
+  ]);
+};
+const useOutputActions$5 = (row) => {
+  const { output } = row;
+  const outputData = output.data;
+  const brokerProfiles = useMainStore(
+    (state) => state.modules[id$6]?.config?.brokerConnections || []
+  );
+  reactExports.useEffect(() => {
+    if (!ipcRenderer$6 || !outputData.profileId) return;
+    const effectiveConfig = resolveBrokerConfigForRow(outputData, brokerProfiles);
+    const ioListener = (event) => {
+      const eventRowId = typeof event.detail === "object" && event.detail !== null ? event.detail.rowId : event.detail;
+      if (eventRowId === row.id) {
+        if (!effectiveConfig || !outputData.topic || outputData.payload === void 0) {
+          log$1.error(
+            `MQTT Output Row ${row.id}: Incomplete config (missing profile, topic, or payload). Cannot publish.`
+          );
+          return;
+        }
+        log$1.info(
+          `MQTT Output Row ${row.id}: Triggered. Publishing to '${outputData.topic}' on broker '${effectiveConfig.host}'`
+        );
+        const publishOptions = {
+          qos: outputData.qos ?? 0,
+          retain: outputData.retain ?? false
+        };
+        ipcRenderer$6.invoke("mqtt-publish", {
+          brokerConfig: effectiveConfig,
+          topic: outputData.topic,
+          payload: outputData.payload,
+          options: publishOptions
+        }).then((result) => log$1.info(`MQTT Output Row ${row.id}: Publish IPC result:`, result)).catch((err2) => log$1.error(`MQTT Output Row ${row.id}: Publish IPC error:`, err2));
+      }
+    };
+    window.addEventListener("io_input", ioListener);
+    return () => {
+      window.removeEventListener("io_input", ioListener);
+    };
+  }, [
+    row.id,
+    outputData.profileId,
+    outputData.topic,
+    outputData.payload,
+    outputData.qos,
+    outputData.retain,
+    brokerProfiles
+  ]);
+};
+const mqttModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   InputDisplay: InputDisplay$2,
   InputEdit: InputEdit$2,
+  OutputDisplay: OutputDisplay$5,
+  OutputEdit: OutputEdit$5,
+  Settings: Settings$1,
   id: id$6,
   moduleConfig: moduleConfig$6,
-  useInputActions: useInputActions$1
+  useGlobalActions: useGlobalActions$5,
+  useInputActions: useInputActions$1,
+  useOutputActions: useOutputActions$5
 }, Symbol.toStringTag, { value: "Module" }));
 const DB_NAME = "IO_AudioCache_DB";
 const DB_VERSION = 1;
@@ -60604,6 +60633,7 @@ const PlaySoundOutputEdit = ({ output, onChange }) => {
     e2.stopPropagation();
     if (!e2.currentTarget.contains(e2.relatedTarget)) {
       setIsDraggingOverAudioZone(false);
+      setIsWindowBeingDraggedOver(false);
       setDropMessage(null);
     }
   }, []);
@@ -61263,6 +61293,7 @@ const PlaySoundSettings = () => {
     event.stopPropagation();
     if (!event.currentTarget.contains(event.relatedTarget)) {
       setIsBatchImportDragging(false);
+      setIsWindowBeingDraggedOver(false);
       setDropMessage(null);
     }
   }, []);
@@ -67389,7 +67420,11 @@ const useFieldCharacterEditing = ({
     return applyQuery(params, getFirstSectionValueMatchingWithQuery);
   };
   const applyNumericEditing = (params) => {
-    const getNewSectionValue = (queryValue, section) => {
+    const getNewSectionValue = ({
+      queryValue,
+      skipIfBelowMinimum,
+      section
+    }) => {
       const cleanQueryValue = removeLocalizedDigits(queryValue, localizedDigits);
       const queryValueNumber = Number(cleanQueryValue);
       const sectionBoundaries = sectionsValueBoundaries[section.type]({
@@ -67402,7 +67437,7 @@ const useFieldCharacterEditing = ({
           saveQuery: false
         };
       }
-      if (queryValueNumber < sectionBoundaries.minimum) {
+      if (skipIfBelowMinimum && queryValueNumber < sectionBoundaries.minimum) {
         return {
           saveQuery: true
         };
@@ -67416,16 +67451,24 @@ const useFieldCharacterEditing = ({
     };
     const getFirstSectionValueMatchingWithQuery = (queryValue, activeSection) => {
       if (activeSection.contentType === "digit" || activeSection.contentType === "digit-with-letter") {
-        return getNewSectionValue(queryValue, activeSection);
+        return getNewSectionValue({
+          queryValue,
+          skipIfBelowMinimum: false,
+          section: activeSection
+        });
       }
       if (activeSection.type === "month") {
         doesSectionFormatHaveLeadingZeros(utils, "digit", "month", "MM");
-        const response = getNewSectionValue(queryValue, {
-          type: activeSection.type,
-          format: "MM",
-          hasLeadingZerosInInput: true,
-          contentType: "digit",
-          maxLength: 2
+        const response = getNewSectionValue({
+          queryValue,
+          skipIfBelowMinimum: true,
+          section: {
+            type: activeSection.type,
+            format: "MM",
+            hasLeadingZerosInInput: true,
+            contentType: "digit",
+            maxLength: 2
+          }
         });
         if (isQueryResponseWithoutValue(response)) {
           return response;
@@ -67436,7 +67479,11 @@ const useFieldCharacterEditing = ({
         });
       }
       if (activeSection.type === "weekDay") {
-        const response = getNewSectionValue(queryValue, activeSection);
+        const response = getNewSectionValue({
+          queryValue,
+          skipIfBelowMinimum: true,
+          section: activeSection
+        });
         if (isQueryResponseWithoutValue(response)) {
           return response;
         }
@@ -67898,7 +67945,7 @@ const useFieldState = (parameters) => {
       }
       return publishValue(fieldValueManager.updateDateInValue(value, section, mergedDate));
     }
-    if (newActiveDateSections.every((sectionBis) => sectionBis.value !== "")) {
+    if (newActiveDateSections.every((sectionBis) => sectionBis.value !== "") && (activeDate == null || utils.isValid(activeDate))) {
       setSectionUpdateToApplyOnNextInvalidDate(newSectionValue);
       return publishValue(fieldValueManager.updateDateInValue(value, section, newActiveDate));
     }
@@ -68437,12 +68484,12 @@ function useFieldSectionContainerProps(parameters) {
       disabled = false
     }
   } = parameters;
-  const createHandleClick = useEventCallback$1((sectionIndex) => (event) => {
+  const createHandleClick = reactExports.useCallback((sectionIndex) => (event) => {
     if (disabled || event.isDefaultPrevented()) {
       return;
     }
     setSelectedSections(sectionIndex);
-  });
+  }, [disabled, setSelectedSections]);
   return reactExports.useCallback((sectionIndex) => ({
     "data-sectionindex": sectionIndex,
     onClick: createHandleClick(sectionIndex)
@@ -68554,12 +68601,12 @@ function useFieldSectionContentProps(parameters) {
     event.preventDefault();
     event.dataTransfer.dropEffect = "none";
   });
-  const createFocusHandler = useEventCallback$1((sectionIndex) => () => {
+  const createFocusHandler = reactExports.useCallback((sectionIndex) => () => {
     if (disabled) {
       return;
     }
     setSelectedSections(sectionIndex);
-  });
+  }, [disabled, setSelectedSections]);
   return reactExports.useCallback((section, sectionIndex) => {
     const sectionBoundaries = sectionsValueBoundaries[section.type]({
       currentDate: fieldValueManager.getDateFromSection(value, section),
@@ -70527,7 +70574,9 @@ const VARIANT_COMPONENT = {
 const PickersTextFieldRoot = styled(FormControl, {
   name: "MuiPickersTextField",
   slot: "Root"
-})({});
+})({
+  maxWidth: "100%"
+});
 const useUtilityClasses$r = (classes2, ownerState) => {
   const {
     isFieldFocused: isFieldFocused2,
@@ -79815,13 +79864,13 @@ const modulesObjectFromFile = {
   [id$f]: keyboardModule,
   [id$e]: ledfxModule,
   [id$d]: midiModule,
-  [id$c]: mqttModule,
-  [id$b]: mpfacedetectModule,
-  [id$a]: mpfacemeshModule,
-  [id$9]: mphandsModule,
-  [id$8]: mpholisticModule,
-  [id$7]: mpobjectronModule,
-  [id$6]: mpposeModule,
+  [id$c]: mpfacedetectModule,
+  [id$b]: mpfacemeshModule,
+  [id$a]: mphandsModule,
+  [id$9]: mpholisticModule,
+  [id$8]: mpobjectronModule,
+  [id$7]: mpposeModule,
+  [id$6]: mqttModule,
   [id$5]: playsoundModule,
   [id$4]: restModule,
   [id$3]: sayModule,
@@ -81062,9 +81111,7 @@ function base64ToArrayBuffer$1(base64) {
 const FiledropProvider = ({ children }) => {
   const isWindowBeingDraggedOver = useMainStore((state) => state.isWindowBeingDraggedOver);
   const dropMessage = useMainStore((state) => state.dropMessage);
-  const setIsWindowBeingDraggedOverGlobal = useMainStore(
-    (state) => state.setIsWindowBeingDraggedOver
-  );
+  const setIsWindowBeingDraggedOver = useMainStore((state) => state.setIsWindowBeingDraggedOver);
   const [showImportConfirmDialog, setShowImportConfirmDialog] = reactExports.useState(false);
   const [importedProfileData, setImportedProfileData] = reactExports.useState(null);
   const [isImporting, setIsImporting] = reactExports.useState(false);
@@ -81110,7 +81157,7 @@ const FiledropProvider = ({ children }) => {
   const handleGlobalDrop = reactExports.useCallback(
     (e2) => {
       e2.preventDefault();
-      setIsWindowBeingDraggedOverGlobal(false);
+      setIsWindowBeingDraggedOver(false);
       if (e2.dataTransfer.files && e2.dataTransfer.files.length > 0) {
         const file = e2.dataTransfer.files[0];
         if (file.name.endsWith(".json") || file.name.endsWith(".ioProfile")) {
@@ -81127,19 +81174,19 @@ const FiledropProvider = ({ children }) => {
         }
       }
     },
-    [processDroppedProfileFile, setIsWindowBeingDraggedOverGlobal]
+    [processDroppedProfileFile, setIsWindowBeingDraggedOver]
   );
   const handleGlobalDragOver = reactExports.useCallback(
     (e2) => {
       e2.preventDefault();
       if (e2.dataTransfer.types.includes("Files")) {
         if (!isWindowBeingDraggedOver) {
-          setIsWindowBeingDraggedOverGlobal(true);
+          setIsWindowBeingDraggedOver(true);
         }
       }
       e2.dataTransfer.dropEffect = "copy";
     },
-    [isWindowBeingDraggedOver, setIsWindowBeingDraggedOverGlobal]
+    [isWindowBeingDraggedOver, setIsWindowBeingDraggedOver]
   );
   const handleCloseConfirmDialog = () => {
     setShowImportConfirmDialog(false);
@@ -81206,16 +81253,16 @@ const FiledropProvider = ({ children }) => {
   reactExports.useEffect(() => {
     const handleDocDragEnter = (e2) => {
       if (e2.dataTransfer?.types.includes("Files")) {
-        setIsWindowBeingDraggedOverGlobal(true);
+        setIsWindowBeingDraggedOver(true);
       }
     };
     const handleDocDragLeave = (e2) => {
       if (!e2.relatedTarget || e2.relatedTarget.nodeName === "HTML") {
-        setIsWindowBeingDraggedOverGlobal(false);
+        setIsWindowBeingDraggedOver(false);
       }
     };
     const handleDocDrop = () => {
-      setIsWindowBeingDraggedOverGlobal(false);
+      setIsWindowBeingDraggedOver(false);
     };
     document.addEventListener("dragenter", handleDocDragEnter);
     document.addEventListener("dragleave", handleDocDragLeave);
@@ -81225,7 +81272,7 @@ const FiledropProvider = ({ children }) => {
       document.removeEventListener("dragleave", handleDocDragLeave);
       document.removeEventListener("drop", handleDocDrop);
     };
-  }, [setIsWindowBeingDraggedOverGlobal]);
+  }, [setIsWindowBeingDraggedOver]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     Box,
     {
@@ -81259,6 +81306,9 @@ const FiledropProvider = ({ children }) => {
               outlineColor: "primary.light",
               outlineOffset: "-3px",
               boxSizing: "border-box"
+            },
+            onClick: () => {
+              setIsWindowBeingDraggedOver(false);
             },
             children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
               Box,
