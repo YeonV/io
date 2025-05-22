@@ -1,4 +1,3 @@
-// src/renderer/src/components/utils/FiledropProvider.tsx
 import {
   Box,
   Dialog,
@@ -10,16 +9,15 @@ import {
   CircularProgress,
   Alert,
   AlertTitle,
-  Stack,
-  Paper
+  Stack
 } from '@mui/material'
 import { useSnackbar } from 'notistack'
-import { useCallback, useState, type FC, type ReactNode, DragEvent } from 'react'
+import { useCallback, useState, type FC, type ReactNode, DragEvent, useEffect } from 'react'
 import type { ProfileExportFormat } from '@/components/Settings/ProfileManagerSettings.types'
 import { useMainStore } from '@/store/mainStore'
 import { addAudioToDB } from '@/modules/PlaySound/lib/db'
 import { v4 as uuidv4 } from 'uuid'
-import { Upload } from '@mui/icons-material'
+import { UploadFile as UploadFileIcon } from '@mui/icons-material'
 
 interface FiledropProviderProps {
   children: ReactNode
@@ -37,10 +35,15 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
 }
 
 export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
-  const [isDraggingOverWindow, setIsDraggingOverWindow] = useState(false)
+  const isWindowBeingDraggedOver = useMainStore((state) => state.isWindowBeingDraggedOver)
+  const dropMessage = useMainStore((state) => state.dropMessage)
+  const setIsWindowBeingDraggedOverGlobal = useMainStore(
+    (state) => state.setIsWindowBeingDraggedOver
+  )
+
   const [showImportConfirmDialog, setShowImportConfirmDialog] = useState(false)
   const [importedProfileData, setImportedProfileData] = useState<ProfileExportFormat | null>(null)
-
+  const [importedFileName, setImportedFileName] = useState<string | null>(null)
   const [isImporting, setIsImporting] = useState(false)
 
   const { enqueueSnackbar } = useSnackbar()
@@ -49,12 +52,10 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
   const addRowAction = useMainStore((state) => state.addRow)
   const setActiveProfile = useMainStore((state) => state.setActiveProfile)
 
-  const processDroppedFile = useCallback(
+  const processDroppedProfileFile = useCallback(
     async (file: File) => {
       if (!file) return
-
-      console.debug('[FiledropProvider] Processing dropped file:', file.name)
-      setIsImporting(true)
+      console.debug('[FiledropProvider] Processing dropped .ioProfile file:', file.name)
 
       if (
         file.type !== 'application/json' &&
@@ -64,8 +65,6 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
         enqueueSnackbar('Invalid file type: Please drop a .json or .ioProfile file.', {
           variant: 'error'
         })
-        setIsImporting(false)
-        setIsDraggingOverWindow(false)
         return
       }
 
@@ -74,13 +73,11 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
         try {
           const fileContent = e.target?.result as string
           const parsedData = JSON.parse(fileContent) as ProfileExportFormat
-
           if (!parsedData.profile || !Array.isArray(parsedData.rows)) {
             throw new Error("Invalid .ioProfile structure: Missing 'profile' or 'rows' array.")
           }
-
           setImportedProfileData(parsedData)
-
+          setImportedFileName(file.name)
           setShowImportConfirmDialog(true)
           console.debug('[FiledropProvider] File parsed, showing confirmation dialog.')
         } catch (parseError: any) {
@@ -88,63 +85,60 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
           enqueueSnackbar(`Import Error: ${parseError.message || 'Invalid file content.'}`, {
             variant: 'error'
           })
-        } finally {
-          setIsImporting(false)
-
-          setIsDraggingOverWindow(false)
         }
       }
       reader.onerror = () => {
         enqueueSnackbar('Error reading file.', { variant: 'error' })
-        setIsImporting(false)
-        setIsDraggingOverWindow(false)
       }
       reader.readAsText(file)
     },
     [enqueueSnackbar]
   )
 
-  const handleDrop = useCallback(
+  const handleGlobalDrop = useCallback(
     (e: DragEvent<HTMLElement>) => {
       e.preventDefault()
-      e.stopPropagation()
-      setIsDraggingOverWindow(false)
+
+      setIsWindowBeingDraggedOverGlobal(false)
+
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        processDroppedFile(e.dataTransfer.files[0])
+        const file = e.dataTransfer.files[0]
+
+        if (file.name.endsWith('.json') || file.name.endsWith('.ioProfile')) {
+          console.debug(
+            '[FiledropProvider] Global drop, attempting to process as profile:',
+            file.name
+          )
+          processDroppedProfileFile(file)
+        } else {
+          console.debug(
+            '[FiledropProvider] File dropped on global area is not an .ioProfile, ignoring.',
+            file.name
+          )
+        }
       }
     },
-    [processDroppedFile]
+    [processDroppedProfileFile, setIsWindowBeingDraggedOverGlobal]
   )
 
-  const handleDragOver = useCallback(
+  const handleGlobalDragOver = useCallback(
     (e: DragEvent<HTMLElement>) => {
       e.preventDefault()
-      e.stopPropagation()
-      if (!isDraggingOverWindow) setIsDraggingOverWindow(true)
+
+      if (e.dataTransfer.types.includes('Files')) {
+        if (!isWindowBeingDraggedOver) {
+          setIsWindowBeingDraggedOverGlobal(true)
+        }
+      }
+      e.dataTransfer.dropEffect = 'copy'
     },
-    [isDraggingOverWindow]
+    [isWindowBeingDraggedOver, setIsWindowBeingDraggedOverGlobal]
   )
-
-  const handleDragEnter = useCallback((e: DragEvent<HTMLElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDraggingOverWindow(true)
-  }, [])
-
-  const handleDragLeave = useCallback((e: DragEvent<HTMLElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-
-    if (e.target === e.currentTarget) {
-      setIsDraggingOverWindow(false)
-    }
-  }, [])
 
   const handleCloseConfirmDialog = () => {
     setShowImportConfirmDialog(false)
     setImportedProfileData(null)
   }
-
   const handleConfirmImport = async () => {
     if (!importedProfileData) return
     setIsImporting(true)
@@ -209,12 +203,37 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
     }
   }
 
+  useEffect(() => {
+    const handleDocDragEnter = (e: globalThis.DragEvent) => {
+      if (e.dataTransfer?.types.includes('Files')) {
+        setIsWindowBeingDraggedOverGlobal(true)
+      }
+    }
+    const handleDocDragLeave = (e: globalThis.DragEvent) => {
+      if (!e.relatedTarget || (e.relatedTarget as Node).nodeName === 'HTML') {
+        setIsWindowBeingDraggedOverGlobal(false)
+      }
+    }
+
+    const handleDocDrop = () => {
+      setIsWindowBeingDraggedOverGlobal(false)
+    }
+
+    document.addEventListener('dragenter', handleDocDragEnter)
+    document.addEventListener('dragleave', handleDocDragLeave)
+    document.addEventListener('drop', handleDocDrop)
+
+    return () => {
+      document.removeEventListener('dragenter', handleDocDragEnter)
+      document.removeEventListener('dragleave', handleDocDragLeave)
+      document.removeEventListener('drop', handleDocDrop)
+    }
+  }, [setIsWindowBeingDraggedOverGlobal])
+
   return (
     <Box
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
+      onDrop={handleGlobalDrop}
+      onDragOver={handleGlobalDragOver}
       sx={{
         width: '100%',
         height: '100%',
@@ -223,8 +242,7 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
     >
       {children}
 
-      {/* Visual overlay when dragging a file over the window */}
-      {isDraggingOverWindow && (
+      {isWindowBeingDraggedOver && (
         <Box
           sx={{
             position: 'fixed',
@@ -232,24 +250,44 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
             left: 0,
             right: 0,
             bottom: 0,
-            bgcolor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 9999,
+            bgcolor: 'rgba(0, 0, 0, 0.65)',
+            zIndex: 9990,
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            pointerEvents: 'none'
+            pointerEvents: 'none',
+
+            borderRadius: 2,
+            outline: '3px dashed',
+            outlineColor: 'primary.light',
+            outlineOffset: '-3px',
+            boxSizing: 'border-box'
           }}
         >
-          <Paper elevation={6} sx={{ p: 4, borderRadius: 2, textAlign: 'center' }}>
-            <Upload sx={{ fontSize: 60, color: 'primary.main' }} />
-            <Typography variant="h5" color="primary.main">
-              Drop .ioProfile file to import
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: '3px',
+              width: 'calc(100% - 6px)',
+              textAlign: 'center',
+              bgcolor: '#000',
+              left: '3px',
+              boxSizing: 'border-box',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <UploadFileIcon sx={{ color: 'primary.contrastText', mr: 1 }} />
+            <Typography variant="h6" color="primary.contrastText">
+              {dropMessage || 'Drop .ioProfile file here'}
             </Typography>
-          </Paper>
+          </Box>
         </Box>
       )}
 
-      {/* Confirmation Dialog */}
       <Dialog
         open={showImportConfirmDialog}
         onClose={handleCloseConfirmDialog}

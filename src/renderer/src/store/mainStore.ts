@@ -32,7 +32,9 @@ type State = {
   ui: ReturnType<typeof storeUI>
   profiles: Record<string, ProfileDefinition>
   activeProfileId: string | null
-  globalAudioCommandTimestamp: string | null // NEW STATE for global audio commands
+  globalAudioCommandTimestamp: string | null
+  isWindowBeingDraggedOver: boolean
+  dropMessage: string | null
 
   // Actions
   enableModule: (moduleId: ModuleId) => void
@@ -48,7 +50,9 @@ type State = {
   deleteProfile: (profileId: string) => void
   setActiveProfile: (profileId: string | null) => void
   toggleRowEnabled: (rowId: string) => void
-  setGlobalAudioCommandTimestamp: () => void // NEW ACTION
+  setGlobalAudioCommandTimestamp: () => void
+  setIsWindowBeingDraggedOver: (isDragging: boolean) => void
+  setDropMessage: (message: string | null) => void
 }
 
 export const useMainStore = create<State>()(
@@ -61,7 +65,9 @@ export const useMainStore = create<State>()(
         ui: storeUI(),
         profiles: {},
         activeProfileId: null,
-        globalAudioCommandTimestamp: null, // Initialize new state
+        globalAudioCommandTimestamp: null,
+        isWindowBeingDraggedOver: false,
+        dropMessage: 'Drop .ioProfile file',
         ...storeUIActions(set),
 
         enableModule: (moduleId: ModuleId) => {
@@ -249,7 +255,6 @@ export const useMainStore = create<State>()(
             })
           }
         },
-        // NEW ACTION IMPLEMENTATION
         setGlobalAudioCommandTimestamp: () => {
           const newTimestamp = new Date().toISOString()
           console.log(`[mainStore] Setting globalAudioCommandTimestamp to: ${newTimestamp}`)
@@ -258,6 +263,14 @@ export const useMainStore = create<State>()(
             false,
             'setGlobalAudioCommandTimestamp'
           )
+        },
+        setIsWindowBeingDraggedOver: (isDragging: boolean) => {
+          // console.debug(`[mainStore] Setting isWindowBeingDraggedOver to: ${isDragging}`); // Optional: can be spammy
+          set({ isWindowBeingDraggedOver: isDragging }, false, 'setIsWindowBeingDraggedOver')
+        },
+        setDropMessage: (message: string | null) => {
+          // console.debug(`[mainStore] Setting dropMessage to: ${message}`); // Optional: can be spammy
+          set({ dropMessage: message }, false, 'setDropMessage')
         }
       }),
       {

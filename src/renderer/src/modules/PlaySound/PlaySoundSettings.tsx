@@ -1,6 +1,5 @@
-// src/renderer/src/modules/PlaySound/PlaySoundSettings.tsx
 import type { FC, DragEvent, ChangeEvent } from 'react'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import {
   Box,
   Button,
@@ -38,7 +37,7 @@ export const PlaySoundSettings: FC = () => {
   const [cachedFilesList, setCachedFilesList] = useState<SettingsCachedAudioInfo[]>([])
   const [initialCachedFileCount, setInitialCachedFileCount] = useState(0)
   const [isLoadingInitialCount, setIsLoadingInitialCount] = useState(true)
-  const [isLoadingDialogList, setIsLoadingDialogList] = useState(false) // Added this from your last version
+  const [isLoadingDialogList, setIsLoadingDialogList] = useState(false)
 
   const [isBatchImportDragging, setIsBatchImportDragging] = useState(false)
   const [batchImportProgress, setBatchImportProgress] = useState(0)
@@ -46,6 +45,9 @@ export const PlaySoundSettings: FC = () => {
   const batchFileInputRef = useRef<HTMLInputElement>(null)
 
   const triggerGlobalAudioStop = useMainStore((state) => state.setGlobalAudioCommandTimestamp)
+  const isWindowBeingDraggedOver = useMainStore((state) => state.isWindowBeingDraggedOver)
+  const setIsWindowBeingDraggedOver = useMainStore((state) => state.setIsWindowBeingDraggedOver)
+  const setDropMessage = useMainStore((state) => state.setDropMessage)
 
   const fetchCachedFilesData = async (forCountOnly = false) => {
     if (forCountOnly) setIsLoadingInitialCount(true)
@@ -81,9 +83,6 @@ export const PlaySoundSettings: FC = () => {
 
   const handleDeleteCachedFile = async (audioId: string) => {
     if (window.confirm('Delete this cached sound? Rows using it will need a new file selected.')) {
-      // To stop a specific player, we'd need access to activeAudioPlayers and stopPlayer,
-      // or dispatch a specific event. For now, deleting from DB.
-      // activeAudioPlayers.forEach((player) => { if (player.audioId === audioId) stopPlayer(player.rowId); });
       console.warn(
         `[PlaySound Settings] Deleting audioId ${audioId}. If playing, it might continue until row is re-triggered or app restart unless PlaySoundModule handles this.`
       )
@@ -95,12 +94,8 @@ export const PlaySoundSettings: FC = () => {
 
   const handleClearAllCache = async () => {
     if (window.confirm('Delete ALL cached sounds? This cannot be undone.')) {
-      // stopAllPlayers(true); // This would need to be imported from PlaySound.tsx
-      // For now, rely on the global command to signal players.
-      // The actual audio elements will be orphaned if not stopped by the global command's effect.
-      // This is fine if the global command reliably stops them.
-      triggerGlobalAudioStop() // Signal all players to stop and reset UI
-      await clearAllAudioFromDB() // Then clear the data
+      triggerGlobalAudioStop()
+      await clearAllAudioFromDB()
       fetchCachedFilesData(false)
       setInitialCachedFileCount(0)
     }
@@ -110,8 +105,7 @@ export const PlaySoundSettings: FC = () => {
     console.info(
       '[PlaySound Settings] User clicked Stop All Sounds. Triggering global command via store.'
     )
-    triggerGlobalAudioStop() // ONLY set the timestamp in Zustand
-    // The AudioPlayerCore instances will react to this timestamp change.
+    triggerGlobalAudioStop()
   }
 
   const processBatchFiles = async (files: FileList | null) => {
@@ -163,17 +157,35 @@ export const PlaySoundSettings: FC = () => {
     event.stopPropagation()
     setIsBatchImportDragging(false)
     processBatchFiles(event.dataTransfer.files)
+    setIsWindowBeingDraggedOver(false)
+    setDropMessage(null)
   }
-  const handleBatchDragOver = (event: DragEvent<HTMLDivElement>) => {
+
+  const handleBatchDragOver = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
     setIsBatchImportDragging(true)
-  }
-  const handleBatchDragLeave = (event: DragEvent<HTMLDivElement>) => {
+    setDropMessage('Drop to add audio file(s)')
+    event.dataTransfer.dropEffect = 'copy'
+  }, [])
+
+  const handleBatchDragEnter = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsBatchImportDragging(true)
+    setDropMessage('Drop to add audio file(s)')
+  }, [])
+
+  const handleBatchDragLeave = useCallback((event: DragEvent<HTMLDivElement>) => {
     event.preventDefault()
     event.stopPropagation()
-    setIsBatchImportDragging(false)
-  }
+
+    if (!event.currentTarget.contains(event.relatedTarget as Node)) {
+      setIsBatchImportDragging(false)
+      setDropMessage(null)
+    }
+  }, [])
+
   const handleBatchFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     processBatchFiles(event.target.files)
     if (event.target) event.target.value = ''
@@ -221,8 +233,23 @@ export const PlaySoundSettings: FC = () => {
         onClose={handleCloseManageCacheDialog}
         fullWidth
         maxWidth="sm"
+        sx={{ zIndex: 9999 }}
+        slotProps={{
+          paper: {
+            elevation: isWindowBeingDraggedOver ? 0 : 2,
+            sx: {
+              // bgcolor: isWindowBeingDraggedOver ? '#00f' : '#232323'
+            }
+          }
+        }}
       >
-        <DialogTitle>Manage Cached Audio Snippets</DialogTitle>
+        <DialogTitle
+          sx={{
+            opacity: isWindowBeingDraggedOver ? 0.3 : 1
+          }}
+        >
+          Manage Cached Audio Snippets
+        </DialogTitle>
         <DialogContent dividers>
           <input
             type="file"
@@ -236,15 +263,19 @@ export const PlaySoundSettings: FC = () => {
             onClick={handleBatchSelectClick}
             onDrop={handleBatchFileDrop}
             onDragOver={handleBatchDragOver}
+            onDragEnter={handleBatchDragEnter}
             onDragLeave={handleBatchDragLeave}
             sx={{
-              border: `2px dashed ${isBatchImportDragging ? 'primary.main' : 'grey.400'}`,
+              borderRadius: 2,
+              opacity: 1,
               p: 2,
               mb: 2,
-              textAlign: 'center',
               cursor: 'pointer',
-              bgcolor: isBatchImportDragging ? 'action.hover' : 'transparent',
-              borderRadius: 1
+              textAlign: 'center',
+              position: 'relative',
+              border: `2px dashed ${isBatchImportDragging ? '#fff' : isWindowBeingDraggedOver ? '#fff' : '#999'}`,
+              bgcolor: isBatchImportDragging ? 'action.hover' : 'background.paper',
+              zIndex: 10000 // 'auto'
             }}
           >
             <Audiotrack sx={{ fontSize: 24, color: 'text.secondary', mb: 0.5 }} />
@@ -264,7 +295,15 @@ export const PlaySoundSettings: FC = () => {
               No audio snippets cached.
             </Typography>
           ) : (
-            <List dense sx={{ maxHeight: 300, overflow: 'auto', pr: 1 }}>
+            <List
+              dense
+              sx={{
+                maxHeight: 300,
+                overflow: 'auto',
+                pr: 1,
+                opacity: isWindowBeingDraggedOver ? 0.3 : 1
+              }}
+            >
               {cachedFilesList.map((file) => (
                 <ListItem
                   key={file.id}
@@ -293,7 +332,15 @@ export const PlaySoundSettings: FC = () => {
             </List>
           )}
         </DialogContent>
-        <DialogActions sx={{ justifyContent: 'space-between', px: 2, pb: 2, pt: 1 }}>
+        <DialogActions
+          sx={{
+            justifyContent: 'space-between',
+            px: 2,
+            pb: 2,
+            pt: 1,
+            opacity: isWindowBeingDraggedOver ? 0.3 : 1
+          }}
+        >
           <Button
             onClick={handleClearAllCache}
             color="error"

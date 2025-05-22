@@ -1,13 +1,11 @@
-// src/renderer/src/modules/PlaySound/PlaySoundOutputEdit.tsx
 import type { FC, DragEvent, ChangeEvent } from 'react'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import type { OutputData } from '@shared/types'
 import {
   Box,
   Button,
   Typography,
   Stack,
-  // IconButton,
   Tooltip,
   SelectChangeEvent,
   FormControl,
@@ -16,7 +14,6 @@ import {
   CircularProgress,
   MenuItem,
   Divider
-  // Slider
 } from '@mui/material'
 import {
   Audiotrack,
@@ -25,15 +22,15 @@ import {
   Pause as PauseIcon,
   Cached,
   RepeatOne,
-  // Loop as LoopIcon,
   LayersClear,
   Layers,
-  // VolumeUp,
   Repeat
 } from '@mui/icons-material'
 import type { PlaySoundOutputData } from './PlaySound.types'
 import { addAudioToDB, getAudioBufferFromDB, getAllAudioInfoFromDB } from './lib/db'
 import { previewPlayer, stopPlayer as stopAnyPlayer } from './PlaySound'
+import { useSnackbar } from 'notistack'
+import { useMainStore } from '@/store/mainStore'
 
 export interface PlaySoundOutputEditProps {
   output: OutputData
@@ -42,10 +39,14 @@ export interface PlaySoundOutputEditProps {
 
 export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onChange }) => {
   const currentData = output.data as Partial<PlaySoundOutputData>
-  const [isDraggingOver, setIsDraggingOver] = useState(false)
+  const { enqueueSnackbar } = useSnackbar()
+  const [isDraggingOverAudioZone, setIsDraggingOverAudioZone] = useState(false)
   const [isPreviewPlaying, setIsPreviewPlaying] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null) // Blob URL for the current preview
+  const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null)
+  const isWindowBeingDraggedOver = useMainStore((state) => state.isWindowBeingDraggedOver)
+  const setIsWindowBeingDraggedOver = useMainStore((state) => state.setIsWindowBeingDraggedOver)
+  const setDropMessage = useMainStore((state) => state.setDropMessage)
   const [cachedAudioFiles, setCachedAudioFiles] = useState<
     Array<{ id: string; originalFileName: string }>
   >([])
@@ -66,10 +67,9 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
       setIsLoadingCache(false)
     }
     fetchFiles()
-  }, []) // Fetch once on mount
+  }, [])
 
   useEffect(() => {
-    // Cleanup effect for the previewBlobUrl and previewPlayer
     const currentBlobUrlForCleanup = previewBlobUrl
     return () => {
       if (
@@ -77,16 +77,15 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
         !previewPlayer.paused &&
         previewPlayer.src === currentBlobUrlForCleanup
       ) {
-        stopAnyPlayer(previewPlayer) // Use the global stopPlayer
+        stopAnyPlayer(previewPlayer)
       }
       if (currentBlobUrlForCleanup) {
         URL.revokeObjectURL(currentBlobUrlForCleanup)
       }
     }
-  }, [previewBlobUrl]) // Depend only on previewBlobUrl for this specific cleanup
+  }, [previewBlobUrl])
 
   const updateAudioDataInState = (audioId?: string, originalFileName?: string) => {
-    // Stop and clean up any current preview before changing the audio source
     if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl)
     setPreviewBlobUrl(null)
     if (previewPlayer && !previewPlayer.paused) stopAnyPlayer(previewPlayer)
@@ -95,14 +94,12 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
     onChange({
       audioId,
       originalFileName,
-      volume: currentData.volume, // Preserve other settings
+      volume: currentData.volume,
       loop: currentData.loop,
       cancelPrevious: currentData.cancelPrevious
     })
 
-    // If a new file was added (not just selected from cache), refresh the cache list
     if (audioId && originalFileName && !cachedAudioFiles.find((f) => f.id === audioId)) {
-      // Add to local cache list immediately for better UX, or re-fetch
       setCachedAudioFiles((prev) => {
         const newFileEntry = { id: audioId, originalFileName }
         const existing = prev.find((f) => f.id === audioId)
@@ -116,8 +113,6 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
       })
     }
   }
-
-  // const readFileAsArrayBuffer = (file: File): Promise<ArrayBuffer> => file.arrayBuffer()
 
   const processFile = async (file: File | null | undefined) => {
     if (!file) return
@@ -133,7 +128,7 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
       try {
         const audioBuffer = await file.arrayBuffer()
         const mimeType = file.type || `audio/${file.name.split('.').pop()?.toLowerCase() || 'mpeg'}`
-        const newAudioId = await addAudioToDB(file.name, mimeType, audioBuffer) // This ID is from IndexedDB
+        const newAudioId = await addAudioToDB(file.name, mimeType, audioBuffer)
         updateAudioDataInState(newAudioId, file.name)
         console.debug(
           `[PlaySound OutputEdit] Processed and stored file: ${file.name}, ID: ${newAudioId}`
@@ -141,7 +136,7 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
       } catch (error) {
         console.error('[PlaySound OutputEdit] Error processing file into IndexedDB:', error)
         alert('Failed to load and store audio file.')
-        updateAudioDataInState(undefined, undefined) // Clear on error
+        updateAudioDataInState(undefined, undefined)
       }
     } else {
       alert('Invalid file type. Please drop or select a common audio file.')
@@ -150,30 +145,58 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
 
   const handleHiddenInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) processFile(event.target.files[0])
-    if (event.target) event.target.value = '' // Reset input to allow selecting the same file again
+    if (event.target) event.target.value = ''
   }
   const handleSelectFileClick = () => fileInputRef.current?.click()
-  const handleDrop = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    event.stopPropagation()
-    setIsDraggingOver(false)
-    if (event.dataTransfer.files && event.dataTransfer.files[0])
-      processFile(event.dataTransfer.files[0])
-  }
-  const handleDragOver = (event: DragEvent<HTMLDivElement>) => {
-    console.log('[PlaySound OutputEdit] Dragging over drop area')
-    event.preventDefault()
-    event.stopPropagation()
-    setIsDraggingOver(true)
-  }
-  const handleDragLeave = (event: DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    event.stopPropagation()
-    setIsDraggingOver(false)
-  }
 
-  // const handleVolumeChange = (_event: Event, newValue: number | number[]) =>
-  //   onChange({ volume: parseFloat((newValue as number).toFixed(2)) })
+  const handleAudioDrop = useCallback(
+    (e: DragEvent<HTMLDivElement>) => {
+      e.preventDefault()
+      e.stopPropagation()
+      setIsDraggingOverAudioZone(false)
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        const file = e.dataTransfer.files[0]
+
+        if (
+          /\.(mp3|wav|ogg|aac|m4a|flac)$/i.test(file.name) ||
+          ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/aac', 'audio/mp4', 'audio/flac'].includes(
+            file.type
+          )
+        ) {
+          processFile(file)
+          setIsWindowBeingDraggedOver(false)
+        } else {
+          enqueueSnackbar('This drop zone only accepts audio files.', { variant: 'warning' })
+          setDropMessage(null)
+        }
+      }
+    },
+    [processFile, enqueueSnackbar]
+  )
+
+  const handleAudioDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDraggingOverAudioZone(true)
+    setDropMessage('Drop to add audio file(s)')
+    e.dataTransfer.dropEffect = 'copy'
+  }, [])
+
+  const handleAudioDragEnter = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDraggingOverAudioZone(true)
+    setDropMessage('Drop to add audio file(s)')
+  }, [])
+
+  const handleAudioDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setIsDraggingOverAudioZone(false)
+      setDropMessage(null)
+    }
+  }, [])
 
   const handleCancelPreviousToggle = () =>
     onChange({
@@ -189,16 +212,14 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
       return
     }
 
-    // If the current preview player is playing this specific sound's current blob URL, stop it.
     if (!previewPlayer.paused && previewPlayer.src === previewBlobUrl) {
-      stopAnyPlayer(previewPlayer) // Use the imported stopPlayer
+      stopAnyPlayer(previewPlayer)
       setIsPreviewPlaying(false)
       if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl)
       setPreviewBlobUrl(null)
       return
     }
 
-    // Stop any other sound that might be previewing and clean up its blob URL
     if (!previewPlayer.paused) stopAnyPlayer(previewPlayer)
     if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl)
 
@@ -212,7 +233,7 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
     if (audioRecord?.audioBuffer) {
       const blob = new Blob([audioRecord.audioBuffer], { type: audioRecord.mimeType })
       const newBlobUrl = URL.createObjectURL(blob)
-      setPreviewBlobUrl(newBlobUrl) // Store for cleanup
+      setPreviewBlobUrl(newBlobUrl)
 
       previewPlayer.src = newBlobUrl
       previewPlayer.volume = currentData.volume === undefined ? 1.0 : currentData.volume
@@ -221,7 +242,6 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
       const onPreviewEnded = () => {
         setIsPreviewPlaying(false)
         if (previewPlayer.src === newBlobUrl) {
-          // Only revoke if it's still this URL
           URL.revokeObjectURL(newBlobUrl)
           setPreviewBlobUrl(null)
         }
@@ -235,7 +255,7 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
       }
 
       previewPlayer.addEventListener('ended', onPreviewEnded)
-      previewPlayer.addEventListener('pause', onPreviewPauseDuringPlay) // Handle pause by other means
+      previewPlayer.addEventListener('pause', onPreviewPauseDuringPlay)
 
       previewPlayer
         .play()
@@ -303,22 +323,23 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
         />
         <Box
           onClick={handleSelectFileClick}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
+          onDrop={handleAudioDrop}
+          onDragOver={handleAudioDragOver}
+          onDragEnter={handleAudioDragEnter}
+          onDragLeave={handleAudioDragLeave}
           sx={{
-            border: `2px dashed ${isDraggingOver ? '#999' : '#666'}`,
-            borderRadius: 1,
+            borderRadius: 2,
             p: 2,
-            textAlign: 'center',
             cursor: 'pointer',
             minHeight: 80,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            bgcolor: isDraggingOver ? 'primary.lightest' : 'transparent', // Updated colors
-            transition: 'background-color 0.2s ease-in-out, border-color 0.2s ease-in-out'
+            position: 'relative',
+            border: `2px dashed ${isDraggingOverAudioZone ? '#fff' : isWindowBeingDraggedOver ? '#999' : '#333'}`,
+            bgcolor: isDraggingOverAudioZone ? 'action.hover' : 'transparent',
+            zIndex: isDraggingOverAudioZone || isWindowBeingDraggedOver ? 9999 : 'auto'
           }}
         >
           <Audiotrack sx={{ fontSize: 30, color: 'text.secondary', mb: 1 }} />
@@ -412,8 +433,3 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
     </>
   )
 }
-
-// Note: The rest of the file (OutputDisplay, MiniPlayer, useOutputActions, Settings)
-// would follow, exactly as in your last fully provided PlaySound.tsx.
-// For brevity and focus, I'm only showing OutputEdit here based on the "breakdown" approach.
-// You would merge this OutputEdit into the final PlaySoundModule.tsx or keep it separate.
