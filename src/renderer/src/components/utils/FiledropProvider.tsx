@@ -43,7 +43,7 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
 
   const [showImportConfirmDialog, setShowImportConfirmDialog] = useState(false)
   const [importedProfileData, setImportedProfileData] = useState<ProfileExportFormat | null>(null)
-  const [importedFileName, setImportedFileName] = useState<string | null>(null)
+  // const [importedFileName, setImportedFileName] = useState<string | null>(null)
   const [isImporting, setIsImporting] = useState(false)
 
   const { enqueueSnackbar } = useSnackbar()
@@ -77,7 +77,7 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
             throw new Error("Invalid .ioProfile structure: Missing 'profile' or 'rows' array.")
           }
           setImportedProfileData(parsedData)
-          setImportedFileName(file.name)
+          // setImportedFileName(file.name)
           setShowImportConfirmDialog(true)
           console.debug('[FiledropProvider] File parsed, showing confirmation dialog.')
         } catch (parseError: any) {

@@ -1,7 +1,6 @@
-// src/renderer/src/modules/PlaySound/AudioPlayerCore.tsx
 import type { FC } from 'react'
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { Stack, IconButton, Tooltip, LinearProgress, Typography } from '@mui/material'
+import { Stack, IconButton, Tooltip, LinearProgress, Button } from '@mui/material'
 import { PlayArrow, Pause as PauseIcon, StopCircle } from '@mui/icons-material'
 import { useMainStore } from '@/store/mainStore'
 
@@ -14,7 +13,7 @@ interface AudioPlayerCoreProps {
   onPlay?: () => void
   onPause?: () => void
   onEnded?: () => void
-  onStopProp?: () => void // Renamed from onStop
+  onStopProp?: () => void
   onTimeUpdate?: (currentTime: number, duration: number) => void
   externalCommand?: 'play' | 'pause' | 'stop' | null
   onCommandProcessed?: () => void
@@ -42,23 +41,19 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
   const globalAudioCommandTimestamp = useMainStore((state) => state.globalAudioCommandTimestamp)
   const prevGlobalAudioCommandTimestampRef = useRef<string | null>(null)
 
-  // Effect for local audio element events (play, pause, ended, timeupdate)
   useEffect(() => {
-    // console.debug(`[AudioPlayerCore] Main effect for audioSrc: ${audioSrc?.slice(-20)}`);
     if (!audioRef.current) {
-      // console.debug("[AudioPlayerCore] Creating new Audio element");
       audioRef.current = new Audio()
       if (onAudioElementCreated) {
         onAudioElementCreated(audioRef.current)
       }
     }
-    const audio = audioRef.current // audio is guaranteed to be HTMLAudioElement here
+    const audio = audioRef.current
 
-    // Update src if it changes or if it's different
     if (audioSrc && audio.src !== audioSrc) {
       console.debug(`[AudioPlayerCore] Setting src: ${audioSrc.slice(-30)}`)
       audio.src = audioSrc
-      audio.load() // Important after changing src
+      audio.load()
     } else if (!audioSrc && audio.currentSrc) {
       console.debug(`[AudioPlayerCore] Clearing src because audioSrc prop is null/undefined.`)
       audio.removeAttribute('src')
@@ -68,7 +63,6 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
       setDuration(0)
     }
 
-    // Update other properties if they changed
     if (audio.volume !== volume) audio.volume = volume
     if (audio.loop !== loop) audio.loop = loop
 
@@ -82,7 +76,7 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
     }
     const handleEnded = () => {
       setIsPlaying(false)
-      if (!audio.loop) setProgress(0) // Only reset progress if not looping, timeupdate will handle loop reset
+      if (!audio.loop) setProgress(0)
       onEnded?.()
     }
     const handleTimeUpdate = () => {
@@ -90,7 +84,6 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
         setProgress(Math.min(100, (audio.currentTime / audio.duration) * 100))
         onTimeUpdate?.(audio.currentTime, audio.duration)
       } else if (progress !== 0) {
-        // If duration becomes invalid (e.g. src removed)
         setProgress(0)
       }
     }
@@ -105,7 +98,6 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
         !audio.paused && !audio.ended && audio.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA
       )
       if (autoPlay && audio.paused && audio.src) {
-        // Ensure src is set before autoplay
         audio.play().catch((e) => console.error('[AudioPlayerCore] Autoplay error:', e))
       }
     }
@@ -122,10 +114,8 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
     audio.addEventListener('timeupdate', handleTimeUpdate)
     audio.addEventListener('loadeddata', handleLoadedData)
     audio.addEventListener('error', handleError)
-    audio.addEventListener('emptied', handleError) // Treat emptied also as an error/reset state
+    audio.addEventListener('emptied', handleError)
 
-    // Initial sync if audioSrc is already set and data might be loaded
-    // 1 === HAVE_LOADED_METADATA
     if (audio.src && audio.readyState >= 1) {
       setDuration(audio.duration)
       if (audio.duration > 0 && isFinite(audio.duration)) {
@@ -133,14 +123,12 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
       }
     }
     if (audio.src) {
-      // Only set isPlaying if there's a source
       setIsPlaying(
         !audio.paused && !audio.ended && audio.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA
       )
     }
 
     return () => {
-      // console.debug("[AudioPlayerCore] Cleanup main effect for src:", audioSrc?.slice(-30));
       audio.removeEventListener('play', handlePlay)
       audio.removeEventListener('playing', handlePlay)
       audio.removeEventListener('pause', handlePause)
@@ -150,10 +138,8 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
       audio.removeEventListener('error', handleError)
       audio.removeEventListener('emptied', handleError)
       if (onAudioElementCreated) {
-        onAudioElementCreated(null) // Signal that this specific audioRef instance is being "destroyed" by this effect cleanup
+        onAudioElementCreated(null)
       }
-      // Don't pause or reset src here, as this effect re-runs if props like volume/loop change.
-      // The parent MiniPlayer is responsible for revoking blob URLs when audioSrcForPlayer changes.
     }
   }, [
     audioSrc,
@@ -165,9 +151,8 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
     onEnded,
     onTimeUpdate,
     onAudioElementCreated
-  ]) // Corrected: Removed trailing slash
+  ])
 
-  // Effect to handle external commands (like play/pause/stop from parent MiniPlayer)
   useEffect(() => {
     if (
       globalAudioCommandTimestamp &&
@@ -177,22 +162,19 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
         `[AudioPlayerCore] Detected globalAudioCommandTimestamp change: ${globalAudioCommandTimestamp}. Current src: ${audioRef.current?.src?.slice(-20)}`
       )
       if (audioRef.current && audioRef.current.src) {
-        // Only act if there's an audio source loaded
         console.debug(
           `[AudioPlayerCore] Global stop: Calling internal stop logic for src: ${audioRef.current.src.slice(-20)}`
         )
-        // Call this component's own stop logic
+
         audioRef.current.pause()
         audioRef.current.currentTime = 0
-        // The 'pause' and 'timeupdate' (to 0) events will trigger
-        // setIsPlaying(false) and setProgress(0) via the main useEffect's listeners.
-        onStopProp?.() // Also call the onStopProp passed from MiniPlayer, which calls global stopPlayer
+
+        onStopProp?.()
       }
       prevGlobalAudioCommandTimestampRef.current = globalAudioCommandTimestamp
     }
   }, [globalAudioCommandTimestamp, onStopProp])
 
-  // Effect to react to globalAudioCommandTimestamp for "Stop All"
   useEffect(() => {
     if (
       globalAudioCommandTimestamp &&
@@ -202,12 +184,6 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
         `[AudioPlayerCore] Detected globalAudioCommandTimestamp change: ${globalAudioCommandTimestamp}. Current src: ${audioRef.current?.src.slice(-20)}`
       )
       if (audioRef.current && audioRef.current.src) {
-        // Only act if there's an audio source loaded
-        // The actual audio.pause() and currentTime=0 was done by stopAllPlayers.
-        // This effect ensures this component's UI state (isPlaying, progress) reflects that.
-        // The 'pause' and 'timeupdate' events on audioRef.current should trigger the state updates
-        // via the listeners in the main useEffect.
-        // Forcing it here ensures UI reset even if events are missed or audio element was already removed by stopPlayer.
         setIsPlaying(false)
         setProgress(0)
         console.debug(`[AudioPlayerCore] UI explicitly reset due to globalAudioCommandTimestamp.`)
@@ -225,7 +201,6 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
         audioRef.current.pause()
       }
     } else if (audioSrc) {
-      // If src prop is available but not on element yet
       audioRef.current.src = audioSrc
       audioRef.current.load()
       audioRef.current
@@ -239,7 +214,7 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
     if (audioRef.current.src) {
       audioRef.current.pause()
       audioRef.current.currentTime = 0
-      // Event listeners ('pause', 'timeupdate') will update isPlaying and progress state
+
       onStopProp?.()
     }
   }, [onStopProp])
@@ -256,20 +231,35 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
       <Stack sx={{ flexGrow: 1, pr: 1 }}>
         {title && (
           <Tooltip title={namePart} placement="top" arrow>
-            <Typography variant="caption">{displayName}</Typography>
+            <Button
+              variant="outlined"
+              size="small"
+              sx={{
+                width: '100%',
+                height: '33px',
+                justifyContent: 'flex-start',
+                textTransform: 'none',
+                textAlign: 'left',
+                position: 'relative'
+              }}
+            >
+              {displayName}
+              <LinearProgress
+                variant="determinate"
+                value={!audioSrc ? 0 : progress}
+                sx={{
+                  opacity: progress > 0 ? 1 : 0,
+                  height: 6,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  bgcolor: !audioSrc ? 'action.disabledBackground' : 'transparent',
+                  position: 'absolute'
+                }}
+              />
+            </Button>
           </Tooltip>
         )}
-        <LinearProgress
-          variant="determinate"
-          value={!audioSrc ? 0 : progress}
-          sx={{
-            flexGrow: 1,
-            height: 6,
-            borderRadius: 3,
-            mt: '3px',
-            bgcolor: !audioSrc ? 'action.disabledBackground' : undefined
-          }}
-        />
       </Stack>
       <Tooltip title={isPlaying ? 'Pause' : 'Play'}>
         <span>
