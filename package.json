@@ -1,8 +1,8 @@
 {
   "name": "io",
   "productName": "io",
-  "version": "0.1.7",
-  "description": "io 0.1.6 - supercharged with Vitron (by Blade)",
+  "version": "0.1.8",
+  "description": "io 0.1.8 - supercharged with Vitron (by Blade)",
   "exports": "./out/main/index.js",
   "main": "./out/main/index.js",
   "type": "module",
