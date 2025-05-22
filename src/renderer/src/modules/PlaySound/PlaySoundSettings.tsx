@@ -182,6 +182,7 @@ export const PlaySoundSettings: FC = () => {
 
     if (!event.currentTarget.contains(event.relatedTarget as Node)) {
       setIsBatchImportDragging(false)
+      setIsWindowBeingDraggedOver(false)
       setDropMessage(null)
     }
   }, [])

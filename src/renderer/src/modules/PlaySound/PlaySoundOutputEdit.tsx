@@ -194,6 +194,7 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
     e.stopPropagation()
     if (!e.currentTarget.contains(e.relatedTarget as Node)) {
       setIsDraggingOverAudioZone(false)
+      setIsWindowBeingDraggedOver(false)
       setDropMessage(null)
     }
   }, [])

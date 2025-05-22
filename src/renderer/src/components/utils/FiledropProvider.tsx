@@ -37,9 +37,7 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
 export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
   const isWindowBeingDraggedOver = useMainStore((state) => state.isWindowBeingDraggedOver)
   const dropMessage = useMainStore((state) => state.dropMessage)
-  const setIsWindowBeingDraggedOverGlobal = useMainStore(
-    (state) => state.setIsWindowBeingDraggedOver
-  )
+  const setIsWindowBeingDraggedOver = useMainStore((state) => state.setIsWindowBeingDraggedOver)
 
   const [showImportConfirmDialog, setShowImportConfirmDialog] = useState(false)
   const [importedProfileData, setImportedProfileData] = useState<ProfileExportFormat | null>(null)
@@ -99,7 +97,7 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
     (e: DragEvent<HTMLElement>) => {
       e.preventDefault()
 
-      setIsWindowBeingDraggedOverGlobal(false)
+      setIsWindowBeingDraggedOver(false)
 
       if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
         const file = e.dataTransfer.files[0]
@@ -118,7 +116,7 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
         }
       }
     },
-    [processDroppedProfileFile, setIsWindowBeingDraggedOverGlobal]
+    [processDroppedProfileFile, setIsWindowBeingDraggedOver]
   )
 
   const handleGlobalDragOver = useCallback(
@@ -127,12 +125,12 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
 
       if (e.dataTransfer.types.includes('Files')) {
         if (!isWindowBeingDraggedOver) {
-          setIsWindowBeingDraggedOverGlobal(true)
+          setIsWindowBeingDraggedOver(true)
         }
       }
       e.dataTransfer.dropEffect = 'copy'
     },
-    [isWindowBeingDraggedOver, setIsWindowBeingDraggedOverGlobal]
+    [isWindowBeingDraggedOver, setIsWindowBeingDraggedOver]
   )
 
   const handleCloseConfirmDialog = () => {
@@ -206,17 +204,17 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
   useEffect(() => {
     const handleDocDragEnter = (e: globalThis.DragEvent) => {
       if (e.dataTransfer?.types.includes('Files')) {
-        setIsWindowBeingDraggedOverGlobal(true)
+        setIsWindowBeingDraggedOver(true)
       }
     }
     const handleDocDragLeave = (e: globalThis.DragEvent) => {
       if (!e.relatedTarget || (e.relatedTarget as Node).nodeName === 'HTML') {
-        setIsWindowBeingDraggedOverGlobal(false)
+        setIsWindowBeingDraggedOver(false)
       }
     }
 
     const handleDocDrop = () => {
-      setIsWindowBeingDraggedOverGlobal(false)
+      setIsWindowBeingDraggedOver(false)
     }
 
     document.addEventListener('dragenter', handleDocDragEnter)
@@ -228,7 +226,7 @@ export const FiledropProvider: FC<FiledropProviderProps> = ({ children }) => {
       document.removeEventListener('dragleave', handleDocDragLeave)
       document.removeEventListener('drop', handleDocDrop)
     }
-  }, [setIsWindowBeingDraggedOverGlobal])
+  }, [setIsWindowBeingDraggedOver])
 
   return (
     <Box
