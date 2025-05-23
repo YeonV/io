@@ -196,9 +196,20 @@ export const PlaySoundSettings: FC = () => {
   return (
     <Paper
       elevation={2}
-      sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1, minWidth: 220 }}
+      sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1, minWidth: 285 }}
     >
-      <Typography variant="overline">Global Audio Control</Typography>
+      <Typography variant="overline">Sound Settings</Typography>
+      <Button
+        variant="outlined"
+        color="info"
+        onClick={handleActualStopAllSounds}
+        startIcon={<StopCircle />}
+        fullWidth
+        size="small"
+        sx={{ height: 40 }}
+      >
+        Stop All Sounds
+      </Button>
       <Button
         variant="outlined"
         color="primary"
@@ -209,24 +220,13 @@ export const PlaySoundSettings: FC = () => {
         sx={{ height: 40 }}
         disabled={isLoadingInitialCount && initialCachedFileCount === 0}
       >
-        Manage Cached Sounds (
+        Manage Sounds (
         {isLoadingInitialCount && initialCachedFileCount === 0 ? (
           <CircularProgress size={14} sx={{ mr: 0.5 }} />
         ) : (
           initialCachedFileCount
         )}
         )
-      </Button>
-      <Button
-        variant="contained"
-        color="error"
-        onClick={handleActualStopAllSounds}
-        startIcon={<StopCircle />}
-        fullWidth
-        size="small"
-        sx={{ height: 40 }}
-      >
-        Stop All Sounds
       </Button>
 
       <Dialog

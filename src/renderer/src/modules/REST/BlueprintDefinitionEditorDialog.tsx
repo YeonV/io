@@ -1,6 +1,6 @@
 // src/renderer/src/modules/REST/BlueprintDefinitionEditorDialog.tsx
 import type { FC } from 'react'
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useCallback } from 'react' // Added useCallback
 import {
   Button,
   Dialog,
@@ -12,18 +12,20 @@ import {
   Typography,
   Grid,
   Alert,
-  Box,
-  Link
+  Box
 } from '@mui/material'
-import JSONInput from 'react-json-editor-ajrm'
-import locale from './en' // Assuming common locale for JSONInput
+// JSONInput locale - path might need adjustment if ToggleEditorView is in a different dir
+
 import { v4 as uuidv4 } from 'uuid'
-import type { BlueprintDefinition, SimpleInputField } from './REST.types' // Assuming path
+import type { BlueprintDefinition, SimpleInputField } from './REST.types'
+import { SimpleInputFieldListEditor } from './SimpleInputFieldListEditor' // UI editor for simple inputs
+import { ToggleEditorView } from '@/components/ToggleEditorView/ToggleEditorView'
+import { PresetTemplateEditorUI } from './PresetTemplateEditorUI'
 
 // Default empty/template structures for new blueprints
 const newBlueprintBaseTemplate: Omit<BlueprintDefinition, 'id' | 'name' | 'description' | 'icon'> =
   {
-    creatorInfo: { name: 'My IO User' }, // Default creator
+    creatorInfo: { name: 'My IO User' },
     simpleInputs: [
       {
         id: 'exampleInput',
@@ -43,7 +45,7 @@ const newBlueprintBaseTemplate: Omit<BlueprintDefinition, 'id' | 'name' | 'descr
       headersTemplate: {
         'Content-Type': 'application/json'
       },
-      bodyTemplateTemplate: '' // Empty for GET, or example: '{ "key": "{{blueprintInput.exampleInput}}" }'
+      bodyTemplateTemplate: ''
     }
   }
 
@@ -65,78 +67,82 @@ export const BlueprintDefinitionEditorDialog: FC<BlueprintDefinitionEditorDialog
   const [bpName, setBpName] = useState('')
   const [bpDescription, setBpDescription] = useState('')
   const [bpIcon, setBpIcon] = useState('')
-  // For creator info, we might simplify or omit for MVP editor
 
-  // JSON string states for the complex parts
-  const [simpleInputsJsonString, setSimpleInputsJsonString] = useState('')
-  const [presetTemplateJsonString, setPresetTemplateJsonString] = useState('')
+  // State for SimpleInputs: object array and its string representation
+  const [simpleInputsData, setSimpleInputsData] = useState<SimpleInputField[]>([])
+  const [simpleInputsString, setSimpleInputsString] = useState('[]')
 
-  const [jsonError, setJsonError] = useState<string | null>(null)
+  // State for PresetTemplate: object and its string representation
+  const [presetTemplateData, setPresetTemplateData] = useState<
+    BlueprintDefinition['presetTemplate']
+  >(
+    newBlueprintBaseTemplate.presetTemplate // Initial non-null default
+  )
+  const [presetTemplateString, setPresetTemplateString] = useState('{}')
+
+  const [overallError, setOverallError] = useState<string | null>(null)
 
   useEffect(() => {
     if (open) {
-      setJsonError(null) // Clear errors on open
+      setOverallError(null)
       if (initialBlueprint) {
         setBpId(initialBlueprint.id)
         setBpName(initialBlueprint.name)
         setBpDescription(initialBlueprint.description || '')
         setBpIcon(initialBlueprint.icon || '')
-        setSimpleInputsJsonString(JSON.stringify(initialBlueprint.simpleInputs || [], null, 2))
-        setPresetTemplateJsonString(JSON.stringify(initialBlueprint.presetTemplate || {}, null, 2))
+
+        const initialSimpleInputs = initialBlueprint.simpleInputs || []
+        setSimpleInputsData([...initialSimpleInputs]) // Ensure new array instance for child
+        setSimpleInputsString(JSON.stringify(initialSimpleInputs, null, 2))
+
+        const initialPresetTemplate =
+          initialBlueprint.presetTemplate || newBlueprintBaseTemplate.presetTemplate
+        setPresetTemplateData({ ...initialPresetTemplate }) // Ensure new object instance
+        setPresetTemplateString(JSON.stringify(initialPresetTemplate, null, 2))
       } else {
-        // New blueprint: prefill with a unique ID and base template
-        setBpId(uuidv4()) // Generate new ID
+        setBpId(uuidv4())
         setBpName('')
         setBpDescription('')
         setBpIcon('')
-        setSimpleInputsJsonString(JSON.stringify(newBlueprintBaseTemplate.simpleInputs, null, 2))
-        setPresetTemplateJsonString(
-          JSON.stringify(newBlueprintBaseTemplate.presetTemplate, null, 2)
-        )
+
+        setSimpleInputsData([...newBlueprintBaseTemplate.simpleInputs])
+        setSimpleInputsString(JSON.stringify(newBlueprintBaseTemplate.simpleInputs, null, 2))
+
+        setPresetTemplateData({ ...newBlueprintBaseTemplate.presetTemplate })
+        setPresetTemplateString(JSON.stringify(newBlueprintBaseTemplate.presetTemplate, null, 2))
       }
     }
   }, [open, initialBlueprint])
 
   const handleSaveAction = () => {
-    setJsonError(null)
+    setOverallError(null)
     if (!bpId.trim() || !bpName.trim()) {
-      setJsonError('Blueprint ID and Name are required.')
+      setOverallError('Blueprint ID and Name are required.')
       return
     }
 
-    let parsedSimpleInputs: SimpleInputField[]
-    let parsedPresetTemplate: BlueprintDefinition['presetTemplate']
+    // At this point, simpleInputsData and presetTemplateData should be the source of truth
+    // if the user was in UI mode. If they were in Code mode, ToggleEditorView
+    // should have updated these object states upon a successful "Save & Switch" or
+    // if Code mode was clean when switching.
+    // We still need a final validation of the object structures.
 
-    try {
-      parsedSimpleInputs = JSON.parse(simpleInputsJsonString)
-      if (!Array.isArray(parsedSimpleInputs))
-        throw new Error("'Simple Inputs' must be a JSON array.")
-      // TODO: Add deeper validation for SimpleInputField structure if needed
-    } catch (e: any) {
-      setJsonError(
-        `Error in 'Simple Inputs' JSON: ${e.message}. Please correct the JSON structure.`
-      )
+    if (!Array.isArray(simpleInputsData)) {
+      // Basic check
+      setOverallError("'Simple Inputs' data is not a valid array. Please check the editor view.")
       return
     }
+    // TODO: Deeper validation for each SimpleInputField in simpleInputsData array
 
-    try {
-      parsedPresetTemplate = JSON.parse(presetTemplateJsonString)
-      if (typeof parsedPresetTemplate !== 'object' || parsedPresetTemplate === null) {
-        throw new Error("'Preset Template' must be a JSON object.")
-      }
-      // Basic check for required template fields
-      if (
-        !parsedPresetTemplate.nameTemplate ||
-        !parsedPresetTemplate.urlTemplate ||
-        !parsedPresetTemplate.method
-      ) {
-        throw new Error(
-          "'Preset Template' is missing required fields: nameTemplate, urlTemplate, or method."
-        )
-      }
-    } catch (e: any) {
-      setJsonError(
-        `Error in 'Preset Template' JSON: ${e.message}. Please correct the JSON structure.`
+    if (
+      typeof presetTemplateData !== 'object' ||
+      presetTemplateData === null ||
+      !presetTemplateData.nameTemplate ||
+      !presetTemplateData.urlTemplate ||
+      !presetTemplateData.method
+    ) {
+      setOverallError(
+        "'Preset Template' data is invalid or missing required fields (nameTemplate, urlTemplate, method). Please check the editor view."
       )
       return
     }
@@ -144,46 +150,78 @@ export const BlueprintDefinitionEditorDialog: FC<BlueprintDefinitionEditorDialog
     const blueprintToSave: BlueprintDefinition = {
       id: bpId.trim(),
       name: bpName.trim(),
-      description: bpDescription.trim() || '',
+      description: bpDescription.trim(),
       icon: bpIcon.trim() || undefined,
-      // creatorInfo could be added here if we have fields for it
-      simpleInputs: parsedSimpleInputs,
-      presetTemplate: parsedPresetTemplate
+      creatorInfo: initialBlueprint?.creatorInfo || newBlueprintBaseTemplate.creatorInfo, // Retain or default
+      simpleInputs: simpleInputsData,
+      presetTemplate: presetTemplateData
     }
     onSave(blueprintToSave)
     onClose()
   }
 
+  // Validation function for SimpleInputs string -> object
+  const validateSimpleInputsString = useCallback((jsonString: string) => {
+    try {
+      const parsed = JSON.parse(jsonString)
+      if (!Array.isArray(parsed)) {
+        return { isValid: false, error: 'Simple Inputs must be a JSON array.' }
+      }
+      // TODO: Add more granular validation for each item in the array against SimpleInputField type
+      return { isValid: true, parsedObject: parsed as SimpleInputField[] }
+    } catch (e: any) {
+      return { isValid: false, error: e.message }
+    }
+  }, [])
+
+  // Validation function for PresetTemplate string -> object
+  const validatePresetTemplateString = useCallback((jsonString: string) => {
+    try {
+      const parsed = JSON.parse(jsonString)
+      if (typeof parsed !== 'object' || parsed === null) {
+        return { isValid: false, error: 'Preset Template must be a JSON object.' }
+      }
+      if (!parsed.nameTemplate || !parsed.urlTemplate || !parsed.method) {
+        return {
+          isValid: false,
+          error: 'Preset Template is missing required fields: nameTemplate, urlTemplate, or method.'
+        }
+      }
+      return { isValid: true, parsedObject: parsed as BlueprintDefinition['presetTemplate'] }
+    } catch (e: any) {
+      return { isValid: false, error: e.message }
+    }
+  }, [])
+
   return (
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="lg" // Allow wider dialog for JSON editors
+      maxWidth="lg"
       fullWidth
       PaperProps={{
-        component: 'form', // Not strictly needed if Button type="button"
+        component: 'form',
         onSubmit: (e) => {
           e.preventDefault()
           handleSaveAction()
         }
       }}
     >
-      <DialogTitle>
-        {initialBlueprint ? 'Edit' : 'Create New'} Blueprint Definition (Advanced)
-      </DialogTitle>
+      <DialogTitle>{initialBlueprint ? 'Edit' : 'Create New'} Blueprint Definition</DialogTitle>
       <DialogContent>
         <Stack spacing={2.5} sx={{ mt: 1 }}>
-          {jsonError && (
-            <Alert severity="error" onClose={() => setJsonError(null)} sx={{ mb: 2 }}>
-              {jsonError}
+          {overallError && (
+            <Alert severity="error" onClose={() => setOverallError(null)} sx={{ mb: 2 }}>
+              {overallError}
             </Alert>
           )}
 
           <Typography variant="h6" gutterBottom>
             Blueprint Metadata
           </Typography>
+          {/* --- Metadata Grid (same as before) --- */}
           <Grid container spacing={2}>
-            <Grid size={{ sm: 3, xs: 12 }}>
+            <Grid size={{ xs: 12, sm: 3 }}>
               <TextField
                 label="Blueprint ID *"
                 value={bpId}
@@ -191,15 +229,11 @@ export const BlueprintDefinitionEditorDialog: FC<BlueprintDefinitionEditorDialog
                 fullWidth
                 required
                 size="small"
-                disabled={!!initialBlueprint} // ID usually not editable after creation
-                helperText={
-                  initialBlueprint
-                    ? 'ID cannot be changed.'
-                    : 'Unique identifier (auto-generated for new).'
-                }
+                disabled={!!initialBlueprint}
+                helperText={initialBlueprint ? 'ID cannot be changed.' : 'Unique identifier.'}
               />
             </Grid>
-            <Grid size={{ sm: 5, xs: 12 }}>
+            <Grid size={{ xs: 12, sm: 5 }}>
               <TextField
                 label="Blueprint Name *"
                 value={bpName}
@@ -210,14 +244,14 @@ export const BlueprintDefinitionEditorDialog: FC<BlueprintDefinitionEditorDialog
                 autoFocus={!initialBlueprint}
               />
             </Grid>
-            <Grid size={{ sm: 4, xs: 12 }}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <TextField
                 label="Icon (Optional)"
                 value={bpIcon}
                 onChange={(e) => setBpIcon(e.target.value)}
                 fullWidth
                 size="small"
-                placeholder="e.g., mdi:cogs or an emoji"
+                placeholder="e.g., mdi:cogs"
               />
             </Grid>
             <Grid size={{ xs: 12 }}>
@@ -233,102 +267,78 @@ export const BlueprintDefinitionEditorDialog: FC<BlueprintDefinitionEditorDialog
             </Grid>
           </Grid>
 
-          <Box sx={{ my: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Simple Input Fields (JSON Array)
-            </Typography>
-            <Typography variant="caption" component="div" sx={{ mb: 1 }}>
-              Define the array of input fields the user will see. Each object in the array must
-              conform to the <code>SimpleInputField</code> structure. Refer to{' '}
-              <Link
-                href="YOUR_DOCS_LINK_HERE_FOR_SimpleInputField_STRUCTURE"
-                target="_blank"
-                rel="noopener"
-              >
-                documentation
-              </Link>{' '}
-              for details.
-            </Typography>
-            <JSONInput
-              id="blueprint-simpleinputs-editor"
-              // placeholder={simpleInputsForEditor} // Using viewArray to show the live content
-              placeholder={JSON.parse(simpleInputsJsonString || '[]')}
-              onBlur={(data: { jsObject?: any; json?: string; text?: string; error?: any }) => {
-                // Use onBlur for final state update
-                if (data.json !== undefined && !data.error) {
-                  setSimpleInputsJsonString(JSON.stringify(data.jsObject || [], null, 2)) // Update with formatted string
-                } else if (data.error) {
-                  // JSONInput usually shows error internally. Set local error if needed.
-                  setJsonError(
-                    `Error in Simple Inputs JSON: ${data.error.reason || 'Invalid syntax'}`
-                  )
-                }
-              }}
-              locale={locale}
-              colors={{ background: '#1e1e1e', default: '#e0e0e0' /* ... more colors ... */ }}
-              style={{
-                outerBox: { width: '100%' },
-                body: { fontSize: '13px' },
-                container: { border: '1px solid #444', borderRadius: '4px' }
-              }}
-              height="250px"
-              width="100%"
-              confirmGood={false}
-              reset={false}
-            />
-          </Box>
+          <ToggleEditorView<SimpleInputField[]>
+            title="Simple Input Fields Configuration"
+            objectData={simpleInputsData}
+            stringData={simpleInputsString}
+            onObjectChange={setSimpleInputsData} // UI Editor changes object state
+            onStringChange={setSimpleInputsString} // Code Editor changes string state
+            jsonInputId="blueprint-simpleinputs-json-editor"
+            jsonInputHeight="300px"
+            validateStringToObject={validateSimpleInputsString}
+            // validateObjectToString can be simpler if SimpleInputFieldListEditor ensures valid objects
+            validateObjectToString={(obj) => ({
+              isValid: true,
+              stringifiedObject: JSON.stringify(obj, null, 2)
+            })}
+          >
+            {(
+              currentData,
+              setData,
+              setUiDirty // Children is the UI Editor
+            ) => (
+              <SimpleInputFieldListEditor
+                value={currentData}
+                onChange={(newFields) => {
+                  setData(newFields) // Update ToggleEditorView's internal object
+                  setUiDirty(true) // Signal that UI has made a change
+                }}
+              />
+            )}
+          </ToggleEditorView>
 
-          <Box sx={{ my: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Preset Template (JSON Object)
-            </Typography>
-            <Typography variant="caption" component="div" sx={{ mb: 1 }}>
-              Define the template for the REST Preset. Use placeholders like{' '}
-              <code>{'{{blueprintInput.yourSimpleInputId}}'}</code> in string values. Ensure{' '}
-              <code>nameTemplate</code>, <code>urlTemplate</code>, and <code>method</code> are
-              present. Refer to{' '}
-              <Link
-                href="YOUR_DOCS_LINK_HERE_FOR_PresetTemplate_STRUCTURE"
-                target="_blank"
-                rel="noopener"
-              >
-                documentation
-              </Link>{' '}
-              for details.
-            </Typography>
-            <JSONInput
-              id="blueprint-presettemplate-editor"
-              // placeholder={presetTemplateForEditor}
-              placeholder={JSON.parse(presetTemplateJsonString || '{}')} // Use parsed string for placeholder
-              onBlur={(data: { jsObject?: any; json?: string; text?: string; error?: any }) => {
-                // Use onBlur
-                if (data.json !== undefined && !data.error) {
-                  setPresetTemplateJsonString(JSON.stringify(data.jsObject || {}, null, 2)) // Update with formatted string
-                } else if (data.error) {
-                  setJsonError(
-                    `Error in Preset Template JSON: ${data.error.reason || 'Invalid syntax'}`
-                  )
-                }
-              }}
-              locale={locale}
-              colors={{ background: '#1e1e1e', default: '#e0e0e0' /* ... more colors ... */ }}
-              style={{
-                outerBox: { width: '100%' },
-                body: { fontSize: '13px' },
-                container: { border: '1px solid #444', borderRadius: '4px' }
-              }}
-              height="350px"
-              width="100%"
-              confirmGood={false}
-            />
-          </Box>
+          <ToggleEditorView<BlueprintDefinition['presetTemplate']>
+            title="REST Preset Template Configuration"
+            objectData={presetTemplateData}
+            stringData={presetTemplateString}
+            onObjectChange={setPresetTemplateData}
+            onStringChange={setPresetTemplateString}
+            jsonInputId="blueprint-presettemplate-json-editor"
+            jsonInputHeight="400px"
+            validateStringToObject={validatePresetTemplateString}
+            validateObjectToString={(obj) => ({
+              isValid: true,
+              stringifiedObject: JSON.stringify(obj, null, 2)
+            })}
+          >
+            {(currentData, setData, setUiDirty) => (
+              // This is where the Phase 2, Part 2 GUI for PresetTemplate will go.
+              // For now, a placeholder or message.
+              // <Box sx={{ p: 2, border: '1px dashed grey', borderRadius: 1, textAlign: 'center' }}>
+              //   <Typography variant="body2" color="text.secondary">
+              //     Structured UI for Preset Template editor coming soon!
+              //     <br />
+              //     Please use the &quot;Code&quot; view for now to edit the Preset Template JSON.
+              //   </Typography>
+              //   <Typography variant="caption" component="div" sx={{ mt: 1 }}>
+              //     (Current Template Name: {currentData.nameTemplate})
+              //   </Typography>
+              // </Box>
+              <PresetTemplateEditorUI
+                templateData={currentData} // currentData is BlueprintDefinition['presetTemplate']
+                onTemplateDataChange={(newTemplateData) => {
+                  setData(newTemplateData) // Update ToggleEditorView's internal object
+                  setUiDirty(true) // Signal that UI has made a change
+                }}
+                availableSimpleInputs={simpleInputsData} // Pass the defined simpleInputs
+              />
+            )}
+          </ToggleEditorView>
         </Stack>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
         <Button type="submit" variant="contained">
-          {' '}
-          {/* type="submit" works with PaperProps form */}
           {initialBlueprint ? 'Save Blueprint Changes' : 'Create Blueprint'}
         </Button>
       </DialogActions>

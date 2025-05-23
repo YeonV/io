@@ -1,7 +1,7 @@
 // src/renderer/src/modules/REST/REST.tsx
 import type { InputData, ModuleConfig, OutputData, Row } from '@shared/types'
 import type { FC } from 'react'
-import { Button } from '@mui/material'
+import { Button, useMediaQuery } from '@mui/material'
 import { useEffect, useState } from 'react'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import { useRowActivation } from '@/hooks/useRowActivation'
@@ -56,22 +56,12 @@ export const OutputDisplay: FC<{
   const outputData = output.data as RestOutputRowData
   const isBlueprintConfigured = !!outputData.blueprintIdUsed
 
-  let displayText =
-    outputData.label || `${outputData.options.method} ${outputData.host.substring(0, 20)}...`
-  if (isBlueprintConfigured && outputData.label) {
-    displayText = outputData.label // Prefer label if set
-  } else if (isBlueprintConfigured) {
-    // Try to find blueprint name as a fallback if no label on row
-    // This might require accessing globalBlueprints if not too complex
-    // For now, just indicate it's blueprint based if no label
-    displayText = `Blueprint: ${outputData.blueprintIdUsed?.substring(0, 15)}...`
-  }
-
   return (
     <DisplayButtons
       data={{
         ...output,
-        name: displayText,
+        name: output.name,
+        label: outputData.label,
         icon: isBlueprintConfigured ? output.icon || 'api' : output.icon
       }}
     />

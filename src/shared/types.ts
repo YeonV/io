@@ -6,6 +6,7 @@ export type { ModuleId }
 export type Input = {
   name: string
   icon: string
+  label?: string
   editable?: boolean
   supportedContexts?: ModuleContext[]
 }
@@ -14,6 +15,7 @@ export type InputData = Input & { data: Record<string, any> }
 export type Output = {
   name: string
   icon: string
+  label?: string
   editable?: boolean
   supportedContexts?: ModuleContext[]
 }

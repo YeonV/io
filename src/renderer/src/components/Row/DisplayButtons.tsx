@@ -34,7 +34,7 @@ const DisplayButtons = ({ data, variant }: { data: InputData | OutputData; varia
         ) : (
           <Button
             size="small"
-            color="inherit"
+            color="primary"
             variant="outlined"
             sx={{
               fontSize: 12,
@@ -67,7 +67,7 @@ const DisplayButtons = ({ data, variant }: { data: InputData | OutputData; varia
         <IoIcon
           name={data.icon}
           style={{
-            marginRight: data.data.text || data.data.value ? '10px' : 0
+            marginRight: data.data.text || data.data.value || data.label ? '10px' : 0
           }}
         />
         {(data as OutputData).label || data.data.text?.slice(-31) || data.data.value?.slice(-31)}

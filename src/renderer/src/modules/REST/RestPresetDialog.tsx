@@ -1,4 +1,3 @@
-// src/renderer/src/modules/REST/RestPresetDialog.tsx
 import type { FC } from 'react'
 import { useEffect, useState } from 'react'
 import {
@@ -13,24 +12,23 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  IconButton,
+  // IconButton,
   Tooltip,
   Accordion,
   AccordionSummary,
   AccordionDetails,
   Typography
 } from '@mui/material'
-import { ExpandMore as ExpandMoreIcon, InfoOutlined } from '@mui/icons-material' // Standard expand icon
+import { ExpandMore as ExpandMoreIcon, InfoOutlined } from '@mui/icons-material'
 import JSONInput from 'react-json-editor-ajrm'
-// Assuming 'en' locale is standard for JSONInput, adjust path if moved
+
 import locale from '@/modules/REST/en'
 import { v4 as uuidv4 } from 'uuid'
 import type { RestPresetDefinition } from './REST.types'
 import IoIcon from '@/components/IoIcon/IoIcon'
 
-// Helper for JSONInput placeholder (empty object string for valid JSON)
-const EMPTY_JSON_OBJECT_STRING = '{}'
-const EMPTY_STRING = ''
+// const EMPTY_JSON_OBJECT_STRING = '{}'
+// const EMPTY_STRING = ''
 
 interface RestPresetDialogProps {
   open: boolean
@@ -47,14 +45,14 @@ export const RestPresetDialog: FC<RestPresetDialogProps> = ({
 }) => {
   const [presetId, setPresetId] = useState<string>('')
   const [name, setName] = useState('')
-  const [icon, setIcon] = useState<string | undefined>(undefined) // TODO: Icon picker integration
+  const [icon, setIcon] = useState<string | undefined>(undefined)
   const [description, setDescription] = useState('')
 
   const [url, setUrl] = useState('')
   const [method, setMethod] = useState<RestPresetDefinition['method']>('GET')
 
   const [headers, setHeaders] = useState<Record<string, string>>({})
-  const [bodyTemplate, setBodyTemplate] = useState<string>('') // Stored as string
+  const [bodyTemplate, setBodyTemplate] = useState<string>('')
 
   const [headersExpanded, setHeadersExpanded] = useState(false)
   const [bodyExpanded, setBodyExpanded] = useState(false)
@@ -70,14 +68,13 @@ export const RestPresetDialog: FC<RestPresetDialogProps> = ({
         setMethod(initialPreset.method || 'GET')
         setHeaders(initialPreset.headers || {})
         setBodyTemplate(initialPreset.bodyTemplate || '')
-        // Expand sections if they have content
+
         setHeadersExpanded(
           !!(initialPreset.headers && Object.keys(initialPreset.headers).length > 0)
         )
         setBodyExpanded(!!initialPreset.bodyTemplate)
       } else {
-        // New preset
-        setPresetId(uuidv4()) // Pre-generate ID for a new preset
+        setPresetId(uuidv4())
         setName('')
         setIcon(undefined)
         setDescription('')
@@ -93,7 +90,7 @@ export const RestPresetDialog: FC<RestPresetDialogProps> = ({
 
   const handleSaveAction = () => {
     if (!name.trim()) {
-      alert('Preset Name is required.') // Basic validation
+      alert('Preset Name is required.')
       return
     }
     if (!url.trim() || !url.match(/^https?:\/\/.+/)) {
@@ -119,20 +116,14 @@ export const RestPresetDialog: FC<RestPresetDialogProps> = ({
     if (data.jsObject && !data.error) {
       setHeaders(data.jsObject)
     } else if (!data.jsObject && Object.keys(headers).length > 0 && !data.error) {
-      // If user clears the input, JSONInput might send undefined jsObject but no error
-      // if the input was valid before clearing (e.g. just '{}').
-      // We interpret this as clearing the headers.
       setHeaders({})
     }
   }
 
   const handleBodyChange = (data: { json?: string; error?: any }) => {
-    // For bodyTemplate, we store it as a string. JSONInput gives `json` (string) or `text` (string).
-    // We'll use `json` as it implies the editor tried to maintain JSON structure if possible.
     if (typeof data.json === 'string' && !data.error) {
       setBodyTemplate(data.json)
     } else if (bodyTemplate.trim() !== '' && !data.json && !data.error) {
-      // If user clears the input
       setBodyTemplate('')
     }
   }
@@ -231,16 +222,15 @@ export const RestPresetDialog: FC<RestPresetDialogProps> = ({
             <AccordionDetails sx={{ p: 0, '& .jsoneditor-outer': { border: 'none !important' } }}>
               <JSONInput
                 id={`rest-preset-headers-${presetId}`}
-                placeholder={headers} // This is the initial value
+                placeholder={headers}
                 locale={locale}
                 colors={{
-                  background: 'transparent', // Match dialog background
-                  default: '#e0e0e0', // Text color
-                  string: '#ce9178', // String color
+                  background: 'transparent',
+                  default: '#e0e0e0',
+                  string: '#ce9178',
                   number: '#b5cea8',
                   colon: '#e0e0e0',
                   keys: '#9cdcfe'
-                  //   error: '#f44747'
                 }}
                 style={{
                   outerBox: { width: '100%' },
@@ -250,8 +240,8 @@ export const RestPresetDialog: FC<RestPresetDialogProps> = ({
                 height="150px"
                 width="100%"
                 onChange={handleHeaderChange}
-                waitAfterKeyPress={1000} // Delay before onChange is called
-                confirmGood={false} // Don't show "good" checkmark
+                waitAfterKeyPress={1000}
+                confirmGood={false}
               />
             </AccordionDetails>
           </Accordion>
@@ -281,31 +271,17 @@ export const RestPresetDialog: FC<RestPresetDialogProps> = ({
                                 */}
                 <JSONInput
                   id={`rest-preset-body-${presetId}`}
-                  // placeholder should be a JS object. Parse bodyTemplate, or use an empty object if invalid/empty.
                   placeholder={
                     bodyTemplate
                       ? (() => {
                           try {
                             return JSON.parse(bodyTemplate)
                           } catch (e) {
-                            // If bodyTemplate is not valid JSON (e.g. plain text, or user is typing)
-                            // we can't directly set it as a JS object placeholder.
-                            // The editor will show the raw bodyTemplate string and an error if it's not JSON.
-                            // To avoid JSONInput throwing an error on its initial render due to an invalid placeholder object,
-                            // give it a valid empty object if bodyTemplate itself isn't parseable JSON.
-                            // The actual content string is handled by how JSONInput displays non-JSON content.
-                            // A more robust way might be needed if non-JSON body templates are common.
-                            return {} // Fallback to empty object for placeholder if bodyTemplate is not valid JSON
+                            return {}
                           }
                         })()
-                      : {} // Default to empty object if bodyTemplate is empty
+                      : {}
                   }
-                  // The library itself will display the raw bodyTemplate string in the editor.
-                  // If bodyTemplate is not valid JSON, the editor will show an error state for its content.
-                  // There isn't a separate 'text' prop to directly inject arbitrary string content
-                  // that bypasses the JSON parsing for display. The content is managed via its internal state
-                  // based on the initial placeholder and user edits.
-                  // What we pass to placeholder IS the initial content.
                   locale={locale}
                   colors={{
                     background: 'transparent',
@@ -314,7 +290,6 @@ export const RestPresetDialog: FC<RestPresetDialogProps> = ({
                     number: '#b5cea8',
                     colon: '#e0e0e0',
                     keys: '#9cdcfe'
-                    // error: '#f44747'
                   }}
                   style={{
                     outerBox: { width: '100%' },
@@ -324,7 +299,7 @@ export const RestPresetDialog: FC<RestPresetDialogProps> = ({
                   viewOnly={false}
                   height="200px"
                   width="100%"
-                  onChange={handleBodyChange} // This correctly receives { json: stringValue, ... }
+                  onChange={handleBodyChange}
                   waitAfterKeyPress={1000}
                   confirmGood={false}
                 />
