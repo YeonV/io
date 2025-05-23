@@ -7,6 +7,7 @@ import type { Row, ModuleId, ModuleConfig, IOModule, ProfileDefinition } from '@
 import { v4 as uuidv4 } from 'uuid'
 import modulesFromFile from '@/modules/modules'
 import { storeUI, storeUIActions } from './storeUI'
+import { BlueprintDefinition } from '@/modules/REST/REST.types'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
@@ -35,6 +36,7 @@ type State = {
   globalAudioCommandTimestamp: string | null
   isWindowBeingDraggedOver: boolean
   dropMessage: string | null
+  blueprintToRunFromDrop: BlueprintDefinition | null
 
   // Actions
   enableModule: (moduleId: ModuleId) => void
@@ -53,6 +55,7 @@ type State = {
   setGlobalAudioCommandTimestamp: () => void
   setIsWindowBeingDraggedOver: (isDragging: boolean) => void
   setDropMessage: (message: string | null) => void
+  setBlueprintToRunFromDrop: (blueprint: BlueprintDefinition | null) => void
 }
 
 export const useMainStore = create<State>()(
@@ -68,6 +71,7 @@ export const useMainStore = create<State>()(
         globalAudioCommandTimestamp: null,
         isWindowBeingDraggedOver: false,
         dropMessage: 'Drop .ioProfile file',
+        blueprintToRunFromDrop: null,
         ...storeUIActions(set),
 
         enableModule: (moduleId: ModuleId) => {
@@ -271,7 +275,15 @@ export const useMainStore = create<State>()(
         setDropMessage: (message: string | null) => {
           // console.debug(`[mainStore] Setting dropMessage to: ${message}`); // Optional: can be spammy
           set({ dropMessage: message }, false, 'setDropMessage')
-        }
+        },
+        setBlueprintToRunFromDrop: (blueprint) =>
+          set(
+            produce((state: State) => {
+              state.blueprintToRunFromDrop = blueprint
+            }),
+            false,
+            'setBlueprintToRunFromDrop'
+          )
       }),
       {
         name: 'io-v2-storage',

@@ -10,6 +10,15 @@ import { log } from '@/utils'
 import type { ModuleId, OutputData, Row } from '@shared/types'
 import { moduleImplementations, ModuleImplementationMap } from '@/modules/moduleRegistry'
 import ProfileManagerSettings from '@/components/Settings/ProfileManagerSettings'
+import {
+  BlueprintDefinition,
+  RestModuleCustomConfig,
+  RestPresetDefinition,
+  SimpleInputFieldValue
+} from '@/modules/REST/REST.types'
+import { id as restModuleId } from '@/modules/REST/REST'
+import { v4 as uuidv4 } from 'uuid'
+import { BlueprintRunnerDialog } from '@/modules/REST/BlueprintRunnerDialog'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
@@ -85,6 +94,69 @@ const Home: FC = () => {
     setPrefillData(undefined)
   }, [setEditState])
 
+  const blueprintToRunFromDrop = useMainStore((state) => state.blueprintToRunFromDrop)
+  const setBlueprintToRunFromDrop = useMainStore((state) => state.setBlueprintToRunFromDrop)
+
+  const [isBlueprintRunnerOpen, setIsBlueprintRunnerOpen] = useState(false)
+  const [blueprintForRunner, setBlueprintForRunner] = useState<BlueprintDefinition | null>(null)
+
+  // For saving the generated preset globally if chosen in BlueprintRunnerDialog
+  // const presets = useMainStore(
+  //   (state) => (state.modules[restModuleId]?.config as RestModuleCustomConfig)?.presets || []
+  // )
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue)
+
+  useEffect(() => {
+    if (blueprintToRunFromDrop) {
+      console.log('[Home.tsx] Detected blueprint to run from drop:', blueprintToRunFromDrop.name)
+      setBlueprintForRunner(blueprintToRunFromDrop)
+      setIsBlueprintRunnerOpen(true)
+      // Important: Clear the trigger from the store once we've acknowledged it
+      setBlueprintToRunFromDrop(null)
+    }
+  }, [blueprintToRunFromDrop, setBlueprintToRunFromDrop])
+
+  const handleBlueprintRunnerDialogClose = () => {
+    setIsBlueprintRunnerOpen(false)
+    setBlueprintForRunner(null) // Clear the blueprint from local state
+  }
+
+  const handleBlueprintApplyFromDrop = (
+    generatedPresetConfig: Omit<RestPresetDefinition, 'id'>,
+    _inputSnapshot: Record<string, SimpleInputFieldValue>, // Snapshot might be useful for analytics or future features
+    saveAsGlobalPreset: boolean
+  ) => {
+    // This handler is called when BlueprintRunnerDialog (triggered by a drop) is "Applied".
+    // The primary action here, initiated from a global drop, is likely to save it as a global preset if chosen.
+    // "Apply to Row" doesn't have an immediate context here unless we decide to auto-create a row.
+    // For now, we'll focus on the "saveAsGlobalPreset" flag.
+
+    if (saveAsGlobalPreset) {
+      const newGlobalPreset: RestPresetDefinition = {
+        ...generatedPresetConfig,
+        id: uuidv4() // Generate a new ID for the global preset
+      }
+      const currentGlobalPresets =
+        (useMainStore.getState().modules[restModuleId]?.config as RestModuleCustomConfig)
+          ?.presets || []
+      setModuleConfig(restModuleId, 'presets', [...currentGlobalPresets, newGlobalPreset])
+      // You'll need useSnackbar here if you want the same feedback as in RestSettings
+      // For now, an alert or console log:
+      alert(`Global REST Preset "${newGlobalPreset.name}" created from dropped Blueprint!`)
+      console.log(
+        `[Home.tsx] Global Preset "${newGlobalPreset.name}" created from dropped Blueprint.`
+      )
+    } else {
+      alert(
+        `Blueprint "${blueprintForRunner?.name}" processed. Configuration generated but not saved as a global preset.`
+      )
+      console.log(
+        `[Home.tsx] Blueprint "${blueprintForRunner?.name}" processed. Config:`,
+        generatedPresetConfig
+      )
+    }
+    // The dialog will close itself via handleBlueprintRunnerDialogClose being called by its own onClose.
+  }
   // Initial dark mode fetch & console info
   useEffect(() => {
     if (ipcRenderer && useMainStore.getState().ui.darkMode === null) {
@@ -263,53 +335,63 @@ const Home: FC = () => {
   )
 
   return (
-    <Wrapper>
-      {usedModules.map((modId) => (
-        <ModuleGlobalActionsRunner key={`${modId}-global`} moduleId={modId} />
-      ))}
-
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginBottom: '1rem',
-          flexWrap: 'wrap'
-        }}
-      >
-        <ProfileManagerSettings key="profile-manager" />
-        {SettingsWidgets.length > 0 &&
-          SettingsWidgets.map((widget, index) => (
-            <div key={(widget as any)?.key || index} style={{ padding: '8px' }}>
-              {widget}
-            </div>
-          ))}
-      </div>
-
-      <div style={{ maxHeight: 'calc(100vh - 356px)', overflowY: 'auto' }}>
-        {rowsToDisplay.map((row) => (
-          <IoRow key={row.id} row={row} />
+    <>
+      <Wrapper>
+        {usedModules.map((modId) => (
+          <ModuleGlobalActionsRunner key={`${modId}-global`} moduleId={modId} />
         ))}
-      </div>
 
-      <Collapse in={showAddRow} timeout={500} unmountOnExit>
-        <Box sx={{ mt: 2, mb: 2 }}>
-          <IoNewRow
-            key={ioNewRowKey}
-            onComplete={handleAddRowComplete}
-            startNewPrefilledRow={startNewPrefilledRow}
-            initialPrefill={prefillData}
-          />
-        </Box>
-      </Collapse>
-      <Button
-        disabled={showAddRow}
-        variant="contained"
-        onClick={handleAddNewRowClick}
-        style={{ margin: '1rem auto', display: 'flex' }}
-      >
-        <Add /> Add New IO Row
-      </Button>
-    </Wrapper>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: '1rem',
+            flexWrap: 'wrap'
+          }}
+        >
+          <ProfileManagerSettings key="profile-manager" />
+          {SettingsWidgets.length > 0 &&
+            SettingsWidgets.map((widget, index) => (
+              <div key={(widget as any)?.key || index} style={{ padding: '8px' }}>
+                {widget}
+              </div>
+            ))}
+        </div>
+
+        <div style={{ maxHeight: 'calc(100vh - 356px)', overflowY: 'auto' }}>
+          {rowsToDisplay.map((row) => (
+            <IoRow key={row.id} row={row} />
+          ))}
+        </div>
+
+        <Collapse in={showAddRow} timeout={500} unmountOnExit>
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <IoNewRow
+              key={ioNewRowKey}
+              onComplete={handleAddRowComplete}
+              startNewPrefilledRow={startNewPrefilledRow}
+              initialPrefill={prefillData}
+            />
+          </Box>
+        </Collapse>
+        <Button
+          disabled={showAddRow}
+          variant="contained"
+          onClick={handleAddNewRowClick}
+          style={{ margin: '1rem auto', display: 'flex' }}
+        >
+          <Add /> Add New IO Row
+        </Button>
+      </Wrapper>
+      {blueprintForRunner && (
+        <BlueprintRunnerDialog
+          open={isBlueprintRunnerOpen}
+          onClose={handleBlueprintRunnerDialogClose}
+          blueprint={blueprintForRunner}
+          onApply={handleBlueprintApplyFromDrop}
+        />
+      )}
+    </>
   )
 }
 
