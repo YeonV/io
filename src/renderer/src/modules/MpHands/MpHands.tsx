@@ -32,6 +32,7 @@ export const id = 'mphands-module'
 
 export const moduleConfig: ModuleConfig<HandsModuleCustomConfig> = {
   menuLabel: 'A.I.',
+  description: 'Detect hand gestures using the camera',
   inputs: [{ name: 'Hand Gesture', icon: 'sign_language', supportedContexts: ['electron', 'web'] }],
   outputs: [],
   config: {

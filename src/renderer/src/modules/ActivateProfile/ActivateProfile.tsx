@@ -29,6 +29,7 @@ export const id = 'activate-profile-module'
 export const moduleConfig: ModuleConfig<{}> = {
   // No custom global config needed
   menuLabel: 'Application Control', // Or 'System', 'Profiles'
+  description: 'Activate a specific profile when this output is triggered',
   inputs: [], // This is an output-only module
   outputs: [
     {

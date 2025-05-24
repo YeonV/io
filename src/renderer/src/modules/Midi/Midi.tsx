@@ -36,6 +36,7 @@ export const id = 'midi-module'
 
 export const moduleConfig: ModuleConfig<MidiModuleCustomConfig> = {
   menuLabel: 'Input Device',
+  description: 'Listen to MIDI input events and trigger actions based on notes played',
   inputs: [
     { name: 'MIDI Note', icon: 'piano', editable: true, supportedContexts: ['electron', 'web'] }
   ], // Changed name for clarity

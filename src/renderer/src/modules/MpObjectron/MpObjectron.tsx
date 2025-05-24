@@ -10,6 +10,7 @@ export const id = 'mpobjectron-module'
 
 export const moduleConfig: ModuleConfig<ObjectronConfigExample> = {
   menuLabel: 'A.I.',
+  description: '[Dummy] Detect 3D objects using MediaPipe Objectron',
   inputs: [
     {
       name: 'Objectron',
@@ -40,7 +41,6 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   // console.log("HERE", input)
   return (
     <>
-      
       <Icon>{camelToSnake(input.icon)}</Icon>
       <Shortkey value={input.data.data.value} />
     </>

@@ -36,7 +36,7 @@ import ProfileManagerSettings from './ProfileManagerSettings' // Assuming this i
 import SettingsAbout from './SettingsAbout'
 import SettingsGeneral from './SettingsGeneral'
 import SettingsAppearance from './SettingsAppearance'
-import SettingsModule from './SettingsModule'
+import SettingsModule from './SettingsModuleBrowser'
 import SettingsHistory from './SettingsHistory'
 import { TransitionProps } from '@mui/material/transitions'
 import SettingsAllModulePanels from './SettingsAllModulePanels'
@@ -54,7 +54,7 @@ const settingsCategories: Array<{ id: SettingsCategory; label: string; icon: Rea
   { id: 'general', label: 'General', icon: <GeneralIcon /> },
   { id: 'appearance', label: 'Appearance', icon: <AppearanceIcon /> },
   { id: 'profiles', label: 'Profiles', icon: <ProfilesIcon /> },
-  { id: 'modules', label: 'Module Management', icon: <ModulesIcon /> },
+  { id: 'modules', label: 'Module Browser', icon: <ModulesIcon /> },
   { id: 'allModulePanels', label: 'Module Settings', icon: <AllSettingsPanelsIcon /> },
   { id: 'history', label: 'Row History', icon: <HistoryIcon /> },
   { id: 'about', label: 'About', icon: <AboutIcon /> }

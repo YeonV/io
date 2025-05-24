@@ -21,6 +21,7 @@ export const groupId = 'Network' // Added groupId as per your file tree (not in 
 // Updated ModuleConfig to use RestModuleCustomConfig
 export const moduleConfig: ModuleConfig<RestModuleCustomConfig> = {
   menuLabel: 'Network',
+  description: 'Make REST API calls with customizable options and blueprints.',
   inputs: [],
   outputs: [
     {

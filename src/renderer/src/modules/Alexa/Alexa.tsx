@@ -22,6 +22,7 @@ const ipcRenderer = window.electron?.ipcRenderer || false
 export const id = 'alexa-module'
 export const moduleConfig: ModuleConfig<{}> = {
   menuLabel: 'Input Device',
+  description: 'Emulate Alexa devices and trigger actions based on their state',
   inputs: [{ name: 'Alexa', icon: 'graphic_eq' }],
   outputs: [],
   config: { enabled: !!ipcRenderer }

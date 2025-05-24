@@ -16,6 +16,7 @@ export const id = 'keyboard-module'
 export const moduleConfig: ModuleConfig</* KeyboardConfigExample */ any> = {
   // Use any if no custom config
   menuLabel: 'Input Device',
+  description: 'local/global keyboard shortcuts & key press simulation',
   inputs: [
     {
       name: 'Keyboard',

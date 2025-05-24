@@ -10,6 +10,7 @@ export const id = 'mpfacemesh-module'
 
 export const moduleConfig: ModuleConfig<FaceMeshConfigExample> = {
   menuLabel: 'A.I.',
+  description: '[Dummy] Detect facial landmarks using MediaPipe Face Mesh',
   inputs: [
     {
       name: 'Face Mesh',

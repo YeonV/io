@@ -41,6 +41,7 @@ export const id = 'time-module'
 
 export const moduleConfig: ModuleConfig<TimeModuleCustomConfig> = {
   menuLabel: 'Time & Schedule',
+  description: 'Trigger actions based on time or schedule (recurring or one-shot).',
   inputs: [{ icon: 'schedule', name: 'Time Trigger', editable: true }],
   outputs: [],
   config: {

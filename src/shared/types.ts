@@ -58,6 +58,7 @@ export type ModuleContext = 'electron' | 'web'
 // T now represents ONLY the custom fields
 export type ModuleConfig<T = {}> = {
   menuLabel: string
+  description?: string
   inputs: Input[]
   outputs: Output[]
   // The final config type is an intersection of ModuleDefaultConfig and T

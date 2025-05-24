@@ -22,7 +22,7 @@ import {
   ListItemText
 } from '@mui/material'
 import {
-  SettingsApplications as ConfigureModuleIcon, // Re-aliased for clarity
+  Settings as ConfigureModuleIcon, // Re-aliased for clarity
   ViewList as ListViewIcon,
   GridView as GridViewIcon,
   Search as SearchIcon,
@@ -38,6 +38,7 @@ import IoIcon from '@/components/IoIcon/IoIcon'
 
 interface ModuleDisplayInfo {
   id: ModuleId
+  enabled?: boolean // Assuming moduleConfig has this property
   friendlyName: string
   fullIdName: string // e.g., "Keyboard (keyboard-module)"
   category: string
@@ -89,6 +90,7 @@ const SettingsModule: FC = () => {
 
       return {
         id: moduleId,
+        enabled: storeConfig.config?.enabled ?? true, // Default to true if not set
         friendlyName: friendlyNamePart,
         fullIdName: `${friendlyNamePart} (${moduleId.replace('-module', '')})`,
         category: storeConfig.menuLabel || 'Uncategorized',
@@ -231,7 +233,6 @@ const SettingsModule: FC = () => {
       />
 
       <Box sx={{ flexGrow: 1, overflowY: 'auto' }}>
-        {' '}
         {/* Scrollable area for content */}
         {filteredModules.length === 0 && searchTerm && (
           <Typography sx={{ textAlign: 'center', mt: 4 }} color="text.secondary">
@@ -246,71 +247,77 @@ const SettingsModule: FC = () => {
         {/* Grid View */}
         {viewMode === 'grid' && (
           <Grid container spacing={2}>
-            {filteredModules.map((mod) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={mod.id}>
-                <Card
-                  elevation={5}
-                  sx={{
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  <CardContent>
-                    <Stack direction="row" spacing={1.5} alignItems="center" mb={1}>
-                      <IoIcon name={mod.icon} style={{ fontSize: '2rem', color: 'primary.main' }} />
-                      <Typography variant="h6" component="div" sx={{ fontWeight: 'medium' }}>
-                        {mod.friendlyName}
+            {filteredModules
+              .sort((a, b) => (a.enabled === b.enabled ? 0 : a.enabled ? -1 : 1))
+              .map((mod) => (
+                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={mod.id}>
+                  <Card
+                    elevation={mod.enabled ? 6 : 2}
+                    sx={{
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      color: mod.enabled ? 'text.primary' : 'text.disabled'
+                    }}
+                  >
+                    <CardContent>
+                      <Stack direction="row" spacing={1.5} alignItems="center" mb={1}>
+                        <IoIcon
+                          name={mod.icon}
+                          style={{ fontSize: '2rem', color: 'primary.main' }}
+                        />
+                        <Typography variant="h6" component="div" sx={{ fontWeight: 'medium' }}>
+                          {mod.friendlyName}
+                        </Typography>
+                      </Stack>
+                      <Typography variant="caption" color="text.secondary" display="block">
+                        Category: {mod.category}
                       </Typography>
-                    </Stack>
-                    <Typography variant="caption" color="text.secondary" display="block">
-                      Category: {mod.category}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        my: 1.5,
-                        fontSize: '0.8rem',
-                        minHeight: '40px' /* For consistent card height */
-                      }}
-                    >
-                      {mod.description}
-                    </Typography>
-                    <Chip
-                      size="small"
-                      label={`${mod.inputCount} In / ${mod.outputCount} Out`}
-                      variant="outlined"
-                      sx={{ fontSize: '0.7rem' }}
-                    />
-                  </CardContent>
-                  <CardActions sx={{ justifyContent: 'flex-end', pt: 0 }}>
-                    {mod.hasSettingsWidget ? (
-                      <Tooltip title={`Configure ${mod.friendlyName}`}>
-                        <IconButton
-                          onClick={() => setViewingModuleSettings(mod.id)}
-                          size="small"
-                          color="primary"
-                        >
-                          <ConfigureModuleIcon />
-                        </IconButton>
-                      </Tooltip>
-                    ) : (
-                      <Tooltip title="This module has no specific settings panel">
-                        <span>
-                          {' '}
-                          {/* IconButton disabled needs a span wrapper for Tooltip */}
-                          <IconButton size="small" disabled>
-                            <NoSettingsIcon />
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          my: 1.5,
+                          fontSize: '0.8rem',
+                          minHeight: '40px' /* For consistent card height */
+                        }}
+                      >
+                        {mod.description}
+                      </Typography>
+                      <Chip
+                        size="small"
+                        label={`${mod.inputCount} In / ${mod.outputCount} Out`}
+                        variant="outlined"
+                        sx={{ fontSize: '0.7rem' }}
+                      />
+                    </CardContent>
+                    <CardActions sx={{ justifyContent: 'flex-end', pt: 0 }}>
+                      {mod.hasSettingsWidget ? (
+                        <Tooltip title={`Configure ${mod.friendlyName}`}>
+                          <IconButton
+                            onClick={() => setViewingModuleSettings(mod.id)}
+                            size="small"
+                            color="primary"
+                          >
+                            <ConfigureModuleIcon />
                           </IconButton>
-                        </span>
-                      </Tooltip>
-                    )}
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
+                        </Tooltip>
+                      ) : (
+                        <Tooltip title="This module has no specific settings panel">
+                          <span>
+                            {' '}
+                            {/* IconButton disabled needs a span wrapper for Tooltip */}
+                            <IconButton size="small" disabled>
+                              <NoSettingsIcon />
+                            </IconButton>
+                          </span>
+                        </Tooltip>
+                      )}
+                    </CardActions>
+                  </Card>
+                </Grid>
+              ))}
           </Grid>
         )}
         {/* List View */}

@@ -10,6 +10,7 @@ export const id = 'mppose-module'
 
 export const moduleConfig: ModuleConfig<PoseConfigExample> = {
   menuLabel: 'A.I.',
+  description: '[Dummy] Detect human poses using MediaPipe Pose',
   inputs: [
     {
       name: 'Pose',
@@ -40,7 +41,6 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   // console.log("HERE", input)
   return (
     <>
-      
       <Icon>{camelToSnake(input.icon)}</Icon>
       <Shortkey value={input.data.data.value} />
     </>

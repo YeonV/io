@@ -15,6 +15,7 @@ export const id = 'alert-module'
 
 export const moduleConfig: ModuleConfig<AlertConfigExample> = {
   menuLabel: 'Local',
+  description: 'Display an alert message in the UI',
   inputs: [],
   outputs: [
     {

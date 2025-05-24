@@ -14,7 +14,8 @@ import { PlaySoundSettings } from './components/PlaySoundSettings'
 export const id = 'playsound-module'
 
 export const moduleConfig: ModuleConfig<PlaySoundModuleCustomConfig> = {
-  menuLabel: 'Audio',
+  menuLabel: 'Local',
+  description: 'Play sound files from IndexedDB or local files',
   inputs: [], // This module is an output-only module
   outputs: [
     {

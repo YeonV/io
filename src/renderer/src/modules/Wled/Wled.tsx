@@ -12,6 +12,7 @@ export const id = 'wled-module'
 
 export const moduleConfig: ModuleConfig<WledConfigExample> = {
   menuLabel: 'Network',
+  description: 'Control WLED devices over the network using JSON API.',
   inputs: [],
   outputs: [
     {

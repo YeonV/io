@@ -14,6 +14,7 @@ export const id = 'shell-module'
 
 export const moduleConfig: ModuleConfig<ShellConfigExample> = {
   menuLabel: 'Local',
+  description: 'Run shell commands and scripts directly from the app.',
   inputs: [],
   outputs: [
     {

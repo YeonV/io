@@ -35,6 +35,7 @@ export const id = 'mpholistic-module'
 
 export const moduleConfig: ModuleConfig<HolisticModuleCustomConfig> = {
   menuLabel: 'A.I.',
+  description: '[WIP] Holistic Pose Estimation using MediaPipe',
   inputs: [
     { name: 'Holistic Pose', icon: 'accessibility_new' } // More specific name
   ],

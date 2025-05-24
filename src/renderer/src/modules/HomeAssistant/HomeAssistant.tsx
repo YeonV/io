@@ -12,6 +12,7 @@ export const groupId = 'Network'
 
 export const moduleConfig: ModuleConfig<HassConfigExample> = {
   menuLabel: 'Network',
+  description: '[Dummy] Send commands to Home Assistant via MQTT',
   inputs: [],
   outputs: [
     {

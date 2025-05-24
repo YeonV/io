@@ -61,8 +61,9 @@ export interface MqttOutputRowData {
 // --- Module Definition ---
 export const id = 'mqtt-module'
 export const moduleConfig: ModuleConfig<MqttModuleCustomConfig> = {
-  menuLabel: 'Network & Web',
-  inputs: [{ icon: 'rss_feed', name: 'MQTT Message Received', editable: true }],
+  menuLabel: 'Network',
+  description: 'Send and receive messages via MQTT protocol',
+  inputs: [{ icon: 'rss_feed', name: 'MQTT Message', editable: true }],
   outputs: [{ icon: 'publish', name: 'Publish MQTT Message', editable: true }],
   config: {
     enabled: true,
@@ -388,7 +389,6 @@ export const InputEdit: FC<{
         </FormControl>
         <Tooltip title="Add New Broker Profile">
           <span>
-            
             {/* IconButton disabled state needs a span wrapper for Tooltip */}
             <IconButton onClick={handleAddNewProfile} size="medium" sx={{ mb: '4px' }}>
               <AddLink />
@@ -611,7 +611,6 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   const brokerDisplay = resolveBrokerConfigForRowDisplay(d, ps)
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1, overflow: 'hidden' }}>
-      
       <DisplayButtons data={{ ...input, name: 'MQTT In' }} />
       <Button
         size="small"
@@ -660,7 +659,6 @@ export const OutputDisplay: FC<{ output: OutputData }> = ({ output }) => {
     : 'N/A'
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1, overflow: 'hidden' }}>
-      
       <DisplayButtons data={{ ...output, name: 'MQTT Out' }} />
       <Box
         sx={{

@@ -11,6 +11,7 @@ export const id = 'say-module'
 
 export const moduleConfig: ModuleConfig<SayConfigExample> = {
   menuLabel: 'Local',
+  description: "Speak text using the browser's speech synthesis capabilities.",
   inputs: [],
   outputs: [
     {

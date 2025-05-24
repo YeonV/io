@@ -11,7 +11,8 @@ type LedFxConfigExample = {}
 export const id = 'ledfx-module'
 
 export const moduleConfig: ModuleConfig<LedFxConfigExample> = {
-  menuLabel: 'LedFx',
+  menuLabel: 'Network',
+  description: 'Control LedFx scenes',
   inputs: [],
   outputs: [
     {
