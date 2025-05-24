@@ -32,6 +32,10 @@ export interface DeckState {
   deckLayouts: Record<string, DeckProfileLayoutConfig> // profileId -> layout config
   showSettings: boolean // For Deck's layout edit mode
   magicNumber: number // Grid cell size (used for rendering, might not need to be in store if Deck.tsx manages it)
+  sseClient: EventSource | null
+
+  // --- NEW THEME STATE FOR DECK ---
+  deckThemeMode: 'light' | 'dark'
 
   // Actions
   initializeSse: () => void
@@ -41,6 +45,7 @@ export interface DeckState {
   fetchCurrentActiveIoProfile: () => Promise<void>
   setDeckShowSettings: (show: boolean) => void
   setMagicNumber: (num: number) => void // Action to update magicNumber if needed
+  toggleDeckTheme: () => void
 
   // Action for Rnd drag/resize to update local layout AND sync the tile's full state
   updateAndSyncDeckTileLayout: (
@@ -88,6 +93,8 @@ export const useDeckStore = create<DeckState>()(
       deckLayouts: {},
       showSettings: false,
       magicNumber: DEFAULT_MAGIC_NUMBER,
+      sseClient: null,
+      deckThemeMode: window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
 
       setMagicNumber: (num: number) => set({ magicNumber: num }),
 
@@ -319,7 +326,11 @@ export const useDeckStore = create<DeckState>()(
         } catch (error) {
           console.error('DeckStore: Failed to activate IO profile', error)
         }
-      }
+      },
+      toggleDeckTheme: () =>
+        set((state) => ({
+          deckThemeMode: state.deckThemeMode === 'light' ? 'dark' : 'light'
+        }))
     }),
     {
       name: 'io-deck-v1-storage', // Changed name slightly to clear old storage if structure changed significantly

@@ -16,9 +16,7 @@ import {
 import {
   ExpandMore as ExpandMoreIcon,
   UnfoldLess as CollapseAllIcon,
-  UnfoldMore as ExpandAllIcon,
-  VisibilityOff as VisibilityOffIcon,
-  Visibility as VisibilityIcon // Icons for the switch
+  UnfoldMore as ExpandAllIcon
 } from '@mui/icons-material'
 import { moduleImplementations, type ModuleImplementationMap } from '@/modules/moduleRegistry'
 import { useMemo, useState, type FC, useEffect } from 'react'
@@ -93,7 +91,7 @@ const SettingsAllModulePanels: FC = () => {
   }, [modulesWithSettings])
 
   const handleAccordionChange =
-    (panelId: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+    (panelId: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
       setExpandedPanels((prevExpanded) =>
         isExpanded ? [...prevExpanded, panelId] : prevExpanded.filter((id) => id !== panelId)
       )

@@ -1,3 +1,4 @@
+// src/renderer/src/pages/Deck.tsx
 import { useEffect, useState, useMemo } from 'react'
 import {
   Box,
@@ -18,7 +19,6 @@ import 'react-resizable/css/styles.css'
 
 import { useWindowDimensions } from '@/utils' // Assuming path
 import { useShallow } from 'zustand/react/shallow'
-import { useMainStore } from '@/store/mainStore' // For main app's dark mode
 
 const DEFAULT_MAGIC_NUMBER_RENDER = 120 // Base size for calculations
 
@@ -29,20 +29,20 @@ const Deck = () => {
     rowsForCurrentProfile,
     deckLayouts,
     showSettings,
+    deckThemeMode,
     initializeSse,
     closeSse,
     fetchAllProfiles,
     fetchCurrentActiveIoProfile,
     setDeckShowSettings,
     updateAndSyncDeckTileLayout,
-    activateIoProfile
+    activateIoProfile,
+    toggleDeckTheme
     // magicNumber: storeMagicNumber, // Get from store if managed there
     // setMagicNumber: setStoreMagicNumber // Action to update store's magicNumber
   } = useDeckStore(useShallow((state) => state)) // Get all state and actions
 
   // For main app's dark mode if Deck is part of the same renderer context
-  const appDarkMode = useMainStore((state) => state.ui.darkMode)
-  const appSetDarkMode = useMainStore((state) => state.setDarkMode)
 
   const [disableDrag, setDisableDrag] = useState(false)
   const { width: windowWidth } = useWindowDimensions() // Renamed to avoid conflict if 'width' is a prop
@@ -103,9 +103,8 @@ const Deck = () => {
   const currentProfileLayout = currentIoProfileId ? deckLayouts[currentIoProfileId] || [] : []
 
   const handleToggleDarkmode = () => {
-    if (appSetDarkMode) appSetDarkMode(!appDarkMode)
+    toggleDeckTheme()
   }
-
   const handleProfileChangeOnDeck = (event: SelectChangeEvent<string>) => {
     const newProfileId = event.target.value || null
     activateIoProfile(newProfileId) // This tells main IO app to switch, SSE will update Deck's view
@@ -265,7 +264,6 @@ const Deck = () => {
         })}
         {Object.keys(rowsForCurrentProfile).length === 0 && (
           <Grid size={{ xs: 12 }} sx={{ textAlign: 'center', mt: 4 }}>
-            
             {/* Wrap message in Grid item for centering */}
             <Typography variant="h6" color="textSecondary">
               NO ROWS IN THIS PROFILE
@@ -281,7 +279,7 @@ const Deck = () => {
           alignItems: 'center',
           justifyContent: 'space-between',
           p: '2px 8px', // Consistent padding
-          background: appDarkMode ? '#1e1e1e' : '#e0e0e0', // Slightly adjusted footer colors
+          background: deckThemeMode ? '#1e1e1e' : '#e0e0e0', // Slightly adjusted footer colors
           borderTop: '1px solid',
           borderColor: 'divider',
           height: '44px', // Fixed height for footer
@@ -313,7 +311,7 @@ const Deck = () => {
           variant="caption"
           sx={{
             fontFamily: 'Montserrat-Alt1',
-            color: appDarkMode ? 'text.disabled' : 'text.secondary'
+            color: deckThemeMode ? 'text.disabled' : 'text.secondary'
           }}
         >
           IO Deck
@@ -323,7 +321,7 @@ const Deck = () => {
             <Sync fontSize="small" />
           </IconButton>
           <IconButton onClick={handleToggleDarkmode} title="Toggle Dark Mode">
-            {appDarkMode ? <LightMode fontSize="small" /> : <DarkMode fontSize="small" />}
+            {deckThemeMode ? <LightMode fontSize="small" /> : <DarkMode fontSize="small" />}
           </IconButton>
           <IconButton
             onClick={() => setDeckShowSettings(!showSettings)}

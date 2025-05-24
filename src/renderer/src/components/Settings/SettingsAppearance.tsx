@@ -7,7 +7,6 @@ import {
   FormControlLabel,
   Radio,
   Stack,
-  Box,
   FormLabel,
   FormControl
 } from '@mui/material'
