@@ -1,6 +1,6 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useMainStore } from '@/store/mainStore'
-import { Box, Button, Collapse } from '@mui/material'
+import { Box, Button, Collapse, Typography } from '@mui/material'
 import { Add } from '@mui/icons-material'
 import IoRow from '@/components/Row/IoRow'
 import IoNewRow, { PrefillData } from '@/components/Row/IoNewRow'
@@ -18,6 +18,8 @@ import {
 import { id as restModuleId } from '@/modules/REST/REST'
 import { v4 as uuidv4 } from 'uuid'
 import { BlueprintRunnerDialog } from '@/modules/REST/BlueprintRunnerDialog'
+import { LogEntry } from '@/components/LogViewer/LogViewer.types'
+import LogViewer from '@/components/LogViewer/LogViwer'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
@@ -42,6 +44,8 @@ const Home: FC = () => {
   const activeProfileId = useMainStore((state) => state.activeProfileId)
   const profiles = useMainStore((state) => state.profiles)
   const setActiveProfile = useMainStore((state) => state.setActiveProfile)
+  const addRowHistoryEntry = useMainStore((state) => state.addRowHistoryEntry)
+  const rowHistory = useMainStore((state) => state.rowHistory)
 
   const rowsToDisplay = useMemo(() => {
     const allRowsArray = Object.values(rows)
@@ -301,6 +305,126 @@ const Home: FC = () => {
     [usedModules]
   )
 
+  const dummyLogEntries: LogEntry[] = [
+    {
+      id: uuidv4(),
+      timestamp: Date.now() - 1000 * 60 * 5, // 5 minutes ago
+      level: 'info',
+      icon: 'mdi:information-outline', // Example using mdi icon via IoIcon
+      summary: 'User logged in successfully.',
+      source: 'Auth System',
+      details: { userId: 'blade123', ipAddress: '192.168.1.100', sessionDuration: '3600s' }
+    },
+    {
+      id: uuidv4(),
+      timestamp: Date.now() - 1000 * 60 * 2, // 2 minutes ago
+      level: 'success',
+      summary: 'Row "Toggle Lights" triggered by Keyboard Shortcut (Ctrl+Alt+L).',
+      source: 'Row Engine',
+      details: {
+        rowId: 'row-abc-123',
+        rowName: 'Toggle Lights',
+        triggerType: 'Keyboard',
+        triggerDetails: 'Ctrl+Alt+L',
+        outputModule: 'REST Call',
+        outputAction: 'Sent GET to http://lightcontrol/toggle',
+        status: 'Success'
+      }
+    },
+    {
+      id: uuidv4(),
+      timestamp: Date.now() - 1000 * 30, // 30 seconds ago
+      level: 'warn',
+      summary: 'MQTT connection to broker "Main Home" temporarily lost.',
+      source: 'MQTT Module',
+      details: 'Attempting to reconnect in 10 seconds. Error: timeout.'
+    },
+    {
+      id: uuidv4(),
+      timestamp: Date.now(),
+      level: 'error',
+      summary: 'Failed to execute REST call for Blueprint "GitHub Stats"',
+      source: 'REST Module',
+      details: {
+        blueprintId: 'bp_github_repo_stats_v1',
+        url: 'https://api.github.com/repos/YeonV/io/releases/latest',
+        statusCode: 403,
+        responseBody: {
+          message: 'API rate limit exceeded for your IP address.',
+          documentation_url: '...'
+        },
+        errorStack: 'Error: Forbidden at <anonymous>:123:45'
+      }
+    },
+    {
+      id: uuidv4(),
+      timestamp: Date.now() - 1000 * 60 * 60, // 1 hour ago
+      level: 'debug',
+      icon: 'mdi:bug',
+      summary: 'PlaceholderEnabledInput received new props.',
+      source: 'UI Components',
+      details: {
+        component: 'PlaceholderEnabledInput',
+        propsReceived: { value: 'test', availablePlaceholders: [{ id: 'test' }] }
+      }
+    }
+  ]
+
+  useEffect(() => {
+    const logRowTrigger = (event: Event) => {
+      if (!(event instanceof CustomEvent) || !event.detail) return
+
+      const eventDetail = event.detail
+      // Determine rowId and potential payload from the event detail
+      const rowId =
+        typeof eventDetail === 'object' && eventDetail.rowId
+          ? eventDetail.rowId
+          : typeof eventDetail === 'string'
+            ? eventDetail
+            : null
+      if (!rowId) {
+        console.warn(
+          '[History Logger] io_input event dispatched without a clear rowId in detail:',
+          eventDetail
+        )
+        return
+      }
+
+      const storeState = useMainStore.getState()
+      const row = storeState.rows[rowId]
+
+      if (row) {
+        const historyEntryData: Omit<LogEntry, 'id' | 'timestamp'> = {
+          level: 'info',
+          icon: row.output.icon || row.input.icon || 'mdi:play-circle-outline',
+          source: `${row.outputModule.replace('-module', '')}`,
+          summary: `${row.input.name || row.inputModule.replace('-module', '')} triggered ${row.output.name || row.outputModule.replace('-module', '')} ${row.output.data.originalFileName || row.output.data.text}`,
+          details: {
+            // rowId: row.id,
+            // triggeredByModule: row.inputModule,
+            // inputConfigName: row.input.data.name || 'Default Input',
+            // ...(inputPayload !== undefined && { inputPayloadReceived: inputPayload }),
+            // outputModule: row.outputModule || 'N/A',
+            // outputConfigName: row.output.data.name || 'Default Output'
+            ...row
+          }
+        }
+        addRowHistoryEntry(historyEntryData)
+        console.log(`[History Logger] Logged trigger for row: ${rowId}`)
+      } else {
+        console.warn(`[History Logger] Row with ID '${rowId}' not found for io_input event.`)
+      }
+    }
+
+    console.debug('[Home.tsx] Attaching global io_input listener for history logging.')
+    window.addEventListener('io_input', logRowTrigger)
+
+    return () => {
+      console.debug('[Home.tsx] Removing global io_input listener for history logging.')
+      window.removeEventListener('io_input', logRowTrigger)
+    }
+  }, [addRowHistoryEntry])
+
   return (
     <>
       <Wrapper>
@@ -324,6 +448,21 @@ const Home: FC = () => {
               </div>
             ))}
         </div>
+
+        <Box sx={{ mt: 3 /* or however you want to position it */ }}>
+          <Typography variant="h5" gutterBottom>
+            Log Viewer Test
+          </Typography>
+          <Box sx={{ height: '400px' /* Give it a defined height for scrolling */ }}>
+            <LogViewer
+              title="Application Event Log (Dummy Data)"
+              entries={rowHistory}
+              maxHeight="100%" // Will take height from parent Box
+              defaultExpandedId={dummyLogEntries[1]?.id} // Expand the second entry by default (if it exists)
+              showExportButton={true}
+            />
+          </Box>
+        </Box>
 
         <div style={{ maxHeight: 'calc(100vh - 356px)', overflowY: 'auto' }}>
           {rowsToDisplay.map((row) => (

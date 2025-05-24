@@ -21,7 +21,7 @@ export const MiniPlayer: FC<MiniPlayerProps> = ({ rowId, outputData }) => {
   // This command state is to imperatively control the BaseAudioPlayer from external logic
   const [playerCommand, setPlayerCommand] = useState<'play' | 'pause' | 'stop' | null>(null)
 
-  console.log(outputData)
+  // console.log(outputData)
   // Effect to load audio data from IndexedDB and create Blob URL
   useEffect(() => {
     let didUnmount = false

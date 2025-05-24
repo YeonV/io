@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import { useRowActivation } from '@/hooks/useRowActivation'
 import { isElectron } from '@/utils/isElectron'
-import { RestModuleCustomConfig, RestOutputRowData } from './REST.types' // Updated import
+import { RestModuleCustomConfig, RestOutputRowData } from './RestM.types' // Updated import
 import RestEditor from './RestEditor'
 import { RestSettings } from './RestSettings'
 import { v4 as uuidv4 } from 'uuid'

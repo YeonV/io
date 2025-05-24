@@ -2,7 +2,7 @@
 import { ipcMain } from 'electron'
 import type { IOMainModulePart } from '../../../../shared/types'
 import { MainModuleDeps } from '../../../../main/moduleLoader'
-import { RestRequestArgs } from './REST.types'
+import { RestRequestArgs } from './RestM.types'
 
 const REST_MODULE_ID = 'rest-module'
 
