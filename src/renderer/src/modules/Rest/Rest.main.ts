@@ -1,4 +1,4 @@
-// src/renderer/src/modules/REST/REST.main.ts
+// src/renderer/src/modules/Rest/Rest.main.ts
 import { ipcMain } from 'electron'
 import type { IOMainModulePart } from '../../../../shared/types'
 import { MainModuleDeps } from '../../../../main/moduleLoader'

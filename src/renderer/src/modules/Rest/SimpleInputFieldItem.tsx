@@ -1,6 +1,5 @@
 // src/renderer/src/modules/REST/SimpleInputFieldItem.tsx
-import type { FC, ChangeEvent } from 'react'
-import { useState, useEffect } from 'react'
+import type { FC } from 'react'
 import {
   Box,
   TextField,

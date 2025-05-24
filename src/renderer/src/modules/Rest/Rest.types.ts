@@ -1,4 +1,4 @@
-// src/renderer/src/modules/REST/REST.types.ts
+// src/renderer/src/modules/Rest/Rest.types.ts
 
 // --- Simple Input Field Definition for Blueprints ---
 export type SimpleInputFieldValue = string | number | boolean // Extend as needed (e.g. string[])

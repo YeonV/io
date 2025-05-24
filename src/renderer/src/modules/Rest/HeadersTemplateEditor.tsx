@@ -19,7 +19,7 @@ interface HeadersTemplateEditorProps {
 
 // Helper to convert Record<string, string> to HeaderItem[] for internal list management
 const objectToHeaderList = (headersObj: Record<string, string>): HeaderItem[] => {
-  return Object.entries(headersObj).map(([key, value], index) => ({
+  return Object.entries(headersObj).map(([key, value]) => ({
     id: uuidv4(), // Assign a unique ID for list item stability
     keyName: key,
     valueTemplate: value

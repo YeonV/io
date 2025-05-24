@@ -18,8 +18,8 @@ import { useCallback, useState, type FC, type ReactNode, DragEvent, useEffect } 
 import type { ProfileExportFormat } from '@/components/Settings/ProfileManagerSettings.types'
 import { useMainStore } from '@/store/mainStore'
 import { addAudioToDB } from '@/modules/PlaySound/lib/db'
-import type { BlueprintDefinition, RestModuleCustomConfig } from '@/modules/REST/REST.types'
-import { id as restModuleId } from '@/modules/REST/REST'
+import type { BlueprintDefinition, RestModuleCustomConfig } from '@/modules/Rest/Rest.types'
+import { id as restModuleId } from '@/modules/Rest/Rest'
 import { v4 as uuidv4 } from 'uuid'
 import { UploadFile as UploadFileIcon } from '@mui/icons-material'
 

@@ -1,4 +1,4 @@
-// src/renderer/src/modules/MIDI/MIDI.tsx
+// src/renderer/src/modules/Midi/Midi.tsx
 
 import type { ModuleConfig, InputData, Row } from '@shared/types'
 import type { FC } from 'react'

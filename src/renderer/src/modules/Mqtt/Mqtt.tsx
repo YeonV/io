@@ -1,4 +1,4 @@
-// src/renderer/src/modules/MQTT/MQTT.tsx
+// src/renderer/src/modules/Mqtt/Mqtt.tsx
 
 import type { FC } from 'react'
 import { useEffect, useState, useRef } from 'react'

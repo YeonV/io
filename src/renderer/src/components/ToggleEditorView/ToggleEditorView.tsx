@@ -1,5 +1,5 @@
 // src/renderer/src/components/inputs/ToggleEditorView.tsx
-import type { FC, ReactNode, Dispatch, SetStateAction, KeyboardEvent } from 'react' // Added KeyboardEvent
+import type { ReactNode, Dispatch, SetStateAction } from 'react' // Added KeyboardEvent
 import { useState, useEffect, useCallback } from 'react'
 import {
   Box,
@@ -257,7 +257,7 @@ export const ToggleEditorView = <T extends object | any[]>({
   ])
 
   const handleViewChange = (
-    event: React.MouseEvent<HTMLElement>,
+    _event: React.MouseEvent<HTMLElement>,
     newView: 'ui' | 'code' | null
   ) => {
     // ... (same as before, but prompt says "apply" instead of "save")

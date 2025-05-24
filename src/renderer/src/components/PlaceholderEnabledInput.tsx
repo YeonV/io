@@ -1,11 +1,10 @@
-// src/renderer/src/components/inputs/PlaceholderEnabledInput.tsx
 import type { FC, ChangeEvent, KeyboardEvent } from 'react'
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Box, TextField, type TextFieldProps, Popper, ClickAwayListener } from '@mui/material' // Added Popper, ClickAwayListener
+import { Box, TextField, type TextFieldProps, Popper, ClickAwayListener } from '@mui/material'
 import { AutocompletePopup, type SuggestionType } from './AutocompletePopup'
 
 export interface Placeholder {
-  /* ... same as before ... */ id: string
+  id: string
   label?: string
   description?: string
 }
@@ -14,7 +13,7 @@ type BaseTextFieldProps = Omit<
   'value' | 'onChange' | 'onKeyDown' | 'onBlur' | 'inputRef'
 >
 export interface PlaceholderEnabledInputProps extends BaseTextFieldProps {
-  /* ... same as before ... */ value: string
+  value: string
   onChange: (newValue: string) => void
   availablePlaceholders: Placeholder[]
   triggerSequence?: string
@@ -32,19 +31,14 @@ export const PlaceholderEnabledInput: FC<PlaceholderEnabledInputProps> = ({
   const [isPopupOpen, setIsPopupOpen] = useState(false)
   const [suggestions, setSuggestions] = useState<SuggestionType[]>([])
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(0)
-  // const [popupPosition, setPopupPosition] = useState<{ top: number; left: number } | null>(null); // REMOVED - Popper handles
-  const [filterText, setFilterText] = useState('')
 
-  const inputRef = useRef<HTMLDivElement>(null) // Ref now on the TextField's root div for Popper anchor
-  const actualInputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null) // Specific ref for the input/textarea element itself
+  const inputRef = useRef<HTMLDivElement>(null)
+  const actualInputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
   const triggerStartIndexRef = useRef<number | null>(null)
 
   useEffect(() => {
     setInputValue(value)
   }, [value])
-
-  // No getCaretCoordinates needed for Popper's basic placement.
-  // Popper positions relative to anchorEl.
 
   const openSuggestionsPopup = (startIndex: number, currentFilter: string) => {
     const relevantPlaceholders = availablePlaceholders.filter(
@@ -61,10 +55,9 @@ export const PlaceholderEnabledInput: FC<PlaceholderEnabledInputProps> = ({
     if (suggestionItems.length > 0) {
       setSuggestions(suggestionItems)
       setActiveSuggestionIndex(0)
-      // setPopupPosition(getCaretCoordinates()); // REMOVED
-      setIsPopupOpen(true) // Popper will use inputRef.current as anchor
+
+      setIsPopupOpen(true)
       triggerStartIndexRef.current = startIndex
-      setFilterText(currentFilter)
     } else {
       closeSuggestionsPopup()
     }
@@ -72,11 +65,9 @@ export const PlaceholderEnabledInput: FC<PlaceholderEnabledInputProps> = ({
 
   const closeSuggestionsPopup = useCallback(() => {
     setIsPopupOpen(false)
-    // No need to reset suggestions immediately, Popper will just hide.
-    // Could reset them here if desired: setSuggestions([]);
+
     setActiveSuggestionIndex(0)
     triggerStartIndexRef.current = null
-    setFilterText('')
   }, [])
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -94,14 +85,14 @@ export const PlaceholderEnabledInput: FC<PlaceholderEnabledInputProps> = ({
 
     if (triggerPos !== -1 && !isWithinClosedPlaceholder() && cursorPos > triggerPos) {
       const currentFilter = textBeforeCursor.substring(triggerPos + triggerSequence.length)
-      openSuggestionsPopup(triggerPos, currentFilter) // openSuggestionsPopup now filters
+      openSuggestionsPopup(triggerPos, currentFilter)
     } else if (isPopupOpen) {
       closeSuggestionsPopup()
     }
   }
 
   const insertPlaceholder = (placeholderId: string) => {
-    const inputElement = actualInputRef.current // Use the ref to the actual input/textarea
+    const inputElement = actualInputRef.current
     if (!inputElement || triggerStartIndexRef.current === null) return
 
     const placeholderToInsert = `${triggerSequence}blueprintInput.${placeholderId}}}`
@@ -127,11 +118,8 @@ export const PlaceholderEnabledInput: FC<PlaceholderEnabledInputProps> = ({
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    // Type from TextField onKeyDown
     if (!isPopupOpen || suggestions.length === 0) return
-    // Standard TextField onKeyDown provides the event.
-    // We need to ensure that default browser actions for ArrowUp/Down/Enter/Esc are prevented
-    // ONLY when our popup is handling them.
+
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault()
@@ -148,7 +136,7 @@ export const PlaceholderEnabledInput: FC<PlaceholderEnabledInputProps> = ({
         }
         break
       case 'Escape':
-      case 'Tab': // Also close on Tab
+      case 'Tab':
         e.preventDefault()
         closeSuggestionsPopup()
         break
@@ -157,7 +145,6 @@ export const PlaceholderEnabledInput: FC<PlaceholderEnabledInputProps> = ({
     }
   }
 
-  // ClickAwayListener to close popup when clicking outside TextField and Popup
   const handleClickAway = () => {
     if (isPopupOpen) {
       closeSuggestionsPopup()
@@ -165,7 +152,6 @@ export const PlaceholderEnabledInput: FC<PlaceholderEnabledInputProps> = ({
   }
 
   return (
-    // Use ClickAwayListener to close popup when clicking outside
     <ClickAwayListener onClickAway={handleClickAway}>
       <Box
         sx={{ position: 'relative', width: restTextFieldProps.fullWidth ? '100%' : 'auto' }}
@@ -176,27 +162,26 @@ export const PlaceholderEnabledInput: FC<PlaceholderEnabledInputProps> = ({
           multiline={multiline}
           value={inputValue}
           onChange={handleInputChange}
-          onKeyDown={handleKeyDown} // Still need this for keyboard nav
-          // onBlur removed - ClickAwayListener is more robust for this
-          inputRef={actualInputRef} // Ref to the actual <input> or <textarea>
+          onKeyDown={handleKeyDown}
+          inputRef={actualInputRef}
         />
         <Popper
           open={isPopupOpen && suggestions.length > 0}
-          anchorEl={inputRef.current} // Anchor to the TextField's root Box
+          anchorEl={inputRef.current}
           placement="bottom-start"
           modifiers={[
-            { name: 'offset', options: { offset: [0, 8] } }, // Offset popup slightly below
-            { name: 'flip', enabled: true }, // Flip to top if not enough space below
-            { name: 'preventOverflow', enabled: true, options: { boundary: 'scrollParent' } } // Prevent overflow
+            { name: 'offset', options: { offset: [0, 8] } },
+            { name: 'flip', enabled: true },
+            { name: 'preventOverflow', enabled: true, options: { boundary: 'scrollParent' } }
           ]}
-          sx={{ zIndex: 1350 }} // Ensure it's above other elements like dialogs
+          sx={{ zIndex: 1350 }}
         >
           {/* AutocompletePopup receives the anchorEl (inputRef.current) for width matching */}
           <AutocompletePopup
             suggestions={suggestions}
             activeIndex={activeSuggestionIndex}
             onSelect={handleSuggestionSelect}
-            anchorEl={inputRef.current} // Pass the anchor for width matching
+            anchorEl={inputRef.current}
           />
         </Popper>
       </Box>

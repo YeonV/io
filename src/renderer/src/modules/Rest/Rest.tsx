@@ -1,7 +1,7 @@
-// src/renderer/src/modules/REST/REST.tsx
+// src/renderer/src/modules/Rest/Rest.tsx
 import type { InputData, ModuleConfig, OutputData, Row } from '@shared/types'
 import type { FC } from 'react'
-import { Button, useMediaQuery } from '@mui/material'
+import { Button } from '@mui/material'
 import { useEffect, useState } from 'react'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import { useRowActivation } from '@/hooks/useRowActivation'
@@ -232,7 +232,7 @@ export const InputEdit: FC<{
   )
 }
 
-export const useInputActions = (row: Row) => {
+export const useInputActions = (_row: Row) => {
   // This is placeholder logic if no REST input is defined
   // log.success3('hotkey triggered', row.id)
   // window.dispatchEvent(new CustomEvent(`io_input`, { detail: row.id }))

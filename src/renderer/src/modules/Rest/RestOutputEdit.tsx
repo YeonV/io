@@ -41,7 +41,7 @@ export const RestOutputEdit: FC<{
   const setModuleConfig = useMainStore((state) => state.setModuleConfigValue)
 
   const handleOpenRestEditor = () => setRestEditorOpen(true)
-  const handleCloseRestEditor = () => setRestEditorOpen(false)
+  // const handleCloseRestEditor = () => setRestEditorOpen(false)
   const handleRestEditorChange = (newOutputDataFromEditor: RestOutputRowData) => {
     onChange(newOutputDataFromEditor) // Pass the full data up
     // RestEditor is already designed to clear its internal blueprint linkage on manual edits

@@ -14,10 +14,10 @@ import {
   RestModuleCustomConfig,
   RestPresetDefinition,
   SimpleInputFieldValue
-} from '@/modules/REST/REST.types'
-import { id as restModuleId } from '@/modules/REST/REST'
+} from '@/modules/Rest/Rest.types'
+import { id as restModuleId } from '@/modules/Rest/Rest'
 import { v4 as uuidv4 } from 'uuid'
-import { BlueprintRunnerDialog } from '@/modules/REST/BlueprintRunnerDialog'
+import { BlueprintRunnerDialog } from '@/modules/Rest/BlueprintRunnerDialog'
 import { LogEntry } from '@/components/LogViewer/LogViewer.types'
 import LogViewer from '@/components/LogViewer/LogViwer'
 

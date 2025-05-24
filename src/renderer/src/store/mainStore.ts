@@ -7,7 +7,7 @@ import type { Row, ModuleId, ModuleConfig, IOModule, ProfileDefinition } from '@
 import { v4 as uuidv4 } from 'uuid'
 import modulesFromFile from '@/modules/modules'
 import { storeUI, storeUIActions } from './storeUI'
-import { BlueprintDefinition } from '@/modules/REST/REST.types'
+import { BlueprintDefinition } from '@/modules/Rest/Rest.types'
 import { LogEntry } from '@/components/LogViewer/LogViewer.types'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
