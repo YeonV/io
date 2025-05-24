@@ -44,8 +44,10 @@ export const PlaySoundOutputDisplay: FC<PlaySoundOutputDisplayProps> = ({ output
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 0.5 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1 }}>
-        {/* DisplayButtons shows the module type ("Play Sound") and its icon from output.icon */}
-        <DisplayButtons data={{ ...output, name: 'Play Sound' }} />
+        <DisplayButtons
+          data={{ ...output, name: 'Play Sound', label: output.label }}
+          sxMobile={{ width: 50 }}
+        />
 
         <Stack sx={{ textAlign: 'left', flexGrow: 1, overflow: 'hidden', minWidth: 0 }}>
           {/* <Tooltip title={displayFileName}>

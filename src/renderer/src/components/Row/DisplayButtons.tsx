@@ -1,8 +1,18 @@
 import { InputData, OutputData } from '@shared/types'
-import { Button, Typography, useMediaQuery } from '@mui/material'
+import { Button, SxProps, Theme, Typography, useMediaQuery } from '@mui/material'
 import IoIcon from '../IoIcon/IoIcon'
 
-const DisplayButtons = ({ data, variant }: { data: InputData | OutputData; variant?: string }) => {
+const DisplayButtons = ({
+  data,
+  variant,
+  sxDesktop,
+  sxMobile
+}: {
+  data: InputData | OutputData
+  variant?: string
+  sxDesktop?: SxProps<Theme> | undefined
+  sxMobile?: SxProps<Theme> | undefined
+}) => {
   const desktop = useMediaQuery('(min-width:980px)')
   return desktop ? (
     <>
@@ -15,7 +25,8 @@ const DisplayButtons = ({ data, variant }: { data: InputData | OutputData; varia
           width: '130px',
           minWidth: '45px',
           justifyContent: 'flex-start',
-          mr: 2
+          mr: 2,
+          ...sxDesktop
         }}
       >
         <IoIcon name={data.icon} style={{ marginRight: '10px' }} />
@@ -41,9 +52,11 @@ const DisplayButtons = ({ data, variant }: { data: InputData | OutputData; varia
               textTransform: 'unset',
               flexGrow: 1,
               justifyContent: 'flex-start',
-              mr: 2,
+              mr: 1,
+              ml: 1,
               maxWidth: '210px',
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              ...sxDesktop
             }}
           >
             {(data as OutputData).label || data.data.text?.slice(-31)}
@@ -61,7 +74,8 @@ const DisplayButtons = ({ data, variant }: { data: InputData | OutputData; varia
           width: '100%',
           minWidth: '45px',
           justifyContent: 'flex-start',
-          mr: 1
+          mr: 1,
+          ...sxMobile
         }}
       >
         <IoIcon

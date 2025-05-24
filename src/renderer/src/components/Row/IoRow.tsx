@@ -197,9 +197,9 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
             minHeight: '50px',
             display: 'flex',
             alignItems: 'center',
-            padding: mobile ? '10px 0 10px 10px' : '0 0 0 10px',
+            padding: mobile ? '0px 0 0px 0px' : '0 0 0 10px',
             borderRight: !mobile ? '1px solid #666' : 'none',
-            borderBottom: '1px solid #666'
+            borderBottom: mobile ? 0 : '1px solid #666'
           }}
         >
           {SelectedModuleInputDisplay ? (
@@ -215,9 +215,9 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
             flexBasis: desktop ? '50%' : '100%',
             display: 'flex',
             alignItems: 'center',
-            padding: mobile ? '10px 10px 10px 10px' : '0 10px 0 10px',
+            padding: mobile ? '0px 0px 20px 0px' : '0 10px 0 10px',
             justifyContent: 'space-between',
-            borderBottom: '1px solid #666'
+            borderBottom: mobile ? 0 : '1px solid #666'
           }}
         >
           <Box
