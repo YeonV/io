@@ -17,7 +17,7 @@ import {
 // JSONInput locale - path might need adjustment if ToggleEditorView is in a different dir
 
 import { v4 as uuidv4 } from 'uuid'
-import type { BlueprintDefinition, SimpleInputField } from './REST.types'
+import type { BlueprintDefinition, SimpleInputField } from './RestM.types'
 import { SimpleInputFieldListEditor } from './SimpleInputFieldListEditor' // UI editor for simple inputs
 import { ToggleEditorView } from '@/components/ToggleEditorView/ToggleEditorView'
 import { PresetTemplateEditorUI } from './PresetTemplateEditorUI'

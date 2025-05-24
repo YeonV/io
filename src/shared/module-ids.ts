@@ -7,16 +7,16 @@ export type ModuleId =
   | 'homeassistant-module'
   | 'keyboard-module'
   | 'ledfx-module'
-  | 'midi-module'
+  | 'midim-module'
   | 'mpfacedetect-module'
   | 'mpfacemesh-module'
   | 'mphands-module'
   | 'mpholistic-module'
   | 'mpobjectron-module'
   | 'mppose-module'
-  | 'mqtt-module'
+  | 'mqttm-module'
   | 'playsound-module'
-  | 'rest-module'
+  | 'restm-module'
   | 'say-module'
   | 'shell-module'
   | 'time-module'
@@ -29,16 +29,16 @@ export const ALL_MODULE_IDS: ModuleId[] = [
   'homeassistant-module',
   'keyboard-module',
   'ledfx-module',
-  'midi-module',
+  'midim-module',
   'mpfacedetect-module',
   'mpfacemesh-module',
   'mphands-module',
   'mpholistic-module',
   'mpobjectron-module',
   'mppose-module',
-  'mqtt-module',
+  'mqttm-module',
   'playsound-module',
-  'rest-module',
+  'restm-module',
   'say-module',
   'shell-module',
   'time-module',

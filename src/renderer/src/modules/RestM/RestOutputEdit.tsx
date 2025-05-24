@@ -6,9 +6,9 @@ import {
   RestOutputRowData,
   RestPresetDefinition,
   SimpleInputFieldValue
-} from './REST.types'
+} from './RestM.types'
 import { useMainStore } from '@/store/mainStore'
-import { id } from './REST'
+import { id } from './RestM'
 import { v4 as uuidv4 } from 'uuid'
 import { Box, Button, Typography } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'

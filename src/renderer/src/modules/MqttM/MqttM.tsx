@@ -36,9 +36,9 @@ import { log } from '@/utils'
 import { v4 as uuidv4 } from 'uuid'
 import DisplayButtons from '@/components/Row/DisplayButtons'
 import type { IClientPublishOptions } from 'mqtt' // Corrected import for MQTT types
-import { mqttTopicMatch } from './MQTThelper'
+import { mqttTopicMatch } from './MqttM.helper'
 import { useRowActivation } from '@/hooks/useRowActivation'
-import { MqttBrokerConfig, MqttModuleCustomConfig } from './MQTT.types'
+import { MqttBrokerConfig, MqttModuleCustomConfig } from './MqttM.types'
 
 const ipcRenderer = window.electron?.ipcRenderer
 

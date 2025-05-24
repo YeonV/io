@@ -13,7 +13,7 @@ import {
   Paper,
   Divider
 } from '@mui/material'
-import type { BlueprintDefinition, SimpleInputField, RestPresetDefinition } from './REST.types' // Adjust path
+import type { BlueprintDefinition, SimpleInputField, RestPresetDefinition } from './RestM.types' // Adjust path
 import { Placeholder, PlaceholderEnabledInput } from '@/components/PlaceholderEnabledInput'
 import { HeadersTemplateEditor } from './HeadersTemplateEditor'
 // We'll need a HeadersTemplateEditor component soon for headersTemplate

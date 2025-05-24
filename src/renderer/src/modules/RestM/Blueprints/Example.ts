@@ -1,4 +1,4 @@
-import { BlueprintDefinition } from '../REST.types'
+import { BlueprintDefinition } from '../RestM.types'
 
 export const exampleGitHubStatsBlueprint: BlueprintDefinition = {
   id: 'bp_github_repo_stats_v1', // Unique ID for this blueprint

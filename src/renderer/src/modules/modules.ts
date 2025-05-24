@@ -6,16 +6,16 @@ import * as alexaModule from './Alexa/Alexa'
 import * as homeassistantModule from './HomeAssistant/HomeAssistant'
 import * as keyboardModule from './Keyboard/Keyboard'
 import * as ledfxModule from './LedFx/LedFx'
-import * as midiModule from './MIDI/MIDI'
+import * as midimModule from './MidiM/MidiM'
 import * as mpfacedetectModule from './MpFaceDetect/MpFaceDetect'
 import * as mpfacemeshModule from './MpFaceMesh/MpFaceMesh'
 import * as mphandsModule from './MpHands/MpHands'
 import * as mpholisticModule from './MpHolistic/MpHolistic'
 import * as mpobjectronModule from './MpObjectron/MpObjectron'
 import * as mpposeModule from './MpPose/MpPose'
-import * as mqttModule from './MQTT/MQTT'
+import * as mqttmModule from './MqttM/MqttM'
 import * as playsoundModule from './PlaySound/PlaySound'
-import * as restModule from './REST/REST'
+import * as restmModule from './RestM/RestM'
 import * as sayModule from './Say/Say'
 import * as shellModule from './Shell/Shell'
 import * as timeModule from './Time/Time'
@@ -28,16 +28,16 @@ export default {
   [homeassistantModule.id]: homeassistantModule,
   [keyboardModule.id]: keyboardModule,
   [ledfxModule.id]: ledfxModule,
-  [midiModule.id]: midiModule,
+  [midimModule.id]: midimModule,
   [mpfacedetectModule.id]: mpfacedetectModule,
   [mpfacemeshModule.id]: mpfacemeshModule,
   [mphandsModule.id]: mphandsModule,
   [mpholisticModule.id]: mpholisticModule,
   [mpobjectronModule.id]: mpobjectronModule,
   [mpposeModule.id]: mpposeModule,
-  [mqttModule.id]: mqttModule,
+  [mqttmModule.id]: mqttmModule,
   [playsoundModule.id]: playsoundModule,
-  [restModule.id]: restModule,
+  [restmModule.id]: restmModule,
   [sayModule.id]: sayModule,
   [shellModule.id]: shellModule,
   [timeModule.id]: timeModule,
