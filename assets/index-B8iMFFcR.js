@@ -1549,56 +1549,56 @@ function requireReactDomClient_production() {
     illegalAttributeNameCache[attributeName] = true;
     return false;
   }
-  function setValueForAttribute(node2, name, value) {
-    if (isAttributeNameSafe(name))
-      if (null === value) node2.removeAttribute(name);
+  function setValueForAttribute(node2, name2, value) {
+    if (isAttributeNameSafe(name2))
+      if (null === value) node2.removeAttribute(name2);
       else {
         switch (typeof value) {
           case "undefined":
           case "function":
           case "symbol":
-            node2.removeAttribute(name);
+            node2.removeAttribute(name2);
             return;
           case "boolean":
-            var prefix$8 = name.toLowerCase().slice(0, 5);
+            var prefix$8 = name2.toLowerCase().slice(0, 5);
             if ("data-" !== prefix$8 && "aria-" !== prefix$8) {
-              node2.removeAttribute(name);
+              node2.removeAttribute(name2);
               return;
             }
         }
-        node2.setAttribute(name, "" + value);
+        node2.setAttribute(name2, "" + value);
       }
   }
-  function setValueForKnownAttribute(node2, name, value) {
-    if (null === value) node2.removeAttribute(name);
+  function setValueForKnownAttribute(node2, name2, value) {
+    if (null === value) node2.removeAttribute(name2);
     else {
       switch (typeof value) {
         case "undefined":
         case "function":
         case "symbol":
         case "boolean":
-          node2.removeAttribute(name);
+          node2.removeAttribute(name2);
           return;
       }
-      node2.setAttribute(name, "" + value);
+      node2.setAttribute(name2, "" + value);
     }
   }
-  function setValueForNamespacedAttribute(node2, namespace, name, value) {
-    if (null === value) node2.removeAttribute(name);
+  function setValueForNamespacedAttribute(node2, namespace, name2, value) {
+    if (null === value) node2.removeAttribute(name2);
     else {
       switch (typeof value) {
         case "undefined":
         case "function":
         case "symbol":
         case "boolean":
-          node2.removeAttribute(name);
+          node2.removeAttribute(name2);
           return;
       }
-      node2.setAttributeNS(namespace, name, "" + value);
+      node2.setAttributeNS(namespace, name2, "" + value);
     }
   }
   var prefix2, suffix;
-  function describeBuiltInComponentFrame(name) {
+  function describeBuiltInComponentFrame(name2) {
     if (void 0 === prefix2)
       try {
         throw Error();
@@ -1607,7 +1607,7 @@ function requireReactDomClient_production() {
         prefix2 = match2 && match2[1] || "";
         suffix = -1 < x2.stack.indexOf("\n    at") ? " (<anonymous>)" : -1 < x2.stack.indexOf("@") ? "@unknown:0:0" : "";
       }
-    return "\n" + prefix2 + name + suffix;
+    return "\n" + prefix2 + name2 + suffix;
   }
   var reentry = false;
   function describeNativeComponentFrame(fn2, construct) {
@@ -1819,7 +1819,7 @@ function requireReactDomClient_production() {
       }
     );
   }
-  function updateInput(element, value, defaultValue, lastDefaultValue, checked, defaultChecked, type, name) {
+  function updateInput(element, value, defaultValue, lastDefaultValue, checked, defaultChecked, type, name2) {
     element.name = "";
     null != type && "function" !== typeof type && "symbol" !== typeof type && "boolean" !== typeof type ? element.type = type : element.removeAttribute("type");
     if (null != value)
@@ -1833,9 +1833,9 @@ function requireReactDomClient_production() {
     null != value ? setDefaultValue(element, type, getToStringValue(value)) : null != defaultValue ? setDefaultValue(element, type, getToStringValue(defaultValue)) : null != lastDefaultValue && element.removeAttribute("value");
     null == checked && null != defaultChecked && (element.defaultChecked = !!defaultChecked);
     null != checked && (element.checked = checked && "function" !== typeof checked && "symbol" !== typeof checked);
-    null != name && "function" !== typeof name && "symbol" !== typeof name && "boolean" !== typeof name ? element.name = "" + getToStringValue(name) : element.removeAttribute("name");
+    null != name2 && "function" !== typeof name2 && "symbol" !== typeof name2 && "boolean" !== typeof name2 ? element.name = "" + getToStringValue(name2) : element.removeAttribute("name");
   }
-  function initInput(element, value, defaultValue, checked, defaultChecked, type, name, isHydrating2) {
+  function initInput(element, value, defaultValue, checked, defaultChecked, type, name2, isHydrating2) {
     null != type && "function" !== typeof type && "symbol" !== typeof type && "boolean" !== typeof type && (element.type = type);
     if (null != value || null != defaultValue) {
       if (!("submit" !== type && "reset" !== type || void 0 !== value && null !== value))
@@ -1849,7 +1849,7 @@ function requireReactDomClient_production() {
     checked = "function" !== typeof checked && "symbol" !== typeof checked && !!checked;
     element.checked = isHydrating2 ? element.checked : !!checked;
     element.defaultChecked = !!checked;
-    null != name && "function" !== typeof name && "symbol" !== typeof name && "boolean" !== typeof name && (element.name = name);
+    null != name2 && "function" !== typeof name2 && "symbol" !== typeof name2 && "boolean" !== typeof name2 && (element.name = name2);
   }
   function setDefaultValue(node2, type, value) {
     "number" === type && getActiveElement2(node2.ownerDocument) === node2 || node2.defaultValue === "" + value || (node2.defaultValue = "" + value);
@@ -10445,7 +10445,7 @@ function requireReactDomClient_production() {
       case "li":
         break;
       case "input":
-        var name = null, type = null, value = null, defaultValue = null, lastDefaultValue = null, checked = null, defaultChecked = null;
+        var name2 = null, type = null, value = null, defaultValue = null, lastDefaultValue = null, checked = null, defaultChecked = null;
         for (propKey in lastProps) {
           var lastProp = lastProps[propKey];
           if (lastProps.hasOwnProperty(propKey) && null != lastProp)
@@ -10469,7 +10469,7 @@ function requireReactDomClient_production() {
                 type = propKey;
                 break;
               case "name":
-                name = propKey;
+                name2 = propKey;
                 break;
               case "checked":
                 checked = propKey;
@@ -10507,7 +10507,7 @@ function requireReactDomClient_production() {
           checked,
           defaultChecked,
           type,
-          name
+          name2
         );
         return;
       case "select":
@@ -10529,9 +10529,9 @@ function requireReactDomClient_production() {
                   lastDefaultValue
                 );
             }
-        for (name in nextProps)
-          if (type = nextProps[name], lastDefaultValue = lastProps[name], nextProps.hasOwnProperty(name) && (null != type || null != lastDefaultValue))
-            switch (name) {
+        for (name2 in nextProps)
+          if (type = nextProps[name2], lastDefaultValue = lastProps[name2], nextProps.hasOwnProperty(name2) && (null != type || null != lastDefaultValue))
+            switch (name2) {
               case "value":
                 propKey$205 = type;
                 break;
@@ -10544,7 +10544,7 @@ function requireReactDomClient_production() {
                 type !== lastDefaultValue && setProp(
                   domElement,
                   tag,
-                  name,
+                  name2,
                   type,
                   nextProps,
                   lastDefaultValue
@@ -10558,31 +10558,31 @@ function requireReactDomClient_production() {
       case "textarea":
         propKey = propKey$205 = null;
         for (defaultValue in lastProps)
-          if (name = lastProps[defaultValue], lastProps.hasOwnProperty(defaultValue) && null != name && !nextProps.hasOwnProperty(defaultValue))
+          if (name2 = lastProps[defaultValue], lastProps.hasOwnProperty(defaultValue) && null != name2 && !nextProps.hasOwnProperty(defaultValue))
             switch (defaultValue) {
               case "value":
                 break;
               case "children":
                 break;
               default:
-                setProp(domElement, tag, defaultValue, null, nextProps, name);
+                setProp(domElement, tag, defaultValue, null, nextProps, name2);
             }
         for (value in nextProps)
-          if (name = nextProps[value], type = lastProps[value], nextProps.hasOwnProperty(value) && (null != name || null != type))
+          if (name2 = nextProps[value], type = lastProps[value], nextProps.hasOwnProperty(value) && (null != name2 || null != type))
             switch (value) {
               case "value":
-                propKey$205 = name;
+                propKey$205 = name2;
                 break;
               case "defaultValue":
-                propKey = name;
+                propKey = name2;
                 break;
               case "children":
                 break;
               case "dangerouslySetInnerHTML":
-                if (null != name) throw Error(formatProdErrorMessage(91));
+                if (null != name2) throw Error(formatProdErrorMessage(91));
                 break;
               default:
-                name !== type && setProp(domElement, tag, value, name, nextProps, type);
+                name2 !== type && setProp(domElement, tag, value, name2, nextProps, type);
             }
         updateTextarea(domElement, propKey$205, propKey);
         return;
@@ -10797,8 +10797,8 @@ function requireReactDomClient_production() {
           break;
       } else if (!inRootOrSingleton)
         if ("input" === type && "hidden" === instance.type) {
-          var name = null == anyProps.name ? null : "" + anyProps.name;
-          if ("hidden" === anyProps.type && instance.getAttribute("name") === name)
+          var name2 = null == anyProps.name ? null : "" + anyProps.name;
+          if ("hidden" === anyProps.type && instance.getAttribute("name") === name2)
             return instance;
         } else return instance;
       else if (!instance[internalHoistableMarker])
@@ -10807,18 +10807,18 @@ function requireReactDomClient_production() {
             if (!instance.hasAttribute("itemprop")) break;
             return instance;
           case "link":
-            name = instance.getAttribute("rel");
-            if ("stylesheet" === name && instance.hasAttribute("data-precedence"))
+            name2 = instance.getAttribute("rel");
+            if ("stylesheet" === name2 && instance.hasAttribute("data-precedence"))
               break;
-            else if (name !== anyProps.rel || instance.getAttribute("href") !== (null == anyProps.href || "" === anyProps.href ? null : anyProps.href) || instance.getAttribute("crossorigin") !== (null == anyProps.crossOrigin ? null : anyProps.crossOrigin) || instance.getAttribute("title") !== (null == anyProps.title ? null : anyProps.title))
+            else if (name2 !== anyProps.rel || instance.getAttribute("href") !== (null == anyProps.href || "" === anyProps.href ? null : anyProps.href) || instance.getAttribute("crossorigin") !== (null == anyProps.crossOrigin ? null : anyProps.crossOrigin) || instance.getAttribute("title") !== (null == anyProps.title ? null : anyProps.title))
               break;
             return instance;
           case "style":
             if (instance.hasAttribute("data-precedence")) break;
             return instance;
           case "script":
-            name = instance.getAttribute("src");
-            if ((name !== (null == anyProps.src ? null : anyProps.src) || instance.getAttribute("type") !== (null == anyProps.type ? null : anyProps.type) || instance.getAttribute("crossorigin") !== (null == anyProps.crossOrigin ? null : anyProps.crossOrigin)) && name && instance.hasAttribute("async") && !instance.hasAttribute("itemprop"))
+            name2 = instance.getAttribute("src");
+            if ((name2 !== (null == anyProps.src ? null : anyProps.src) || instance.getAttribute("type") !== (null == anyProps.type ? null : anyProps.type) || instance.getAttribute("crossorigin") !== (null == anyProps.crossOrigin ? null : anyProps.crossOrigin)) && name2 && instance.hasAttribute("async") && !instance.hasAttribute("itemprop"))
               break;
             return instance;
           default:
@@ -12757,8 +12757,8 @@ const createImpl = (createState) => {
 const create = (createState) => createImpl;
 const __vite_import_meta_env__ = { "BASE_URL": "./", "DEV": false, "MODE": "production", "PROD": true, "SSR": false };
 const trackedConnections = /* @__PURE__ */ new Map();
-const getTrackedConnectionState = (name) => {
-  const api = trackedConnections.get(name);
+const getTrackedConnectionState = (name2) => {
+  const api = trackedConnections.get(name2);
   if (!api) return {};
   return Object.fromEntries(
     Object.entries(api.stores).map(([key, api2]) => [key, api2.getState()])
@@ -12782,13 +12782,13 @@ const extractConnectionInformation = (store, extensionConnector, options) => {
   trackedConnections.set(options.name, newConnection);
   return { type: "tracked", store, ...newConnection };
 };
-const removeStoreFromTrackedConnections = (name, store) => {
+const removeStoreFromTrackedConnections = (name2, store) => {
   if (store === void 0) return;
-  const connectionInfo = trackedConnections.get(name);
+  const connectionInfo = trackedConnections.get(name2);
   if (!connectionInfo) return;
   delete connectionInfo.stores[store];
   if (Object.keys(connectionInfo.stores).length === 0) {
-    trackedConnections.delete(name);
+    trackedConnections.delete(name2);
   }
 };
 const findCallerName = (stack) => {
@@ -12997,7 +12997,7 @@ function createJSONStorage(getStorage, options) {
     return;
   }
   const persistStorage = {
-    getItem: (name) => {
+    getItem: (name2) => {
       var _a;
       const parse2 = (str2) => {
         if (str2 === null) {
@@ -13005,14 +13005,14 @@ function createJSONStorage(getStorage, options) {
         }
         return JSON.parse(str2, void 0);
       };
-      const str = (_a = storage.getItem(name)) != null ? _a : null;
+      const str = (_a = storage.getItem(name2)) != null ? _a : null;
       if (str instanceof Promise) {
         return str.then(parse2);
       }
       return parse2(str);
     },
-    setItem: (name, newValue) => storage.setItem(name, JSON.stringify(newValue, void 0)),
-    removeItem: (name) => storage.removeItem(name)
+    setItem: (name2, newValue) => storage.setItem(name2, JSON.stringify(newValue, void 0)),
+    removeItem: (name2) => storage.removeItem(name2)
   };
   return persistStorage;
 }
@@ -14555,9 +14555,9 @@ function serializeStyles(args, registered, mergedProps) {
   while ((match2 = labelPattern.exec(styles2)) !== null) {
     identifierName += "-" + match2[1];
   }
-  var name = murmur2(styles2) + identifierName;
+  var name2 = murmur2(styles2) + identifierName;
   return {
-    name,
+    name: name2,
     styles: styles2,
     next: cursor
   };
@@ -14712,10 +14712,10 @@ function css() {
 }
 function keyframes() {
   var insertable = css.apply(void 0, arguments);
-  var name = "animation-" + insertable.name;
+  var name2 = "animation-" + insertable.name;
   return {
-    name,
-    styles: "@keyframes " + name + "{" + insertable.styles + "}",
+    name: name2,
+    styles: "@keyframes " + name2 + "{" + insertable.styles + "}",
     anim: 1,
     toString: function toString() {
       return "_EMO_" + this.name + "_" + this.styles + "_EMO_";
@@ -15351,14 +15351,14 @@ function getContainerQuery(theme2, shorthand) {
   return theme2.containerQueries(containerName).up(value);
 }
 function cssContainerQueries(themeInput) {
-  const toContainerQuery = (mediaQuery, name) => mediaQuery.replace("@media", name ? `@container ${name}` : "@container");
-  function attachCq(node22, name) {
-    node22.up = (...args) => toContainerQuery(themeInput.breakpoints.up(...args), name);
-    node22.down = (...args) => toContainerQuery(themeInput.breakpoints.down(...args), name);
-    node22.between = (...args) => toContainerQuery(themeInput.breakpoints.between(...args), name);
-    node22.only = (...args) => toContainerQuery(themeInput.breakpoints.only(...args), name);
+  const toContainerQuery = (mediaQuery, name2) => mediaQuery.replace("@media", name2 ? `@container ${name2}` : "@container");
+  function attachCq(node22, name2) {
+    node22.up = (...args) => toContainerQuery(themeInput.breakpoints.up(...args), name2);
+    node22.down = (...args) => toContainerQuery(themeInput.breakpoints.down(...args), name2);
+    node22.between = (...args) => toContainerQuery(themeInput.breakpoints.between(...args), name2);
+    node22.only = (...args) => toContainerQuery(themeInput.breakpoints.only(...args), name2);
     node22.not = (...args) => {
-      const result = toContainerQuery(themeInput.breakpoints.not(...args), name);
+      const result = toContainerQuery(themeInput.breakpoints.not(...args), name2);
       if (result.includes("not all and")) {
         return result.replace("not all and ", "").replace("min-width:", "width<").replace("max-width:", "width>").replace("and", "or");
       }
@@ -15366,8 +15366,8 @@ function cssContainerQueries(themeInput) {
     };
   }
   const node2 = {};
-  const containerQueries = (name) => {
-    attachCq(node2, name);
+  const containerQueries = (name2) => {
+    attachCq(node2, name2);
     return node2;
   };
   attachCq(containerQueries);
@@ -16807,17 +16807,17 @@ function resolveProps(defaultProps2, props) {
 function getThemeProps$1(params) {
   const {
     theme: theme2,
-    name,
+    name: name2,
     props
   } = params;
-  if (!theme2 || !theme2.components || !theme2.components[name] || !theme2.components[name].defaultProps) {
+  if (!theme2 || !theme2.components || !theme2.components[name2] || !theme2.components[name2].defaultProps) {
     return props;
   }
-  return resolveProps(theme2.components[name].defaultProps, props);
+  return resolveProps(theme2.components[name2].defaultProps, props);
 }
 function useThemeProps$1({
   props,
-  name,
+  name: name2,
   defaultTheme: defaultTheme2,
   themeId
 }) {
@@ -16827,7 +16827,7 @@ function useThemeProps$1({
   }
   return getThemeProps$1({
     theme: theme2,
-    name,
+    name: name2,
     props
   });
 }
@@ -17178,13 +17178,13 @@ function DefaultPropsProvider({
 function getThemeProps(params) {
   const {
     theme: theme2,
-    name,
+    name: name2,
     props
   } = params;
-  if (!theme2 || !theme2.components || !theme2.components[name]) {
+  if (!theme2 || !theme2.components || !theme2.components[name2]) {
     return props;
   }
-  const config2 = theme2.components[name];
+  const config2 = theme2.components[name2];
   if (config2.defaultProps) {
     return resolveProps(config2.defaultProps, props);
   }
@@ -17195,12 +17195,12 @@ function getThemeProps(params) {
 }
 function useDefaultProps$1({
   props,
-  name
+  name: name2
 }) {
   const ctx = reactExports.useContext(PropsContext);
   return getThemeProps({
     props,
-    name,
+    name: name2,
     theme: {
       components: ctx
     }
@@ -18810,7 +18810,7 @@ function createPalette(palette) {
   }
   const augmentColor = ({
     color: color2,
-    name,
+    name: name2,
     mainShade = 500,
     lightShade = 300,
     darkShade = 700
@@ -18822,10 +18822,10 @@ function createPalette(palette) {
       color2.main = color2[mainShade];
     }
     if (!color2.hasOwnProperty("main")) {
-      throw new Error(formatMuiErrorMessage(11, name ? ` (${name})` : "", mainShade));
+      throw new Error(formatMuiErrorMessage(11, name2 ? ` (${name2})` : "", mainShade));
     }
     if (typeof color2.main !== "string") {
-      throw new Error(formatMuiErrorMessage(12, name ? ` (${name})` : "", JSON.stringify(color2.main)));
+      throw new Error(formatMuiErrorMessage(12, name2 ? ` (${name2})` : "", JSON.stringify(color2.main)));
     }
     addLightOrDark(color2, "light", lightShade, tonalOffset);
     addLightOrDark(color2, "dark", darkShade, tonalOffset);
@@ -19702,11 +19702,11 @@ function useTheme() {
 }
 function useThemeProps({
   props,
-  name
+  name: name2
 }) {
   return useThemeProps$1({
     props,
-    name,
+    name: name2,
     defaultTheme: defaultTheme$1,
     themeId: THEME_ID
   });
@@ -19840,7 +19840,7 @@ function getSvgIconUtilityClass(slot) {
   return generateUtilityClass("MuiSvgIcon", slot);
 }
 generateUtilityClasses("MuiSvgIcon", ["root", "colorPrimary", "colorSecondary", "colorAction", "colorError", "colorDisabled", "fontSizeInherit", "fontSizeSmall", "fontSizeMedium", "fontSizeLarge"]);
-const useUtilityClasses$1r = (ownerState) => {
+const useUtilityClasses$1z = (ownerState) => {
   const {
     color: color2,
     fontSize,
@@ -19979,7 +19979,7 @@ const SvgIcon$1 = /* @__PURE__ */ reactExports.forwardRef(function SvgIcon2(inPr
   if (!inheritViewBox) {
     more.viewBox = viewBox;
   }
-  const classes2 = useUtilityClasses$1r(ownerState);
+  const classes2 = useUtilityClasses$1z(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(SvgIconRoot, {
     as: component,
     className: clsx$2(classes2.root, className),
@@ -20065,7 +20065,7 @@ function useControlled(props) {
   const {
     controlled,
     default: defaultProp,
-    name,
+    name: name2,
     state = "value"
   } = props;
   const {
@@ -20249,9 +20249,9 @@ var EXITED$1 = "exited";
 var ENTERING$1 = "entering";
 var ENTERED$1 = "entered";
 var EXITING$1 = "exiting";
-var Transition$1 = /* @__PURE__ */ function(_React$Component) {
-  _inheritsLoose$1(Transition2, _React$Component);
-  function Transition2(props, context) {
+var Transition$2 = /* @__PURE__ */ function(_React$Component) {
+  _inheritsLoose$1(Transition22, _React$Component);
+  function Transition22(props, context) {
     var _this;
     _this = _React$Component.call(this, props, context) || this;
     var parentGroup = context;
@@ -20278,7 +20278,7 @@ var Transition$1 = /* @__PURE__ */ function(_React$Component) {
     _this.nextCallback = null;
     return _this;
   }
-  Transition2.getDerivedStateFromProps = function getDerivedStateFromProps(_ref, prevState) {
+  Transition22.getDerivedStateFromProps = function getDerivedStateFromProps(_ref, prevState) {
     var nextIn = _ref.in;
     if (nextIn && prevState.status === UNMOUNTED$1) {
       return {
@@ -20287,7 +20287,7 @@ var Transition$1 = /* @__PURE__ */ function(_React$Component) {
     }
     return null;
   };
-  var _proto = Transition2.prototype;
+  var _proto = Transition22.prototype;
   _proto.componentDidMount = function componentDidMount() {
     this.updateStatus(true, this.appearStatus);
   };
@@ -20472,13 +20472,13 @@ var Transition$1 = /* @__PURE__ */ function(_React$Component) {
       }, typeof children === "function" ? children(status, childProps) : e$1.cloneElement(e$1.Children.only(children), childProps))
     );
   };
-  return Transition2;
+  return Transition22;
 }(e$1.Component);
-Transition$1.contextType = TransitionGroupContext;
-Transition$1.propTypes = {};
+Transition$2.contextType = TransitionGroupContext;
+Transition$2.propTypes = {};
 function noop$3() {
 }
-Transition$1.defaultProps = {
+Transition$2.defaultProps = {
   in: false,
   mountOnEnter: false,
   unmountOnExit: false,
@@ -20492,11 +20492,11 @@ Transition$1.defaultProps = {
   onExiting: noop$3,
   onExited: noop$3
 };
-Transition$1.UNMOUNTED = UNMOUNTED$1;
-Transition$1.EXITED = EXITED$1;
-Transition$1.ENTERING = ENTERING$1;
-Transition$1.ENTERED = ENTERED$1;
-Transition$1.EXITING = EXITING$1;
+Transition$2.UNMOUNTED = UNMOUNTED$1;
+Transition$2.EXITED = EXITED$1;
+Transition$2.ENTERING = ENTERING$1;
+Transition$2.ENTERED = ENTERED$1;
+Transition$2.EXITING = EXITING$1;
 var _addClass = function addClass$1(node2, classes2) {
   return node2 && classes2 && classes2.split(" ").forEach(function(c2) {
     return addClass(node2, c2);
@@ -20619,7 +20619,7 @@ var CSSTransition = /* @__PURE__ */ function(_React$Component) {
     var _this$props = this.props;
     _this$props.classNames;
     var props = _objectWithoutPropertiesLoose$1(_this$props, ["classNames"]);
-    return /* @__PURE__ */ e$1.createElement(Transition$1, _extends$1({}, props, {
+    return /* @__PURE__ */ e$1.createElement(Transition$2, _extends$1({}, props, {
       onEnter: this.onEnter,
       onEntered: this.onEntered,
       onEntering: this.onEntering,
@@ -20870,7 +20870,7 @@ function getCollapseUtilityClass(slot) {
   return generateUtilityClass("MuiCollapse", slot);
 }
 generateUtilityClasses("MuiCollapse", ["root", "horizontal", "vertical", "entered", "hidden", "wrapper", "wrapperInner"]);
-const useUtilityClasses$1q = (ownerState) => {
+const useUtilityClasses$1y = (ownerState) => {
   const {
     orientation,
     classes: classes2
@@ -20988,7 +20988,7 @@ const Collapse$1 = /* @__PURE__ */ reactExports.forwardRef(function Collapse2(in
     style: style2,
     timeout: timeout2 = duration.standard,
     // eslint-disable-next-line react/prop-types
-    TransitionComponent = Transition$1,
+    TransitionComponent = Transition$2,
     ...other
   } = props;
   const ownerState = {
@@ -20996,7 +20996,7 @@ const Collapse$1 = /* @__PURE__ */ reactExports.forwardRef(function Collapse2(in
     orientation,
     collapsedSize: collapsedSizeProp
   };
-  const classes2 = useUtilityClasses$1q(ownerState);
+  const classes2 = useUtilityClasses$1y(ownerState);
   const theme2 = useTheme();
   const timer = useTimeout();
   const wrapperRef = reactExports.useRef(null);
@@ -21157,7 +21157,7 @@ function getPaperUtilityClass(slot) {
   return generateUtilityClass("MuiPaper", slot);
 }
 generateUtilityClasses("MuiPaper", ["root", "rounded", "outlined", "elevation", "elevation0", "elevation1", "elevation2", "elevation3", "elevation4", "elevation5", "elevation6", "elevation7", "elevation8", "elevation9", "elevation10", "elevation11", "elevation12", "elevation13", "elevation14", "elevation15", "elevation16", "elevation17", "elevation18", "elevation19", "elevation20", "elevation21", "elevation22", "elevation23", "elevation24"]);
-const useUtilityClasses$1p = (ownerState) => {
+const useUtilityClasses$1x = (ownerState) => {
   const {
     square,
     elevation,
@@ -21229,7 +21229,7 @@ const Paper = /* @__PURE__ */ reactExports.forwardRef(function Paper2(inProps, r
     square,
     variant
   };
-  const classes2 = useUtilityClasses$1p(ownerState);
+  const classes2 = useUtilityClasses$1x(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(PaperRoot, {
     as: component,
     ownerState,
@@ -21354,7 +21354,7 @@ function mergeSlotProps$1(parameters) {
     internalRef: internalSlotProps.ref
   };
 }
-function useSlot(name, parameters) {
+function useSlot(name2, parameters) {
   const {
     className,
     elementType: initialElementType,
@@ -21367,15 +21367,15 @@ function useSlot(name, parameters) {
   const {
     component: rootComponent,
     slots = {
-      [name]: void 0
+      [name2]: void 0
     },
     slotProps = {
-      [name]: void 0
+      [name2]: void 0
     },
     ...other
   } = externalForwardedProps;
-  const elementType = slots[name] || initialElementType;
-  const resolvedComponentsProps = resolveComponentProps(slotProps[name], ownerState);
+  const elementType = slots[name2] || initialElementType;
+  const resolvedComponentsProps = resolveComponentProps(slotProps[name2], ownerState);
   const {
     props: {
       component: slotComponent,
@@ -21385,14 +21385,14 @@ function useSlot(name, parameters) {
   } = mergeSlotProps$1({
     className,
     ...useSlotPropsParams,
-    externalForwardedProps: name === "root" ? other : void 0,
+    externalForwardedProps: name2 === "root" ? other : void 0,
     externalSlotProps: resolvedComponentsProps
   });
   const ref = useForkRef$1(internalRef, resolvedComponentsProps?.ref, parameters.ref);
-  const LeafComponent = name === "root" ? slotComponent || rootComponent : slotComponent;
+  const LeafComponent = name2 === "root" ? slotComponent || rootComponent : slotComponent;
   const props = appendOwnerState(elementType, {
-    ...name === "root" && !rootComponent && !slots[name] && internalForwardedProps,
-    ...name !== "root" && !slots[name] && internalForwardedProps,
+    ...name2 === "root" && !rootComponent && !slots[name2] && internalForwardedProps,
+    ...name2 !== "root" && !slots[name2] && internalForwardedProps,
     ...mergedProps,
     ...LeafComponent && !shouldForwardComponentProp && {
       as: LeafComponent
@@ -21408,7 +21408,7 @@ function getAccordionUtilityClass(slot) {
   return generateUtilityClass("MuiAccordion", slot);
 }
 const accordionClasses = generateUtilityClasses("MuiAccordion", ["root", "heading", "rounded", "expanded", "disabled", "gutters", "region"]);
-const useUtilityClasses$1o = (ownerState) => {
+const useUtilityClasses$1w = (ownerState) => {
   const {
     classes: classes2,
     square,
@@ -21563,7 +21563,7 @@ const Accordion = /* @__PURE__ */ reactExports.forwardRef(function Accordion2(in
     disableGutters,
     expanded
   };
-  const classes2 = useUtilityClasses$1o(ownerState);
+  const classes2 = useUtilityClasses$1w(ownerState);
   const backwardCompatibleSlots = {
     transition: TransitionComponentProp,
     ...slots
@@ -21627,7 +21627,7 @@ function getAccordionDetailsUtilityClass(slot) {
   return generateUtilityClass("MuiAccordionDetails", slot);
 }
 generateUtilityClasses("MuiAccordionDetails", ["root"]);
-const useUtilityClasses$1n = (ownerState) => {
+const useUtilityClasses$1v = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -21654,7 +21654,7 @@ const AccordionDetails = /* @__PURE__ */ reactExports.forwardRef(function Accord
     ...other
   } = props;
   const ownerState = props;
-  const classes2 = useUtilityClasses$1n(ownerState);
+  const classes2 = useUtilityClasses$1v(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(AccordionDetailsRoot, {
     className: clsx$2(classes2.root, className),
     ref,
@@ -22051,7 +22051,7 @@ function getButtonBaseUtilityClass(slot) {
   return generateUtilityClass("MuiButtonBase", slot);
 }
 const buttonBaseClasses = generateUtilityClasses("MuiButtonBase", ["root", "disabled", "focusVisible"]);
-const useUtilityClasses$1m = (ownerState) => {
+const useUtilityClasses$1u = (ownerState) => {
   const {
     disabled,
     focusVisible,
@@ -22267,7 +22267,7 @@ const ButtonBase = /* @__PURE__ */ reactExports.forwardRef(function ButtonBase2(
     tabIndex,
     focusVisible
   };
-  const classes2 = useUtilityClasses$1m(ownerState);
+  const classes2 = useUtilityClasses$1u(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(ButtonBaseRoot, {
     as: ComponentProp,
     className: clsx$2(classes2.root, className),
@@ -22312,7 +22312,7 @@ function getAccordionSummaryUtilityClass(slot) {
   return generateUtilityClass("MuiAccordionSummary", slot);
 }
 const accordionSummaryClasses = generateUtilityClasses("MuiAccordionSummary", ["root", "expanded", "focusVisible", "disabled", "gutters", "contentGutters", "content", "expandIconWrapper"]);
-const useUtilityClasses$1l = (ownerState) => {
+const useUtilityClasses$1t = (ownerState) => {
   const {
     classes: classes2,
     expanded,
@@ -22434,7 +22434,7 @@ const AccordionSummary = /* @__PURE__ */ reactExports.forwardRef(function Accord
     disabled,
     disableGutters
   };
-  const classes2 = useUtilityClasses$1l(ownerState);
+  const classes2 = useUtilityClasses$1t(ownerState);
   const externalForwardedProps = {
     slots,
     slotProps
@@ -22544,7 +22544,7 @@ const rotateAnimation = typeof circularRotateKeyframe !== "string" ? css`
 const dashAnimation = typeof circularDashKeyframe !== "string" ? css`
         animation: ${circularDashKeyframe} 1.4s ease-in-out infinite;
       ` : null;
-const useUtilityClasses$1k = (ownerState) => {
+const useUtilityClasses$1s = (ownerState) => {
   const {
     classes: classes2,
     variant,
@@ -22666,7 +22666,7 @@ const CircularProgress = /* @__PURE__ */ reactExports.forwardRef(function Circul
     value,
     variant
   };
-  const classes2 = useUtilityClasses$1k(ownerState);
+  const classes2 = useUtilityClasses$1s(ownerState);
   const circleStyle = {};
   const rootStyle = {};
   const rootProps = {};
@@ -22711,7 +22711,7 @@ function getIconButtonUtilityClass(slot) {
   return generateUtilityClass("MuiIconButton", slot);
 }
 const iconButtonClasses = generateUtilityClasses("MuiIconButton", ["root", "disabled", "colorInherit", "colorPrimary", "colorSecondary", "colorError", "colorInfo", "colorSuccess", "colorWarning", "edgeStart", "edgeEnd", "sizeSmall", "sizeMedium", "sizeLarge", "loading", "loadingIndicator", "loadingWrapper"]);
-const useUtilityClasses$1j = (ownerState) => {
+const useUtilityClasses$1r = (ownerState) => {
   const {
     classes: classes2,
     disabled,
@@ -22896,7 +22896,7 @@ const IconButton = /* @__PURE__ */ reactExports.forwardRef(function IconButton2(
     loadingIndicator,
     size
   };
-  const classes2 = useUtilityClasses$1j(ownerState);
+  const classes2 = useUtilityClasses$1r(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(IconButtonRoot, {
     id: loading ? loadingId : idProp,
     className: clsx$2(classes2.root, className),
@@ -22932,10 +22932,10 @@ const ErrorOutlineIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("pa
 const InfoOutlinedIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M11,9H13V7H11M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20, 12C20,16.41 16.41,20 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10, 10 0 0,0 12,2M11,17H13V11H11V17Z"
 }));
-const ClearIcon$1 = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+const ClearIcon$2 = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
 }));
-const useUtilityClasses$1i = (ownerState) => {
+const useUtilityClasses$1q = (ownerState) => {
   const {
     variant,
     color: color2,
@@ -23087,7 +23087,7 @@ const Alert = /* @__PURE__ */ reactExports.forwardRef(function Alert2(inProps, r
     variant,
     colorSeverity: color2 || severity
   };
-  const classes2 = useUtilityClasses$1i(ownerState);
+  const classes2 = useUtilityClasses$1q(ownerState);
   const externalForwardedProps = {
     slots: {
       closeButton: components.CloseButton,
@@ -23138,7 +23138,7 @@ const Alert = /* @__PURE__ */ reactExports.forwardRef(function Alert2(inProps, r
     ownerState
   });
   const [CloseIconSlot, closeIconProps] = useSlot("closeIcon", {
-    elementType: ClearIcon$1,
+    elementType: ClearIcon$2,
     externalForwardedProps,
     ownerState
   });
@@ -23186,7 +23186,7 @@ const v6Colors = {
   textDisabled: true
 };
 const extendSxProp = internal_createExtendSxProp();
-const useUtilityClasses$1h = (ownerState) => {
+const useUtilityClasses$1p = (ownerState) => {
   const {
     align,
     gutterBottom,
@@ -23326,7 +23326,7 @@ const Typography = /* @__PURE__ */ reactExports.forwardRef(function Typography2(
     variantMapping
   };
   const Component = component || (paragraph ? "p" : variantMapping[variant] || defaultVariantMapping[variant]) || "span";
-  const classes2 = useUtilityClasses$1h(ownerState);
+  const classes2 = useUtilityClasses$1p(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(TypographyRoot, {
     as: Component,
     ref,
@@ -23345,7 +23345,7 @@ function getAlertTitleUtilityClass(slot) {
   return generateUtilityClass("MuiAlertTitle", slot);
 }
 generateUtilityClasses("MuiAlertTitle", ["root"]);
-const useUtilityClasses$1g = (ownerState) => {
+const useUtilityClasses$1o = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -23375,13 +23375,185 @@ const AlertTitle = /* @__PURE__ */ reactExports.forwardRef(function AlertTitle2(
     ...other
   } = props;
   const ownerState = props;
-  const classes2 = useUtilityClasses$1g(ownerState);
+  const classes2 = useUtilityClasses$1o(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTitleRoot, {
     gutterBottom: true,
     component: "div",
     ownerState,
     ref,
     className: clsx$2(classes2.root, className),
+    ...other
+  });
+});
+function getAppBarUtilityClass(slot) {
+  return generateUtilityClass("MuiAppBar", slot);
+}
+generateUtilityClasses("MuiAppBar", ["root", "positionFixed", "positionAbsolute", "positionSticky", "positionStatic", "positionRelative", "colorDefault", "colorPrimary", "colorSecondary", "colorInherit", "colorTransparent", "colorError", "colorInfo", "colorSuccess", "colorWarning"]);
+const useUtilityClasses$1n = (ownerState) => {
+  const {
+    color: color2,
+    position: position2,
+    classes: classes2
+  } = ownerState;
+  const slots = {
+    root: ["root", `color${capitalize(color2)}`, `position${capitalize(position2)}`]
+  };
+  return composeClasses(slots, getAppBarUtilityClass, classes2);
+};
+const joinVars = (var1, var2) => var1 ? `${var1?.replace(")", "")}, ${var2})` : var2;
+const AppBarRoot = styled(Paper, {
+  name: "MuiAppBar",
+  slot: "Root",
+  overridesResolver: (props, styles2) => {
+    const {
+      ownerState
+    } = props;
+    return [styles2.root, styles2[`position${capitalize(ownerState.position)}`], styles2[`color${capitalize(ownerState.color)}`]];
+  }
+})(memoTheme(({
+  theme: theme2
+}) => ({
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+  boxSizing: "border-box",
+  // Prevent padding issue with the Modal and fixed positioned AppBar.
+  flexShrink: 0,
+  variants: [{
+    props: {
+      position: "fixed"
+    },
+    style: {
+      position: "fixed",
+      zIndex: (theme2.vars || theme2).zIndex.appBar,
+      top: 0,
+      left: "auto",
+      right: 0,
+      "@media print": {
+        // Prevent the app bar to be visible on each printed page.
+        position: "absolute"
+      }
+    }
+  }, {
+    props: {
+      position: "absolute"
+    },
+    style: {
+      position: "absolute",
+      zIndex: (theme2.vars || theme2).zIndex.appBar,
+      top: 0,
+      left: "auto",
+      right: 0
+    }
+  }, {
+    props: {
+      position: "sticky"
+    },
+    style: {
+      position: "sticky",
+      zIndex: (theme2.vars || theme2).zIndex.appBar,
+      top: 0,
+      left: "auto",
+      right: 0
+    }
+  }, {
+    props: {
+      position: "static"
+    },
+    style: {
+      position: "static"
+    }
+  }, {
+    props: {
+      position: "relative"
+    },
+    style: {
+      position: "relative"
+    }
+  }, {
+    props: {
+      color: "inherit"
+    },
+    style: {
+      "--AppBar-color": "inherit"
+    }
+  }, {
+    props: {
+      color: "default"
+    },
+    style: {
+      "--AppBar-background": theme2.vars ? theme2.vars.palette.AppBar.defaultBg : theme2.palette.grey[100],
+      "--AppBar-color": theme2.vars ? theme2.vars.palette.text.primary : theme2.palette.getContrastText(theme2.palette.grey[100]),
+      ...theme2.applyStyles("dark", {
+        "--AppBar-background": theme2.vars ? theme2.vars.palette.AppBar.defaultBg : theme2.palette.grey[900],
+        "--AppBar-color": theme2.vars ? theme2.vars.palette.text.primary : theme2.palette.getContrastText(theme2.palette.grey[900])
+      })
+    }
+  }, ...Object.entries(theme2.palette).filter(createSimplePaletteValueFilter(["contrastText"])).map(([color2]) => ({
+    props: {
+      color: color2
+    },
+    style: {
+      "--AppBar-background": (theme2.vars ?? theme2).palette[color2].main,
+      "--AppBar-color": (theme2.vars ?? theme2).palette[color2].contrastText
+    }
+  })), {
+    props: (props) => props.enableColorOnDark === true && !["inherit", "transparent"].includes(props.color),
+    style: {
+      backgroundColor: "var(--AppBar-background)",
+      color: "var(--AppBar-color)"
+    }
+  }, {
+    props: (props) => props.enableColorOnDark === false && !["inherit", "transparent"].includes(props.color),
+    style: {
+      backgroundColor: "var(--AppBar-background)",
+      color: "var(--AppBar-color)",
+      ...theme2.applyStyles("dark", {
+        backgroundColor: theme2.vars ? joinVars(theme2.vars.palette.AppBar.darkBg, "var(--AppBar-background)") : null,
+        color: theme2.vars ? joinVars(theme2.vars.palette.AppBar.darkColor, "var(--AppBar-color)") : null
+      })
+    }
+  }, {
+    props: {
+      color: "transparent"
+    },
+    style: {
+      "--AppBar-background": "transparent",
+      "--AppBar-color": "inherit",
+      backgroundColor: "var(--AppBar-background)",
+      color: "var(--AppBar-color)",
+      ...theme2.applyStyles("dark", {
+        backgroundImage: "none"
+      })
+    }
+  }]
+})));
+const AppBar = /* @__PURE__ */ reactExports.forwardRef(function AppBar2(inProps, ref) {
+  const props = useDefaultProps({
+    props: inProps,
+    name: "MuiAppBar"
+  });
+  const {
+    className,
+    color: color2 = "primary",
+    enableColorOnDark = false,
+    position: position2 = "fixed",
+    ...other
+  } = props;
+  const ownerState = {
+    ...props,
+    color: color2,
+    position: position2,
+    enableColorOnDark
+  };
+  const classes2 = useUtilityClasses$1n(ownerState);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(AppBarRoot, {
+    square: true,
+    component: "header",
+    ownerState,
+    elevation: 4,
+    className: clsx$2(classes2.root, className, position2 === "fixed" && "mui-fixed"),
+    ref,
     ...other
   });
 });
@@ -24354,20 +24526,20 @@ function isShadowRoot(node2) {
 }
 function applyStyles(_ref) {
   var state = _ref.state;
-  Object.keys(state.elements).forEach(function(name) {
-    var style2 = state.styles[name] || {};
-    var attributes = state.attributes[name] || {};
-    var element = state.elements[name];
+  Object.keys(state.elements).forEach(function(name2) {
+    var style2 = state.styles[name2] || {};
+    var attributes = state.attributes[name2] || {};
+    var element = state.elements[name2];
     if (!isHTMLElement$1(element) || !getNodeName(element)) {
       return;
     }
     Object.assign(element.style, style2);
-    Object.keys(attributes).forEach(function(name2) {
-      var value = attributes[name2];
+    Object.keys(attributes).forEach(function(name3) {
+      var value = attributes[name3];
       if (value === false) {
-        element.removeAttribute(name2);
+        element.removeAttribute(name3);
       } else {
-        element.setAttribute(name2, value === true ? "" : value);
+        element.setAttribute(name3, value === true ? "" : value);
       }
     });
   });
@@ -24392,10 +24564,10 @@ function effect$2(_ref2) {
     Object.assign(state.elements.arrow.style, initialStyles.arrow);
   }
   return function() {
-    Object.keys(state.elements).forEach(function(name) {
-      var element = state.elements[name];
-      var attributes = state.attributes[name] || {};
-      var styleProperties = Object.keys(state.styles.hasOwnProperty(name) ? state.styles[name] : initialStyles[name]);
+    Object.keys(state.elements).forEach(function(name2) {
+      var element = state.elements[name2];
+      var attributes = state.attributes[name2] || {};
+      var styleProperties = Object.keys(state.styles.hasOwnProperty(name2) ? state.styles[name2] : initialStyles[name2]);
       var style2 = styleProperties.reduce(function(style3, property) {
         style3[property] = "";
         return style3;
@@ -24602,7 +24774,7 @@ var toPaddingObject = function toPaddingObject2(padding2, state) {
 };
 function arrow(_ref) {
   var _state$modifiersData$;
-  var state = _ref.state, name = _ref.name, options = _ref.options;
+  var state = _ref.state, name2 = _ref.name, options = _ref.options;
   var arrowElement = state.elements.arrow;
   var popperOffsets2 = state.modifiersData.popperOffsets;
   var basePlacement = getBasePlacement(state.placement);
@@ -24626,7 +24798,7 @@ function arrow(_ref) {
   var center = clientSize / 2 - arrowRect[len] / 2 + centerToReference;
   var offset2 = within(min2, center, max2);
   var axisProp = axis;
-  state.modifiersData[name] = (_state$modifiersData$ = {}, _state$modifiersData$[axisProp] = offset2, _state$modifiersData$.centerOffset = offset2 - center, _state$modifiersData$);
+  state.modifiersData[name2] = (_state$modifiersData$ = {}, _state$modifiersData$[axisProp] = offset2, _state$modifiersData$.centerOffset = offset2 - center, _state$modifiersData$);
 }
 function effect$1(_ref2) {
   var state = _ref2.state, options = _ref2.options;
@@ -25090,8 +25262,8 @@ function getExpandedFallbackPlacements(placement) {
   return [getOppositeVariationPlacement(placement), oppositePlacement, getOppositeVariationPlacement(oppositePlacement)];
 }
 function flip(_ref) {
-  var state = _ref.state, options = _ref.options, name = _ref.name;
-  if (state.modifiersData[name]._skip) {
+  var state = _ref.state, options = _ref.options, name2 = _ref.name;
+  if (state.modifiersData[name2]._skip) {
     return;
   }
   var _options$mainAxis = options.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options.altAxis, checkAltAxis = _options$altAxis === void 0 ? true : _options$altAxis, specifiedFallbackPlacements = options.fallbackPlacements, padding2 = options.padding, boundary = options.boundary, rootBoundary = options.rootBoundary, altBoundary = options.altBoundary, _options$flipVariatio = options.flipVariations, flipVariations = _options$flipVariatio === void 0 ? true : _options$flipVariatio, allowedAutoPlacements = options.allowedAutoPlacements;
@@ -25170,7 +25342,7 @@ function flip(_ref) {
     }
   }
   if (state.placement !== firstFittingPlacement) {
-    state.modifiersData[name]._skip = true;
+    state.modifiersData[name2]._skip = true;
     state.placement = firstFittingPlacement;
     state.reset = true;
   }
@@ -25205,7 +25377,7 @@ function isAnySideFullyClipped(overflow) {
   });
 }
 function hide(_ref) {
-  var state = _ref.state, name = _ref.name;
+  var state = _ref.state, name2 = _ref.name;
   var referenceRect = state.rects.reference;
   var popperRect = state.rects.popper;
   var preventedOffsets = state.modifiersData.preventOverflow;
@@ -25219,7 +25391,7 @@ function hide(_ref) {
   var popperEscapeOffsets = getSideOffsets(popperAltOverflow, popperRect, preventedOffsets);
   var isReferenceHidden = isAnySideFullyClipped(referenceClippingOffsets);
   var hasPopperEscaped = isAnySideFullyClipped(popperEscapeOffsets);
-  state.modifiersData[name] = {
+  state.modifiersData[name2] = {
     referenceClippingOffsets,
     popperEscapeOffsets,
     isReferenceHidden,
@@ -25254,7 +25426,7 @@ function distanceAndSkiddingToXY(placement, rects, offset2) {
   };
 }
 function offset(_ref2) {
-  var state = _ref2.state, options = _ref2.options, name = _ref2.name;
+  var state = _ref2.state, options = _ref2.options, name2 = _ref2.name;
   var _options$offset = options.offset, offset2 = _options$offset === void 0 ? [0, 0] : _options$offset;
   var data = placements.reduce(function(acc, placement) {
     acc[placement] = distanceAndSkiddingToXY(placement, state.rects, offset2);
@@ -25265,7 +25437,7 @@ function offset(_ref2) {
     state.modifiersData.popperOffsets.x += x2;
     state.modifiersData.popperOffsets.y += y2;
   }
-  state.modifiersData[name] = data;
+  state.modifiersData[name2] = data;
 }
 const offset$1 = {
   name: "offset",
@@ -25275,8 +25447,8 @@ const offset$1 = {
   fn: offset
 };
 function popperOffsets(_ref) {
-  var state = _ref.state, name = _ref.name;
-  state.modifiersData[name] = computeOffsets({
+  var state = _ref.state, name2 = _ref.name;
+  state.modifiersData[name2] = computeOffsets({
     reference: state.rects.reference,
     element: state.rects.popper,
     placement: state.placement
@@ -25293,7 +25465,7 @@ function getAltAxis(axis) {
   return axis === "x" ? "y" : "x";
 }
 function preventOverflow(_ref) {
-  var state = _ref.state, options = _ref.options, name = _ref.name;
+  var state = _ref.state, options = _ref.options, name2 = _ref.name;
   var _options$mainAxis = options.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options.altAxis, checkAltAxis = _options$altAxis === void 0 ? false : _options$altAxis, boundary = options.boundary, rootBoundary = options.rootBoundary, altBoundary = options.altBoundary, padding2 = options.padding, _options$tether = options.tether, tether = _options$tether === void 0 ? true : _options$tether, _options$tetherOffset = options.tetherOffset, tetherOffset = _options$tetherOffset === void 0 ? 0 : _options$tetherOffset;
   var overflow = detectOverflow(state, {
     boundary,
@@ -25374,7 +25546,7 @@ function preventOverflow(_ref) {
     popperOffsets2[altAxis] = _preventedOffset;
     data[altAxis] = _preventedOffset - _offset;
   }
-  state.modifiersData[name] = data;
+  state.modifiersData[name2] = data;
 }
 const preventOverflow$1 = {
   name: "preventOverflow",
@@ -25581,12 +25753,12 @@ function popperGenerator(generatorOptions) {
             index = -1;
             continue;
           }
-          var _state$orderedModifie = state.orderedModifiers[index], fn2 = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {} : _state$orderedModifie2, name = _state$orderedModifie.name;
+          var _state$orderedModifie = state.orderedModifiers[index], fn2 = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {} : _state$orderedModifie2, name2 = _state$orderedModifie.name;
           if (typeof fn2 === "function") {
             state = fn2({
               state,
               options: _options,
-              name,
+              name: name2,
               instance
             }) || state;
           }
@@ -25615,11 +25787,11 @@ function popperGenerator(generatorOptions) {
     });
     function runModifierEffects() {
       state.orderedModifiers.forEach(function(_ref) {
-        var name = _ref.name, _ref$options = _ref.options, options2 = _ref$options === void 0 ? {} : _ref$options, effect2 = _ref.effect;
+        var name2 = _ref.name, _ref$options = _ref.options, options2 = _ref$options === void 0 ? {} : _ref$options, effect2 = _ref.effect;
         if (typeof effect2 === "function") {
           var cleanupFn = effect2({
             state,
-            name,
+            name: name2,
             instance,
             options: options2
           });
@@ -25734,7 +25906,7 @@ function resolveAnchorEl$1(anchorEl) {
 function isHTMLElement(element) {
   return element.nodeType !== void 0;
 }
-const useUtilityClasses$1f = (ownerState) => {
+const useUtilityClasses$1m = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -25835,7 +26007,7 @@ const PopperTooltip = /* @__PURE__ */ reactExports.forwardRef(function PopperToo
   if (TransitionProps !== null) {
     childProps.TransitionProps = TransitionProps;
   }
-  const classes2 = useUtilityClasses$1f(props);
+  const classes2 = useUtilityClasses$1m(props);
   const Root = slots.root ?? "div";
   const rootProps = useSlotProps({
     elementType: Root,
@@ -25982,7 +26154,7 @@ function getListSubheaderUtilityClass(slot) {
   return generateUtilityClass("MuiListSubheader", slot);
 }
 generateUtilityClasses("MuiListSubheader", ["root", "colorPrimary", "colorInherit", "gutters", "inset", "sticky"]);
-const useUtilityClasses$1e = (ownerState) => {
+const useUtilityClasses$1l = (ownerState) => {
   const {
     classes: classes2,
     color: color2,
@@ -26077,7 +26249,7 @@ const ListSubheader = /* @__PURE__ */ reactExports.forwardRef(function ListSubhe
     disableSticky,
     inset
   };
-  const classes2 = useUtilityClasses$1e(ownerState);
+  const classes2 = useUtilityClasses$1l(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ListSubheaderRoot, {
     as: component,
     className: clsx$2(classes2.root, className),
@@ -26096,7 +26268,7 @@ function getChipUtilityClass(slot) {
   return generateUtilityClass("MuiChip", slot);
 }
 const chipClasses = generateUtilityClasses("MuiChip", ["root", "sizeSmall", "sizeMedium", "colorDefault", "colorError", "colorInfo", "colorPrimary", "colorSecondary", "colorSuccess", "colorWarning", "disabled", "clickable", "clickableColorPrimary", "clickableColorSecondary", "deletable", "deletableColorPrimary", "deletableColorSecondary", "outlined", "filled", "outlinedPrimary", "outlinedSecondary", "filledPrimary", "filledSecondary", "avatar", "avatarSmall", "avatarMedium", "avatarColorPrimary", "avatarColorSecondary", "icon", "iconSmall", "iconMedium", "iconColorPrimary", "iconColorSecondary", "label", "labelSmall", "labelMedium", "deleteIcon", "deleteIconSmall", "deleteIconMedium", "deleteIconColorPrimary", "deleteIconColorSecondary", "deleteIconOutlinedColorPrimary", "deleteIconOutlinedColorSecondary", "deleteIconFilledColorPrimary", "deleteIconFilledColorSecondary", "focusVisible"]);
-const useUtilityClasses$1d = (ownerState) => {
+const useUtilityClasses$1k = (ownerState) => {
   const {
     classes: classes2,
     disabled,
@@ -26487,7 +26659,7 @@ const Chip = /* @__PURE__ */ reactExports.forwardRef(function Chip2(inProps, ref
     clickable,
     variant
   };
-  const classes2 = useUtilityClasses$1d(ownerState);
+  const classes2 = useUtilityClasses$1k(ownerState);
   const moreProps = component === ButtonBase ? {
     component: ComponentProp || "div",
     focusVisibleClassName: classes2.focusVisible,
@@ -26762,7 +26934,7 @@ const inputOverridesResolver = (props, styles2) => {
   } = props;
   return [styles2.input, ownerState.size === "small" && styles2.inputSizeSmall, ownerState.multiline && styles2.inputMultiline, ownerState.type === "search" && styles2.inputTypeSearch, ownerState.startAdornment && styles2.inputAdornedStart, ownerState.endAdornment && styles2.inputAdornedEnd, ownerState.hiddenLabel && styles2.inputHiddenLabel];
 };
-const useUtilityClasses$1c = (ownerState) => {
+const useUtilityClasses$1j = (ownerState) => {
   const {
     classes: classes2,
     color: color2,
@@ -26988,7 +27160,7 @@ const InputBase = /* @__PURE__ */ reactExports.forwardRef(function InputBase2(in
     maxRows,
     minRows,
     multiline = false,
-    name,
+    name: name2,
     onBlur,
     onChange,
     onClick,
@@ -27148,7 +27320,7 @@ const InputBase = /* @__PURE__ */ reactExports.forwardRef(function InputBase2(in
     startAdornment,
     type
   };
-  const classes2 = useUtilityClasses$1c(ownerState);
+  const classes2 = useUtilityClasses$1j(ownerState);
   const Root = slots.root || components.Root || InputBaseRoot;
   const rootProps = slotProps.root || componentsProps.root || {};
   const Input3 = slots.input || components.Input || InputBaseInput;
@@ -27182,7 +27354,7 @@ const InputBase = /* @__PURE__ */ reactExports.forwardRef(function InputBase2(in
           disabled: fcs.disabled,
           id: id2,
           onAnimationStart: handleAutoFill,
-          name,
+          name: name2,
           placeholder,
           readOnly,
           required: fcs.required,
@@ -27241,7 +27413,7 @@ function getAutocompleteUtilityClass(slot) {
 }
 const autocompleteClasses = generateUtilityClasses("MuiAutocomplete", ["root", "expanded", "fullWidth", "focused", "focusVisible", "tag", "tagSizeSmall", "tagSizeMedium", "hasPopupIcon", "hasClearIcon", "inputRoot", "input", "inputFocused", "endAdornment", "clearIndicator", "popupIndicator", "popupIndicatorOpen", "popper", "popperDisablePortal", "paper", "listbox", "loading", "noOptions", "option", "groupLabel", "groupUl"]);
 var _ClearIcon, _ArrowDropDownIcon;
-const useUtilityClasses$1b = (ownerState) => {
+const useUtilityClasses$1i = (ownerState) => {
   const {
     classes: classes2,
     disablePortal,
@@ -27620,7 +27792,7 @@ const Autocomplete = /* @__PURE__ */ reactExports.forwardRef(function Autocomple
     blurOnSelect = false,
     ChipProps: ChipPropsProp,
     className,
-    clearIcon = _ClearIcon || (_ClearIcon = /* @__PURE__ */ jsxRuntimeExports.jsx(ClearIcon$1, {
+    clearIcon = _ClearIcon || (_ClearIcon = /* @__PURE__ */ jsxRuntimeExports.jsx(ClearIcon$2, {
       fontSize: "small"
     })),
     clearOnBlur = !props.freeSolo,
@@ -27730,7 +27902,7 @@ const Autocomplete = /* @__PURE__ */ reactExports.forwardRef(function Autocomple
     popupOpen,
     size
   };
-  const classes2 = useUtilityClasses$1b(ownerState);
+  const classes2 = useUtilityClasses$1i(ownerState);
   const externalForwardedProps = {
     slots: {
       paper: PaperComponentProp,
@@ -27967,7 +28139,7 @@ const Fade = /* @__PURE__ */ reactExports.forwardRef(function Fade2(props, ref) 
     style: style2,
     timeout: timeout2 = defaultTimeout,
     // eslint-disable-next-line react/prop-types
-    TransitionComponent = Transition$1,
+    TransitionComponent = Transition$2,
     ...other
   } = props;
   const nodeRef = reactExports.useRef(null);
@@ -28055,7 +28227,7 @@ function getBackdropUtilityClass(slot) {
   return generateUtilityClass("MuiBackdrop", slot);
 }
 generateUtilityClasses("MuiBackdrop", ["root", "invisible"]);
-const useUtilityClasses$1a = (ownerState) => {
+const useUtilityClasses$1h = (ownerState) => {
   const {
     classes: classes2,
     invisible
@@ -28118,7 +28290,7 @@ const Backdrop = /* @__PURE__ */ reactExports.forwardRef(function Backdrop2(inPr
     component,
     invisible
   };
-  const classes2 = useUtilityClasses$1a(ownerState);
+  const classes2 = useUtilityClasses$1h(ownerState);
   const backwardCompatibleSlots = {
     transition: TransitionComponentProp,
     root: components.Root,
@@ -28171,7 +28343,7 @@ function getButtonUtilityClass(slot) {
 const buttonClasses = generateUtilityClasses("MuiButton", ["root", "text", "textInherit", "textPrimary", "textSecondary", "textSuccess", "textError", "textInfo", "textWarning", "outlined", "outlinedInherit", "outlinedPrimary", "outlinedSecondary", "outlinedSuccess", "outlinedError", "outlinedInfo", "outlinedWarning", "contained", "containedInherit", "containedPrimary", "containedSecondary", "containedSuccess", "containedError", "containedInfo", "containedWarning", "disableElevation", "focusVisible", "disabled", "colorInherit", "colorPrimary", "colorSecondary", "colorSuccess", "colorError", "colorInfo", "colorWarning", "textSizeSmall", "textSizeMedium", "textSizeLarge", "outlinedSizeSmall", "outlinedSizeMedium", "outlinedSizeLarge", "containedSizeSmall", "containedSizeMedium", "containedSizeLarge", "sizeMedium", "sizeSmall", "sizeLarge", "fullWidth", "startIcon", "endIcon", "icon", "iconSizeSmall", "iconSizeMedium", "iconSizeLarge", "loading", "loadingWrapper", "loadingIconPlaceholder", "loadingIndicator", "loadingPositionCenter", "loadingPositionStart", "loadingPositionEnd"]);
 const ButtonGroupContext = /* @__PURE__ */ reactExports.createContext({});
 const ButtonGroupButtonContext = /* @__PURE__ */ reactExports.createContext(void 0);
-const useUtilityClasses$19 = (ownerState) => {
+const useUtilityClasses$1g = (ownerState) => {
   const {
     color: color2,
     disableElevation,
@@ -28671,7 +28843,7 @@ const Button = /* @__PURE__ */ reactExports.forwardRef(function Button2(inProps,
     type,
     variant
   };
-  const classes2 = useUtilityClasses$19(ownerState);
+  const classes2 = useUtilityClasses$1g(ownerState);
   const startIcon = (startIconProp || loading && loadingPosition === "start") && /* @__PURE__ */ jsxRuntimeExports.jsx(ButtonStartIcon, {
     className: classes2.startIcon,
     ownerState,
@@ -28721,11 +28893,158 @@ const Button = /* @__PURE__ */ reactExports.forwardRef(function Button2(inProps,
 function getValidReactChildren(children) {
   return reactExports.Children.toArray(children).filter((child) => /* @__PURE__ */ reactExports.isValidElement(child));
 }
+function getCardUtilityClass(slot) {
+  return generateUtilityClass("MuiCard", slot);
+}
+generateUtilityClasses("MuiCard", ["root"]);
+const useUtilityClasses$1f = (ownerState) => {
+  const {
+    classes: classes2
+  } = ownerState;
+  const slots = {
+    root: ["root"]
+  };
+  return composeClasses(slots, getCardUtilityClass, classes2);
+};
+const CardRoot = styled(Paper, {
+  name: "MuiCard",
+  slot: "Root"
+})({
+  overflow: "hidden"
+});
+const Card = /* @__PURE__ */ reactExports.forwardRef(function Card2(inProps, ref) {
+  const props = useDefaultProps({
+    props: inProps,
+    name: "MuiCard"
+  });
+  const {
+    className,
+    raised = false,
+    ...other
+  } = props;
+  const ownerState = {
+    ...props,
+    raised
+  };
+  const classes2 = useUtilityClasses$1f(ownerState);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(CardRoot, {
+    className: clsx$2(classes2.root, className),
+    elevation: raised ? 8 : void 0,
+    ref,
+    ownerState,
+    ...other
+  });
+});
+function getCardActionsUtilityClass(slot) {
+  return generateUtilityClass("MuiCardActions", slot);
+}
+generateUtilityClasses("MuiCardActions", ["root", "spacing"]);
+const useUtilityClasses$1e = (ownerState) => {
+  const {
+    classes: classes2,
+    disableSpacing
+  } = ownerState;
+  const slots = {
+    root: ["root", !disableSpacing && "spacing"]
+  };
+  return composeClasses(slots, getCardActionsUtilityClass, classes2);
+};
+const CardActionsRoot = styled("div", {
+  name: "MuiCardActions",
+  slot: "Root",
+  overridesResolver: (props, styles2) => {
+    const {
+      ownerState
+    } = props;
+    return [styles2.root, !ownerState.disableSpacing && styles2.spacing];
+  }
+})({
+  display: "flex",
+  alignItems: "center",
+  padding: 8,
+  variants: [{
+    props: {
+      disableSpacing: false
+    },
+    style: {
+      "& > :not(style) ~ :not(style)": {
+        marginLeft: 8
+      }
+    }
+  }]
+});
+const CardActions = /* @__PURE__ */ reactExports.forwardRef(function CardActions2(inProps, ref) {
+  const props = useDefaultProps({
+    props: inProps,
+    name: "MuiCardActions"
+  });
+  const {
+    disableSpacing = false,
+    className,
+    ...other
+  } = props;
+  const ownerState = {
+    ...props,
+    disableSpacing
+  };
+  const classes2 = useUtilityClasses$1e(ownerState);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(CardActionsRoot, {
+    className: clsx$2(classes2.root, className),
+    ownerState,
+    ref,
+    ...other
+  });
+});
+function getCardContentUtilityClass(slot) {
+  return generateUtilityClass("MuiCardContent", slot);
+}
+generateUtilityClasses("MuiCardContent", ["root"]);
+const useUtilityClasses$1d = (ownerState) => {
+  const {
+    classes: classes2
+  } = ownerState;
+  const slots = {
+    root: ["root"]
+  };
+  return composeClasses(slots, getCardContentUtilityClass, classes2);
+};
+const CardContentRoot = styled("div", {
+  name: "MuiCardContent",
+  slot: "Root"
+})({
+  padding: 16,
+  "&:last-child": {
+    paddingBottom: 24
+  }
+});
+const CardContent = /* @__PURE__ */ reactExports.forwardRef(function CardContent2(inProps, ref) {
+  const props = useDefaultProps({
+    props: inProps,
+    name: "MuiCardContent"
+  });
+  const {
+    className,
+    component = "div",
+    ...other
+  } = props;
+  const ownerState = {
+    ...props,
+    component
+  };
+  const classes2 = useUtilityClasses$1d(ownerState);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(CardContentRoot, {
+    as: component,
+    className: clsx$2(classes2.root, className),
+    ownerState,
+    ref,
+    ...other
+  });
+});
 function getSwitchBaseUtilityClass(slot) {
   return generateUtilityClass("PrivateSwitchBase", slot);
 }
 generateUtilityClasses("PrivateSwitchBase", ["root", "checked", "disabled", "input", "edgeStart", "edgeEnd"]);
-const useUtilityClasses$18 = (ownerState) => {
+const useUtilityClasses$1c = (ownerState) => {
   const {
     classes: classes2,
     checked,
@@ -28802,7 +29121,7 @@ const SwitchBase = /* @__PURE__ */ reactExports.forwardRef(function SwitchBase2(
     id: id2,
     inputProps,
     inputRef,
-    name,
+    name: name2,
     onBlur,
     onChange,
     onFocus,
@@ -28862,7 +29181,7 @@ const SwitchBase = /* @__PURE__ */ reactExports.forwardRef(function SwitchBase2(
     disableFocusRipple,
     edge
   };
-  const classes2 = useUtilityClasses$18(ownerState);
+  const classes2 = useUtilityClasses$1c(ownerState);
   const externalForwardedProps = {
     slots,
     slotProps: {
@@ -28919,7 +29238,7 @@ const SwitchBase = /* @__PURE__ */ reactExports.forwardRef(function SwitchBase2(
       defaultChecked,
       disabled,
       id: hasLabelFor ? id2 : void 0,
-      name,
+      name: name2,
       readOnly,
       required,
       tabIndex,
@@ -28949,7 +29268,7 @@ function getCheckboxUtilityClass(slot) {
   return generateUtilityClass("MuiCheckbox", slot);
 }
 const checkboxClasses = generateUtilityClasses("MuiCheckbox", ["root", "checked", "disabled", "indeterminate", "colorPrimary", "colorSecondary", "sizeSmall", "sizeMedium"]);
-const useUtilityClasses$17 = (ownerState) => {
+const useUtilityClasses$1b = (ownerState) => {
   const {
     classes: classes2,
     indeterminate,
@@ -29027,8 +29346,8 @@ const CheckboxRoot = styled(SwitchBase, {
     }
   }]
 })));
-const defaultCheckedIcon = /* @__PURE__ */ jsxRuntimeExports.jsx(CheckBoxIcon, {});
-const defaultIcon = /* @__PURE__ */ jsxRuntimeExports.jsx(CheckBoxOutlineBlankIcon, {});
+const defaultCheckedIcon$1 = /* @__PURE__ */ jsxRuntimeExports.jsx(CheckBoxIcon, {});
+const defaultIcon$1 = /* @__PURE__ */ jsxRuntimeExports.jsx(CheckBoxOutlineBlankIcon, {});
 const defaultIndeterminateIcon = /* @__PURE__ */ jsxRuntimeExports.jsx(IndeterminateCheckBoxIcon, {});
 const Checkbox = /* @__PURE__ */ reactExports.forwardRef(function Checkbox2(inProps, ref) {
   const props = useDefaultProps({
@@ -29036,9 +29355,9 @@ const Checkbox = /* @__PURE__ */ reactExports.forwardRef(function Checkbox2(inPr
     name: "MuiCheckbox"
   });
   const {
-    checkedIcon = defaultCheckedIcon,
+    checkedIcon = defaultCheckedIcon$1,
     color: color2 = "primary",
-    icon: iconProp = defaultIcon,
+    icon: iconProp = defaultIcon$1,
     indeterminate = false,
     indeterminateIcon: indeterminateIconProp = defaultIndeterminateIcon,
     inputProps,
@@ -29058,7 +29377,7 @@ const Checkbox = /* @__PURE__ */ reactExports.forwardRef(function Checkbox2(inPr
     indeterminate,
     size
   };
-  const classes2 = useUtilityClasses$17(ownerState);
+  const classes2 = useUtilityClasses$1b(ownerState);
   const externalInputProps = slotProps.input ?? inputProps;
   const [RootSlot, rootSlotProps] = useSlot("root", {
     ref,
@@ -29752,7 +30071,7 @@ function getModalUtilityClass(slot) {
   return generateUtilityClass("MuiModal", slot);
 }
 generateUtilityClasses("MuiModal", ["root", "hidden", "backdrop"]);
-const useUtilityClasses$16 = (ownerState) => {
+const useUtilityClasses$1a = (ownerState) => {
   const {
     open,
     exited,
@@ -29859,7 +30178,7 @@ const Modal = /* @__PURE__ */ reactExports.forwardRef(function Modal2(inProps, r
     ...propsWithDefaults,
     exited
   };
-  const classes2 = useUtilityClasses$16(ownerState);
+  const classes2 = useUtilityClasses$1a(ownerState);
   const childProps = {};
   if (children.props.tabIndex === void 0) {
     childProps.tabIndex = "-1";
@@ -29949,7 +30268,7 @@ const DialogBackdrop = styled(Backdrop, {
   // Improve scrollable dialog support.
   zIndex: -1
 });
-const useUtilityClasses$15 = (ownerState) => {
+const useUtilityClasses$19 = (ownerState) => {
   const {
     classes: classes2,
     scroll,
@@ -30152,7 +30471,7 @@ const Dialog = /* @__PURE__ */ reactExports.forwardRef(function Dialog2(inProps,
     maxWidth: maxWidth2,
     scroll
   };
-  const classes2 = useUtilityClasses$15(ownerState);
+  const classes2 = useUtilityClasses$19(ownerState);
   const backdropClick = reactExports.useRef();
   const handleMouseDown = (event) => {
     backdropClick.current = event.target === event.currentTarget;
@@ -30271,7 +30590,7 @@ function getDialogActionsUtilityClass(slot) {
   return generateUtilityClass("MuiDialogActions", slot);
 }
 generateUtilityClasses("MuiDialogActions", ["root", "spacing"]);
-const useUtilityClasses$14 = (ownerState) => {
+const useUtilityClasses$18 = (ownerState) => {
   const {
     classes: classes2,
     disableSpacing
@@ -30321,7 +30640,7 @@ const DialogActions = /* @__PURE__ */ reactExports.forwardRef(function DialogAct
     ...props,
     disableSpacing
   };
-  const classes2 = useUtilityClasses$14(ownerState);
+  const classes2 = useUtilityClasses$18(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(DialogActionsRoot, {
     className: clsx$2(classes2.root, className),
     ownerState,
@@ -30337,7 +30656,7 @@ function getDialogTitleUtilityClass(slot) {
   return generateUtilityClass("MuiDialogTitle", slot);
 }
 const dialogTitleClasses = generateUtilityClasses("MuiDialogTitle", ["root"]);
-const useUtilityClasses$13 = (ownerState) => {
+const useUtilityClasses$17 = (ownerState) => {
   const {
     classes: classes2,
     dividers
@@ -30398,7 +30717,7 @@ const DialogContent = /* @__PURE__ */ reactExports.forwardRef(function DialogCon
     ...props,
     dividers
   };
-  const classes2 = useUtilityClasses$13(ownerState);
+  const classes2 = useUtilityClasses$17(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContentRoot, {
     className: clsx$2(classes2.root, className),
     ownerState,
@@ -30410,7 +30729,7 @@ function getDialogContentTextUtilityClass(slot) {
   return generateUtilityClass("MuiDialogContentText", slot);
 }
 generateUtilityClasses("MuiDialogContentText", ["root"]);
-const useUtilityClasses$12 = (ownerState) => {
+const useUtilityClasses$16 = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -30439,7 +30758,7 @@ const DialogContentText = /* @__PURE__ */ reactExports.forwardRef(function Dialo
     className,
     ...ownerState
   } = props;
-  const classes2 = useUtilityClasses$12(ownerState);
+  const classes2 = useUtilityClasses$16(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContentTextRoot, {
     component: "p",
     variant: "body1",
@@ -30451,7 +30770,7 @@ const DialogContentText = /* @__PURE__ */ reactExports.forwardRef(function Dialo
     classes: classes2
   });
 });
-const useUtilityClasses$11 = (ownerState) => {
+const useUtilityClasses$15 = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -30478,7 +30797,7 @@ const DialogTitle = /* @__PURE__ */ reactExports.forwardRef(function DialogTitle
     ...other
   } = props;
   const ownerState = props;
-  const classes2 = useUtilityClasses$11(ownerState);
+  const classes2 = useUtilityClasses$15(ownerState);
   const {
     titleId = idProp
   } = reactExports.useContext(DialogContext);
@@ -30496,7 +30815,7 @@ function getDividerUtilityClass(slot) {
   return generateUtilityClass("MuiDivider", slot);
 }
 const dividerClasses = generateUtilityClasses("MuiDivider", ["root", "absolute", "fullWidth", "inset", "middle", "flexItem", "light", "vertical", "withChildren", "withChildrenVertical", "textAlignRight", "textAlignLeft", "wrapper", "wrapperVertical"]);
-const useUtilityClasses$10 = (ownerState) => {
+const useUtilityClasses$14 = (ownerState) => {
   const {
     absolute,
     children,
@@ -30710,7 +31029,7 @@ const Divider = /* @__PURE__ */ reactExports.forwardRef(function Divider2(inProp
     textAlign,
     variant
   };
-  const classes2 = useUtilityClasses$10(ownerState);
+  const classes2 = useUtilityClasses$14(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(DividerRoot, {
     as: component,
     className: clsx$2(classes2.root, className),
@@ -30729,7 +31048,211 @@ const Divider = /* @__PURE__ */ reactExports.forwardRef(function Divider2(inProp
 if (Divider) {
   Divider.muiSkipListHighlight = true;
 }
-const useUtilityClasses$$ = (ownerState) => {
+function getTranslateValue$1(direction2, node2, resolvedContainer) {
+  const rect = node2.getBoundingClientRect();
+  const containerRect = resolvedContainer && resolvedContainer.getBoundingClientRect();
+  const containerWindow = ownerWindow$1(node2);
+  let transform;
+  if (node2.fakeTransform) {
+    transform = node2.fakeTransform;
+  } else {
+    const computedStyle = containerWindow.getComputedStyle(node2);
+    transform = computedStyle.getPropertyValue("-webkit-transform") || computedStyle.getPropertyValue("transform");
+  }
+  let offsetX = 0;
+  let offsetY = 0;
+  if (transform && transform !== "none" && typeof transform === "string") {
+    const transformValues = transform.split("(")[1].split(")")[0].split(",");
+    offsetX = parseInt(transformValues[4], 10);
+    offsetY = parseInt(transformValues[5], 10);
+  }
+  if (direction2 === "left") {
+    if (containerRect) {
+      return `translateX(${containerRect.right + offsetX - rect.left}px)`;
+    }
+    return `translateX(${containerWindow.innerWidth + offsetX - rect.left}px)`;
+  }
+  if (direction2 === "right") {
+    if (containerRect) {
+      return `translateX(-${rect.right - containerRect.left - offsetX}px)`;
+    }
+    return `translateX(-${rect.left + rect.width - offsetX}px)`;
+  }
+  if (direction2 === "up") {
+    if (containerRect) {
+      return `translateY(${containerRect.bottom + offsetY - rect.top}px)`;
+    }
+    return `translateY(${containerWindow.innerHeight + offsetY - rect.top}px)`;
+  }
+  if (containerRect) {
+    return `translateY(-${rect.top - containerRect.top + rect.height - offsetY}px)`;
+  }
+  return `translateY(-${rect.top + rect.height - offsetY}px)`;
+}
+function resolveContainer(containerPropProp) {
+  return typeof containerPropProp === "function" ? containerPropProp() : containerPropProp;
+}
+function setTranslateValue$1(direction2, node2, containerProp) {
+  const resolvedContainer = resolveContainer(containerProp);
+  const transform = getTranslateValue$1(direction2, node2, resolvedContainer);
+  if (transform) {
+    node2.style.webkitTransform = transform;
+    node2.style.transform = transform;
+  }
+}
+const Slide$1 = /* @__PURE__ */ reactExports.forwardRef(function Slide2(props, ref) {
+  const theme2 = useTheme();
+  const defaultEasing2 = {
+    enter: theme2.transitions.easing.easeOut,
+    exit: theme2.transitions.easing.sharp
+  };
+  const defaultTimeout = {
+    enter: theme2.transitions.duration.enteringScreen,
+    exit: theme2.transitions.duration.leavingScreen
+  };
+  const {
+    addEndListener,
+    appear = true,
+    children,
+    container: containerProp,
+    direction: direction2 = "down",
+    easing: easingProp = defaultEasing2,
+    in: inProp,
+    onEnter,
+    onEntered,
+    onEntering,
+    onExit,
+    onExited,
+    onExiting,
+    style: style2,
+    timeout: timeout2 = defaultTimeout,
+    // eslint-disable-next-line react/prop-types
+    TransitionComponent = Transition$2,
+    ...other
+  } = props;
+  const childrenRef = reactExports.useRef(null);
+  const handleRef = useForkRef$1(getReactElementRef(children), childrenRef, ref);
+  const normalizedTransitionCallback = (callback) => (isAppearing) => {
+    if (callback) {
+      if (isAppearing === void 0) {
+        callback(childrenRef.current);
+      } else {
+        callback(childrenRef.current, isAppearing);
+      }
+    }
+  };
+  const handleEnter = normalizedTransitionCallback((node2, isAppearing) => {
+    setTranslateValue$1(direction2, node2, containerProp);
+    reflow$1(node2);
+    if (onEnter) {
+      onEnter(node2, isAppearing);
+    }
+  });
+  const handleEntering = normalizedTransitionCallback((node2, isAppearing) => {
+    const transitionProps = getTransitionProps$1({
+      timeout: timeout2,
+      style: style2,
+      easing: easingProp
+    }, {
+      mode: "enter"
+    });
+    node2.style.webkitTransition = theme2.transitions.create("-webkit-transform", {
+      ...transitionProps
+    });
+    node2.style.transition = theme2.transitions.create("transform", {
+      ...transitionProps
+    });
+    node2.style.webkitTransform = "none";
+    node2.style.transform = "none";
+    if (onEntering) {
+      onEntering(node2, isAppearing);
+    }
+  });
+  const handleEntered = normalizedTransitionCallback(onEntered);
+  const handleExiting = normalizedTransitionCallback(onExiting);
+  const handleExit = normalizedTransitionCallback((node2) => {
+    const transitionProps = getTransitionProps$1({
+      timeout: timeout2,
+      style: style2,
+      easing: easingProp
+    }, {
+      mode: "exit"
+    });
+    node2.style.webkitTransition = theme2.transitions.create("-webkit-transform", transitionProps);
+    node2.style.transition = theme2.transitions.create("transform", transitionProps);
+    setTranslateValue$1(direction2, node2, containerProp);
+    if (onExit) {
+      onExit(node2);
+    }
+  });
+  const handleExited = normalizedTransitionCallback((node2) => {
+    node2.style.webkitTransition = "";
+    node2.style.transition = "";
+    if (onExited) {
+      onExited(node2);
+    }
+  });
+  const handleAddEndListener = (next2) => {
+    if (addEndListener) {
+      addEndListener(childrenRef.current, next2);
+    }
+  };
+  const updatePosition = reactExports.useCallback(() => {
+    if (childrenRef.current) {
+      setTranslateValue$1(direction2, childrenRef.current, containerProp);
+    }
+  }, [direction2, containerProp]);
+  reactExports.useEffect(() => {
+    if (inProp || direction2 === "down" || direction2 === "right") {
+      return void 0;
+    }
+    const handleResize = debounce$3(() => {
+      if (childrenRef.current) {
+        setTranslateValue$1(direction2, childrenRef.current, containerProp);
+      }
+    });
+    const containerWindow = ownerWindow$1(childrenRef.current);
+    containerWindow.addEventListener("resize", handleResize);
+    return () => {
+      handleResize.clear();
+      containerWindow.removeEventListener("resize", handleResize);
+    };
+  }, [direction2, inProp, containerProp]);
+  reactExports.useEffect(() => {
+    if (!inProp) {
+      updatePosition();
+    }
+  }, [inProp, updatePosition]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(TransitionComponent, {
+    nodeRef: childrenRef,
+    onEnter: handleEnter,
+    onEntered: handleEntered,
+    onEntering: handleEntering,
+    onExit: handleExit,
+    onExited: handleExited,
+    onExiting: handleExiting,
+    addEndListener: handleAddEndListener,
+    appear,
+    in: inProp,
+    timeout: timeout2,
+    ...other,
+    children: (state, {
+      ownerState,
+      ...restChildProps
+    }) => {
+      return /* @__PURE__ */ reactExports.cloneElement(children, {
+        ref: handleRef,
+        style: {
+          visibility: state === "exited" && !inProp ? "hidden" : void 0,
+          ...style2,
+          ...children.props.style
+        },
+        ...restChildProps
+      });
+    }
+  });
+});
+const useUtilityClasses$13 = (ownerState) => {
   const {
     classes: classes2,
     disableUnderline,
@@ -31008,7 +31531,7 @@ const FilledInput = /* @__PURE__ */ reactExports.forwardRef(function FilledInput
     multiline,
     type
   };
-  const classes2 = useUtilityClasses$$(props);
+  const classes2 = useUtilityClasses$13(props);
   const filledInputComponentsProps = {
     root: {
       ownerState
@@ -31040,7 +31563,7 @@ function getFormControlUtilityClasses(slot) {
   return generateUtilityClass("MuiFormControl", slot);
 }
 generateUtilityClasses("MuiFormControl", ["root", "marginNone", "marginNormal", "marginDense", "fullWidth", "disabled"]);
-const useUtilityClasses$_ = (ownerState) => {
+const useUtilityClasses$12 = (ownerState) => {
   const {
     classes: classes2,
     margin: margin2,
@@ -31130,7 +31653,7 @@ const FormControl = /* @__PURE__ */ reactExports.forwardRef(function FormControl
     size,
     variant
   };
-  const classes2 = useUtilityClasses$_(ownerState);
+  const classes2 = useUtilityClasses$12(ownerState);
   const [adornedStart, setAdornedStart] = reactExports.useState(() => {
     let initialAdornedStart = false;
     if (children) {
@@ -31214,7 +31737,7 @@ function getFormControlLabelUtilityClasses(slot) {
   return generateUtilityClass("MuiFormControlLabel", slot);
 }
 const formControlLabelClasses = generateUtilityClasses("MuiFormControlLabel", ["root", "labelPlacementStart", "labelPlacementTop", "labelPlacementBottom", "disabled", "label", "error", "required", "asterisk"]);
-const useUtilityClasses$Z = (ownerState) => {
+const useUtilityClasses$11 = (ownerState) => {
   const {
     classes: classes2,
     disabled,
@@ -31317,7 +31840,7 @@ const FormControlLabel = /* @__PURE__ */ reactExports.forwardRef(function FormCo
     inputRef,
     label: labelProp,
     labelPlacement = "end",
-    name,
+    name: name2,
     onChange,
     required: requiredProp,
     slots = {},
@@ -31349,7 +31872,7 @@ const FormControlLabel = /* @__PURE__ */ reactExports.forwardRef(function FormCo
     required,
     error: fcs.error
   };
-  const classes2 = useUtilityClasses$Z(ownerState);
+  const classes2 = useUtilityClasses$11(ownerState);
   const externalForwardedProps = {
     slots,
     slotProps: {
@@ -31386,12 +31909,78 @@ const FormControlLabel = /* @__PURE__ */ reactExports.forwardRef(function FormCo
     }) : label]
   });
 });
+function getFormGroupUtilityClass(slot) {
+  return generateUtilityClass("MuiFormGroup", slot);
+}
+generateUtilityClasses("MuiFormGroup", ["root", "row", "error"]);
+const useUtilityClasses$10 = (ownerState) => {
+  const {
+    classes: classes2,
+    row,
+    error
+  } = ownerState;
+  const slots = {
+    root: ["root", row && "row", error && "error"]
+  };
+  return composeClasses(slots, getFormGroupUtilityClass, classes2);
+};
+const FormGroupRoot = styled("div", {
+  name: "MuiFormGroup",
+  slot: "Root",
+  overridesResolver: (props, styles2) => {
+    const {
+      ownerState
+    } = props;
+    return [styles2.root, ownerState.row && styles2.row];
+  }
+})({
+  display: "flex",
+  flexDirection: "column",
+  flexWrap: "wrap",
+  variants: [{
+    props: {
+      row: true
+    },
+    style: {
+      flexDirection: "row"
+    }
+  }]
+});
+const FormGroup = /* @__PURE__ */ reactExports.forwardRef(function FormGroup2(inProps, ref) {
+  const props = useDefaultProps({
+    props: inProps,
+    name: "MuiFormGroup"
+  });
+  const {
+    className,
+    row = false,
+    ...other
+  } = props;
+  const muiFormControl = useFormControl();
+  const fcs = formControlState({
+    props,
+    muiFormControl,
+    states: ["error"]
+  });
+  const ownerState = {
+    ...props,
+    row,
+    error: fcs.error
+  };
+  const classes2 = useUtilityClasses$10(ownerState);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(FormGroupRoot, {
+    className: clsx$2(classes2.root, className),
+    ownerState,
+    ref,
+    ...other
+  });
+});
 function getFormHelperTextUtilityClasses(slot) {
   return generateUtilityClass("MuiFormHelperText", slot);
 }
 const formHelperTextClasses = generateUtilityClasses("MuiFormHelperText", ["root", "error", "disabled", "sizeSmall", "sizeMedium", "contained", "focused", "filled", "required"]);
 var _span$3;
-const useUtilityClasses$Y = (ownerState) => {
+const useUtilityClasses$$ = (ownerState) => {
   const {
     classes: classes2,
     contained,
@@ -31486,7 +32075,7 @@ const FormHelperText = /* @__PURE__ */ reactExports.forwardRef(function FormHelp
     required: fcs.required
   };
   delete ownerState.ownerState;
-  const classes2 = useUtilityClasses$Y(ownerState);
+  const classes2 = useUtilityClasses$$(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(FormHelperTextRoot, {
     as: component,
     className: clsx$2(classes2.root, className),
@@ -31507,7 +32096,7 @@ function getFormLabelUtilityClasses(slot) {
   return generateUtilityClass("MuiFormLabel", slot);
 }
 const formLabelClasses = generateUtilityClasses("MuiFormLabel", ["root", "colorSecondary", "focused", "disabled", "error", "filled", "required", "asterisk"]);
-const useUtilityClasses$X = (ownerState) => {
+const useUtilityClasses$_ = (ownerState) => {
   const {
     classes: classes2,
     color: color2,
@@ -31604,7 +32193,7 @@ const FormLabel = /* @__PURE__ */ reactExports.forwardRef(function FormLabel2(in
     focused: fcs.focused,
     required: fcs.required
   };
-  const classes2 = useUtilityClasses$X(ownerState);
+  const classes2 = useUtilityClasses$_(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(FormLabelRoot, {
     as: component,
     ownerState,
@@ -31667,7 +32256,7 @@ const Grow = /* @__PURE__ */ reactExports.forwardRef(function Grow2(props, ref) 
     style: style2,
     timeout: timeout2 = "auto",
     // eslint-disable-next-line react/prop-types
-    TransitionComponent = Transition$1,
+    TransitionComponent = Transition$2,
     ...other
   } = props;
   const timer = useTimeout();
@@ -31801,7 +32390,7 @@ function getIconUtilityClass(slot) {
   return generateUtilityClass("MuiIcon", slot);
 }
 generateUtilityClasses("MuiIcon", ["root", "colorPrimary", "colorSecondary", "colorAction", "colorError", "colorDisabled", "fontSizeInherit", "fontSizeSmall", "fontSizeMedium", "fontSizeLarge"]);
-const useUtilityClasses$W = (ownerState) => {
+const useUtilityClasses$Z = (ownerState) => {
   const {
     color: color2,
     fontSize,
@@ -31913,7 +32502,7 @@ const Icon = /* @__PURE__ */ reactExports.forwardRef(function Icon2(inProps, ref
     component: Component,
     fontSize
   };
-  const classes2 = useUtilityClasses$W(ownerState);
+  const classes2 = useUtilityClasses$Z(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(IconRoot, {
     as: Component,
     className: clsx$2(
@@ -31931,7 +32520,7 @@ const Icon = /* @__PURE__ */ reactExports.forwardRef(function Icon2(inProps, ref
   });
 });
 Icon.muiName = "Icon";
-const useUtilityClasses$V = (ownerState) => {
+const useUtilityClasses$Y = (ownerState) => {
   const {
     classes: classes2,
     disableUnderline
@@ -32064,7 +32653,7 @@ const Input$1 = /* @__PURE__ */ reactExports.forwardRef(function Input2(inProps,
     type = "text",
     ...other
   } = props;
-  const classes2 = useUtilityClasses$V(props);
+  const classes2 = useUtilityClasses$Y(props);
   const ownerState = {
     disableUnderline
   };
@@ -32103,7 +32692,7 @@ const overridesResolver$4 = (props, styles2) => {
   } = props;
   return [styles2.root, styles2[`position${capitalize(ownerState.position)}`], ownerState.disablePointerEvents === true && styles2.disablePointerEvents, styles2[ownerState.variant]];
 };
-const useUtilityClasses$U = (ownerState) => {
+const useUtilityClasses$X = (ownerState) => {
   const {
     classes: classes2,
     disablePointerEvents,
@@ -32190,7 +32779,7 @@ const InputAdornment = /* @__PURE__ */ reactExports.forwardRef(function InputAdo
     position: position2,
     variant
   };
-  const classes2 = useUtilityClasses$U(ownerState);
+  const classes2 = useUtilityClasses$X(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(FormControlContext.Provider, {
     value: null,
     children: /* @__PURE__ */ jsxRuntimeExports.jsx(InputAdornmentRoot, {
@@ -32219,7 +32808,7 @@ function getInputLabelUtilityClasses(slot) {
   return generateUtilityClass("MuiInputLabel", slot);
 }
 generateUtilityClasses("MuiInputLabel", ["root", "focused", "disabled", "error", "required", "asterisk", "formControl", "sizeSmall", "shrink", "animated", "standard", "filled", "outlined"]);
-const useUtilityClasses$T = (ownerState) => {
+const useUtilityClasses$W = (ownerState) => {
   const {
     classes: classes2,
     formControl,
@@ -32408,7 +32997,7 @@ const InputLabel = /* @__PURE__ */ reactExports.forwardRef(function InputLabel2(
     required: fcs.required,
     focused: fcs.focused
   };
-  const classes2 = useUtilityClasses$T(ownerState);
+  const classes2 = useUtilityClasses$W(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabelRoot, {
     "data-shrink": shrink,
     ref,
@@ -32480,7 +33069,7 @@ const bufferKeyframe = keyframes`
 const bufferAnimation = typeof bufferKeyframe !== "string" ? css`
         animation: ${bufferKeyframe} 3s infinite linear;
       ` : null;
-const useUtilityClasses$S = (ownerState) => {
+const useUtilityClasses$V = (ownerState) => {
   const {
     classes: classes2,
     variant,
@@ -32755,7 +33344,7 @@ const LinearProgress = /* @__PURE__ */ reactExports.forwardRef(function LinearPr
     color: color2,
     variant
   };
-  const classes2 = useUtilityClasses$S(ownerState);
+  const classes2 = useUtilityClasses$V(ownerState);
   const isRtl = useRtl();
   const rootProps = {};
   const inlineStyles = {
@@ -32809,7 +33398,7 @@ function getListUtilityClass(slot) {
   return generateUtilityClass("MuiList", slot);
 }
 generateUtilityClasses("MuiList", ["root", "padding", "dense", "subheader"]);
-const useUtilityClasses$R = (ownerState) => {
+const useUtilityClasses$U = (ownerState) => {
   const {
     classes: classes2,
     disablePadding,
@@ -32875,7 +33464,7 @@ const List$1 = /* @__PURE__ */ reactExports.forwardRef(function List2(inProps, r
     dense,
     disablePadding
   };
-  const classes2 = useUtilityClasses$R(ownerState);
+  const classes2 = useUtilityClasses$U(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ListContext.Provider, {
     value: context,
     children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ListRoot, {
@@ -32902,7 +33491,7 @@ const overridesResolver$3 = (props, styles2) => {
   } = props;
   return [styles2.root, ownerState.dense && styles2.dense, ownerState.alignItems === "flex-start" && styles2.alignItemsFlexStart, ownerState.divider && styles2.divider, !ownerState.disableGutters && styles2.gutters];
 };
-const useUtilityClasses$Q = (ownerState) => {
+const useUtilityClasses$T = (ownerState) => {
   const {
     alignItems,
     classes: classes2,
@@ -33043,7 +33632,7 @@ const ListItemButton = /* @__PURE__ */ reactExports.forwardRef(function ListItem
     divider,
     selected
   };
-  const classes2 = useUtilityClasses$Q(ownerState);
+  const classes2 = useUtilityClasses$T(ownerState);
   const handleRef = useForkRef$1(listItemRef, ref);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ListContext.Provider, {
     value: childContext,
@@ -33064,7 +33653,7 @@ function getListItemSecondaryActionClassesUtilityClass(slot) {
   return generateUtilityClass("MuiListItemSecondaryAction", slot);
 }
 generateUtilityClasses("MuiListItemSecondaryAction", ["root", "disableGutters"]);
-const useUtilityClasses$P = (ownerState) => {
+const useUtilityClasses$S = (ownerState) => {
   const {
     disableGutters,
     classes: classes2
@@ -33111,7 +33700,7 @@ const ListItemSecondaryAction = /* @__PURE__ */ reactExports.forwardRef(function
     ...props,
     disableGutters: context.disableGutters
   };
-  const classes2 = useUtilityClasses$P(ownerState);
+  const classes2 = useUtilityClasses$S(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ListItemSecondaryActionRoot, {
     className: clsx$2(classes2.root, className),
     ownerState,
@@ -33126,7 +33715,7 @@ const overridesResolver$2 = (props, styles2) => {
   } = props;
   return [styles2.root, ownerState.dense && styles2.dense, ownerState.alignItems === "flex-start" && styles2.alignItemsFlexStart, ownerState.divider && styles2.divider, !ownerState.disableGutters && styles2.gutters, !ownerState.disablePadding && styles2.padding, ownerState.hasSecondaryAction && styles2.secondaryAction];
 };
-const useUtilityClasses$O = (ownerState) => {
+const useUtilityClasses$R = (ownerState) => {
   const {
     alignItems,
     classes: classes2,
@@ -33292,7 +33881,7 @@ const ListItem = /* @__PURE__ */ reactExports.forwardRef(function ListItem2(inPr
     divider,
     hasSecondaryAction
   };
-  const classes2 = useUtilityClasses$O(ownerState);
+  const classes2 = useUtilityClasses$R(ownerState);
   const handleRef = useForkRef$1(listItemRef, ref);
   const Root = slots.root || components.Root || ListItemRoot;
   const rootProps = slotProps.root || componentsProps.root || {};
@@ -33356,7 +33945,7 @@ function getListItemIconUtilityClass(slot) {
   return generateUtilityClass("MuiListItemIcon", slot);
 }
 const listItemIconClasses = generateUtilityClasses("MuiListItemIcon", ["root", "alignItemsFlexStart"]);
-const useUtilityClasses$N = (ownerState) => {
+const useUtilityClasses$Q = (ownerState) => {
   const {
     alignItems,
     classes: classes2
@@ -33405,7 +33994,7 @@ const ListItemIcon = /* @__PURE__ */ reactExports.forwardRef(function ListItemIc
     ...props,
     alignItems: context.alignItems
   };
-  const classes2 = useUtilityClasses$N(ownerState);
+  const classes2 = useUtilityClasses$Q(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ListItemIconRoot, {
     className: clsx$2(classes2.root, className),
     ownerState,
@@ -33417,7 +34006,7 @@ function getListItemTextUtilityClass(slot) {
   return generateUtilityClass("MuiListItemText", slot);
 }
 const listItemTextClasses = generateUtilityClasses("MuiListItemText", ["root", "multiline", "dense", "inset", "primary", "secondary"]);
-const useUtilityClasses$M = (ownerState) => {
+const useUtilityClasses$P = (ownerState) => {
   const {
     classes: classes2,
     inset,
@@ -33504,7 +34093,7 @@ const ListItemText = /* @__PURE__ */ reactExports.forwardRef(function ListItemTe
     secondary: !!secondary,
     dense
   };
-  const classes2 = useUtilityClasses$M(ownerState);
+  const classes2 = useUtilityClasses$P(ownerState);
   const externalForwardedProps = {
     slots,
     slotProps: {
@@ -33781,7 +34370,7 @@ function getTransformOriginValue(transformOrigin) {
 function resolveAnchorEl(anchorEl) {
   return typeof anchorEl === "function" ? anchorEl() : anchorEl;
 }
-const useUtilityClasses$L = (ownerState) => {
+const useUtilityClasses$O = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -33859,7 +34448,7 @@ const Popover = /* @__PURE__ */ reactExports.forwardRef(function Popover2(inProp
     transitionDuration: transitionDurationProp,
     TransitionProps
   };
-  const classes2 = useUtilityClasses$L(ownerState);
+  const classes2 = useUtilityClasses$O(ownerState);
   const getAnchorOffset = reactExports.useCallback(() => {
     if (anchorReference === "anchorPosition") {
       return anchorPosition;
@@ -34081,7 +34670,7 @@ const LTR_ORIGIN = {
   vertical: "top",
   horizontal: "left"
 };
-const useUtilityClasses$K = (ownerState) => {
+const useUtilityClasses$N = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -34152,7 +34741,7 @@ const Menu = /* @__PURE__ */ reactExports.forwardRef(function Menu2(inProps, ref
     TransitionProps,
     variant
   };
-  const classes2 = useUtilityClasses$K(ownerState);
+  const classes2 = useUtilityClasses$N(ownerState);
   const autoFocusItem = autoFocus && !disableAutoFocusItem && open;
   const menuListActionsRef = reactExports.useRef(null);
   const handleEntering = (element, isAppearing) => {
@@ -34277,7 +34866,7 @@ const overridesResolver$1 = (props, styles2) => {
   } = props;
   return [styles2.root, ownerState.dense && styles2.dense, ownerState.divider && styles2.divider, !ownerState.disableGutters && styles2.gutters];
 };
-const useUtilityClasses$J = (ownerState) => {
+const useUtilityClasses$M = (ownerState) => {
   const {
     disabled,
     dense,
@@ -34435,7 +35024,7 @@ const MenuItem = /* @__PURE__ */ reactExports.forwardRef(function MenuItem2(inPr
     divider,
     disableGutters
   };
-  const classes2 = useUtilityClasses$J(props);
+  const classes2 = useUtilityClasses$M(props);
   const handleRef = useForkRef$1(menuItemRef, ref);
   let tabIndex;
   if (!props.disabled) {
@@ -34460,7 +35049,7 @@ function getNativeSelectUtilityClasses(slot) {
   return generateUtilityClass("MuiNativeSelect", slot);
 }
 const nativeSelectClasses = generateUtilityClasses("MuiNativeSelect", ["root", "select", "multiple", "filled", "outlined", "standard", "disabled", "icon", "iconOpen", "iconFilled", "iconOutlined", "iconStandard", "nativeInput", "error"]);
-const useUtilityClasses$I = (ownerState) => {
+const useUtilityClasses$L = (ownerState) => {
   const {
     classes: classes2,
     variant,
@@ -34615,7 +35204,7 @@ const NativeSelectInput = /* @__PURE__ */ reactExports.forwardRef(function Nativ
     variant,
     error
   };
-  const classes2 = useUtilityClasses$I(ownerState);
+  const classes2 = useUtilityClasses$L(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.Fragment, {
     children: [/* @__PURE__ */ jsxRuntimeExports.jsx(NativeSelectSelect, {
       ownerState,
@@ -34748,7 +35337,7 @@ function NotchedOutline(props) {
     })
   });
 }
-const useUtilityClasses$H = (ownerState) => {
+const useUtilityClasses$K = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -34926,7 +35515,7 @@ const OutlinedInput = /* @__PURE__ */ reactExports.forwardRef(function OutlinedI
     type = "text",
     ...other
   } = props;
-  const classes2 = useUtilityClasses$H(props);
+  const classes2 = useUtilityClasses$K(props);
   const muiFormControl = useFormControl();
   const fcs = formControlState({
     props,
@@ -34986,6 +35575,325 @@ const OutlinedInput = /* @__PURE__ */ reactExports.forwardRef(function OutlinedI
   });
 });
 OutlinedInput.muiName = "Input";
+const RadioButtonUncheckedIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"
+}));
+const RadioButtonCheckedIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M8.465 8.465C9.37 7.56 10.62 7 12 7C14.76 7 17 9.24 17 12C17 13.38 16.44 14.63 15.535 15.535C14.63 16.44 13.38 17 12 17C9.24 17 7 14.76 7 12C7 10.62 7.56 9.37 8.465 8.465Z"
+}));
+const RadioButtonIconRoot = styled("span", {
+  shouldForwardProp: rootShouldForwardProp
+})({
+  position: "relative",
+  display: "flex"
+});
+const RadioButtonIconBackground = styled(RadioButtonUncheckedIcon)({
+  // Scale applied to prevent dot misalignment in Safari
+  transform: "scale(1)"
+});
+const RadioButtonIconDot = styled(RadioButtonCheckedIcon)(memoTheme(({
+  theme: theme2
+}) => ({
+  left: 0,
+  position: "absolute",
+  transform: "scale(0)",
+  transition: theme2.transitions.create("transform", {
+    easing: theme2.transitions.easing.easeIn,
+    duration: theme2.transitions.duration.shortest
+  }),
+  variants: [{
+    props: {
+      checked: true
+    },
+    style: {
+      transform: "scale(1)",
+      transition: theme2.transitions.create("transform", {
+        easing: theme2.transitions.easing.easeOut,
+        duration: theme2.transitions.duration.shortest
+      })
+    }
+  }]
+})));
+function RadioButtonIcon(props) {
+  const {
+    checked = false,
+    classes: classes2 = {},
+    fontSize
+  } = props;
+  const ownerState = {
+    ...props,
+    checked
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(RadioButtonIconRoot, {
+    className: classes2.root,
+    ownerState,
+    children: [/* @__PURE__ */ jsxRuntimeExports.jsx(RadioButtonIconBackground, {
+      fontSize,
+      className: classes2.background,
+      ownerState
+    }), /* @__PURE__ */ jsxRuntimeExports.jsx(RadioButtonIconDot, {
+      fontSize,
+      className: classes2.dot,
+      ownerState
+    })]
+  });
+}
+const RadioGroupContext = /* @__PURE__ */ reactExports.createContext(void 0);
+function useRadioGroup() {
+  return reactExports.useContext(RadioGroupContext);
+}
+function getRadioUtilityClass(slot) {
+  return generateUtilityClass("MuiRadio", slot);
+}
+const radioClasses = generateUtilityClasses("MuiRadio", ["root", "checked", "disabled", "colorPrimary", "colorSecondary", "sizeSmall"]);
+const useUtilityClasses$J = (ownerState) => {
+  const {
+    classes: classes2,
+    color: color2,
+    size
+  } = ownerState;
+  const slots = {
+    root: ["root", `color${capitalize(color2)}`, size !== "medium" && `size${capitalize(size)}`]
+  };
+  return {
+    ...classes2,
+    ...composeClasses(slots, getRadioUtilityClass, classes2)
+  };
+};
+const RadioRoot = styled(SwitchBase, {
+  shouldForwardProp: (prop) => rootShouldForwardProp(prop) || prop === "classes",
+  name: "MuiRadio",
+  slot: "Root",
+  overridesResolver: (props, styles2) => {
+    const {
+      ownerState
+    } = props;
+    return [styles2.root, ownerState.size !== "medium" && styles2[`size${capitalize(ownerState.size)}`], styles2[`color${capitalize(ownerState.color)}`]];
+  }
+})(memoTheme(({
+  theme: theme2
+}) => ({
+  color: (theme2.vars || theme2).palette.text.secondary,
+  [`&.${radioClasses.disabled}`]: {
+    color: (theme2.vars || theme2).palette.action.disabled
+  },
+  variants: [{
+    props: {
+      color: "default",
+      disabled: false,
+      disableRipple: false
+    },
+    style: {
+      "&:hover": {
+        backgroundColor: theme2.vars ? `rgba(${theme2.vars.palette.action.activeChannel} / ${theme2.vars.palette.action.hoverOpacity})` : alpha(theme2.palette.action.active, theme2.palette.action.hoverOpacity)
+      }
+    }
+  }, ...Object.entries(theme2.palette).filter(createSimplePaletteValueFilter()).map(([color2]) => ({
+    props: {
+      color: color2,
+      disabled: false,
+      disableRipple: false
+    },
+    style: {
+      "&:hover": {
+        backgroundColor: theme2.vars ? `rgba(${theme2.vars.palette[color2].mainChannel} / ${theme2.vars.palette.action.hoverOpacity})` : alpha(theme2.palette[color2].main, theme2.palette.action.hoverOpacity)
+      }
+    }
+  })), ...Object.entries(theme2.palette).filter(createSimplePaletteValueFilter()).map(([color2]) => ({
+    props: {
+      color: color2,
+      disabled: false
+    },
+    style: {
+      [`&.${radioClasses.checked}`]: {
+        color: (theme2.vars || theme2).palette[color2].main
+      }
+    }
+  })), {
+    // Should be last to override other colors
+    props: {
+      disableRipple: false
+    },
+    style: {
+      // Reset on touch devices, it doesn't add specificity
+      "&:hover": {
+        "@media (hover: none)": {
+          backgroundColor: "transparent"
+        }
+      }
+    }
+  }]
+})));
+function areEqualValues$1(a2, b2) {
+  if (typeof b2 === "object" && b2 !== null) {
+    return a2 === b2;
+  }
+  return String(a2) === String(b2);
+}
+const defaultCheckedIcon = /* @__PURE__ */ jsxRuntimeExports.jsx(RadioButtonIcon, {
+  checked: true
+});
+const defaultIcon = /* @__PURE__ */ jsxRuntimeExports.jsx(RadioButtonIcon, {});
+const Radio = /* @__PURE__ */ reactExports.forwardRef(function Radio2(inProps, ref) {
+  const props = useDefaultProps({
+    props: inProps,
+    name: "MuiRadio"
+  });
+  const {
+    checked: checkedProp,
+    checkedIcon = defaultCheckedIcon,
+    color: color2 = "primary",
+    icon = defaultIcon,
+    name: nameProp,
+    onChange: onChangeProp,
+    size = "medium",
+    className,
+    disabled: disabledProp,
+    disableRipple = false,
+    slots = {},
+    slotProps = {},
+    inputProps,
+    ...other
+  } = props;
+  const muiFormControl = useFormControl();
+  let disabled = disabledProp;
+  if (muiFormControl) {
+    if (typeof disabled === "undefined") {
+      disabled = muiFormControl.disabled;
+    }
+  }
+  disabled ??= false;
+  const ownerState = {
+    ...props,
+    disabled,
+    disableRipple,
+    color: color2,
+    size
+  };
+  const classes2 = useUtilityClasses$J(ownerState);
+  const radioGroup = useRadioGroup();
+  let checked = checkedProp;
+  const onChange = createChainedFunction$1(onChangeProp, radioGroup && radioGroup.onChange);
+  let name2 = nameProp;
+  if (radioGroup) {
+    if (typeof checked === "undefined") {
+      checked = areEqualValues$1(radioGroup.value, props.value);
+    }
+    if (typeof name2 === "undefined") {
+      name2 = radioGroup.name;
+    }
+  }
+  const externalInputProps = slotProps.input ?? inputProps;
+  const [RootSlot, rootSlotProps] = useSlot("root", {
+    ref,
+    elementType: RadioRoot,
+    className: clsx$2(classes2.root, className),
+    shouldForwardComponentProp: true,
+    externalForwardedProps: {
+      slots,
+      slotProps,
+      ...other
+    },
+    getSlotProps: (handlers) => ({
+      ...handlers,
+      onChange: (event, ...args) => {
+        handlers.onChange?.(event, ...args);
+        onChange(event, ...args);
+      }
+    }),
+    ownerState,
+    additionalProps: {
+      type: "radio",
+      icon: /* @__PURE__ */ reactExports.cloneElement(icon, {
+        fontSize: icon.props.fontSize ?? size
+      }),
+      checkedIcon: /* @__PURE__ */ reactExports.cloneElement(checkedIcon, {
+        fontSize: checkedIcon.props.fontSize ?? size
+      }),
+      disabled,
+      name: name2,
+      checked,
+      slots,
+      slotProps: {
+        // Do not forward `slotProps.root` again because it's already handled by the `RootSlot` in this file.
+        input: typeof externalInputProps === "function" ? externalInputProps(ownerState) : externalInputProps
+      }
+    }
+  });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(RootSlot, {
+    ...rootSlotProps,
+    classes: classes2
+  });
+});
+function getRadioGroupUtilityClass(slot) {
+  return generateUtilityClass("MuiRadioGroup", slot);
+}
+generateUtilityClasses("MuiRadioGroup", ["root", "row", "error"]);
+const useUtilityClasses$I = (props) => {
+  const {
+    classes: classes2,
+    row,
+    error
+  } = props;
+  const slots = {
+    root: ["root", row && "row", error && "error"]
+  };
+  return composeClasses(slots, getRadioGroupUtilityClass, classes2);
+};
+const RadioGroup = /* @__PURE__ */ reactExports.forwardRef(function RadioGroup2(props, ref) {
+  const {
+    // private
+    // eslint-disable-next-line react/prop-types
+    actions,
+    children,
+    className,
+    defaultValue,
+    name: nameProp,
+    onChange,
+    value: valueProp,
+    ...other
+  } = props;
+  const rootRef = reactExports.useRef(null);
+  const classes2 = useUtilityClasses$I(props);
+  const [value, setValueState] = useControlled({
+    controlled: valueProp,
+    default: defaultValue,
+    name: "RadioGroup"
+  });
+  reactExports.useImperativeHandle(actions, () => ({
+    focus: () => {
+      let input = rootRef.current.querySelector("input:not(:disabled):checked");
+      if (!input) {
+        input = rootRef.current.querySelector("input:not(:disabled)");
+      }
+      if (input) {
+        input.focus();
+      }
+    }
+  }), []);
+  const handleRef = useForkRef$1(ref, rootRef);
+  const name2 = useId(nameProp);
+  const contextValue = reactExports.useMemo(() => ({
+    name: name2,
+    onChange(event) {
+      setValueState(event.target.value);
+      if (onChange) {
+        onChange(event, event.target.value);
+      }
+    },
+    value
+  }), [name2, onChange, setValueState, value]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(RadioGroupContext.Provider, {
+    value: contextValue,
+    children: /* @__PURE__ */ jsxRuntimeExports.jsx(FormGroup, {
+      role: "radiogroup",
+      ref: handleRef,
+      className: clsx$2(classes2.root, className),
+      ...other,
+      children
+    })
+  });
+});
 const visuallyHidden = {
   border: 0,
   clip: "rect(0 0 0 0)",
@@ -35069,7 +35977,7 @@ function areEqualValues(a2, b2) {
 function isEmpty(display) {
   return display == null || typeof display === "string" && !display.trim();
 }
-const useUtilityClasses$G = (ownerState) => {
+const useUtilityClasses$H = (ownerState) => {
   const {
     classes: classes2,
     variant,
@@ -35103,7 +36011,7 @@ const SelectInput = /* @__PURE__ */ reactExports.forwardRef(function SelectInput
     labelId,
     MenuProps = {},
     multiple,
-    name,
+    name: name2,
     onBlur,
     onChange,
     onClose,
@@ -35245,7 +36153,7 @@ const SelectInput = /* @__PURE__ */ reactExports.forwardRef(function SelectInput
           writable: true,
           value: {
             value: newValue,
-            name
+            name: name2
           }
         });
         onChange(clonedEvent, child);
@@ -35278,7 +36186,7 @@ const SelectInput = /* @__PURE__ */ reactExports.forwardRef(function SelectInput
         writable: true,
         value: {
           value,
-          name
+          name: name2
         }
       });
       onBlur(event);
@@ -35363,7 +36271,7 @@ const SelectInput = /* @__PURE__ */ reactExports.forwardRef(function SelectInput
   } else {
     tabIndex = disabled ? null : 0;
   }
-  const buttonId = SelectDisplayProps.id || (name ? `mui-component-select-${name}` : void 0);
+  const buttonId = SelectDisplayProps.id || (name2 ? `mui-component-select-${name2}` : void 0);
   const ownerState = {
     ...props,
     variant,
@@ -35371,7 +36279,7 @@ const SelectInput = /* @__PURE__ */ reactExports.forwardRef(function SelectInput
     open,
     error
   };
-  const classes2 = useUtilityClasses$G(ownerState);
+  const classes2 = useUtilityClasses$H(ownerState);
   const paperProps = {
     ...MenuProps.PaperProps,
     ...MenuProps.slotProps?.paper
@@ -35411,7 +36319,7 @@ const SelectInput = /* @__PURE__ */ reactExports.forwardRef(function SelectInput
     }), /* @__PURE__ */ jsxRuntimeExports.jsx(SelectNativeInput, {
       "aria-invalid": error,
       value: Array.isArray(value) ? value.join(",") : value,
-      name,
+      name: name2,
       ref: inputRef,
       "aria-hidden": true,
       onChange: handleChange,
@@ -35427,7 +36335,7 @@ const SelectInput = /* @__PURE__ */ reactExports.forwardRef(function SelectInput
       className: classes2.icon,
       ownerState
     }), /* @__PURE__ */ jsxRuntimeExports.jsx(Menu, {
-      id: `menu-${name || ""}`,
+      id: `menu-${name2 || ""}`,
       anchorEl: anchorElement,
       open,
       onClose: handleClose,
@@ -35462,7 +36370,7 @@ const SelectInput = /* @__PURE__ */ reactExports.forwardRef(function SelectInput
     })]
   });
 });
-const useUtilityClasses$F = (ownerState) => {
+const useUtilityClasses$G = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -35525,7 +36433,7 @@ const Select = /* @__PURE__ */ reactExports.forwardRef(function Select2(inProps,
     variant,
     classes: classesProp
   };
-  const classes2 = useUtilityClasses$F(ownerState);
+  const classes2 = useUtilityClasses$G(ownerState);
   const {
     root: root2,
     ...restOfClasses
@@ -35598,7 +36506,7 @@ const tooltipClasses = generateUtilityClasses("MuiTooltip", ["popper", "popperIn
 function round$1(value) {
   return Math.round(value * 1e5) / 1e5;
 }
-const useUtilityClasses$E = (ownerState) => {
+const useUtilityClasses$F = (ownerState) => {
   const {
     classes: classes2,
     disableInteractive,
@@ -36137,7 +37045,7 @@ const Tooltip = /* @__PURE__ */ reactExports.forwardRef(function Tooltip2(inProp
       modifiers: tooltipModifiers
     };
   }, [arrowRef, PopperProps.popperOptions, resolvedPopperProps?.popperOptions]);
-  const classes2 = useUtilityClasses$E(ownerState);
+  const classes2 = useUtilityClasses$F(ownerState);
   const resolvedTransitionProps = typeof slotProps.transition === "function" ? slotProps.transition(ownerState) : slotProps.transition;
   const externalForwardedProps = {
     slots: {
@@ -36236,7 +37144,7 @@ function getSwitchUtilityClass(slot) {
   return generateUtilityClass("MuiSwitch", slot);
 }
 const switchClasses = generateUtilityClasses("MuiSwitch", ["root", "edgeStart", "edgeEnd", "switchBase", "colorPrimary", "colorSecondary", "sizeSmall", "sizeMedium", "checked", "disabled", "input", "thumb", "track"]);
-const useUtilityClasses$D = (ownerState) => {
+const useUtilityClasses$E = (ownerState) => {
   const {
     classes: classes2,
     edge,
@@ -36440,7 +37348,7 @@ const Switch = /* @__PURE__ */ reactExports.forwardRef(function Switch2(inProps,
     edge,
     size
   };
-  const classes2 = useUtilityClasses$D(ownerState);
+  const classes2 = useUtilityClasses$E(ownerState);
   const externalForwardedProps = {
     slots,
     slotProps
@@ -36507,7 +37415,7 @@ function getTabUtilityClass(slot) {
   return generateUtilityClass("MuiTab", slot);
 }
 const tabClasses = generateUtilityClasses("MuiTab", ["root", "labelIcon", "textColorInherit", "textColorPrimary", "textColorSecondary", "selected", "disabled", "fullWidth", "wrapped", "iconWrapper", "icon"]);
-const useUtilityClasses$C = (ownerState) => {
+const useUtilityClasses$D = (ownerState) => {
   const {
     classes: classes2,
     textColor,
@@ -36715,7 +37623,7 @@ const Tab = /* @__PURE__ */ reactExports.forwardRef(function Tab2(inProps, ref) 
     textColor,
     wrapped
   };
-  const classes2 = useUtilityClasses$C(ownerState);
+  const classes2 = useUtilityClasses$D(ownerState);
   const icon = iconProp && label && /* @__PURE__ */ reactExports.isValidElement(iconProp) ? /* @__PURE__ */ reactExports.cloneElement(iconProp, {
     className: clsx$2(classes2.icon, iconProp.props.className)
   }) : iconProp;
@@ -36752,6 +37660,89 @@ const Tab = /* @__PURE__ */ reactExports.forwardRef(function Tab2(inProps, ref) 
     }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(reactExports.Fragment, {
       children: [label, icon]
     }), indicator]
+  });
+});
+function getToolbarUtilityClass(slot) {
+  return generateUtilityClass("MuiToolbar", slot);
+}
+generateUtilityClasses("MuiToolbar", ["root", "gutters", "regular", "dense"]);
+const useUtilityClasses$C = (ownerState) => {
+  const {
+    classes: classes2,
+    disableGutters,
+    variant
+  } = ownerState;
+  const slots = {
+    root: ["root", !disableGutters && "gutters", variant]
+  };
+  return composeClasses(slots, getToolbarUtilityClass, classes2);
+};
+const ToolbarRoot = styled("div", {
+  name: "MuiToolbar",
+  slot: "Root",
+  overridesResolver: (props, styles2) => {
+    const {
+      ownerState
+    } = props;
+    return [styles2.root, !ownerState.disableGutters && styles2.gutters, styles2[ownerState.variant]];
+  }
+})(memoTheme(({
+  theme: theme2
+}) => ({
+  position: "relative",
+  display: "flex",
+  alignItems: "center",
+  variants: [{
+    props: ({
+      ownerState
+    }) => !ownerState.disableGutters,
+    style: {
+      paddingLeft: theme2.spacing(2),
+      paddingRight: theme2.spacing(2),
+      [theme2.breakpoints.up("sm")]: {
+        paddingLeft: theme2.spacing(3),
+        paddingRight: theme2.spacing(3)
+      }
+    }
+  }, {
+    props: {
+      variant: "dense"
+    },
+    style: {
+      minHeight: 48
+    }
+  }, {
+    props: {
+      variant: "regular"
+    },
+    style: theme2.mixins.toolbar
+  }]
+})));
+const Toolbar = /* @__PURE__ */ reactExports.forwardRef(function Toolbar2(inProps, ref) {
+  const props = useDefaultProps({
+    props: inProps,
+    name: "MuiToolbar"
+  });
+  const {
+    className,
+    component = "div",
+    disableGutters = false,
+    variant = "regular",
+    ...other
+  } = props;
+  const ownerState = {
+    ...props,
+    component,
+    disableGutters,
+    variant
+  };
+  const classes2 = useUtilityClasses$C(ownerState);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(ToolbarRoot, {
+    as: component,
+    className: clsx$2(classes2.root, className),
+    ref,
+    ownerState,
+    ...other
   });
 });
 const KeyboardArrowLeft = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
@@ -37706,7 +38697,7 @@ const TextField = /* @__PURE__ */ reactExports.forwardRef(function TextField2(in
     maxRows,
     minRows,
     multiline = false,
-    name,
+    name: name2,
     onBlur,
     onChange,
     onFocus,
@@ -37816,7 +38807,7 @@ const TextField = /* @__PURE__ */ reactExports.forwardRef(function TextField2(in
     defaultValue,
     fullWidth,
     multiline,
-    name,
+    name: name2,
     rows,
     maxRows,
     minRows,
@@ -38731,7 +39722,7 @@ const HomeAssistantLogo = () => /* @__PURE__ */ jsxRuntimeExports.jsxs(
 );
 function IoIcon({
   colorIndicator = false,
-  name = "",
+  name: name2 = "",
   className = "",
   style: style2
 }) {
@@ -38741,7 +39732,7 @@ function IoIcon({
       className,
       color: colorIndicator ? "primary" : "inherit",
       style: { position: "relative", ...style2 },
-      children: name.startsWith("yz:logo2y") ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      children: name2.startsWith("yz:logo2y") ? /* @__PURE__ */ jsxRuntimeExports.jsx(
         YZLogo2Y,
         {
           style: {
@@ -38749,7 +39740,7 @@ function IoIcon({
             marginTop: "3px"
           }
         }
-      ) : name.startsWith("yz:logo2z") ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ) : name2.startsWith("yz:logo2z") ? /* @__PURE__ */ jsxRuntimeExports.jsx(
         YZLogo2Z,
         {
           style: {
@@ -38757,7 +39748,7 @@ function IoIcon({
             marginTop: "3px"
           }
         }
-      ) : name.startsWith("yz:logo2top") ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ) : name2.startsWith("yz:logo2top") ? /* @__PURE__ */ jsxRuntimeExports.jsx(
         YZLogo2Top,
         {
           style: {
@@ -38765,7 +39756,7 @@ function IoIcon({
             marginTop: "3px"
           }
         }
-      ) : name.startsWith("yz:logo2bot") ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ) : name2.startsWith("yz:logo2bot") ? /* @__PURE__ */ jsxRuntimeExports.jsx(
         YZLogo2Bottom,
         {
           style: {
@@ -38773,7 +39764,7 @@ function IoIcon({
             marginTop: "3px"
           }
         }
-      ) : name.startsWith("yz:logo2") ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ) : name2.startsWith("yz:logo2") ? /* @__PURE__ */ jsxRuntimeExports.jsx(
         YZLogo2,
         {
           style: {
@@ -38781,13 +39772,13 @@ function IoIcon({
             marginTop: "3px"
           }
         }
-      ) : name.startsWith("wled") ? /* @__PURE__ */ jsxRuntimeExports.jsx(Wled, {}) : name.startsWith("razer:mouse") ? /* @__PURE__ */ jsxRuntimeExports.jsx(RazerMouse, {}) : name.startsWith("razer:logo") ? /* @__PURE__ */ jsxRuntimeExports.jsx(RazerLogo, {}) : name.startsWith("homeAssistant") ? /* @__PURE__ */ jsxRuntimeExports.jsx(HomeAssistantLogo, {}) : name.startsWith("ledfx") ? /* @__PURE__ */ jsxRuntimeExports.jsx(FX, {}) : name.startsWith("mdi:") ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+      ) : name2.startsWith("wled") ? /* @__PURE__ */ jsxRuntimeExports.jsx(Wled, {}) : name2.startsWith("razer:mouse") ? /* @__PURE__ */ jsxRuntimeExports.jsx(RazerMouse, {}) : name2.startsWith("razer:logo") ? /* @__PURE__ */ jsxRuntimeExports.jsx(RazerLogo, {}) : name2.startsWith("homeAssistant") ? /* @__PURE__ */ jsxRuntimeExports.jsx(HomeAssistantLogo, {}) : name2.startsWith("ledfx") ? /* @__PURE__ */ jsxRuntimeExports.jsx(FX, {}) : name2.startsWith("mdi:") ? /* @__PURE__ */ jsxRuntimeExports.jsx(
         "span",
         {
           style: { position: "relative", display: "flex" },
-          className: `mdi mdi-${name.split("mdi:")[1]}`
+          className: `mdi mdi-${name2.split("mdi:")[1]}`
         }
-      ) : name && camelToSnake(name)
+      ) : name2 && camelToSnake(name2)
     }
   );
 }
@@ -39128,6 +40119,11 @@ const AccessTime = createSvgIcon([/* @__PURE__ */ jsxRuntimeExports.jsx("path", 
 }, "0"), /* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"
 }, "1")]);
+const ProfilesIcon = createSvgIcon([/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2M7.35 18.5C8.66 17.56 10.26 17 12 17s3.34.56 4.65 1.5c-1.31.94-2.91 1.5-4.65 1.5s-3.34-.56-4.65-1.5m10.79-1.38C16.45 15.8 14.32 15 12 15s-4.45.8-6.14 2.12C4.7 15.73 4 13.95 4 12c0-4.42 3.58-8 8-8s8 3.58 8 8c0 1.95-.7 3.73-1.86 5.12"
+}, "0"), /* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M12 6c-1.93 0-3.5 1.57-3.5 3.5S10.07 13 12 13s3.5-1.57 3.5-3.5S13.93 6 12 6m0 5c-.83 0-1.5-.67-1.5-1.5S11.17 8 12 8s1.5.67 1.5 1.5S12.83 11 12 11"
+}, "1")]);
 const Add = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"
 }));
@@ -39146,6 +40142,9 @@ const ArrowUpward = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", 
 const Audiotrack = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3z"
 }));
+const DarkModeIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M10 4c4.41 0 8 3.59 8 8s-3.59 8-8 8c-.34 0-.68-.02-1.01-.07C10.9 17.77 12 14.95 12 12s-1.1-5.77-3.01-7.93C9.32 4.02 9.66 4 10 4m0-2c-1.82 0-3.53.5-5 1.35C7.99 5.08 10 8.3 10 12s-2.01 6.92-5 8.65C6.47 21.5 8.18 22 10 22c5.52 0 10-4.48 10-10S15.52 2 10 2"
+}));
 const DebugIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M20 8h-2.81c-.45-.78-1.07-1.45-1.82-1.96L17 4.41 15.59 3l-2.17 2.17C12.96 5.06 12.49 5 12 5s-.96.06-1.41.17L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20zm-4 4v3c0 .22-.03.47-.07.7l-.1.65-.37.65c-.72 1.24-2.04 2-3.46 2s-2.74-.77-3.46-2l-.37-.64-.1-.65C8.03 15.48 8 15.23 8 15v-4c0-.23.03-.48.07-.7l.1-.65.37-.65c.3-.52.72-.97 1.21-1.31l.57-.39.74-.18c.31-.08.63-.12.94-.12.32 0 .63.04.95.12l.68.16.61.42c.5.34.91.78 1.21 1.31l.38.65.1.65c.04.22.07.47.07.69zm-6 2h4v2h-4zm0-4h4v2h-4z"
 }));
@@ -39160,6 +40159,15 @@ const CheckCircle = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", 
 }));
 const SuccessIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M16.59 7.58 10 14.17l-3.59-3.58L5 12l5 5 8-8zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
+}));
+const ClearAll = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M5 13h14v-2H5zm-2 4h14v-2H3zM7 7v2h14V7z"
+}));
+const CloseIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+}));
+const WindowBehaviorIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M22 3.41 16.71 8.7 20 12h-8V4l3.29 3.29L20.59 2zM3.41 22l5.29-5.29L12 20v-8H4l3.29 3.29L2 20.59z"
 }));
 const ContentCopyIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2m0 16H8V7h11z"
@@ -39180,6 +40188,9 @@ const Delete = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
 }));
 const DeleteBlueprintIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zm2.46-7.12 1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"
+}));
+const ClearIcon$1 = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M15 16h4v2h-4zm0-8h7v2h-7zm0 4h6v2h-6zM3 18c0 1.1.9 2 2 2h6c1.1 0 2-.9 2-2V8H3zM14 5h-3l-1-1H6L5 5H2v2h12z"
 }));
 const DownloadIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M5 20h14v-2H5zM19 9h-4V3H9v6H5l7 7z"
@@ -39202,6 +40213,9 @@ const ExpandMoreIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path
 const BlueprintIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7s2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11"
 }));
+const ModulesIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M10.5 4.5c.28 0 .5.22.5.5v2h6v6h2c.28 0 .5.22.5.5s-.22.5-.5.5h-2v6h-2.12c-.68-1.75-2.39-3-4.38-3s-3.7 1.25-4.38 3H4v-2.12c1.75-.68 3-2.39 3-4.38S5.76 9.8 4.01 9.12L4 7h6V5c0-.28.22-.5.5-.5m0-2C9.12 2.5 8 3.62 8 5H4c-1.1 0-1.99.9-1.99 2v3.8h.29c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-.3c0-1.49 1.21-2.7 2.7-2.7s2.7 1.21 2.7 2.7v.3H17c1.1 0 2-.9 2-2v-4c1.38 0 2.5-1.12 2.5-2.5S20.38 11 19 11V7c0-1.1-.9-2-2-2h-4c0-1.38-1.12-2.5-2.5-2.5"
+}));
 const ExportIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M19 9h-4V3H9v6H5l7 7zM5 18v2h14v-2z"
 }));
@@ -39211,13 +40225,20 @@ const ImportIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
 const FolderOpen = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2m0 12H4V8h16z"
 }));
+const GridViewIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  fillRule: "evenodd",
+  d: "M3 3v8h8V3zm6 6H5V5h4zm-6 4v8h8v-8zm6 6H5v-4h4zm4-16v8h8V3zm6 6h-4V5h4zm-6 4v8h8v-8zm6 6h-4v-4h4z"
+}));
 const Help = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 17h-2v-2h2zm2.07-7.75-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25"
+}));
+const HistoryIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9m-1 5v5l4.25 2.52.77-1.28-3.52-2.09V8z"
 }));
 const Info = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 15h-2v-6h2zm0-8h-2V7h2z"
 }));
-const InfoIcon$1 = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+const AboutIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"
 }));
 const Layers = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
@@ -39229,6 +40250,9 @@ const LayersClear = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", 
 const LightMode = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5M2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1m18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1M11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1m0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1M5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0z"
 }));
+const LoginIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M11 7 9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8z"
+}));
 const LooksOne = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-5 14h-2V9h-2V7h4z"
 }));
@@ -39238,6 +40262,25 @@ const MoreVert = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
 const VerboseIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M21 11.01 3 11v2h18zM3 16h12v2H3zM21 6H3v2.01L21 8z"
 }));
+const AppearanceIcon = createSvgIcon([/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M12 22C6.49 22 2 17.51 2 12S6.49 2 12 2s10 4.04 10 9c0 3.31-2.69 6-6 6h-1.77c-.28 0-.5.22-.5.5 0 .12.05.23.13.33.41.47.64 1.06.64 1.67 0 1.38-1.12 2.5-2.5 2.5m0-18c-4.41 0-8 3.59-8 8s3.59 8 8 8c.28 0 .5-.22.5-.5 0-.16-.08-.28-.14-.35-.41-.46-.63-1.05-.63-1.65 0-1.38 1.12-2.5 2.5-2.5H16c2.21 0 4-1.79 4-4 0-3.86-3.59-7-8-7"
+}, "0"), /* @__PURE__ */ jsxRuntimeExports.jsx("circle", {
+  cx: "6.5",
+  cy: "11.5",
+  r: "1.5"
+}, "1"), /* @__PURE__ */ jsxRuntimeExports.jsx("circle", {
+  cx: "9.5",
+  cy: "7.5",
+  r: "1.5"
+}, "2"), /* @__PURE__ */ jsxRuntimeExports.jsx("circle", {
+  cx: "14.5",
+  cy: "7.5",
+  r: "1.5"
+}, "3"), /* @__PURE__ */ jsxRuntimeExports.jsx("circle", {
+  cx: "17.5",
+  cy: "11.5",
+  r: "1.5"
+}, "4")]);
 const PauseIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M6 19h4V5H6zm8-14v14h4V5z"
 }));
@@ -39284,8 +40327,14 @@ const SaveAsPresetIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("pa
 const SearchIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"
 }));
-const Settings$7 = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+const Settings$8 = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6"
+}));
+const ConfigureModuleIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M12 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m7-7H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2m-1.75 9c0 .23-.02.46-.05.68l1.48 1.16c.13.11.17.3.08.45l-1.4 2.42c-.09.15-.27.21-.43.15l-1.74-.7c-.36.28-.76.51-1.18.69l-.26 1.85c-.03.17-.18.3-.35.3h-2.8c-.17 0-.32-.13-.35-.29l-.26-1.85c-.43-.18-.82-.41-1.18-.69l-1.74.7c-.16.06-.34 0-.43-.15l-1.4-2.42c-.09-.15-.05-.34.08-.45l1.48-1.16c-.03-.23-.05-.46-.05-.69s.02-.46.05-.68l-1.48-1.16c-.13-.11-.17-.3-.08-.45l1.4-2.42c.09-.15.27-.21.43-.15l1.74.7c.36-.28.76-.51 1.18-.69l.26-1.85c.03-.17.18-.3.35-.3h2.8c.17 0 .32.13.35.29l.26 1.85c.43.18.82.41 1.18.69l1.74-.7c.16-.06.34 0 .43.15l1.4 2.42c.09.15.05.34-.08.45l-1.48 1.16c.03.23.05.46.05.69"
+}));
+const SystemModeIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 16.01H3V4.99h18zM8 16h2.5l1.5 1.5 1.5-1.5H16v-2.5l1.5-1.5-1.5-1.5V8h-2.5L12 6.5 10.5 8H8v2.5L6.5 12 8 13.5zm4-7c1.66 0 3 1.34 3 3s-1.34 3-3 3z"
 }));
 const Star = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
@@ -39299,11 +40348,17 @@ const Storage = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
 const Sync = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8m0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4z"
 }));
-const TuneIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+const GeneralIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
 }));
 const RevertIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8"
+}));
+const CollapseAllIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M7.41 18.59 8.83 20 12 16.83 15.17 20l1.41-1.41L12 14zm9.18-13.18L15.17 4 12 7.17 8.83 4 7.41 5.41 12 10z"
+}));
+const ExpandAllIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M12 5.83 15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15z"
 }));
 const UploadFileIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8zm4 18H6V4h7v5h5zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11z"
@@ -39314,6 +40369,15 @@ const Videocam = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
 const VideocamOff = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "m21 6.5-4 4V7c0-.55-.45-1-1-1H9.82L21 17.18zM3.27 2 2 3.27 4.73 6H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.21 0 .39-.08.54-.18L19.73 21 21 19.73z"
 }));
+const AllSettingsPanelsIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M19 13H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2m0 6H5v-4h14zm0-16H5c-1.1 0-2 .9-2 2v4c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m0 6H5V5h14z"
+}));
+const ListViewIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M3 14h4v-4H3zm0 5h4v-4H3zM3 9h4V5H3zm5 5h13v-4H8zm0 5h13v-4H8zM8 5v4h13V5z"
+}));
+const StartHiddenIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M12 6c3.79 0 7.17 2.13 8.82 5.5-.59 1.22-1.42 2.27-2.41 3.12l1.41 1.41c1.39-1.23 2.49-2.77 3.18-4.53C21.27 7.11 17 4 12 4c-1.27 0-2.49.2-3.64.57l1.65 1.65C10.66 6.09 11.32 6 12 6m-1.07 1.14L13 9.21c.57.25 1.03.71 1.28 1.28l2.07 2.07c.08-.34.14-.7.14-1.07C16.5 9.01 14.48 7 12 7c-.37 0-.72.05-1.07.14M2.01 3.87l2.68 2.68C3.06 7.83 1.77 9.53 1 11.5 2.73 15.89 7 19 12 19c1.52 0 2.98-.29 4.32-.82l3.42 3.42 1.41-1.41L3.42 2.45zm7.5 7.5 2.61 2.61c-.04.01-.08.02-.12.02-1.38 0-2.5-1.12-2.5-2.5 0-.05.01-.08.01-.13m-3.4-3.4 1.75 1.75c-.23.55-.36 1.15-.36 1.78 0 2.48 2.02 4.5 4.5 4.5.63 0 1.23-.13 1.77-.36l.98.98c-.88.24-1.8.38-2.75.38-3.79 0-7.17-2.13-8.82-5.5.7-1.43 1.72-2.61 2.93-3.53"
+}));
 const WarningIcon$2 = createSvgIcon([/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 5.99 19.53 19H4.47zM12 2 1 21h22z"
 }, "0"), /* @__PURE__ */ jsxRuntimeExports.jsx("path", {
@@ -39321,6 +40385,9 @@ const WarningIcon$2 = createSvgIcon([/* @__PURE__ */ jsxRuntimeExports.jsx("path
 }, "1")]);
 const WarningIcon$1 = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 5.99 19.53 19H4.47zM12 2 1 21h22zm1 14h-2v2h2zm0-6h-2v4h2z"
+}));
+const LightModeIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "m6.76 4.84-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495 1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115 1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6m0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4m-1 4h2v2.95h-2zm-7.45-.96 1.41 1.41 1.79-1.8-1.41-1.41z"
 }));
 const EditButtons = ({
   data,
@@ -39512,9 +40579,9 @@ var EXITED = "exited";
 var ENTERING = "entering";
 var ENTERED = "entered";
 var EXITING = "exiting";
-var Transition = /* @__PURE__ */ function(_React$Component) {
-  _inheritsLoose(Transition2, _React$Component);
-  function Transition2(props) {
+var Transition$1 = /* @__PURE__ */ function(_React$Component) {
+  _inheritsLoose(Transition22, _React$Component);
+  function Transition22(props) {
     var _this;
     _this = _React$Component.call(this, props) || this;
     var appear = props.appear;
@@ -39538,7 +40605,7 @@ var Transition = /* @__PURE__ */ function(_React$Component) {
     _this.nextCallback = null;
     return _this;
   }
-  Transition2.getDerivedStateFromProps = function getDerivedStateFromProps(_ref, prevState) {
+  Transition22.getDerivedStateFromProps = function getDerivedStateFromProps(_ref, prevState) {
     var nextIn = _ref["in"];
     if (nextIn && prevState.status === UNMOUNTED) {
       return {
@@ -39547,7 +40614,7 @@ var Transition = /* @__PURE__ */ function(_React$Component) {
     }
     return null;
   };
-  var _proto = Transition2.prototype;
+  var _proto = Transition22.prototype;
   _proto.componentDidMount = function componentDidMount() {
     this.updateStatus(true, this.appearStatus);
   };
@@ -39714,7 +40781,7 @@ var Transition = /* @__PURE__ */ function(_React$Component) {
     var _this$props = this.props, children = _this$props.children, childProps = _objectWithoutPropertiesLoose(_this$props, ["children", "in", "mountOnEnter", "unmountOnExit", "appear", "enter", "exit", "timeout", "addEndListener", "onEnter", "onEntering", "onEntered", "onExit", "onExiting", "onExited", "nodeRef"]);
     return children(status, childProps);
   };
-  _createClass(Transition2, [{
+  _createClass(Transition22, [{
     key: "node",
     get: function get() {
       var _this$props$nodeRef;
@@ -39725,11 +40792,11 @@ var Transition = /* @__PURE__ */ function(_React$Component) {
       return node2;
     }
   }]);
-  return Transition2;
+  return Transition22;
 }(e$1.Component);
 function noop$1() {
 }
-Transition.defaultProps = {
+Transition$1.defaultProps = {
   "in": false,
   mountOnEnter: false,
   unmountOnExit: false,
@@ -39935,7 +41002,7 @@ var Slide = /* @__PURE__ */ reactExports.forwardRef(function(props, ref) {
       updatePosition();
     }
   }, [inProp, updatePosition]);
-  return reactExports.createElement(Transition, Object.assign({
+  return reactExports.createElement(Transition$1, Object.assign({
     appear: true,
     nodeRef,
     onEnter: handleEnter,
@@ -40045,20 +41112,20 @@ var getTransitionDuration = function getTransitionDuration2(optionsDuration, pro
   return defaults.transitionDuration;
 };
 var merge = function merge2(options, props) {
-  return function(name, shouldObjectMerge) {
+  return function(name2, shouldObjectMerge) {
     if (shouldObjectMerge === void 0) {
       shouldObjectMerge = false;
     }
     if (shouldObjectMerge) {
-      return _extends({}, defaults[name], {}, props[name], {}, options[name]);
+      return _extends({}, defaults[name2], {}, props[name2], {}, options[name2]);
     }
-    if (name === "autoHideDuration") {
+    if (name2 === "autoHideDuration") {
       return getAutoHideDuration(options.autoHideDuration, props.autoHideDuration);
     }
-    if (name === "transitionDuration") {
+    if (name2 === "transitionDuration") {
       return getTransitionDuration(options.transitionDuration, props.transitionDuration);
     }
-    return options[name] || props[name] || defaults[name];
+    return options[name2] || props[name2] || defaults[name2];
   };
 };
 function makeStyles(styles2) {
@@ -40124,7 +41191,7 @@ var Collapse = /* @__PURE__ */ reactExports.forwardRef(function(props, ref) {
     node2.style.height = collapsedSize;
     node2.style.transitionTimingFunction = easing2 || "";
   };
-  return reactExports.createElement(Transition, {
+  return reactExports.createElement(Transition$1, {
     "in": inProp,
     unmountOnExit: true,
     onEnter: handleEnter,
@@ -40879,13 +41946,13 @@ const alertModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
   useGlobalActions: useGlobalActions$c,
   useOutputActions: useOutputActions$8
 }, Symbol.toStringTag, { value: "Module" }));
-const ipcRenderer$7 = window.electron?.ipcRenderer || false;
+const ipcRenderer$c = window.electron?.ipcRenderer || false;
 const id$h = "alexa-module";
 const moduleConfig$h = {
   menuLabel: "Input Device",
   inputs: [{ name: "Alexa", icon: "graphic_eq" }],
   outputs: [],
-  config: { enabled: !!ipcRenderer$7 }
+  config: { enabled: !!ipcRenderer$c }
 };
 const InputEdit$b = ({ input, onChange }) => {
   const deviceName = input.data.value ?? "";
@@ -40997,13 +42064,13 @@ const useInputActions$a = (row) => {
 const useGlobalActions$b = () => {
   reactExports.useEffect(() => {
     console.log("Alexa useGlobalActions: Setting up emulation.");
-    if (ipcRenderer$7) {
+    if (ipcRenderer$c) {
       const allRows = useMainStore.getState().rows;
-      const alexaDeviceNames = Object.values(allRows).filter((r2) => r2.inputModule === id$h).map((r2) => r2.input.data.value).filter((name, index, self2) => name && self2.indexOf(name) === index);
+      const alexaDeviceNames = Object.values(allRows).filter((r2) => r2.inputModule === id$h).map((r2) => r2.input.data.value).filter((name2, index, self2) => name2 && self2.indexOf(name2) === index);
       if (alexaDeviceNames.length > 0) {
         console.log("Emulating Alexa devices:", alexaDeviceNames);
         try {
-          ipcRenderer$7.send("emulate-alexa-devices", alexaDeviceNames);
+          ipcRenderer$c.send("emulate-alexa-devices", alexaDeviceNames);
         } catch (error) {
           console.error("Error sending emulate-alexa-devices sync:", error);
         }
@@ -41023,12 +42090,12 @@ const useGlobalActions$b = () => {
           console.log(`No matching row found for ${data.device} (${data.state})`);
         }
       };
-      ipcRenderer$7.on("alexa-device", handleAlexaDeviceEvent);
+      ipcRenderer$c.on("alexa-device", handleAlexaDeviceEvent);
       console.log("Alexa 'alexa-device' IPC listener attached.");
       return () => {
         console.log("Cleaning up Alexa useGlobalActions: Removing listener.");
-        if (ipcRenderer$7) {
-          ipcRenderer$7.removeListener("alexa-device", handleAlexaDeviceEvent);
+        if (ipcRenderer$c) {
+          ipcRenderer$c.removeListener("alexa-device", handleAlexaDeviceEvent);
         }
       };
     } else {
@@ -41039,7 +42106,7 @@ const useGlobalActions$b = () => {
   }, []);
   return null;
 };
-const Settings$6 = () => {
+const Settings$7 = () => {
   return localStorage.getItem("io-restart-needed") === "yes" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
     ToggleButton,
     {
@@ -41048,7 +42115,7 @@ const Settings$6 = () => {
       sx: { "& .MuiSvgIcon-root": { fontSize: 50 } },
       selected: localStorage.getItem("io-restart-needed") === "yes",
       onChange: () => {
-        ipcRenderer$7?.sendSync("restart-app");
+        ipcRenderer$c?.sendSync("restart-app");
         localStorage.setItem("io-restart-needed", "no");
       },
       children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -41076,7 +42143,7 @@ const alexaModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
   __proto__: null,
   InputDisplay: InputDisplay$b,
   InputEdit: InputEdit$b,
-  Settings: Settings$6,
+  Settings: Settings$7,
   id: id$h,
   moduleConfig: moduleConfig$h,
   useGlobalActions: useGlobalActions$b,
@@ -44088,14 +45155,14 @@ class Utilities {
     if (Number.isInteger(value)) value = this.toNoteIdentifier(value);
     const matches = value.match(/^([CDEFGAB])(#{0,2}|b{0,2})(-?\d+)$/i);
     if (!matches) throw new TypeError("Invalid note identifier");
-    const name = matches[1].toUpperCase();
+    const name2 = matches[1].toUpperCase();
     const octave = parseInt(matches[3]);
     let accidental = matches[2].toLowerCase();
     accidental = accidental === "" ? void 0 : accidental;
     const fragments = {
       accidental,
-      identifier: name + (accidental || "") + octave,
-      name,
+      identifier: name2 + (accidental || "") + octave,
+      name: name2,
       octave
     };
     return fragments;
@@ -44456,12 +45523,12 @@ class Utilities {
    * @since 3.1
    * @static
    */
-  static getCcNumberByName(name) {
-    let message = Enumerations.CONTROL_CHANGE_MESSAGES.find((element) => element.name === name);
+  static getCcNumberByName(name2) {
+    let message = Enumerations.CONTROL_CHANGE_MESSAGES.find((element) => element.name === name2);
     if (message) {
       return message.number;
     } else {
-      return Enumerations.MIDI_CONTROL_CHANGE_MESSAGES[name];
+      return Enumerations.MIDI_CONTROL_CHANGE_MESSAGES[name2];
     }
   }
   /**
@@ -49724,19 +50791,19 @@ class WebMidi extends EventEmitter {
    *
    * @since 2.0.0
    */
-  getInputByName(name, options = { disconnected: false }) {
+  getInputByName(name2, options = { disconnected: false }) {
     if (this.validation) {
       if (!this.enabled) throw new Error("WebMidi is not enabled.");
-      if (!name) return;
-      name = name.toString();
+      if (!name2) return;
+      name2 = name2.toString();
     }
     if (options.disconnected) {
       for (let i2 = 0; i2 < this._disconnectedInputs.length; i2++) {
-        if (~this._disconnectedInputs[i2].name.indexOf(name)) return this._disconnectedInputs[i2];
+        if (~this._disconnectedInputs[i2].name.indexOf(name2)) return this._disconnectedInputs[i2];
       }
     } else {
       for (let i2 = 0; i2 < this.inputs.length; i2++) {
-        if (~this.inputs[i2].name.indexOf(name)) return this.inputs[i2];
+        if (~this.inputs[i2].name.indexOf(name2)) return this.inputs[i2];
       }
     }
   }
@@ -49757,19 +50824,19 @@ class WebMidi extends EventEmitter {
    *
    * @since 2.0.0
    */
-  getOutputByName(name, options = { disconnected: false }) {
+  getOutputByName(name2, options = { disconnected: false }) {
     if (this.validation) {
       if (!this.enabled) throw new Error("WebMidi is not enabled.");
-      if (!name) return;
-      name = name.toString();
+      if (!name2) return;
+      name2 = name2.toString();
     }
     if (options.disconnected) {
       for (let i2 = 0; i2 < this._disconnectedOutputs.length; i2++) {
-        if (~this._disconnectedOutputs[i2].name.indexOf(name)) return this._disconnectedOutputs[i2];
+        if (~this._disconnectedOutputs[i2].name.indexOf(name2)) return this._disconnectedOutputs[i2];
       }
     } else {
       for (let i2 = 0; i2 < this.outputs.length; i2++) {
-        if (~this.outputs[i2].name.indexOf(name)) return this.outputs[i2];
+        if (~this.outputs[i2].name.indexOf(name2)) return this.outputs[i2];
       }
     }
   }
@@ -49812,13 +50879,13 @@ class WebMidi extends EventEmitter {
    * @private
    * @deprecated since version 3.0.0, use Utilities.toNoteNumber() instead.
    */
-  noteNameToNumber(name) {
+  noteNameToNumber(name2) {
     if (this.validation) {
       console.warn(
         "The noteNameToNumber() method is deprecated. Use Utilities.toNoteNumber() instead."
       );
     }
-    return Utilities.toNoteNumber(name, this.octaveOffset);
+    return Utilities.toNoteNumber(name2, this.octaveOffset);
   }
   /**
    * @private
@@ -50433,7 +51500,7 @@ const useGlobalActions$7 = () => {
   }, [moduleEnabled, midiActive, selectedInputDeviceId]);
   return null;
 };
-const Settings$5 = () => {
+const Settings$6 = () => {
   const midiModuleConfigFromStore = useMainStore((state) => state.modules[id$d]?.config);
   const midiModuleConfig = midiModuleConfigFromStore;
   const midiActive = midiModuleConfig?.midiActive ?? false;
@@ -50554,7 +51621,7 @@ const midiModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePr
   __proto__: null,
   InputDisplay: InputDisplay$9,
   InputEdit: InputEdit$9,
-  Settings: Settings$5,
+  Settings: Settings$6,
   id: id$d,
   moduleConfig: moduleConfig$d,
   useGlobalActions: useGlobalActions$7,
@@ -50582,7 +51649,6 @@ const InputEdit$8 = ({ input, onChange }) => {
 };
 const InputDisplay$8 = ({ input }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    " ",
     /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { children: camelToSnake(input.icon) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Shortkey, { value: input.data.data.value })
   ] });
@@ -50619,7 +51685,6 @@ const InputEdit$7 = ({ input, onChange }) => {
 };
 const InputDisplay$7 = ({ input }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    " ",
     /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { children: camelToSnake(input.icon) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Shortkey, { value: input.data.data.value })
   ] });
@@ -54126,7 +55191,7 @@ const useInputActions$5 = (row) => {
     };
   }, [row.id, row.input.data.value]);
 };
-const Settings$4 = () => {
+const Settings$5 = () => {
   const handsModuleFullConfig = useMainStore((state) => state.modules[id$a]?.config);
   const handsConfig = handsModuleFullConfig;
   const cameraActive = handsConfig?.cameraActive ?? false;
@@ -54181,7 +55246,7 @@ const mphandsModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defin
   __proto__: null,
   InputDisplay: InputDisplay$6,
   InputEdit: InputEdit$6,
-  Settings: Settings$4,
+  Settings: Settings$5,
   id: id$a,
   moduleConfig: moduleConfig$a,
   useGlobalActions: useGlobalActions$6,
@@ -59740,7 +60805,7 @@ const useInputActions$4 = (row) => {
     };
   }, [row.id, row.input.data.value]);
 };
-const Settings$3 = () => {
+const Settings$4 = () => {
   const holisticModuleFullConfig = useMainStore((state) => state.modules[id$9]?.config);
   const holisticConfig = holisticModuleFullConfig;
   const cameraActive = holisticConfig?.cameraActive ?? false;
@@ -59783,7 +60848,7 @@ const mpholisticModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.de
   __proto__: null,
   InputDisplay: InputDisplay$5,
   InputEdit: InputEdit$5,
-  Settings: Settings$3,
+  Settings: Settings$4,
   id: id$9,
   moduleConfig: moduleConfig$9,
   useInputActions: useInputActions$4
@@ -59810,7 +60875,6 @@ const InputEdit$4 = ({ input, onChange }) => {
 };
 const InputDisplay$4 = ({ input }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    " ",
     /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { children: camelToSnake(input.icon) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Shortkey, { value: input.data.data.value })
   ] });
@@ -59848,7 +60912,6 @@ const InputEdit$3 = ({ input, onChange }) => {
 };
 const InputDisplay$3 = ({ input }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
-    " ",
     /* @__PURE__ */ jsxRuntimeExports.jsx(Icon, { children: camelToSnake(input.icon) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Shortkey, { value: input.data.data.value })
   ] });
@@ -59898,7 +60961,7 @@ function mqttTopicMatch(topic, pattern) {
   }
   return true;
 }
-const ipcRenderer$6 = window.electron?.ipcRenderer;
+const ipcRenderer$b = window.electron?.ipcRenderer;
 const id$6 = "mqtt-module";
 const moduleConfig$6 = {
   menuLabel: "Network & Web",
@@ -60041,7 +61104,7 @@ const BrokerProfileDialog = ({ open, onClose, onSave, initialProfile }) => {
     }
   );
 };
-const Settings$2 = () => {
+const Settings$3 = () => {
   const moduleCfg = useMainStore(
     (state) => state.modules[id$6]?.config
   );
@@ -60219,10 +61282,7 @@ const InputEdit$2 = ({ input, onChange }) => {
           }
         )
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Add New Broker Profile", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
-        " ",
-        /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { onClick: handleAddNewProfile, size: "medium", sx: { mb: "4px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AddLink, {}) })
-      ] }) })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Add New Broker Profile", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { onClick: handleAddNewProfile, size: "medium", sx: { mb: "4px" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AddLink, {}) }) }) })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       BrokerProfileDialog,
@@ -60423,9 +61483,7 @@ const InputDisplay$2 = ({ input }) => {
   );
   const brokerDisplay = resolveBrokerConfigForRowDisplay(d2, ps);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "center", width: "100%", gap: 1, overflow: "hidden" }, children: [
-    " ",
     /* @__PURE__ */ jsxRuntimeExports.jsx(DisplayButtons, { data: { ...input, name: "MQTT In" } }),
-    " ",
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       Button,
       {
@@ -60469,9 +61527,7 @@ const OutputDisplay$5 = ({ output }) => {
   const brokerDisplay = resolveBrokerConfigForRowDisplay(d2, ps);
   const pl = d2.payload ? d2.payload.length > 15 ? d2.payload.substring(0, 12) + "..." : d2.payload : "N/A";
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "center", width: "100%", gap: 1, overflow: "hidden" }, children: [
-    " ",
     /* @__PURE__ */ jsxRuntimeExports.jsx(DisplayButtons, { data: { ...output, name: "MQTT Out" } }),
-    " ",
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
       Box,
       {
@@ -60497,8 +61553,7 @@ const OutputDisplay$5 = ({ output }) => {
           ] })
         ]
       }
-    ),
-    " "
+    )
   ] });
 };
 function resolveBrokerConfigForRow(rowData, profiles) {
@@ -60513,7 +61568,7 @@ function resolveBrokerConfigForRow(rowData, profiles) {
 const useGlobalActions$5 = () => {
   const [clientStatuses, setClientStatuses] = reactExports.useState({});
   reactExports.useEffect(() => {
-    if (!ipcRenderer$6) return;
+    if (!ipcRenderer$b) return;
     const listener = (_event, data) => {
       log$1.info(
         `MQTT Client Status [${data.host} / ${data.clientKey}]: ${data.status}`,
@@ -60522,9 +61577,9 @@ const useGlobalActions$5 = () => {
       log$1.info(`EYYYYYY`, clientStatuses);
       setClientStatuses((prev2) => ({ ...prev2, [data.clientKey]: data.status }));
     };
-    ipcRenderer$6.on("mqtt-client-status", listener);
+    ipcRenderer$b.on("mqtt-client-status", listener);
     return () => {
-      ipcRenderer$6.removeListener("mqtt-client-status", listener);
+      ipcRenderer$b.removeListener("mqtt-client-status", listener);
     };
   }, []);
   return null;
@@ -60543,7 +61598,7 @@ const useInputActions$1 = (row) => {
       return () => {
       };
     }
-    if (!ipcRenderer$6 || !inputData.profileId) {
+    if (!ipcRenderer$b || !inputData.profileId) {
       clientKeyRef.current = null;
       return;
     }
@@ -60556,7 +61611,7 @@ const useInputActions$1 = (row) => {
     log$1.info(
       `MQTT Input Row ${row.id}: Requesting subscription to topic '${inputData.topic}' on broker '${effectiveConfig.host}'`
     );
-    ipcRenderer$6.invoke("mqtt-subscribe", {
+    ipcRenderer$b.invoke("mqtt-subscribe", {
       brokerConfig: effectiveConfig,
       topic: inputData.topic,
       rowId: row.id
@@ -60635,20 +61690,20 @@ const useInputActions$1 = (row) => {
         }
       }
     };
-    ipcRenderer$6.on("mqtt-message-received", messageListener);
+    ipcRenderer$b.on("mqtt-message-received", messageListener);
     return () => {
       const currentEffectiveConfig = resolveBrokerConfigForRow(inputData, brokerProfiles);
-      if (ipcRenderer$6 && currentEffectiveConfig && inputData.topic) {
+      if (ipcRenderer$b && currentEffectiveConfig && inputData.topic) {
         log$1.info(
           `MQTT Input Row ${row.id}: Cleaning up. Unsubscribing from '${inputData.topic}' on '${currentEffectiveConfig.host}'`
         );
-        ipcRenderer$6.invoke("mqtt-unsubscribe", {
+        ipcRenderer$b.invoke("mqtt-unsubscribe", {
           brokerConfig: currentEffectiveConfig,
           topic: inputData.topic,
           rowId: row.id
         });
       }
-      ipcRenderer$6?.removeListener("mqtt-message-received", messageListener);
+      ipcRenderer$b?.removeListener("mqtt-message-received", messageListener);
       clientKeyRef.current = null;
     };
   }, [
@@ -60669,7 +61724,7 @@ const useOutputActions$5 = (row) => {
     (state) => state.modules[id$6]?.config?.brokerConnections || []
   );
   reactExports.useEffect(() => {
-    if (!ipcRenderer$6 || !outputData.profileId) return;
+    if (!ipcRenderer$b || !outputData.profileId) return;
     const effectiveConfig = resolveBrokerConfigForRow(outputData, brokerProfiles);
     const ioListener = (event) => {
       const eventRowId = typeof event.detail === "object" && event.detail !== null ? event.detail.rowId : event.detail;
@@ -60687,7 +61742,7 @@ const useOutputActions$5 = (row) => {
           qos: outputData.qos ?? 0,
           retain: outputData.retain ?? false
         };
-        ipcRenderer$6.invoke("mqtt-publish", {
+        ipcRenderer$b.invoke("mqtt-publish", {
           brokerConfig: effectiveConfig,
           topic: outputData.topic,
           payload: outputData.payload,
@@ -60715,7 +61770,7 @@ const mqttModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePr
   InputEdit: InputEdit$2,
   OutputDisplay: OutputDisplay$5,
   OutputEdit: OutputEdit$5,
-  Settings: Settings$2,
+  Settings: Settings$3,
   id: id$6,
   moduleConfig: moduleConfig$6,
   useGlobalActions: useGlobalActions$5,
@@ -61663,7 +62718,7 @@ const PlaySoundSettings = () => {
           Button,
           {
             variant: "outlined",
-            color: "info",
+            color: "primary",
             onClick: handleActualStopAllSounds,
             startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(StopCircle, {}),
             fullWidth: true,
@@ -61769,18 +62824,14 @@ const PlaySoundSettings = () => {
                     children: cachedFilesList.map((file) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
                       ListItem,
                       {
-                        secondaryAction: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                        secondaryAction: /* @__PURE__ */ jsxRuntimeExports.jsx(
                           IconButton,
                           {
                             edge: "end",
                             "aria-label": "delete",
                             onClick: () => handleDeleteCachedFile(file.id),
                             color: "error",
-                            children: [
-                              " ",
-                              /* @__PURE__ */ jsxRuntimeExports.jsx(Delete, { fontSize: "small" }),
-                              " "
-                            ]
+                            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Delete, { fontSize: "small" })
                           }
                         ),
                         children: [
@@ -61916,7 +62967,7 @@ function stopAllPlayers(stopThePreviewPlayer = true) {
 }
 const OutputEdit$4 = PlaySoundOutputEdit;
 const OutputDisplay$4 = PlaySoundOutputDisplay;
-const Settings$1 = PlaySoundSettings;
+const Settings$2 = PlaySoundSettings;
 const useOutputActions$4 = (row) => {
   const { id: rowId, output } = row;
   reactExports.useEffect(() => {
@@ -62069,7 +63120,7 @@ const playsoundModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.def
   __proto__: null,
   OutputDisplay: OutputDisplay$4,
   OutputEdit: OutputEdit$4,
-  Settings: Settings$1,
+  Settings: Settings$2,
   activeAudioPlayers,
   blobUrlCache,
   id: id$5,
@@ -65056,10 +66107,7 @@ const BlueprintRunnerDialog = ({
         /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
           "Configure: ",
           blueprint.name,
-          blueprint.icon && /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { component: "span", sx: { ml: 1 }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(InfoIcon$1, { fontSize: "small", sx: { verticalAlign: "middle", opacity: 0.6 } }),
-            " "
-          ] })
+          blueprint.icon && /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { component: "span", sx: { ml: 1 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AboutIcon, { fontSize: "small", sx: { verticalAlign: "middle", opacity: 0.6 } }) })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", color: "text.secondary", sx: { mb: 2.5 }, children: blueprint.description }),
@@ -65176,7 +66224,7 @@ const BlueprintRunnerDialog = ({
                 label: /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "body2", children: [
                   "Also save as a new Global REST Preset",
                   /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "If checked, this configured REST call will also be added to your list of reusable global presets.", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                    InfoIcon$1,
+                    AboutIcon,
                     {
                       fontSize: "small",
                       sx: { ml: 0.5, verticalAlign: "middle", opacity: 0.7 }
@@ -65502,7 +66550,6 @@ function RestEditor({ open, setOpen, initialData, onChange }) {
                   /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "", disabled: globalPresets.length === 0, children: /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: globalPresets.length > 0 ? "Select a preset..." : "No global presets" }) }),
                   globalPresets.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(MenuItem, { value: p2.id, children: [
                     p2.icon && /* @__PURE__ */ jsxRuntimeExports.jsx(IoIcon, { name: p2.icon, style: { marginRight: 8, verticalAlign: "middle" } }),
-                    " ",
                     p2.name
                   ] }, p2.id))
                 ]
@@ -65530,7 +66577,6 @@ function RestEditor({ open, setOpen, initialData, onChange }) {
                         style: { marginRight: 8, verticalAlign: "middle" }
                       }
                     ),
-                    " ",
                     bp.name
                   ] }, bp.id))
                 ]
@@ -65701,7 +66747,7 @@ const RestPresetDialog = ({
   initialPreset
 }) => {
   const [presetId, setPresetId] = reactExports.useState("");
-  const [name, setName] = reactExports.useState("");
+  const [name2, setName] = reactExports.useState("");
   const [icon, setIcon] = reactExports.useState(void 0);
   const [description, setDescription] = reactExports.useState("");
   const [url, setUrl] = reactExports.useState("");
@@ -65740,7 +66786,7 @@ const RestPresetDialog = ({
     }
   }, [open, initialPreset]);
   const handleSaveAction = () => {
-    if (!name.trim()) {
+    if (!name2.trim()) {
       alert("Preset Name is required.");
       return;
     }
@@ -65750,7 +66796,7 @@ const RestPresetDialog = ({
     }
     const presetToSave = {
       id: presetId,
-      name: name.trim(),
+      name: name2.trim(),
       icon,
       description: description.trim(),
       url: url.trim(),
@@ -65800,7 +66846,7 @@ const RestPresetDialog = ({
             TextField,
             {
               label: "Preset Name *",
-              value: name,
+              value: name2,
               onChange: (e2) => setName(e2.target.value),
               fullWidth: true,
               autoFocus: true,
@@ -65915,7 +66961,7 @@ const RestPresetDialog = ({
               /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "body2", children: [
                 "Body Template",
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "This body will be used as a template. You can use placeholders like {{value}} in the future, which could be replaced by data from trigger inputs.", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  InfoIcon$1,
+                  AboutIcon,
                   {
                     fontSize: "small",
                     sx: { ml: 0.5, verticalAlign: "middle", opacity: 0.7 }
@@ -66224,23 +67270,20 @@ const SimpleInputFieldListEditor = ({
   };
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { children: [
     fieldsFromProps.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { severity: "info", sx: { mb: 2 }, children: 'No simple input fields defined yet. Click "Add Input Field" to begin.' }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 0, children: [
-      " ",
-      fieldsFromProps.map((field, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(
-        SimpleInputFieldItem,
-        {
-          field,
-          index,
-          onChange: handleUpdateField,
-          onDelete: handleDeleteField,
-          onMoveUp: handleMoveField.bind(null, index, "up"),
-          onMoveDown: handleMoveField.bind(null, index, "down"),
-          isFirst: index === 0,
-          isLast: index === fieldsFromProps.length - 1
-        },
-        field.id || `field-${index}`
-      ))
-    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Stack, { spacing: 0, children: fieldsFromProps.map((field, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+      SimpleInputFieldItem,
+      {
+        field,
+        index,
+        onChange: handleUpdateField,
+        onDelete: handleDeleteField,
+        onMoveUp: handleMoveField.bind(null, index, "up"),
+        onMoveDown: handleMoveField.bind(null, index, "down"),
+        isFirst: index === 0,
+        isLast: index === fieldsFromProps.length - 1
+      },
+      field.id || `field-${index}`
+    )) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(
       Button,
       {
@@ -66740,11 +67783,7 @@ const ToggleEditorView = ({
             reset: false
           }
         ),
-        jsonParseError && /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert, { severity: "error", sx: { mt: 1 }, icon: /* @__PURE__ */ jsxRuntimeExports.jsx(WarningIcon$2, { fontSize: "inherit" }), children: [
-          " ",
-          jsonParseError,
-          " "
-        ] })
+        jsonParseError && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { severity: "error", sx: { mt: 1 }, icon: /* @__PURE__ */ jsxRuntimeExports.jsx(WarningIcon$2, { fontSize: "inherit" }), children: jsonParseError })
       ] })
     ] }),
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -66835,7 +67874,7 @@ const AutocompletePopup = ({
     )
   );
 };
-const PlaceholderEnabledInput = ({
+const DynamicInput = ({
   value,
   onChange,
   availablePlaceholders,
@@ -67068,7 +68107,7 @@ const HeadersTemplateEditor = ({
             }
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(
-            PlaceholderEnabledInput,
+            DynamicInput,
             {
               label: `Header ${index + 1} Value Template`,
               value: item.valueTemplate,
@@ -67115,7 +68154,7 @@ const mapSimpleInputsToPlaceholders = (simpleInputs) => {
     description: si.helpText || `Inserts value of '${si.id}' input.`
   }));
 };
-const PresetTemplateEditorUI = ({
+const PresetTemplateEditor = ({
   templateData,
   onTemplateDataChange,
   availableSimpleInputs
@@ -67127,127 +68166,124 @@ const PresetTemplateEditorUI = ({
       [field]: value
     });
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { pt: 1 }, children: [
-    " ",
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 3, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Paper, { variant: "outlined", sx: { p: 2 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "subtitle1", gutterBottom: true, sx: { fontWeight: "medium" }, children: "Generated Preset Details" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { container: true, spacing: 2, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 6 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            PlaceholderEnabledInput,
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: { pt: 1 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 3, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Paper, { variant: "outlined", sx: { p: 2 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "subtitle1", gutterBottom: true, sx: { fontWeight: "medium" }, children: "Generated Preset Details" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { container: true, spacing: 2, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 6 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          DynamicInput,
+          {
+            label: "Preset Name Template *",
+            value: templateData.nameTemplate || "",
+            onChange: (val) => handleChange("nameTemplate", val),
+            availablePlaceholders: placeholderOptions,
+            fullWidth: true,
+            size: "small",
+            required: true,
+            helperText: "Name for the generated preset. E.g., 'API Call for {{blueprintInput.customerName}}'"
+          }
+        ) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 6 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          DynamicInput,
+          {
+            label: "Preset Icon Template (Optional)",
+            value: templateData.iconTemplate || "",
+            onChange: (val) => handleChange("iconTemplate", val),
+            availablePlaceholders: placeholderOptions,
+            fullWidth: true,
+            size: "small",
+            placeholder: "e.g., mdi:api or {{blueprintInput.iconChoice}}"
+          }
+        ) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          DynamicInput,
+          {
+            label: "Preset Description Template (Optional)",
+            value: templateData.descriptionTemplate || "",
+            onChange: (val) => handleChange("descriptionTemplate", val),
+            availablePlaceholders: placeholderOptions,
+            fullWidth: true,
+            multiline: true,
+            rows: 2,
+            size: "small",
+            placeholder: "e.g., Fetches data for {{blueprintInput.itemId}} from the API."
+          }
+        ) })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, {}),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Paper, { variant: "outlined", sx: { p: 2 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "subtitle1", gutterBottom: true, sx: { fontWeight: "medium" }, children: "REST Request Configuration" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { container: true, spacing: 2, alignItems: "flex-start", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 3 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, size: "small", required: true, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: "preset-method-label", children: "HTTP Method" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Select,
             {
-              label: "Preset Name Template *",
-              value: templateData.nameTemplate || "",
-              onChange: (val) => handleChange("nameTemplate", val),
-              availablePlaceholders: placeholderOptions,
-              fullWidth: true,
-              size: "small",
-              required: true,
-              helperText: "Name for the generated preset. E.g., 'API Call for {{blueprintInput.customerName}}'"
+              labelId: "preset-method-label",
+              label: "HTTP Method",
+              value: templateData.method || "GET",
+              onChange: (e2) => handleChange("method", e2.target.value),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "GET", children: "GET" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "POST", children: "POST" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "PUT", children: "PUT" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "DELETE", children: "DELETE" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "PATCH", children: "PATCH" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "HEAD", children: "HEAD" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "OPTIONS", children: "OPTIONS" })
+              ]
             }
-          ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 6 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            PlaceholderEnabledInput,
+          )
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 9 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          DynamicInput,
+          {
+            label: "URL Template *",
+            value: templateData.urlTemplate || "",
+            onChange: (val) => handleChange("urlTemplate", val),
+            availablePlaceholders: placeholderOptions,
+            fullWidth: true,
+            required: true,
+            size: "small",
+            placeholder: "https://api.example.com/resource/{{blueprintInput.resourceId}}"
+          }
+        ) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { size: { xs: 12 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", sx: { mt: 0, mb: 1, fontWeight: "medium" }, children: "Headers Template (Key-Value Pairs)" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            HeadersTemplateEditor,
             {
-              label: "Preset Icon Template (Optional)",
-              value: templateData.iconTemplate || "",
-              onChange: (val) => handleChange("iconTemplate", val),
-              availablePlaceholders: placeholderOptions,
-              fullWidth: true,
-              size: "small",
-              placeholder: "e.g., mdi:api or {{blueprintInput.iconChoice}}"
+              value: templateData.headersTemplate || {},
+              onChange: (newHeaders) => handleChange("headersTemplate", newHeaders),
+              availablePlaceholders: placeholderOptions
             }
-          ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            PlaceholderEnabledInput,
+          )
+        ] }),
+        (templateData.method === "POST" || templateData.method === "PUT" || templateData.method === "PATCH") && /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { size: { xs: 12 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", sx: { mt: 1, mb: 0.5, fontWeight: "medium" }, children: "Body Template Template" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            DynamicInput,
             {
-              label: "Preset Description Template (Optional)",
-              value: templateData.descriptionTemplate || "",
-              onChange: (val) => handleChange("descriptionTemplate", val),
+              label: "Body Content Template",
+              value: templateData.bodyTemplateTemplate || "",
+              onChange: (val) => handleChange("bodyTemplateTemplate", val),
               availablePlaceholders: placeholderOptions,
               fullWidth: true,
               multiline: true,
-              rows: 2,
+              rows: 6,
               size: "small",
-              placeholder: "e.g., Fetches data for {{blueprintInput.itemId}} from the API."
-            }
-          ) })
-        ] })
-      ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, {}),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Paper, { variant: "outlined", sx: { p: 2 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "subtitle1", gutterBottom: true, sx: { fontWeight: "medium" }, children: "REST Request Configuration" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { container: true, spacing: 2, alignItems: "flex-start", children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 3 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, size: "small", required: true, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: "preset-method-label", children: "HTTP Method" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              Select,
-              {
-                labelId: "preset-method-label",
-                label: "HTTP Method",
-                value: templateData.method || "GET",
-                onChange: (e2) => handleChange("method", e2.target.value),
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "GET", children: "GET" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "POST", children: "POST" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "PUT", children: "PUT" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "DELETE", children: "DELETE" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "PATCH", children: "PATCH" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "HEAD", children: "HEAD" }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "OPTIONS", children: "OPTIONS" })
-                ]
-              }
-            )
-          ] }) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 9 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-            PlaceholderEnabledInput,
-            {
-              label: "URL Template *",
-              value: templateData.urlTemplate || "",
-              onChange: (val) => handleChange("urlTemplate", val),
-              availablePlaceholders: placeholderOptions,
-              fullWidth: true,
-              required: true,
-              size: "small",
-              placeholder: "https://api.example.com/resource/{{blueprintInput.resourceId}}"
-            }
-          ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { size: { xs: 12 }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", sx: { mt: 0, mb: 1, fontWeight: "medium" }, children: "Headers Template (Key-Value Pairs)" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              HeadersTemplateEditor,
-              {
-                value: templateData.headersTemplate || {},
-                onChange: (newHeaders) => handleChange("headersTemplate", newHeaders),
-                availablePlaceholders: placeholderOptions
-              }
-            )
-          ] }),
-          (templateData.method === "POST" || templateData.method === "PUT" || templateData.method === "PATCH") && /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { size: { xs: 12 }, children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", sx: { mt: 1, mb: 0.5, fontWeight: "medium" }, children: "Body Template Template" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(
-              PlaceholderEnabledInput,
-              {
-                label: "Body Content Template",
-                value: templateData.bodyTemplateTemplate || "",
-                onChange: (val) => handleChange("bodyTemplateTemplate", val),
-                availablePlaceholders: placeholderOptions,
-                fullWidth: true,
-                multiline: true,
-                rows: 6,
-                size: "small",
-                helperText: "Enter the request body. Use placeholders for dynamic content. For JSON, ensure valid structure.",
-                placeholder: `{
+              helperText: "Enter the request body. Use placeholders for dynamic content. For JSON, ensure valid structure.",
+              placeholder: `{
   "id": "{{blueprintInput.itemId}}",
   "data": "some static text or {{blueprintInput.otherValue}}"
 }`
-              }
-            )
-          ] })
+            }
+          )
         ] })
       ] })
     ] })
-  ] });
+  ] }) });
 };
 const newBlueprintBaseTemplate = {
   creatorInfo: { name: "My IO User" },
@@ -67273,7 +68309,7 @@ const newBlueprintBaseTemplate = {
     bodyTemplateTemplate: ""
   }
 };
-const BlueprintDefinitionEditorDialog = ({
+const BlueprintEditDialog = ({
   open,
   onClose,
   onSave,
@@ -67502,7 +68538,7 @@ const BlueprintDefinitionEditorDialog = ({
                 //   </Typography>
                 // </Box>
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
-                  PresetTemplateEditorUI,
+                  PresetTemplateEditor,
                   {
                     templateData: currentData,
                     onTemplateDataChange: (newTemplateData) => {
@@ -67890,7 +68926,7 @@ const RestSettings = () => {
           }
         ),
         blueprintEditorOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
-          BlueprintDefinitionEditorDialog,
+          BlueprintEditDialog,
           {
             open: blueprintEditorOpen,
             onClose: () => {
@@ -68010,7 +69046,7 @@ const RestOutputEdit = ({ output, onChange }) => {
           {
             variant: "outlined",
             color: "info",
-            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(TuneIcon, {}),
+            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(GeneralIcon, {}),
             onClick: handleOpenSimpleInputEditor,
             fullWidth: true,
             sx: { height: 56 },
@@ -68049,7 +69085,6 @@ const RestOutputEdit = ({ output, onChange }) => {
               currentOutputData.label,
               '" (',
               currentOutputData.options.method,
-              " ",
               currentOutputData.host.substring(0, 30),
               "...)"
             ]
@@ -68072,7 +69107,7 @@ const RestOutputEdit = ({ output, onChange }) => {
     }
   );
 };
-const ipcRenderer$5 = window.electron?.ipcRenderer;
+const ipcRenderer$a = window.electron?.ipcRenderer;
 const id$4 = "rest-module";
 const groupId = "Network";
 const moduleConfig$4 = {
@@ -68122,7 +69157,7 @@ const OutputDisplay$3 = ({ output }) => {
   );
 };
 const OutputEdit$3 = RestOutputEdit;
-const Settings = RestSettings;
+const Settings$1 = RestSettings;
 const useOutputActions$3 = (row) => {
   const { id: rowId, output } = row;
   const outputData = output.data;
@@ -68162,9 +69197,9 @@ const useOutputActions$3 = (row) => {
           body: outputData.options.body || null
         });
         try {
-          if (isElectron() && ipcRenderer$5) {
+          if (isElectron() && ipcRenderer$a) {
             console.debug(`[REST Output Electron] Invoking 'rest-request' for row ${rowId}`);
-            const result = await ipcRenderer$5.invoke("rest-request", {
+            const result = await ipcRenderer$a.invoke("rest-request", {
               url: outputData.host,
               method: outputData.options.method,
               headers: outputData.options.headers || {},
@@ -68252,7 +69287,7 @@ const restModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePr
   InputEdit: InputEdit$1,
   OutputDisplay: OutputDisplay$3,
   OutputEdit: OutputEdit$3,
-  Settings,
+  Settings: Settings$1,
   groupId,
   id: id$4,
   moduleConfig: moduleConfig$4,
@@ -68338,7 +69373,7 @@ const sayModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePro
   useGlobalActions: useGlobalActions$3,
   useOutputActions: useOutputActions$2
 }, Symbol.toStringTag, { value: "Module" }));
-const ipcRenderer$4 = window.electron?.ipcRenderer || false;
+const ipcRenderer$9 = window.electron?.ipcRenderer || false;
 const id$2 = "shell-module";
 const moduleConfig$2 = {
   menuLabel: "Local",
@@ -68351,7 +69386,7 @@ const moduleConfig$2 = {
     }
   ],
   config: {
-    enabled: !!ipcRenderer$4
+    enabled: !!ipcRenderer$9
   }
 };
 const OutputDisplay$1 = ({ output }) => {
@@ -68375,15 +69410,15 @@ const useOutputActions$1 = (row) => {
     const listener = (e2) => {
       if (e2.detail === row.id) {
         log$1.success2("row output triggered", row, e2.detail);
-        ipcRenderer$4.sendSync("run-shell", row.output.data.command);
+        ipcRenderer$9.sendSync("run-shell", row.output.data.command);
       }
     };
-    ipcRenderer$4.on("run-shell-answer", (_event, data) => {
+    ipcRenderer$9.on("run-shell-answer", (_event, data) => {
       log$1.info2(JSON.stringify(data.result));
     });
     window.addEventListener("io_input", listener);
     return () => {
-      ipcRenderer$4.removeAllListeners("run-shell-answer");
+      ipcRenderer$9.removeAllListeners("run-shell-answer");
       window.removeEventListener("io_input", listener);
     };
   }, [row.output.data.command]);
@@ -71036,7 +72071,7 @@ function useValidation(options) {
   };
 }
 const useControlledValue = ({
-  name,
+  name: name2,
   timezone: timezoneProp,
   value: valueProp,
   defaultValue,
@@ -71046,7 +72081,7 @@ const useControlledValue = ({
 }) => {
   const utils = useUtils();
   const [valueWithInputTimezone, setValue] = useControlled({
-    name,
+    name: name2,
     state: "value",
     controlled: valueProp,
     default: defaultValue ?? valueManager.emptyValue
@@ -73218,7 +74253,7 @@ const PickersInputBase = /* @__PURE__ */ reactExports.forwardRef(function Picker
     onInput,
     onPaste,
     onKeyDown,
-    name,
+    name: name2,
     readOnly,
     inputProps,
     inputRef,
@@ -73340,7 +74375,7 @@ const PickersInputBase = /* @__PURE__ */ reactExports.forwardRef(function Picker
         })
       }
     }), endAdornment, renderSuffix ? renderSuffix(_extends$1({}, muiFormControl)) : null, /* @__PURE__ */ jsxRuntimeExports.jsx(PickersInputBaseInput, _extends$1({
-      name,
+      name: name2,
       className: classes2.input,
       value,
       onChange,
@@ -74000,7 +75035,7 @@ const PickersTextField = /* @__PURE__ */ reactExports.forwardRef(function Picker
     onChange,
     fullWidth,
     id: idProp,
-    name,
+    name: name2,
     // Props used by FormHelperText
     helperText,
     FormHelperTextProps,
@@ -74081,7 +75116,7 @@ const PickersTextField = /* @__PURE__ */ reactExports.forwardRef(function Picker
         inputRef,
         sectionListRef,
         label,
-        name,
+        name: name2,
         role: "group",
         "aria-labelledby": inputLabelId,
         "aria-describedby": helperTextId,
@@ -74824,11 +75859,11 @@ function TimePickerToolbar(inProps) {
     })]
   }));
 }
-function useTimePickerDefaultizedProps(props, name) {
+function useTimePickerDefaultizedProps(props, name2) {
   const utils = useUtils();
   const themeProps = useThemeProps({
     props,
-    name
+    name: name2
   });
   const validationProps = useApplyDefaultValuesToTimeValidationProps(themeProps);
   const ampm = themeProps.ampm ?? utils.is12HourCycleInCurrentLocale();
@@ -75090,7 +76125,7 @@ function PickerPopper(inProps) {
       dismissViews();
     }
   };
-  const Transition2 = slots?.desktopTransition ?? reduceAnimations ? Fade : Grow;
+  const Transition3 = slots?.desktopTransition ?? reduceAnimations ? Fade : Grow;
   const FocusTrap$1 = slots?.desktopTrapFocus ?? FocusTrap;
   const Paper3 = slots?.desktopPaper ?? PickerPopperPaper;
   const Popper3 = slots?.popper ?? PickerPopperRoot;
@@ -75118,7 +76153,7 @@ function PickerPopper(inProps) {
       disableEnforceFocus: viewContainerRole === "tooltip",
       isEnabled: () => true
     }, slotProps?.desktopTrapFocus, {
-      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Transition2, _extends$1({}, TransitionProps, slotProps?.desktopTransition, {
+      children: /* @__PURE__ */ jsxRuntimeExports.jsx(Transition3, _extends$1({}, TransitionProps, slotProps?.desktopTransition, {
         onExited: (event) => {
           onPopperExited?.();
           slotProps?.desktopTransition?.onExited?.(event);
@@ -75518,7 +76553,7 @@ const usePicker = ({
     label,
     // Other props
     autoFocus,
-    name
+    name: name2
   } = props;
   const {
     className,
@@ -75682,12 +76717,12 @@ const usePicker = ({
     triggerStatus,
     hasNextStep,
     fieldFormat: format2 ?? "",
-    name,
+    name: name2,
     label,
     rootSx: sx,
     rootRef,
     rootClassName: className
-  }), [actionsContextValue, value, rootRef, variant, orientation, reduceAnimations, disabled, readOnly, format2, className, name, label, sx, triggerStatus, hasNextStep, timezone, state.open, popperView, views, initialView, autoFocus]);
+  }), [actionsContextValue, value, rootRef, variant, orientation, reduceAnimations, disabled, readOnly, format2, className, name2, label, sx, triggerStatus, hasNextStep, timezone, state.open, popperView, views, initialView, autoFocus]);
   const privateContextValue = reactExports.useMemo(() => ({
     dismissViews,
     ownerState,
@@ -75941,14 +76976,14 @@ const usePickerLayout = (props) => {
     ownerState
   }), actionBarProps = _objectWithoutPropertiesLoose$1(_useSlotProps, _excluded$p);
   const actionBar = /* @__PURE__ */ jsxRuntimeExports.jsx(ActionBar, _extends$1({}, actionBarProps));
-  const Toolbar = slots?.toolbar;
+  const Toolbar3 = slots?.toolbar;
   const toolbarProps = useSlotProps({
-    elementType: Toolbar,
+    elementType: Toolbar3,
     externalSlotProps: slotProps?.toolbar,
     className: classes2.toolbar,
     ownerState
   });
-  const toolbar = toolbarHasView(toolbarProps) && !!Toolbar ? /* @__PURE__ */ jsxRuntimeExports.jsx(Toolbar, _extends$1({}, toolbarProps)) : null;
+  const toolbar = toolbarHasView(toolbarProps) && !!Toolbar3 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Toolbar3, _extends$1({}, toolbarProps)) : null;
   const content = children;
   const Tabs3 = slots?.tabs;
   const tabs = view && Tabs3 ? /* @__PURE__ */ jsxRuntimeExports.jsx(Tabs3, _extends$1({
@@ -78730,7 +79765,7 @@ function PickersModalDialog(props) {
     onPopperExited
   } = usePickerPrivateContext();
   const Dialog3 = slots?.dialog ?? PickersModalDialogRoot;
-  const Transition2 = slots?.mobileTransition ?? Fade;
+  const Transition3 = slots?.mobileTransition ?? Fade;
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Dialog3, _extends$1({
     open,
     onClose: () => {
@@ -78738,7 +79773,7 @@ function PickersModalDialog(props) {
       onPopperExited?.();
     }
   }, slotProps?.dialog, {
-    TransitionComponent: Transition2,
+    TransitionComponent: Transition3,
     TransitionProps: slotProps?.mobileTransition,
     PaperComponent: slots?.mobilePaper,
     PaperProps: slotProps?.mobilePaper,
@@ -79580,11 +80615,11 @@ function DateTimePickerToolbar(inProps) {
     })]
   }));
 }
-function useDateTimePickerDefaultizedProps(props, name) {
+function useDateTimePickerDefaultizedProps(props, name2) {
   const utils = useUtils();
   const themeProps = useThemeProps({
     props,
-    name
+    name: name2
   });
   const validationProps = useApplyDefaultValuesToDateTimeValidationProps(themeProps);
   const ampm = themeProps.ampm ?? utils.is12HourCycleInCurrentLocale();
@@ -80724,10 +81759,10 @@ const useUtilityClasses$4 = (classes2) => {
   };
   return composeClasses(slots, getMonthCalendarUtilityClass, classes2);
 };
-function useMonthCalendarDefaultizedProps(props, name) {
+function useMonthCalendarDefaultizedProps(props, name2) {
   const themeProps = useThemeProps({
     props,
-    name
+    name: name2
   });
   const validationProps = useApplyDefaultValuesToDateValidationProps(themeProps);
   return _extends$1({}, themeProps, validationProps, {
@@ -81047,10 +82082,10 @@ const useUtilityClasses$2 = (classes2) => {
   };
   return composeClasses(slots, getYearCalendarUtilityClass, classes2);
 };
-function useYearCalendarDefaultizedProps(props, name) {
+function useYearCalendarDefaultizedProps(props, name2) {
   const themeProps = useThemeProps({
     props,
-    name
+    name: name2
   });
   const validationProps = useApplyDefaultValuesToDateValidationProps(themeProps);
   return _extends$1({}, themeProps, validationProps, {
@@ -81503,10 +82538,10 @@ const useUtilityClasses = (classes2) => {
   };
   return composeClasses(slots, getDateCalendarUtilityClass, classes2);
 };
-function useDateCalendarDefaultizedProps(props, name) {
+function useDateCalendarDefaultizedProps(props, name2) {
   const themeProps = useThemeProps({
     props,
-    name
+    name: name2
   });
   const reduceAnimations = useReduceAnimations(themeProps.reduceAnimations);
   const validationProps = useApplyDefaultValuesToDateValidationProps(themeProps);
@@ -82905,7 +83940,7 @@ const DateTimePicker = /* @__PURE__ */ reactExports.forwardRef(function DateTime
     ref
   }, other));
 });
-const ipcRenderer$3 = window.electron?.ipcRenderer || false;
+const ipcRenderer$8 = window.electron?.ipcRenderer || false;
 const id$1 = "time-module";
 const moduleConfig$1 = {
   menuLabel: "Time & Schedule",
@@ -83108,7 +84143,7 @@ const InputDisplay = ({ input }) => {
 const useGlobalActions$1 = () => {
   const toggleRowEnabledAction = useMainStore((state) => state.toggleRowEnabled);
   reactExports.useEffect(() => {
-    if (!ipcRenderer$3) {
+    if (!ipcRenderer$8) {
       console.warn(`${id$1} Global: ipcRenderer not available. Cannot listen for time triggers.`);
       return;
     }
@@ -83131,12 +84166,12 @@ const useGlobalActions$1 = () => {
         }
       }
     };
-    ipcRenderer$3.on("time-trigger-fired", timeTriggerListener);
+    ipcRenderer$8.on("time-trigger-fired", timeTriggerListener);
     console.debug(`${id$1} Global: IPC listener for 'time-trigger-fired' attached.`);
     return () => {
       console.debug(`${id$1} Global: Cleaning up IPC listener for 'time-trigger-fired'.`);
-      if (ipcRenderer$3) {
-        ipcRenderer$3.removeListener("time-trigger-fired", timeTriggerListener);
+      if (ipcRenderer$8) {
+        ipcRenderer$8.removeListener("time-trigger-fired", timeTriggerListener);
       }
     };
   }, [toggleRowEnabledAction]);
@@ -83253,19 +84288,35 @@ const modulesObjectFromFile = {
   [id$1]: timeModule,
   [id]: wledModule
 };
+const ipcRenderer$7 = window.electron?.ipcRenderer || false;
 const storeUI = () => ({
-  darkMode: true
+  themeChoice: "system",
+  homeWidgets: {}
 });
 const storeUIActions = (set2) => ({
-  setDarkMode: (dark2) => set2(
-    produce((state) => {
-      state.ui.darkMode = dark2;
-    }),
-    false,
-    "ui/darkmode"
-  )
+  setThemeChoice: (choice) => {
+    set2(
+      produce((state) => {
+        state.ui.themeChoice = choice;
+      }),
+      false,
+      `ui/setThemeChoice/${choice}`
+    );
+    if (ipcRenderer$7) {
+      ipcRenderer$7.send("set-app-theme-preference", choice);
+    }
+  },
+  setHomeWidgets: (newHomeWidgets) => {
+    set2(
+      produce((state) => {
+        state.ui.homeWidgets = newHomeWidgets;
+      }),
+      false,
+      "setHomeWidgets"
+    );
+  }
 });
-const ipcRenderer$2 = window.electron?.ipcRenderer || false;
+const ipcRenderer$6 = window.electron?.ipcRenderer || false;
 const initialModulesState = {};
 for (const moduleId in modulesObjectFromFile) {
   if (Object.prototype.hasOwnProperty.call(modulesObjectFromFile, moduleId)) {
@@ -83411,11 +84462,11 @@ const useMainStore = create()(
             "deleteRow"
           );
         },
-        addProfile: (name, icon, initialIncludedRowIds) => {
+        addProfile: (name2, icon, initialIncludedRowIds) => {
           const newProfileId = v4();
           const newProfile = {
             id: newProfileId,
-            name: name || `Profile ${Object.keys(get().profiles).length + 1}`,
+            name: name2 || `Profile ${Object.keys(get().profiles).length + 1}`,
             icon: icon || "people",
             includedRowIds: initialIncludedRowIds || []
           };
@@ -83426,7 +84477,7 @@ const useMainStore = create()(
             false,
             "addProfile"
           );
-          if (ipcRenderer$2) ipcRenderer$2.send("set", ["profiles", get().profiles]);
+          if (ipcRenderer$6) ipcRenderer$6.send("set", ["profiles", get().profiles]);
           console.log(`Profile added: ${newProfile.name} (ID: ${newProfileId})`);
           return newProfileId;
         },
@@ -83440,7 +84491,7 @@ const useMainStore = create()(
             false,
             `updateProfile/${profileId}`
           );
-          if (ipcRenderer$2) ipcRenderer$2.send("set", ["profiles", get().profiles]);
+          if (ipcRenderer$6) ipcRenderer$6.send("set", ["profiles", get().profiles]);
         },
         deleteProfile: (profileId) => {
           set2(
@@ -83453,10 +84504,10 @@ const useMainStore = create()(
             false,
             `deleteProfile/${profileId}`
           );
-          if (ipcRenderer$2) {
-            ipcRenderer$2.send("set", ["profiles", get().profiles]);
+          if (ipcRenderer$6) {
+            ipcRenderer$6.send("set", ["profiles", get().profiles]);
             if (get().activeProfileId === null && get().activeProfileId !== get().profiles[profileId]?.id) {
-              ipcRenderer$2.send("set", ["activeProfileId", null]);
+              ipcRenderer$6.send("set", ["activeProfileId", null]);
             }
           }
         },
@@ -83468,11 +84519,11 @@ const useMainStore = create()(
           }
           set2({ activeProfileId: profileId }, false, `setActiveProfile/${profileId || "none"}`);
           console.log(`Active profile set in Zustand to: ${profileId || "None"}`);
-          if (ipcRenderer$2) {
+          if (ipcRenderer$6) {
             console.log(`setActiveProfile: Sending 'set' IPC for activeProfileId: ${profileId}`);
-            ipcRenderer$2.send("set", ["activeProfileId", profileId]);
+            ipcRenderer$6.send("set", ["activeProfileId", profileId]);
             const newActiveProfile = profileId ? get().profiles[profileId] : null;
-            ipcRenderer$2.send("active-profile-changed-for-main", {
+            ipcRenderer$6.send("active-profile-changed-for-main", {
               activeProfileId: profileId,
               includedRowIds: newActiveProfile?.includedRowIds || null
             });
@@ -83522,7 +84573,13 @@ const useMainStore = create()(
         name: "io-v2-storage",
         partialize: (state) => ({
           rows: state.rows,
-          ui: state.ui,
+          ui: {
+            // Persist relevant parts of UI state
+            themeChoice: state.ui.themeChoice,
+            homeWidgets: state.ui.homeWidgets
+            // If you persist this
+            // Do NOT persist darkMode if it's derived, only themeChoice
+          },
           moduleStoredConfigs: Object.fromEntries(
             Object.entries(state.modules).map(([id2, moduleFullConfig]) => [
               id2,
@@ -83571,6 +84628,17 @@ const useMainStore = create()(
             mergedState.activeProfileId = persistedState.activeProfileId;
           } else {
             mergedState.activeProfileId = currentState.activeProfileId || null;
+          }
+          if (persistedState.ui) {
+            if (persistedState.ui.themeChoice) {
+              mergedState.ui.themeChoice = persistedState.ui.themeChoice;
+            }
+            if (persistedState.ui.homeWidgets) {
+              mergedState.ui.homeWidgets = {
+                ...currentState.ui.homeWidgets || {},
+                ...persistedState.ui.homeWidgets
+              };
+            }
           }
           if (persistedState.globalAudioCommandTimestamp !== void 0) {
             mergedState.globalAudioCommandTimestamp = persistedState.globalAudioCommandTimestamp;
@@ -84138,7 +85206,6 @@ const IoNewRow = ({
             },
             children: [
               'Configuring "OFF" action for Alexa device:',
-              " ",
               templateRow.input?.data.value || "Unknown Device"
             ]
           }
@@ -84184,11 +85251,7 @@ const IoNewRow = ({
                 children: inputConfigMessage
               }
             ),
-            !templateRow.inputModule && !isInputTypeLocked && /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { sx: { mt: 1, color: "text.disabled", fontSize: "0.8rem" }, children: [
-              " ",
-              "Select an input module.",
-              " "
-            ] })
+            !templateRow.inputModule && !isInputTypeLocked && /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { sx: { mt: 1, color: "text.disabled", fontSize: "0.8rem" }, children: "Select an input module." })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { flexBasis: { md: "50%" } }, children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -84230,11 +85293,7 @@ const IoNewRow = ({
                 children: outputConfigMessage
               }
             ),
-            !templateRow.outputModule && !isOutputTypeLocked && /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { sx: { mt: 1, color: "text.disabled", fontSize: "0.8rem" }, children: [
-              " ",
-              "Select an output module.",
-              " "
-            ] })
+            !templateRow.outputModule && !isOutputTypeLocked && /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { sx: { mt: 1, color: "text.disabled", fontSize: "0.8rem" }, children: "Select an output module." })
           ] })
         ] }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", sx: { justifyContent: "flex-end", mt: 3, gap: 1 }, children: [
@@ -84456,7 +85515,6 @@ const IoRow = ({ row }) => {
                       transformOrigin: { vertical: "top", horizontal: "right" },
                       children: [
                         /* @__PURE__ */ jsxRuntimeExports.jsxs(MenuItem, { onClick: handleManualTrigger, disabled: !isActive, children: [
-                          " ",
                           /* @__PURE__ */ jsxRuntimeExports.jsx(ListItemIcon, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(PlayCircleOutline, { fontSize: "small" }) }),
                           /* @__PURE__ */ jsxRuntimeExports.jsx(ListItemText, { children: "Trigger Manually" })
                         ] }),
@@ -84501,6 +85559,15 @@ const styles$1 = {
 };
 const logo = "" + new URL("icon-CRKChYjf.png", import.meta.url).href;
 const logoTitle = "" + new URL("logo-cropped-BGLsYU3Y.svg", import.meta.url).href;
+const name = "io";
+const version = "0.2.0";
+const author = "YeonV";
+const pkg = {
+  name,
+  version,
+  author
+};
+const restModuleId$1 = "rest-module";
 function base64ToArrayBuffer$1(base64) {
   const binary_string = window.atob(base64);
   const len = binary_string.length;
@@ -84525,7 +85592,7 @@ const FiledropProvider = ({ children }) => {
   const setBlueprintToRunFromDrop = useMainStore((state) => state.setBlueprintToRunFromDrop);
   const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
   const getRestModuleBlueprints = reactExports.useCallback(
-    () => useMainStore.getState().modules[id$4]?.config?.blueprints || [],
+    () => useMainStore.getState().modules[restModuleId$1]?.config?.blueprints || [],
     []
   );
   const processDroppedProfileFile = reactExports.useCallback(
@@ -84653,11 +85720,11 @@ const FiledropProvider = ({ children }) => {
             );
             return;
           }
-          const moduleConf = useMainStore.getState().modules[id$4]?.config;
+          const moduleConf = useMainStore.getState().modules[restModuleId$1]?.config;
           if (!moduleConf?.blueprints) {
-            setModuleConfig(id$4, "blueprints", [parsedData]);
+            setModuleConfig(restModuleId$1, "blueprints", [parsedData]);
           } else {
-            setModuleConfig(id$4, "blueprints", [...currentBlueprints, parsedData]);
+            setModuleConfig(restModuleId$1, "blueprints", [...currentBlueprints, parsedData]);
           }
           enqueueSnackbar(
             `Blueprint "${parsedData.name}" imported successfully! Opening for configuration...`,
@@ -84891,90 +85958,6 @@ const FiledropProvider = ({ children }) => {
     }
   );
 };
-const ipcRenderer$1 = window.electron?.ipcRenderer || false;
-const Wrapper = ({ children }) => {
-  const darkMode = useMainStore((state) => state.ui.darkMode);
-  const setDarkMode = useMainStore((state) => state.setDarkMode);
-  const toggleDarkmode = () => {
-    if (ipcRenderer$1) {
-      ipcRenderer$1.sendSync("toggle-darkmode", "try");
-    }
-    setDarkMode(!darkMode);
-  };
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(FiledropProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-    Box,
-    {
-      sx: {
-        bgcolor: "background.default",
-        color: "text.primary",
-        overflowX: "hidden"
-      },
-      className: styles$1.app,
-      children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
-        "div",
-        {
-          className: styles$1.appWrapper,
-          style: {
-            margin: "0 auto",
-            justifyContent: "space-between",
-            minHeight: "100vh"
-          },
-          children: [
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: styles$1.logos, children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx("img", { src: logo, style: { width: "100px", filter: "invert(0)" }, alt: "logoIO" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$1.imgBox, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                "img",
-                {
-                  src: logoTitle,
-                  style: { width: "480px", filter: "invert(0)" },
-                  alt: "InputOutput"
-                }
-              ) })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs("main", { style: { width: "100%", maxWidth: 960 }, children: [
-              children,
-              !ipcRenderer$1 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "body2", color: "#666", sx: { mt: 5 }, children: [
-                "If you are accessing this site via httpS, but want to communicate with your local network (mqtt, http, ws), you need to allow insecure content in your browser's site settings either via lock icon next to the url or copy:",
-                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: `chrome://settings/content/siteDetails?site=${encodeURIComponent(
-                  window.location.href.replace(/\/+$/, "")
-                )}` })
-              ] })
-            ] }),
-            /* @__PURE__ */ jsxRuntimeExports.jsxs(
-              "footer",
-              {
-                style: {
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between"
-                },
-                children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flexBasis: "150px" } }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { children: "hacked by Blade " }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flexBasis: "225px" }, children: [
-                    false,
-                    false,
-                    /* @__PURE__ */ jsxRuntimeExports.jsx(
-                      IconButton,
-                      {
-                        onClick: () => {
-                          toggleDarkmode();
-                        },
-                        sx: { opacity: 0.3 },
-                        children: darkMode ? /* @__PURE__ */ jsxRuntimeExports.jsx(LightMode, { color: "primary" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(DarkMode, { color: "primary" })
-                      }
-                    )
-                  ] })
-                ]
-              }
-            )
-          ]
-        }
-      )
-    }
-  ) });
-};
 function arrayBufferToBase64(buffer) {
   let binary = "";
   const bytes = new Uint8Array(buffer);
@@ -85010,7 +85993,7 @@ const ProfileEditorDialog = ({
   initialProfile,
   allRows
 }) => {
-  const [name, setName] = reactExports.useState("");
+  const [name2, setName] = reactExports.useState("");
   const [icon, setIcon] = reactExports.useState("people");
   const [selectedRowIds, setSelectedRowIds] = reactExports.useState([]);
   const [currentProfileId, setCurrentProfileId] = reactExports.useState(null);
@@ -85033,11 +86016,11 @@ const ProfileEditorDialog = ({
     (prev2) => prev2.includes(rowId) ? prev2.filter((id2) => id2 !== rowId) : [...prev2, rowId]
   );
   const handleSaveDialog = () => {
-    if (!name.trim()) {
+    if (!name2.trim()) {
       alert("Profile name is required.");
       return;
     }
-    onSave({ id: currentProfileId || void 0, name, icon, includedRowIds: selectedRowIds });
+    onSave({ id: currentProfileId || void 0, name: name2, icon, includedRowIds: selectedRowIds });
     onClose();
   };
   const sortedRowsArray = reactExports.useMemo(
@@ -85070,7 +86053,7 @@ const ProfileEditorDialog = ({
             TextField,
             {
               label: "Profile Name",
-              value: name,
+              value: name2,
               onChange: (e2) => setName(e2.target.value),
               fullWidth: true,
               autoFocus: true,
@@ -85117,11 +86100,8 @@ const ProfileEditorDialog = ({
           )) }) })
         ] }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { children: [
-          " ",
           /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: onClose, children: "Cancel" }),
-          " ",
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", variant: "contained", children: "Save Profile" }),
-          " "
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", variant: "contained", children: "Save Profile" })
         ] })
       ]
     }
@@ -85337,7 +86317,7 @@ const ProfileManagerSettings = () => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
           {
-            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$7, {}),
+            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$8, {}),
             onClick: handleOpenProfileManager,
             variant: "outlined",
             size: "small",
@@ -85481,10 +86461,872 @@ const ProfileManagerSettings = () => {
     }
   );
 };
+const ipcRenderer$5 = window.electron?.ipcRenderer || false;
+const SettingsAbout = () => {
+  const [versions] = reactExports.useState(window.electron.process.versions);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Paper, { sx: { p: 3 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h6", gutterBottom: true, children: "About IO" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body1", gutterBottom: true, children: "InputOutput Automation Hub" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "body2", children: [
+      "Version: ",
+      pkg.version
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "body2", sx: { mt: 1 }, children: [
+      "Electron: ",
+      ipcRenderer$5 ? versions?.electron || "N/A" : "N/A (Running in Web Mode)",
+      " ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+      "Chromium: ",
+      ipcRenderer$5 ? versions?.chrome || "N/A" : "N/A",
+      " ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+      "Node.js: ",
+      ipcRenderer$5 ? versions?.node || "N/A" : "N/A",
+      " ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+      "V8: ",
+      ipcRenderer$5 ? versions?.v8 || "N/A" : "N/A"
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", sx: { mt: 2 }, children: "Created with ❤️ by Blade (YeonV)." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Button,
+      {
+        sx: { mt: 2 },
+        variant: "outlined",
+        onClick: () => ipcRenderer$5 && ipcRenderer$5.send("open-link-external", `https://github.com/${pkg.author}/${pkg.name}`),
+        children: "GitHub Repository"
+      }
+    )
+  ] });
+};
+const ipcRenderer$4 = window.electron?.ipcRenderer;
+const SettingsStartup = () => {
+  const { enqueueSnackbar } = useSnackbar();
+  const [openAtLogin, setOpenAtLogin] = reactExports.useState(null);
+  const [openAsHidden, setOpenAsHidden] = reactExports.useState(null);
+  const [isLoading, setIsLoading] = reactExports.useState(!!ipcRenderer$4);
+  const [error, setError] = reactExports.useState(null);
+  reactExports.useEffect(() => {
+    if (ipcRenderer$4) {
+      setIsLoading(true);
+      ipcRenderer$4.invoke("get-login-item-settings").then((settings) => {
+        if (settings && typeof settings.openAtLogin === "boolean") {
+          setOpenAtLogin(settings.openAtLogin);
+          setOpenAsHidden(settings.openAsHidden || false);
+          setError(null);
+        } else {
+          setError("Could not retrieve startup settings.");
+          setOpenAtLogin(false);
+          setOpenAsHidden(false);
+        }
+      }).catch((err2) => {
+        setError("Failed to load startup settings.");
+        setOpenAtLogin(false);
+        setOpenAsHidden(false);
+        console.error("Error 'get-login-item-settings':", err2);
+      }).finally(() => setIsLoading(false));
+    } else {
+      setOpenAtLogin(false);
+      setOpenAsHidden(false);
+    }
+  }, []);
+  const updateLoginSettings = async (newOpenAtLogin, newOpenAsHiddenSetting) => {
+    if (!ipcRenderer$4) return;
+    const effectiveOpenAsHidden = newOpenAtLogin ? newOpenAsHiddenSetting !== void 0 ? newOpenAsHiddenSetting : openAsHidden ?? true : false;
+    try {
+      const result = await ipcRenderer$4.invoke("set-login-item-settings", {
+        openAtLogin: newOpenAtLogin,
+        openAsHidden: effectiveOpenAsHidden
+      });
+      if (!result.success) {
+        enqueueSnackbar(`Error: ${result.error || "Could not update startup settings."}`, {
+          variant: "error"
+        });
+        ipcRenderer$4.invoke("get-login-item-settings").then((s2) => {
+          setOpenAtLogin(s2.openAtLogin);
+          setOpenAsHidden(s2.openAsHidden);
+        });
+      } else {
+        enqueueSnackbar("Startup settings updated.", { variant: "success", autoHideDuration: 2e3 });
+        setOpenAtLogin(result.newSettings.openAtLogin);
+        setOpenAsHidden(result.newSettings.openAsHidden);
+      }
+    } catch (err2) {
+      enqueueSnackbar("Error communicating startup settings.", { variant: "error" });
+    }
+  };
+  const handleToggleOpenAtLogin = (_event, checked) => {
+    setOpenAtLogin(checked);
+    if (!checked && openAsHidden) setOpenAsHidden(false);
+    updateLoginSettings(checked, checked ? openAsHidden ?? true : false);
+  };
+  const handleToggleOpenAsHidden = (_event, checked) => {
+    setOpenAsHidden(checked);
+    if (openAtLogin) updateLoginSettings(true, checked);
+  };
+  if (!ipcRenderer$4) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Typography,
+        {
+          variant: "subtitle1",
+          component: "div",
+          sx: { fontWeight: "medium", mb: 1, display: "flex", alignItems: "center" },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(LoginIcon, { sx: { mr: 1, color: "text.disabled" } }),
+            " Application Startup"
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { sx: { mb: 2 } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { severity: "info", children: "Startup settings are only available in the desktop application." })
+    ] });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Typography,
+      {
+        variant: "subtitle1",
+        component: "div",
+        sx: { fontWeight: "medium", mb: 1, display: "flex", alignItems: "center" },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(LoginIcon, { sx: { mr: 1, color: "text.secondary" } }),
+          " Application Startup"
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { sx: { mb: 2 } }),
+    isLoading && /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", spacing: 1, alignItems: "center", sx: { minHeight: "70px" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CircularProgress, { size: 20 }),
+      " ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", color: "text.secondary", children: "Loading..." })
+    ] }),
+    error && !isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { severity: "warning", sx: { mb: 2 }, children: error }),
+    !isLoading && !error && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          FormControlLabel,
+          {
+            control: /* @__PURE__ */ jsxRuntimeExports.jsx(Switch, { checked: openAtLogin === true, onChange: handleToggleOpenAtLogin }),
+            label: "Launch automatically on system login"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Typography,
+          {
+            variant: "caption",
+            display: "block",
+            sx: { mt: 0, ml: 4.5, color: "text.secondary", mb: 1.5 },
+            children: "Automatically start IO when you log into your computer."
+          }
+        )
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Box,
+        {
+          sx: {
+            opacity: openAtLogin ? 1 : 0.5,
+            pl: 2,
+            mt: 0,
+            pointerEvents: openAtLogin ? "auto" : "none"
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              FormControlLabel,
+              {
+                control: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Switch,
+                  {
+                    checked: openAsHidden === true,
+                    onChange: handleToggleOpenAsHidden,
+                    disabled: !openAtLogin
+                  }
+                ),
+                label: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", alignItems: "center", spacing: 0.5, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(StartHiddenIcon, { sx: { fontSize: "1.1rem", opacity: 0.7 } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: "Start minimised to system tray" })
+                ] })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Typography,
+              {
+                variant: "caption",
+                display: "block",
+                sx: { mt: 0, ml: 6.5, color: "text.secondary" },
+                children: "If launching on login, IO will start hidden in the system tray."
+              }
+            )
+          ]
+        }
+      )
+    ] })
+  ] });
+};
+const ipcRenderer$3 = window.electron?.ipcRenderer;
+const SettingsWindowBehavior = () => {
+  const { enqueueSnackbar } = useSnackbar();
+  const [closeBehavior, setCloseBehavior] = reactExports.useState(null);
+  const [isLoading, setIsLoading] = reactExports.useState(!!ipcRenderer$3);
+  const [error, setError] = reactExports.useState(null);
+  reactExports.useEffect(() => {
+    if (ipcRenderer$3) {
+      setIsLoading(true);
+      ipcRenderer$3.invoke("get-close-button-behavior").then((behavior) => {
+        setCloseBehavior(behavior || "minimize");
+        setError(null);
+      }).catch((err2) => {
+        setError("Failed to load close button behavior setting.");
+        setCloseBehavior("minimize");
+        console.error("Error 'get-close-button-behavior':", err2);
+      }).finally(() => setIsLoading(false));
+    } else {
+      setCloseBehavior("minimize");
+    }
+  }, []);
+  const handleCloseBehaviorChange = async (event) => {
+    if (!ipcRenderer$3) return;
+    const newBehavior = event.target.value;
+    setCloseBehavior(newBehavior);
+    try {
+      const result = await ipcRenderer$3.invoke("set-close-button-behavior", newBehavior);
+      if (!result.success) {
+        enqueueSnackbar(`Error: ${result.error || "Could not update close behavior."}`, {
+          variant: "error"
+        });
+        ipcRenderer$3.invoke("get-close-button-behavior").then((b2) => setCloseBehavior(b2));
+      } else {
+        enqueueSnackbar("Close button behavior updated.", {
+          variant: "success",
+          autoHideDuration: 2e3
+        });
+      }
+    } catch (err2) {
+      enqueueSnackbar("Error communicating close behavior setting.", { variant: "error" });
+    }
+  };
+  if (!ipcRenderer$3) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Typography,
+        {
+          variant: "subtitle1",
+          component: "div",
+          sx: { fontWeight: "medium", mb: 1, display: "flex", alignItems: "center" },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(WindowBehaviorIcon, { sx: { mr: 1, color: "text.disabled" } }),
+            " Window Behavior"
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { sx: { mb: 2 } }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { severity: "info", children: "Window behavior settings are only available in the desktop application." })
+    ] });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Typography,
+      {
+        variant: "subtitle1",
+        component: "div",
+        sx: { fontWeight: "medium", mb: 1, display: "flex", alignItems: "center" },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(WindowBehaviorIcon, { sx: { mr: 1, color: "text.secondary" } }),
+          " Window Behavior"
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { sx: { mb: 2 } }),
+    isLoading && /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", spacing: 1, alignItems: "center", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(CircularProgress, { size: 20 }),
+      " ",
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", color: "text.secondary", children: "Loading..." })
+    ] }),
+    error && !isLoading && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { severity: "warning", sx: { mb: 2 }, children: error }),
+    !isLoading && !error && closeBehavior !== null && /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { component: "fieldset", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", component: "legend", sx: { mb: 1, fontWeight: "medium" }, children: "When closing the main window:" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        RadioGroup,
+        {
+          "aria-label": "close-button-behavior",
+          name: "close-button-behavior-group",
+          value: closeBehavior,
+          onChange: handleCloseBehaviorChange,
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              FormControlLabel,
+              {
+                value: "minimize",
+                control: /* @__PURE__ */ jsxRuntimeExports.jsx(Radio, { size: "small" }),
+                label: "Minimize to System Tray (Recommended)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              FormControlLabel,
+              {
+                value: "quit",
+                control: /* @__PURE__ */ jsxRuntimeExports.jsx(Radio, { size: "small" }),
+                label: "Quit the Application"
+              }
+            )
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "text.secondary", sx: { mt: 0.5, display: "block" }, children: "Choose if IO should continue running in the background or exit completely." })
+    ] })
+  ] });
+};
+const nuke = async () => {
+  const ipcRenderer2 = window.electron?.ipcRenderer || false;
+  if (!window.confirm(
+    "EXTREME DANGER ZONE!\n\nThis will:\n- Clear main app's Zustand persisted state (localStorage).\n- Clear Deck's localStorage.\n- Clear PlaySound module's IndexedDB audio cache.\n- Request main process to clear electron-store.\n\nThe app will then attempt to reload. Are you ABSOLUTELY sure?"
+  )) {
+    return;
+  }
+  console.warn("[DEV NUKE] Initiating full data reset...");
+  try {
+    if (window.IO_DEV_TOOLS && typeof window.IO_DEV_TOOLS.clearPlaySoundCache === "function") {
+      await window.IO_DEV_TOOLS.clearPlaySoundCache();
+      console.log("[DEV NUKE] PlaySound IndexedDB cache cleared.");
+    } else {
+      console.warn(
+        "[DEV NUKE] IO_DEV_TOOLS.clearPlaySoundCache not found. Skipping IndexedDB clear."
+      );
+      alert(
+        "PlaySound IndexedDB clear function not found. Manual clear might be needed via DevTools > Application."
+      );
+    }
+  } catch (e2) {
+    console.error("[DEV NUKE] Error clearing PlaySound IndexedDB:", e2);
+  }
+  localStorage.removeItem("io-v2-storage");
+  console.log("[DEV NUKE] Main app (io-v2-storage) localStorage cleared.");
+  localStorage.removeItem("io-deck-v1-storage");
+  console.log("[DEV NUKE] Deck (io-deck-v1-storage) localStorage cleared.");
+  if (ipcRenderer2) {
+    try {
+      const success = await ipcRenderer2.invoke("dev:clear-electron-store");
+      if (success) {
+        console.log("[DEV NUKE] electron-store cleared by main process.");
+      } else {
+        console.error("[DEV NUKE] Main process reported failure to clear electron-store.");
+        alert("Failed to clear main process store. See main console.");
+      }
+    } catch (e2) {
+      console.error("[DEV NUKE] Error invoking 'dev:clear-electron-store':", e2);
+      alert("Error communicating with main process to clear its store.");
+    }
+  } else {
+    console.warn("[DEV NUKE] ipcRenderer not available, cannot clear electron-store from main.");
+  }
+  alert("Nuke complete! App will now reload to a fresh state.");
+  window.location.reload();
+};
+const SettingsData = () => {
+  const { enqueueSnackbar } = useSnackbar();
+  const setModuleConfigValue = useMainStore((state) => state.setModuleConfigValue);
+  const [confirmDialogOpen, setConfirmDialogOpen] = reactExports.useState(false);
+  const [confirmAction, setConfirmAction] = reactExports.useState(null);
+  const [confirmTitle, setConfirmTitle] = reactExports.useState("");
+  const [confirmMessage, setConfirmMessage] = reactExports.useState("");
+  const openConfirmation = (title, message, action) => {
+    setConfirmTitle(title);
+    setConfirmMessage(message);
+    setConfirmAction(() => action);
+    setConfirmDialogOpen(true);
+  };
+  const handleClearRowHistory = () => {
+    openConfirmation("Clear History?", "...", () => {
+      useMainStore.setState(
+        (state) => ({ ...state, rowHistory: [] }),
+        false,
+        "clearRowHistory/manual"
+      );
+      enqueueSnackbar("Row history cleared.", { variant: "success" });
+      setConfirmDialogOpen(false);
+    });
+  };
+  const handleClearRestData = () => {
+    openConfirmation("Clear REST Data?", "...", () => {
+      setModuleConfigValue(id$4, "presets", []);
+      setModuleConfigValue(id$4, "blueprints", []);
+      enqueueSnackbar("REST data cleared.", { variant: "success" });
+      setConfirmDialogOpen(false);
+    });
+  };
+  const handleClearSoundCache = () => {
+    openConfirmation("Clear Sounds?", "...", async () => {
+      try {
+        await clearAllAudioFromDB();
+        enqueueSnackbar("Sound cache cleared.", { variant: "success" });
+      } catch (e2) {
+        enqueueSnackbar("Failed to clear sound cache.", { variant: "error" });
+      }
+      setConfirmDialogOpen(false);
+    });
+  };
+  const handleNukeAllData = () => {
+    openConfirmation("NUKE ALL DATA?", "WARNING: ...", () => {
+      nuke();
+      setConfirmDialogOpen(false);
+    });
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "subtitle1", component: "div", sx: { fontWeight: "medium", mb: 1, mt: 4 }, children: "Data Management" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { sx: { mb: 2 } }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 2, alignItems: "flex-start", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Button,
+        {
+          variant: "outlined",
+          color: "warning",
+          startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(ClearIcon$1, {}),
+          onClick: handleClearRowHistory,
+          size: "small",
+          children: "Clear Row History"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Button,
+        {
+          variant: "outlined",
+          color: "warning",
+          startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(ClearIcon$1, {}),
+          onClick: handleClearRestData,
+          size: "small",
+          children: "Clear REST Presets & Blueprints"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Button,
+        {
+          variant: "outlined",
+          color: "warning",
+          startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(ClearIcon$1, {}),
+          onClick: handleClearSoundCache,
+          size: "small",
+          children: "Clear Cached Sounds"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Box,
+        {
+          sx: { mt: 2, pt: 2, borderTop: 1, borderColor: "rgba(255,255,255,0.12)", width: "100%" },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Button,
+              {
+                variant: "contained",
+                color: "error",
+                startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(WarningIcon$1, {}),
+                onClick: handleNukeAllData,
+                size: "small",
+                children: "Reset All Application Data (NUKE)"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", display: "block", sx: { mt: 0.5, color: "error.light" }, children: "Resets the entire application. All your data will be lost." })
+          ]
+        }
+      )
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Dialog, { open: confirmDialogOpen, onClose: () => setConfirmDialogOpen(false), children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { sx: { display: "flex", alignItems: "center" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(WarningIcon$1, { color: "warning", sx: { mr: 1 } }),
+        " ",
+        confirmTitle
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContentText, { children: confirmMessage }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: () => setConfirmDialogOpen(false), children: "Cancel" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            onClick: () => {
+              if (confirmAction) confirmAction();
+            },
+            color: confirmTitle.toLowerCase().includes("nuke") ? "error" : "warning",
+            variant: "contained",
+            autoFocus: true,
+            children: "Confirm"
+          }
+        )
+      ] })
+    ] })
+  ] });
+};
+const SettingsGeneral = () => {
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Paper, { sx: { p: 3 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h6", gutterBottom: true, children: "General Application Settings" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", sx: { mb: 2 }, children: "Configure core application behaviors and data management." }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { sx: { mb: 2 } }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsStartup, {}),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsWindowBehavior, {}),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsData, {}),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { sx: { mb: 2 } }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", color: "text.secondary", children: 'Settings for "Close Button Action", "Update Checks" will appear here.' })
+  ] });
+};
+const SettingsAppearance = () => {
+  const themeChoice = useMainStore((state) => state.ui.themeChoice);
+  const setThemeChoice = useMainStore((state) => state.setThemeChoice);
+  const handleThemeChoiceChange = (event) => {
+    setThemeChoice(event.target.value);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Paper, { sx: { p: 3 }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h6", gutterBottom: true, children: "Appearance Settings" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { component: "fieldset", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(FormLabel, { component: "legend", sx: { mb: 1, typography: "subtitle1", fontWeight: "medium" }, children: "Application Theme" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        RadioGroup,
+        {
+          "aria-label": "theme-choice",
+          name: "theme-choice-radio-group",
+          value: themeChoice,
+          onChange: handleThemeChoiceChange,
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              FormControlLabel,
+              {
+                value: "light",
+                control: /* @__PURE__ */ jsxRuntimeExports.jsx(Radio, { size: "small" }),
+                label: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", alignItems: "center", spacing: 1, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(LightModeIcon, { fontSize: "small" }),
+                  " ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", children: "Light" })
+                ] })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              FormControlLabel,
+              {
+                value: "dark",
+                control: /* @__PURE__ */ jsxRuntimeExports.jsx(Radio, { size: "small" }),
+                label: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", alignItems: "center", spacing: 1, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(DarkModeIcon, { fontSize: "small" }),
+                  " ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", children: "Dark" })
+                ] })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              FormControlLabel,
+              {
+                value: "system",
+                control: /* @__PURE__ */ jsxRuntimeExports.jsx(Radio, { size: "small" }),
+                label: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", alignItems: "center", spacing: 1, children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(SystemModeIcon, { fontSize: "small" }),
+                  " ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", children: "Sync with System" })
+                ] })
+              }
+            )
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "text.secondary", sx: { mt: 1 }, children: `Choose your preferred application theme. "Sync with System" will match your operating system's light or dark mode setting.` })
+    ] })
+  ] });
+};
+const ALL_MODULE_IDS = [
+  "activateprofile-module",
+  "alert-module",
+  "alexa-module",
+  "homeassistant-module",
+  "keyboard-module",
+  "ledfx-module",
+  "midi-module",
+  "mpfacedetect-module",
+  "mpfacemesh-module",
+  "mphands-module",
+  "mpholistic-module",
+  "mpobjectron-module",
+  "mppose-module",
+  "mqtt-module",
+  "playsound-module",
+  "rest-module",
+  "say-module",
+  "shell-module",
+  "time-module",
+  "wled-module"
+];
+const SettingsModule = () => {
+  const storedModules = useMainStore((state) => state.modules);
+  const [viewMode, setViewMode] = reactExports.useState("grid");
+  const [searchTerm, setSearchTerm] = reactExports.useState("");
+  const handleViewModeChange = (_event, newMode) => {
+    if (newMode !== null) {
+      setViewMode(newMode);
+    }
+  };
+  const allModuleDetails = reactExports.useMemo(() => {
+    return ALL_MODULE_IDS.map((moduleId) => {
+      const storeConfig = storedModules[moduleId];
+      const impl = moduleImplementations?.[moduleId];
+      if (!storeConfig) return null;
+      let friendlyNamePart = moduleId.replace("-module", "");
+      if (storeConfig.inputs && storeConfig.inputs.length > 0 && storeConfig.inputs[0].name) {
+        friendlyNamePart = storeConfig.inputs[0].name;
+      } else if (storeConfig.outputs && storeConfig.outputs.length > 0 && storeConfig.outputs[0].name) {
+        friendlyNamePart = storeConfig.outputs[0].name;
+      }
+      friendlyNamePart = friendlyNamePart.charAt(0).toUpperCase() + friendlyNamePart.slice(1);
+      const moduleIconName = storeConfig.inputs?.[0]?.icon || storeConfig.outputs?.[0]?.icon || "mdi:puzzle-outline";
+      return {
+        id: moduleId,
+        friendlyName: friendlyNamePart,
+        fullIdName: `${friendlyNamePart} (${moduleId.replace("-module", "")})`,
+        category: storeConfig.menuLabel || "Uncategorized",
+        description: storeConfig.description || "No description available.",
+        // Add description to your ModuleConfig type
+        icon: moduleIconName,
+        inputCount: storeConfig.inputs?.length || 0,
+        outputCount: storeConfig.outputs?.length || 0,
+        hasSettingsWidget: !!impl?.Settings
+        // storeConfig: storeConfig // If needed by the actual settings component later
+      };
+    }).filter(Boolean);
+  }, [storedModules]);
+  const filteredModules = reactExports.useMemo(() => {
+    const lowerSearchTerm = searchTerm.toLowerCase().trim();
+    if (!lowerSearchTerm) return allModuleDetails;
+    return allModuleDetails.filter(
+      (mod) => mod.friendlyName.toLowerCase().includes(lowerSearchTerm) || mod.fullIdName.toLowerCase().includes(lowerSearchTerm) || mod.category.toLowerCase().includes(lowerSearchTerm) || mod.id.toLowerCase().includes(lowerSearchTerm) || mod.description?.toLowerCase().includes(lowerSearchTerm)
+    );
+  }, [allModuleDetails, searchTerm]);
+  const groupedModulesForList = reactExports.useMemo(() => {
+    if (viewMode !== "list") return [];
+    const groups = {};
+    filteredModules.forEach((mod) => {
+      const category = mod.category;
+      if (!groups[category]) groups[category] = [];
+      groups[category].push(mod);
+    });
+    return Object.entries(groups).sort(([catA], [catB]) => catA.localeCompare(catB));
+  }, [filteredModules, viewMode]);
+  const [viewingModuleSettings, setViewingModuleSettings] = reactExports.useState(null);
+  const ModuleSettingsComponent = viewingModuleSettings && moduleImplementations ? moduleImplementations[viewingModuleSettings]?.Settings : null;
+  if (viewingModuleSettings && ModuleSettingsComponent) {
+    const modBeingConfigured = allModuleDetails.find((m2) => m2.id === viewingModuleSettings);
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Paper,
+      {
+        sx: { p: 0, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Box,
+            {
+              sx: {
+                p: 2,
+                borderBottom: 1,
+                borderColor: "divider",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                flexShrink: 0
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", alignItems: "center", spacing: 1, children: [
+                  modBeingConfigured?.icon && /* @__PURE__ */ jsxRuntimeExports.jsx(IoIcon, { name: modBeingConfigured.icon, style: { fontSize: "1.5rem" } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "h6", children: [
+                    "Configure: ",
+                    modBeingConfigured?.fullIdName || viewingModuleSettings
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: () => setViewingModuleSettings(null), size: "small", variant: "outlined", children: "Back to Module Browser" })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: { p: { xs: 1, sm: 2 }, flexGrow: 1, overflowY: "auto" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ModuleSettingsComponent, {}) })
+        ]
+      }
+    );
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Paper,
+    {
+      sx: {
+        p: { xs: 1, sm: 2, md: 3 },
+        overflowY: "auto",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column"
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Stack,
+          {
+            direction: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            spacing: 2,
+            sx: { mb: 2, flexShrink: 0 },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h6", gutterBottom: true, sx: { mb: 0 }, children: "Module Browser" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", color: "text.secondary", children: "Explore available modules and access their specific configurations." })
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                ToggleButtonGroup,
+                {
+                  value: viewMode,
+                  exclusive: true,
+                  onChange: handleViewModeChange,
+                  "aria-label": "View mode",
+                  size: "small",
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(ToggleButton, { value: "grid", "aria-label": "Grid view", children: /* @__PURE__ */ jsxRuntimeExports.jsx(GridViewIcon, {}) }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(ToggleButton, { value: "list", "aria-label": "List view", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ListViewIcon, {}) })
+                  ]
+                }
+              )
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          TextField,
+          {
+            fullWidth: true,
+            variant: "outlined",
+            size: "small",
+            placeholder: "Search modules by name, category, or description...",
+            value: searchTerm,
+            onChange: (e2) => setSearchTerm(e2.target.value),
+            sx: { mb: 2, flexShrink: 0 },
+            InputProps: {
+              startAdornment: /* @__PURE__ */ jsxRuntimeExports.jsx(InputAdornment, { position: "start", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SearchIcon, { fontSize: "small" }) })
+            }
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { flexGrow: 1, overflowY: "auto" }, children: [
+          " ",
+          filteredModules.length === 0 && searchTerm && /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { sx: { textAlign: "center", mt: 4 }, color: "text.secondary", children: [
+            'No modules match your search "',
+            searchTerm,
+            '".'
+          ] }),
+          filteredModules.length === 0 && !searchTerm && /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { sx: { textAlign: "center", mt: 4 }, color: "text.secondary", children: "No modules available." }),
+          viewMode === "grid" && /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { container: true, spacing: 2, children: filteredModules.map((mod) => /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 6, md: 4 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Card,
+            {
+              elevation: 5,
+              sx: {
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between"
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(CardContent, { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", spacing: 1.5, alignItems: "center", mb: 1, children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(IoIcon, { name: mod.icon, style: { fontSize: "2rem", color: "primary.main" } }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h6", component: "div", sx: { fontWeight: "medium" }, children: mod.friendlyName })
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "caption", color: "text.secondary", display: "block", children: [
+                    "Category: ",
+                    mod.category
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Typography,
+                    {
+                      variant: "body2",
+                      color: "text.secondary",
+                      sx: {
+                        my: 1.5,
+                        fontSize: "0.8rem",
+                        minHeight: "40px"
+                        /* For consistent card height */
+                      },
+                      children: mod.description
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Chip,
+                    {
+                      size: "small",
+                      label: `${mod.inputCount} In / ${mod.outputCount} Out`,
+                      variant: "outlined",
+                      sx: { fontSize: "0.7rem" }
+                    }
+                  )
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(CardActions, { sx: { justifyContent: "flex-end", pt: 0 }, children: mod.hasSettingsWidget ? /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: `Configure ${mod.friendlyName}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  IconButton,
+                  {
+                    onClick: () => setViewingModuleSettings(mod.id),
+                    size: "small",
+                    color: "primary",
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(ConfigureModuleIcon, {})
+                  }
+                ) }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "This module has no specific settings panel", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { children: [
+                  " ",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { size: "small", disabled: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AboutIcon, {}) })
+                ] }) }) })
+              ]
+            }
+          ) }, mod.id)) }),
+          viewMode === "list" && /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 0, children: [
+            " ",
+            groupedModulesForList.map(([category, modulesInCategory]) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { mb: 2.5 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Typography,
+                {
+                  variant: "overline",
+                  display: "block",
+                  sx: {
+                    color: "text.secondary",
+                    mb: 0.5,
+                    fontWeight: "medium",
+                    borderBottom: 1,
+                    borderColor: "divider",
+                    pb: 0.5
+                  },
+                  children: category
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(List$1, { dense: true, disablePadding: true, children: modulesInCategory.map((mod) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                Paper,
+                {
+                  variant: "outlined",
+                  sx: { display: "flex", alignItems: "center", p: 1, mb: 0.5, borderRadius: 1 },
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsxs(ListItemIcon, { sx: { minWidth: 36, mr: 0.5 }, children: [
+                      " ",
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(IoIcon, { name: mod.icon, style: { fontSize: "1.5rem", opacity: 0.8 } }),
+                      " "
+                    ] }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      ListItemText,
+                      {
+                        primary: mod.fullIdName,
+                        secondary: `${mod.inputCount} Input(s), ${mod.outputCount} Output(s) ${mod.description ? `- ${mod.description.substring(0, 50)}...` : ""}`,
+                        primaryTypographyProps: { fontWeight: "medium" },
+                        secondaryTypographyProps: { fontSize: "0.75rem" }
+                      }
+                    ),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: { ml: 1, flexShrink: 0 }, children: mod.hasSettingsWidget ? /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: `Configure ${mod.friendlyName}`, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      IconButton,
+                      {
+                        onClick: () => setViewingModuleSettings(mod.id),
+                        size: "small",
+                        color: "primary",
+                        children: /* @__PURE__ */ jsxRuntimeExports.jsx(ConfigureModuleIcon, {})
+                      }
+                    ) }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "No specific settings panel", children: /* @__PURE__ */ jsxRuntimeExports.jsx("span", { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { size: "small", disabled: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(AboutIcon, {}) }) }) }) })
+                  ]
+                },
+                mod.id
+              )) })
+            ] }, category))
+          ] })
+        ] })
+      ]
+    }
+  );
+};
 const getLogLevelIcon = (level) => {
   switch (level?.toLowerCase()) {
     case "info":
-      return /* @__PURE__ */ jsxRuntimeExports.jsx(InfoIcon$1, { fontSize: "inherit", color: "info" });
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(AboutIcon, { fontSize: "inherit", color: "info" });
     case "warn":
     case "warning":
       return /* @__PURE__ */ jsxRuntimeExports.jsx(WarningIcon$1, { fontSize: "inherit", color: "warning" });
@@ -85575,7 +87417,9 @@ const LogViewer = ({
   emptyStateMessage = "No entries to display.",
   showExportButton = true,
   showLevelFilter = true,
-  showSearchFilter = true
+  showSearchFilter = true,
+  showClearButton = false,
+  onClear
 }) => {
   const [expandedAccordion, setExpandedAccordion] = reactExports.useState(
     defaultExpandedId || false
@@ -85634,7 +87478,7 @@ const LogViewer = ({
       variant: "outlined",
       sx: { display: "flex", flexDirection: "column", height: "100%", width: "100%" },
       children: [
-        (title || showExportButton || showLevelFilter || showSearchFilter) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        (title || showExportButton || showLevelFilter || showSearchFilter || showClearButton && entries.length > 0) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Stack,
           {
             direction: "row",
@@ -85645,7 +87489,6 @@ const LogViewer = ({
               p: 1.5,
               borderBottom: 1,
               borderColor: "divider",
-              bgcolor: "action.focus",
               flexShrink: 0
             },
             children: [
@@ -85665,7 +87508,7 @@ const LogViewer = ({
                   placeholder: "Search...",
                   value: searchTerm,
                   onChange: (e2) => setSearchTerm(e2.target.value),
-                  sx: { minWidth: 150, maxWidth: 220 },
+                  sx: { minWidth: 150, flexGrow: 1 },
                   InputProps: {
                     startAdornment: /* @__PURE__ */ jsxRuntimeExports.jsx(InputAdornment, { position: "start", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SearchIcon, { fontSize: "small" }) })
                   }
@@ -85716,7 +87559,9 @@ const LogViewer = ({
                   }
                 )
               ] }),
-              showExportButton && entries.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Export displayed entries to JSON", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { onClick: handleExport, size: "small", children: /* @__PURE__ */ jsxRuntimeExports.jsx(DownloadIcon, {}) }) })
+              showExportButton && entries.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Export displayed entries to JSON", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { onClick: handleExport, size: "small", children: /* @__PURE__ */ jsxRuntimeExports.jsx(DownloadIcon, {}) }) }),
+              showClearButton && entries.length > 0 && onClear && // <<< NEW CLEAR BUTTON
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Clear All Log Entries", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { onClick: onClear, size: "small", color: "error", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ClearAll, {}) }) })
             ]
           }
         ),
@@ -85931,7 +87776,450 @@ Timestamp: ${dayjs(entry.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS")}`
     }
   );
 };
-const ipcRenderer = window.electron?.ipcRenderer || false;
+const SettingsHistory = () => {
+  const rowHistory = useMainStore((state) => state.rowHistory);
+  const clearRowHistoryAction = () => {
+    if (window.confirm(
+      "Are you sure you want to clear all row trigger history? This cannot be undone."
+    )) {
+      useMainStore.setState({ rowHistory: [] }, false, "clearRowHistory/SettingsHistory");
+      alert("Row history cleared.");
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Paper, { sx: { p: 0, height: "calc(100vh - 160px)", display: "flex", flexDirection: "column" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h6", sx: { p: 2, pb: 1 }, children: "Row Trigger History" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: { flexGrow: 1, overflow: "hidden" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      LogViewer,
+      {
+        entries: rowHistory,
+        maxHeight: "100%",
+        defaultExpandedId: rowHistory[0]?.id,
+        showLevelFilter: true,
+        showSearchFilter: true,
+        showExportButton: true,
+        showClearButton: true,
+        onClear: clearRowHistoryAction,
+        emptyStateMessage: "No row trigger history yet."
+      }
+    ) })
+  ] });
+};
+const SettingsAllModulePanels = () => {
+  const storedModules = useMainStore((state) => state.modules);
+  const homeWidgets = useMainStore((state) => state.ui.homeWidgets || {});
+  const setHomeWidgets = useMainStore((state) => state.setHomeWidgets);
+  const handleToggleWidgetVisibility = (moduleId) => {
+    const currentVisibility = homeWidgets[moduleId] ?? true;
+    setHomeWidgets({
+      ...homeWidgets,
+      [moduleId]: !currentVisibility
+    });
+  };
+  const [expandedPanels, setExpandedPanels] = reactExports.useState([]);
+  const modulesWithSettings = reactExports.useMemo(() => {
+    return Object.keys(storedModules).map((moduleId) => {
+      const storeConfig = storedModules[moduleId];
+      const impl = moduleImplementations[moduleId];
+      const SettingsComponent = impl?.Settings;
+      if (!storeConfig || !SettingsComponent) return null;
+      let friendlyName = moduleId.replace("-module", "");
+      if (storeConfig.inputs && storeConfig.inputs.length > 0 && storeConfig.inputs[0].name) {
+        friendlyName = storeConfig.inputs[0].name;
+      } else if (storeConfig.outputs && storeConfig.outputs.length > 0 && storeConfig.outputs[0].name) {
+        friendlyName = storeConfig.outputs[0].name;
+      }
+      friendlyName = friendlyName.charAt(0).toUpperCase() + friendlyName.slice(1);
+      const moduleIcon = storeConfig.inputs?.[0]?.icon || storeConfig.outputs?.[0]?.icon || "mdi:puzzle-outline";
+      return {
+        id: moduleId,
+        friendlyName: `${friendlyName} (${moduleId.replace("-module", "")})`,
+        category: storeConfig.menuLabel || "Uncategorized",
+        icon: moduleIcon,
+        SettingsComponent
+      };
+    }).filter(Boolean).sort((a2, b2) => {
+      if (a2.category.localeCompare(b2.category) !== 0) {
+        return a2.category.localeCompare(b2.category);
+      }
+      return a2.friendlyName.localeCompare(b2.friendlyName);
+    });
+  }, [storedModules]);
+  reactExports.useEffect(() => {
+    if (modulesWithSettings.length > 0) {
+      setExpandedPanels(modulesWithSettings.map((mod) => mod.id));
+    }
+  }, [modulesWithSettings]);
+  const handleAccordionChange = (panelId) => (_event, isExpanded) => {
+    setExpandedPanels(
+      (prevExpanded) => isExpanded ? [...prevExpanded, panelId] : prevExpanded.filter((id2) => id2 !== panelId)
+    );
+  };
+  const handleToggleAll = () => {
+    if (expandedPanels.length === modulesWithSettings.length) {
+      setExpandedPanels([]);
+    } else {
+      setExpandedPanels(modulesWithSettings.map((mod) => mod.id));
+    }
+  };
+  const areAllExpanded = reactExports.useMemo(() => {
+    if (modulesWithSettings.length === 0) return false;
+    return expandedPanels.length === modulesWithSettings.length;
+  }, [expandedPanels, modulesWithSettings]);
+  if (modulesWithSettings.length === 0) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(Paper, { sx: { p: 3, textAlign: "center" }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h6", gutterBottom: true, children: "All Module Settings Panels" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { color: "text.secondary", children: "No modules with configurable settings panels found." })
+    ] });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Paper, { sx: { p: { xs: 1, sm: 2, md: 3 }, overflowY: "auto", height: "100%" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", justifyContent: "space-between", alignItems: "center", sx: { mb: 2 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h6", gutterBottom: true, sx: { mb: 0 }, children: "All Module Settings Panels" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", color: "text.secondary", sx: { mb: 0 }, children: "Configure all modules and their visibility on the Home screen." })
+      ] }),
+      modulesWithSettings.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: areAllExpanded ? "Collapse All Panels" : "Expand All Panels", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Button,
+        {
+          size: "small",
+          onClick: handleToggleAll,
+          startIcon: areAllExpanded ? /* @__PURE__ */ jsxRuntimeExports.jsx(CollapseAllIcon, {}) : /* @__PURE__ */ jsxRuntimeExports.jsx(ExpandAllIcon, {}),
+          variant: "outlined",
+          children: areAllExpanded ? "Collapse All" : "Expand All"
+        }
+      ) })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Stack, { spacing: 0.5, children: modulesWithSettings.map((mod) => {
+      const isWidgetVisibleOnHome = homeWidgets[mod.id] ?? true;
+      return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Accordion,
+        {
+          expanded: expandedPanels.includes(mod.id),
+          onChange: handleAccordionChange(mod.id),
+          TransitionProps: { unmountOnExit: true },
+          sx: {
+            "&:before": { display: "none" },
+            boxShadow: "none",
+            borderBottom: "1px solid",
+            borderColor: "divider",
+            "&:last-of-type": { borderBottom: 0 }
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              AccordionSummary,
+              {
+                expandIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(ExpandMoreIcon, {}),
+                "aria-controls": `${mod.id}-settings-content`,
+                id: `${mod.id}-settings-header`,
+                sx: {
+                  "& .MuiAccordionSummary-content": {
+                    alignItems: "center",
+                    gap: 1.5,
+                    width: "100%"
+                  },
+                  // Ensure content takes full width
+                  "&:hover": { bgcolor: "action.hover" }
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(IoIcon, { name: mod.icon, style: { fontSize: "1.5rem", opacity: 0.8 } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Typography,
+                    {
+                      sx: {
+                        fontWeight: "medium",
+                        flexShrink: 0,
+                        mr: 1,
+                        flexGrow: 1
+                        /* Allow name to take space */
+                      },
+                      children: mod.friendlyName
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "caption", color: "text.secondary", noWrap: true, sx: { mr: 2 }, children: [
+                    "(",
+                    mod.category,
+                    ")"
+                  ] }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Tooltip,
+                    {
+                      title: isWidgetVisibleOnHome ? "Hide quick panel on Home" : "Show quick panel on Home",
+                      children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        FormControlLabel,
+                        {
+                          onClick: (event) => event.stopPropagation(),
+                          onFocus: (event) => event.stopPropagation(),
+                          sx: { mr: 0, ml: "auto", my: -0.5 },
+                          control: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            Switch,
+                            {
+                              size: "small",
+                              checked: isWidgetVisibleOnHome,
+                              onChange: (e2) => {
+                                e2.stopPropagation();
+                                handleToggleWidgetVisibility(mod.id);
+                              }
+                            }
+                          ),
+                          label: null
+                        }
+                      )
+                    }
+                  )
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(AccordionDetails, { sx: { p: 2, bgcolor: "background.default" }, children: mod && /* @__PURE__ */ jsxRuntimeExports.jsx(mod.SettingsComponent, {}) })
+          ]
+        },
+        mod.id
+      );
+    }) })
+  ] });
+};
+const settingsCategories = [
+  { id: "general", label: "General", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(GeneralIcon, {}) },
+  { id: "appearance", label: "Appearance", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(AppearanceIcon, {}) },
+  { id: "profiles", label: "Profiles", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ProfilesIcon, {}) },
+  { id: "modules", label: "Module Management", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(ModulesIcon, {}) },
+  { id: "allModulePanels", label: "Module Settings", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(AllSettingsPanelsIcon, {}) },
+  { id: "history", label: "Row History", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(HistoryIcon, {}) },
+  { id: "about", label: "About", icon: /* @__PURE__ */ jsxRuntimeExports.jsx(AboutIcon, {}) }
+];
+const SettingsDialogContent = ({ category }) => {
+  switch (category) {
+    case "general":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsGeneral, {});
+    case "appearance":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsAppearance, {});
+    case "profiles":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileManagerSettings, {});
+    case "modules":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsModule, {});
+    case "allModulePanels":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsAllModulePanels, {});
+    case "history":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsHistory, {});
+    case "about":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsAbout, {});
+    default:
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { children: "Select a category." });
+  }
+};
+const Transition = reactExports.forwardRef(function Transition2(props, ref) {
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Slide$1, { direction: "up", ref, ...props });
+});
+function Settings() {
+  const [dialogOpen, setDialogOpen] = reactExports.useState(false);
+  const [selectedCategory, setSelectedCategory] = reactExports.useState("general");
+  const handleOpen = () => setDialogOpen(true);
+  const handleClose = () => setDialogOpen(false);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Application Settings", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+      IconButton,
+      {
+        color: "secondary",
+        onClick: handleOpen,
+        sx: { opacity: 0.7, "&:hover": { opacity: 1 } },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$8, {})
+      }
+    ) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Dialog, { fullScreen: true, open: dialogOpen, onClose: handleClose, slots: { transition: Transition }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(AppBar, { sx: { position: "relative", boxShadow: 1 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Toolbar, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$8, { sx: { mr: 1 } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { sx: { ml: 2, flex: 1, fontWeight: "medium" }, variant: "h6", component: "div", children: "Application Settings" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { edge: "end", color: "inherit", onClick: handleClose, "aria-label": "close", children: /* @__PURE__ */ jsxRuntimeExports.jsx(CloseIcon, {}) })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Box,
+        {
+          sx: {
+            display: "flex",
+            flexGrow: 1,
+            overflow: "hidden"
+            /* Prevent double scrollbars */
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Paper,
+              {
+                elevation: 0,
+                square: true,
+                sx: {
+                  width: 240,
+                  borderRight: 1,
+                  borderColor: "divider",
+                  flexShrink: 0,
+                  overflowY: "auto"
+                },
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(List$1, { component: "nav", sx: { pt: 2 }, children: settingsCategories.map((cat) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  ListItemButton,
+                  {
+                    selected: selectedCategory === cat.id,
+                    onClick: () => setSelectedCategory(cat.id),
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(ListItemIcon, { sx: { minWidth: 36 }, children: cat.icon }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(ListItemText, { primary: cat.label })
+                    ]
+                  },
+                  cat.id
+                )) })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              Box,
+              {
+                component: "main",
+                sx: {
+                  flexGrow: 1,
+                  p: { xs: 2, sm: 3 },
+                  // Responsive padding
+                  overflowY: "auto",
+                  // Allow content to scroll
+                  height: "calc(100vh - 64px)"
+                  // Full height minus AppBar
+                },
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(SettingsDialogContent, { category: selectedCategory })
+              }
+            )
+          ]
+        }
+      )
+    ] })
+  ] });
+}
+window.electron?.ipcRenderer || false;
+const Footer = () => {
+  const themeChoice = useMainStore((state) => state.ui.themeChoice);
+  const setThemeChoice = useMainStore((state) => state.setThemeChoice);
+  const [osShouldUseDark, setOsShouldUseDark] = reactExports.useState(() => {
+    if (window.electron?.ipcRenderer) {
+      const initialInfo = window.electron.ipcRenderer.sendSync("get-initial-theme-info");
+      return initialInfo.shouldUseDarkColors;
+    }
+    return window.matchMedia?.("(prefers-color-scheme: dark)").matches || true;
+  });
+  reactExports.useEffect(() => {
+    if (!window.electron?.ipcRenderer) return;
+    const handleSystemThemeChange = (_event, { shouldUseDarkColors }) => {
+      setOsShouldUseDark(shouldUseDarkColors);
+    };
+    window.electron.ipcRenderer.on("system-theme-changed-in-main", handleSystemThemeChange);
+    return () => {
+      window.electron.ipcRenderer.removeListener(
+        "system-theme-changed-in-main",
+        handleSystemThemeChange
+      );
+    };
+  }, []);
+  const effectiveDarkMode = reactExports.useMemo(() => {
+    if (themeChoice === "system") {
+      return osShouldUseDark;
+    }
+    return themeChoice === "dark";
+  }, [themeChoice, osShouldUseDark]);
+  const handleToggleTheme = () => {
+    const newChoice = effectiveDarkMode ? "light" : "dark";
+    setThemeChoice(newChoice);
+  };
+  const getThemeIcon = () => {
+    return effectiveDarkMode ? /* @__PURE__ */ jsxRuntimeExports.jsx(LightMode, { color: "secondary" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(DarkMode, { color: "secondary" });
+  };
+  const getTooltipTitle = () => {
+    return effectiveDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode";
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    "footer",
+    {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        position: "fixed",
+        bottom: 0,
+        left: 0,
+        right: 0
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { flexBasis: "150px" } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { children: "hacked by Blade " }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { flexBasis: "250px" }, children: [
+          false,
+          false,
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: getTooltipTitle(), children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            IconButton,
+            {
+              onClick: handleToggleTheme,
+              color: "secondary",
+              sx: { opacity: 0.7, "&:hover": { opacity: 1 } },
+              children: getThemeIcon()
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Settings, {})
+        ] })
+      ]
+    }
+  );
+};
+const ipcRenderer$2 = window.electron?.ipcRenderer || false;
+const Wrapper = ({ children }) => {
+  const themeChoice = useMainStore((state) => state.ui.themeChoice);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(FiledropProvider, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+    Box,
+    {
+      sx: {
+        bgcolor: "background.default",
+        color: "text.primary",
+        overflowX: "hidden"
+      },
+      className: styles$1.app,
+      children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          className: styles$1.appWrapper,
+          style: {
+            margin: "0 auto",
+            justifyContent: "space-between",
+            minHeight: "100vh"
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("header", { className: styles$1.logos, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "img",
+                {
+                  src: logo,
+                  style: { width: "100px", filter: `invert(${themeChoice === "dark" ? "0" : "1"})` },
+                  alt: "logoIO"
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: styles$1.imgBox, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "img",
+                {
+                  src: logoTitle,
+                  style: { width: "480px", filter: `invert(${themeChoice === "dark" ? "0" : "1"})` },
+                  alt: "InputOutput"
+                }
+              ) })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("main", { style: { width: "100%", maxWidth: 960 }, children: [
+              children,
+              !ipcRenderer$2 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "body2", color: "#666", sx: { mt: 5 }, children: [
+                "If you are accessing this site via httpS, but want to communicate with your local network (mqtt, http, ws), you need to allow insecure content in your browser's site settings either via lock icon next to the url or copy:",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("code", { children: `chrome://settings/content/siteDetails?site=${encodeURIComponent(
+                  window.location.href.replace(/\/+$/, "")
+                )}` })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", {}),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Footer, {})
+          ]
+        }
+      )
+    }
+  ) });
+};
+const restModuleId = "rest-module";
+const ipcRenderer$1 = window.electron?.ipcRenderer || false;
 const ModuleGlobalActionsRunner = ({ moduleId }) => {
   const hook = moduleImplementations[moduleId]?.useGlobalActions;
   if (hook) {
@@ -85950,7 +88238,7 @@ const Home = () => {
   const profiles = useMainStore((state) => state.profiles);
   const setActiveProfile = useMainStore((state) => state.setActiveProfile);
   const addRowHistoryEntry = useMainStore((state) => state.addRowHistoryEntry);
-  const rowHistory = useMainStore((state) => state.rowHistory);
+  const homeWidgetsVisibility = useMainStore((state) => state.ui.homeWidgets || {});
   const rowsToDisplay = reactExports.useMemo(() => {
     const allRowsArray = Object.values(rows);
     if (!activeProfileId) {
@@ -85973,7 +88261,6 @@ const Home = () => {
     );
     return allRowsArray.filter((row) => activeProfile.includedRowIds.includes(row.id));
   }, [rows, activeProfileId, profiles]);
-  const setDarkModeStoreAction = useMainStore((state) => state.setDarkMode);
   const handleAddNewRowClick = reactExports.useCallback(() => {
     setPrefillData(void 0);
     setIoNewRowKey((prevKey) => prevKey + 1);
@@ -86019,8 +88306,8 @@ const Home = () => {
         ...generatedPresetConfig,
         id: v4()
       };
-      const currentGlobalPresets = useMainStore.getState().modules[id$4]?.config?.presets || [];
-      setModuleConfig(id$4, "presets", [...currentGlobalPresets, newGlobalPreset]);
+      const currentGlobalPresets = useMainStore.getState().modules[restModuleId]?.config?.presets || [];
+      setModuleConfig(restModuleId, "presets", [...currentGlobalPresets, newGlobalPreset]);
       alert(`Global REST Preset "${newGlobalPreset.name}" created from dropped Blueprint!`);
       console.log(
         `[Home.tsx] Global Preset "${newGlobalPreset.name}" created from dropped Blueprint.`
@@ -86036,18 +88323,14 @@ const Home = () => {
     }
   };
   reactExports.useEffect(() => {
-    if (ipcRenderer && useMainStore.getState().ui.darkMode === null) {
-      const isSystemDark = ipcRenderer.sendSync("get-darkmode") === "yes";
-      if (setDarkModeStoreAction) setDarkModeStoreAction(isSystemDark);
-    }
     console.info(
       "%c   IO  %c\n ReactApp by Blade ",
       "padding: 10px 40px; color: #ffffff; border-radius: 5px 5px 0 0; background-color: #123456;",
       "background: #fff; color: #123456; border-radius: 0 0 5px 5px;padding: 5px 0;"
     );
-  }, [setDarkModeStoreAction]);
+  }, []);
   reactExports.useEffect(() => {
-    if (!ipcRenderer) return;
+    if (!ipcRenderer$1) return;
     const triggerRowListener = (_event, data) => {
       if (data.id) {
         console.debug(`Home: IPC 'trigger-row' received for ID: ${data.id}`);
@@ -86104,34 +88387,34 @@ const Home = () => {
         }
       }
     };
-    ipcRenderer.on("trigger-row", triggerRowListener);
-    ipcRenderer.on("update-row", legacyUpdateRowListener);
-    ipcRenderer.on("deck-update-row-display", handleDeckUpdateRowDisplay);
+    ipcRenderer$1.on("trigger-row", triggerRowListener);
+    ipcRenderer$1.on("update-row", legacyUpdateRowListener);
+    ipcRenderer$1.on("deck-update-row-display", handleDeckUpdateRowDisplay);
     console.debug(
       "Home: Core IPC listeners (trigger-row, update-row, deck-update-row-display) attached."
     );
     return () => {
       console.debug("Home: Cleaning up core IPC listeners.");
-      if (ipcRenderer) {
-        ipcRenderer.removeListener("trigger-row", triggerRowListener);
-        ipcRenderer.removeListener("update-row", legacyUpdateRowListener);
-        ipcRenderer.removeListener("deck-update-row-display", handleDeckUpdateRowDisplay);
+      if (ipcRenderer$1) {
+        ipcRenderer$1.removeListener("trigger-row", triggerRowListener);
+        ipcRenderer$1.removeListener("update-row", legacyUpdateRowListener);
+        ipcRenderer$1.removeListener("deck-update-row-display", handleDeckUpdateRowDisplay);
       }
     };
   }, [editRow]);
   reactExports.useEffect(() => {
-    if (ipcRenderer) {
+    if (ipcRenderer$1) {
       console.debug(
         "Renderer (Home.tsx): 'rows' changed, sending to main via IPC 'set'. Row count:",
         Object.keys(rows).length
       );
-      ipcRenderer.send("set", ["rows", rows]);
+      ipcRenderer$1.send("set", ["rows", rows]);
     } else {
       console.warn("Renderer (Home.tsx): ipcRenderer not available, cannot send 'rows' update.");
     }
   }, [rows]);
   reactExports.useEffect(() => {
-    if (!ipcRenderer) return;
+    if (!ipcRenderer$1) return;
     const handleApiSetActiveProfile = (_event, profileId) => {
       console.debug(
         "Renderer: Received 'ipc-api-set-active-profile' from main, calling store action:",
@@ -86139,10 +88422,10 @@ const Home = () => {
       );
       setActiveProfile(profileId);
     };
-    ipcRenderer.on("ipc-api-set-active-profile", handleApiSetActiveProfile);
+    ipcRenderer$1.on("ipc-api-set-active-profile", handleApiSetActiveProfile);
     return () => {
-      if (ipcRenderer) {
-        ipcRenderer.removeListener("ipc-api-set-active-profile", handleApiSetActiveProfile);
+      if (ipcRenderer$1) {
+        ipcRenderer$1.removeListener("ipc-api-set-active-profile", handleApiSetActiveProfile);
       }
     };
   }, [setActiveProfile]);
@@ -86155,79 +88438,25 @@ const Home = () => {
   const SettingsWidgets = reactExports.useMemo(
     () => usedModules.map((modId) => {
       const ModuleSettingsFC = moduleImplementations[modId]?.Settings;
-      return ModuleSettingsFC ? /* @__PURE__ */ jsxRuntimeExports.jsx(ModuleSettingsFC, {}, modId) : null;
-    }).filter((widget) => widget !== null),
-    [usedModules]
-  );
-  const dummyLogEntries = [
-    {
-      id: v4(),
-      timestamp: Date.now() - 1e3 * 60 * 5,
-      // 5 minutes ago
-      level: "info",
-      icon: "mdi:information-outline",
-      // Example using mdi icon via IoIcon
-      summary: "User logged in successfully.",
-      source: "Auth System",
-      details: { userId: "blade123", ipAddress: "192.168.1.100", sessionDuration: "3600s" }
-    },
-    {
-      id: v4(),
-      timestamp: Date.now() - 1e3 * 60 * 2,
-      // 2 minutes ago
-      level: "success",
-      summary: 'Row "Toggle Lights" triggered by Keyboard Shortcut (Ctrl+Alt+L).',
-      source: "Row Engine",
-      details: {
-        rowId: "row-abc-123",
-        rowName: "Toggle Lights",
-        triggerType: "Keyboard",
-        triggerDetails: "Ctrl+Alt+L",
-        outputModule: "REST Call",
-        outputAction: "Sent GET to http://lightcontrol/toggle",
-        status: "Success"
+      if (!ModuleSettingsFC) {
+        return null;
       }
-    },
-    {
-      id: v4(),
-      timestamp: Date.now() - 1e3 * 30,
-      // 30 seconds ago
-      level: "warn",
-      summary: 'MQTT connection to broker "Main Home" temporarily lost.',
-      source: "MQTT Module",
-      details: "Attempting to reconnect in 10 seconds. Error: timeout."
-    },
-    {
-      id: v4(),
-      timestamp: Date.now(),
-      level: "error",
-      summary: 'Failed to execute REST call for Blueprint "GitHub Stats"',
-      source: "REST Module",
-      details: {
-        blueprintId: "bp_github_repo_stats_v1",
-        url: "https://api.github.com/repos/YeonV/io/releases/latest",
-        statusCode: 403,
-        responseBody: {
-          message: "API rate limit exceeded for your IP address.",
-          documentation_url: "..."
+      const isVisible = homeWidgetsVisibility[modId] ?? true;
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(
+        Box,
+        {
+          sx: {
+            display: isVisible ? "block" : "none"
+          },
+          children: /* @__PURE__ */ jsxRuntimeExports.jsx(ModuleSettingsFC, {})
         },
-        errorStack: "Error: Forbidden at <anonymous>:123:45"
-      }
-    },
-    {
-      id: v4(),
-      timestamp: Date.now() - 1e3 * 60 * 60,
-      // 1 hour ago
-      level: "debug",
-      icon: "mdi:bug",
-      summary: "PlaceholderEnabledInput received new props.",
-      source: "UI Components",
-      details: {
-        component: "PlaceholderEnabledInput",
-        propsReceived: { value: "test", availablePlaceholders: [{ id: "test" }] }
-      }
-    }
-  ];
+        modId
+      );
+    }).filter((widget) => widget !== null),
+    // Still filter out modules with no SettingsFC
+    [usedModules, homeWidgetsVisibility]
+    // Add homeWidgetsVisibility to dependency array
+  );
   reactExports.useEffect(() => {
     const logRowTrigger = (event) => {
       if (!(event instanceof CustomEvent) || !event.detail) return;
@@ -86289,25 +88518,6 @@ const Home = () => {
           ]
         }
       ),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: {
-        mt: 3
-        /* or however you want to position it */
-      }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h5", gutterBottom: true, children: "Log Viewer Test" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: {
-          height: "400px"
-          /* Give it a defined height for scrolling */
-        }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-          LogViewer,
-          {
-            title: "Application Event Log (Dummy Data)",
-            entries: rowHistory,
-            maxHeight: "100%",
-            defaultExpandedId: dummyLogEntries[1]?.id,
-            showExportButton: true
-          }
-        ) })
-      ] }),
       /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { maxHeight: "calc(100vh - 356px)", overflowY: "auto" }, children: rowsToDisplay.map((row) => /* @__PURE__ */ jsxRuntimeExports.jsx(IoRow, { row }, row.id)) }),
       /* @__PURE__ */ jsxRuntimeExports.jsx(Collapse$1, { in: showAddRow, timeout: 500, unmountOnExit: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: { mt: 2, mb: 2 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
         IoNewRow,
@@ -86408,16 +88618,16 @@ function requireDist() {
     }
     return min2;
   }
-  function serialize2(name, val, options) {
+  function serialize2(name2, val, options) {
     const enc = options?.encode || encodeURIComponent;
-    if (!cookieNameRegExp.test(name)) {
-      throw new TypeError(`argument name is invalid: ${name}`);
+    if (!cookieNameRegExp.test(name2)) {
+      throw new TypeError(`argument name is invalid: ${name2}`);
     }
     const value = enc(val);
     if (!cookieValueRegExp.test(value)) {
       throw new TypeError(`argument val is invalid: ${val}`);
     }
-    let str = name + "=" + value;
+    let str = name2 + "=" + value;
     if (!options)
       return str;
     if (options.maxAge !== void 0) {
@@ -87793,13 +90003,13 @@ function getFormSubmissionInfo(target, basename) {
     encType = getFormEncType(target.getAttribute("formenctype")) || getFormEncType(form.getAttribute("enctype")) || defaultEncType;
     formData = new FormData(form, target);
     if (!isFormDataSubmitterSupported()) {
-      let { name, type, value } = target;
+      let { name: name2, type, value } = target;
       if (type === "image") {
-        let prefix2 = name ? `${name}.` : "";
+        let prefix2 = name2 ? `${name2}.` : "";
         formData.append(`${prefix2}x`, "0");
         formData.append(`${prefix2}y`, "0");
-      } else if (name) {
-        formData.append(name, value);
+      } else if (name2) {
+        formData.append(name2, value);
       }
     }
   } else if (isHtmlElement(target)) {
@@ -91167,6 +93377,8 @@ const useDeckStore = create()(
       deckLayouts: {},
       showSettings: false,
       magicNumber: DEFAULT_MAGIC_NUMBER,
+      sseClient: null,
+      deckThemeMode: window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light",
       setMagicNumber: (num) => set2({ magicNumber: num }),
       initializeSse: () => {
         if (sseEventSource && (sseEventSource.readyState === EventSource.OPEN || sseEventSource.readyState === EventSource.CONNECTING)) {
@@ -91356,7 +93568,10 @@ const useDeckStore = create()(
         } catch (error) {
           console.error("DeckStore: Failed to activate IO profile", error);
         }
-      }
+      },
+      toggleDeckTheme: () => set2((state) => ({
+        deckThemeMode: state.deckThemeMode === "light" ? "dark" : "light"
+      }))
     }),
     {
       name: "io-deck-v1-storage",
@@ -91877,7 +94092,7 @@ const DeckButton = ({
             sx: { opacity: 1, position: "absolute", top: -5, right: -5, zIndex: 10 },
             size: "small",
             title: "Edit Deck Button Appearance",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$7, { color: "primary", fontSize: "small" })
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$8, { color: "primary", fontSize: "small" })
           }
         )
       }
@@ -92064,8 +94279,7 @@ const DeckButton = ({
           ] }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: handleDialogSettingsClose, children: "Cancel" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "contained", type: "submit", children: "Save Changes" }),
-            " "
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { variant: "contained", type: "submit", children: "Save Changes" })
           ] })
         ]
       }
@@ -92080,18 +94294,18 @@ const Deck = () => {
     rowsForCurrentProfile,
     deckLayouts,
     showSettings,
+    deckThemeMode,
     initializeSse,
     closeSse,
     fetchAllProfiles,
     fetchCurrentActiveIoProfile,
     setDeckShowSettings,
     updateAndSyncDeckTileLayout,
-    activateIoProfile
+    activateIoProfile,
+    toggleDeckTheme
     // magicNumber: storeMagicNumber, // Get from store if managed there
     // setMagicNumber: setStoreMagicNumber // Action to update store's magicNumber
   } = useDeckStore(useShallow((state) => state));
-  const appDarkMode = useMainStore((state) => state.ui.darkMode);
-  const appSetDarkMode = useMainStore((state) => state.setDarkMode);
   const [disableDrag, setDisableDrag] = reactExports.useState(false);
   const { width: windowWidth } = useWindowDimensions();
   const magicNumber = reactExports.useMemo(() => {
@@ -92131,7 +94345,7 @@ const Deck = () => {
   }, [deckLayouts]);
   const currentProfileLayout = currentIoProfileId ? deckLayouts[currentIoProfileId] || [] : [];
   const handleToggleDarkmode = () => {
-    if (appSetDarkMode) appSetDarkMode(!appDarkMode);
+    toggleDeckTheme();
   };
   const handleProfileChangeOnDeck = (event) => {
     const newProfileId = event.target.value || null;
@@ -92299,10 +94513,7 @@ const Deck = () => {
                   )
                 );
               }),
-              Object.keys(rowsForCurrentProfile).length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { size: { xs: 12 }, sx: { textAlign: "center", mt: 4 }, children: [
-                " ",
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h6", color: "textSecondary", children: "NO ROWS IN THIS PROFILE" })
-              ] })
+              Object.keys(rowsForCurrentProfile).length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12 }, sx: { textAlign: "center", mt: 4 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h6", color: "textSecondary", children: "NO ROWS IN THIS PROFILE" }) })
             ]
           }
         ),
@@ -92316,7 +94527,7 @@ const Deck = () => {
               justifyContent: "space-between",
               p: "2px 8px",
               // Consistent padding
-              background: appDarkMode ? "#1e1e1e" : "#e0e0e0",
+              background: deckThemeMode ? "#1e1e1e" : "#e0e0e0",
               // Slightly adjusted footer colors
               borderTop: "1px solid",
               borderColor: "divider",
@@ -92346,20 +94557,20 @@ const Deck = () => {
                   variant: "caption",
                   sx: {
                     fontFamily: "Montserrat-Alt1",
-                    color: appDarkMode ? "text.disabled" : "text.secondary"
+                    color: deckThemeMode ? "text.disabled" : "text.secondary"
                   },
                   children: "IO Deck"
                 }
               ),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "center" }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { onClick: () => window.location.reload(), title: "Reload Deck", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Sync, { fontSize: "small" }) }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { onClick: handleToggleDarkmode, title: "Toggle Dark Mode", children: appDarkMode ? /* @__PURE__ */ jsxRuntimeExports.jsx(LightMode, { fontSize: "small" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(DarkMode, { fontSize: "small" }) }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { onClick: handleToggleDarkmode, title: "Toggle Dark Mode", children: deckThemeMode ? /* @__PURE__ */ jsxRuntimeExports.jsx(LightMode, { fontSize: "small" }) : /* @__PURE__ */ jsxRuntimeExports.jsx(DarkMode, { fontSize: "small" }) }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   IconButton,
                   {
                     onClick: () => setDeckShowSettings(!showSettings),
                     title: "Toggle Layout Edit Mode",
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$7, { fontSize: "small", color: showSettings ? "primary" : "action" })
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$8, { fontSize: "small", color: showSettings ? "primary" : "action" })
                   }
                 )
               ] })
@@ -92370,39 +94581,56 @@ const Deck = () => {
     }
   );
 };
+const ipcRenderer = window.electron?.ipcRenderer || false;
 const App = () => {
-  const darkMode = useMainStore((state) => state.ui.darkMode);
-  const theme2 = reactExports.useMemo(
-    () => createTheme({
+  const themeChoice = useMainStore((state) => state.ui.themeChoice);
+  const [osShouldUseDark, setOsShouldUseDark] = reactExports.useState(() => {
+    if (ipcRenderer) {
+      const initialInfo = ipcRenderer.sendSync("get-initial-theme-info");
+      return initialInfo.shouldUseDarkColors;
+    }
+    return window.matchMedia?.("(prefers-color-scheme: dark)").matches || true;
+  });
+  reactExports.useEffect(() => {
+    if (!ipcRenderer) return;
+    const handleSystemThemeChange = (_event, { shouldUseDarkColors }) => {
+      console.log(
+        "[App.tsx] Received system-theme-changed-in-main, shouldUseDarkColors:",
+        shouldUseDarkColors
+      );
+      setOsShouldUseDark(shouldUseDarkColors);
+    };
+    ipcRenderer.on("system-theme-changed-in-main", handleSystemThemeChange);
+    return () => {
+      ipcRenderer.removeListener("system-theme-changed-in-main", handleSystemThemeChange);
+    };
+  }, []);
+  const muiTheme = reactExports.useMemo(() => {
+    let currentMode;
+    if (themeChoice === "system") {
+      currentMode = osShouldUseDark ? "dark" : "light";
+    } else {
+      currentMode = themeChoice;
+    }
+    console.log(
+      `[App.tsx] Creating MUI theme with mode: ${currentMode} (Choice: ${themeChoice}, OS Dark: ${osShouldUseDark})`
+    );
+    return createTheme({
       components: {
-        MuiButton: {
-          defaultProps: {
-            variant: "contained",
-            size: "small"
-          }
-        },
-        MuiChip: {
-          defaultProps: {
-            variant: "outlined",
-            sx: {
-              m: 0.3
-            }
-          }
-        }
+        /* ... component defaults ... */
       },
       palette: {
         primary: {
-          main: "#888"
+          main: currentMode === "dark" ? "#CCC" : "#333"
         },
         secondary: {
-          main: "#333"
+          main: currentMode === "dark" ? "#999" : "#666"
         },
-        mode: darkMode ? "dark" : "light"
+        mode: currentMode
       }
-    }),
-    [darkMode]
-  );
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider, { theme: theme2, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SnackbarProvider, { maxSnack: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsx(HashRouter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Routes, { children: window.location.pathname === "/deck/" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Deck, {}) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    });
+  }, [themeChoice, osShouldUseDark]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(ThemeProvider, { theme: muiTheme, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorBoundary, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(SnackbarProvider, { maxSnack: 3, children: /* @__PURE__ */ jsxRuntimeExports.jsx(HashRouter, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Routes, { children: window.location.pathname === "/deck/" ? /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Deck, {}) }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Home, {}) }),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/deck", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Deck, {}) })
   ] }) }) }) }) }) });
