@@ -45,7 +45,7 @@ const Home: FC = () => {
   const profiles = useMainStore((state) => state.profiles)
   const setActiveProfile = useMainStore((state) => state.setActiveProfile)
   const addRowHistoryEntry = useMainStore((state) => state.addRowHistoryEntry)
-  const rowHistory = useMainStore((state) => state.rowHistory)
+  const homeWidgetsVisibility = useMainStore((state) => state.ui.homeWidgets || {})
 
   const rowsToDisplay = useMemo(() => {
     const allRowsArray = Object.values(rows)
@@ -299,10 +299,25 @@ const Home: FC = () => {
           const ModuleSettingsFC = (
             moduleImplementations[modId as keyof ModuleImplementationMap] as any
           )?.Settings
-          return ModuleSettingsFC ? <ModuleSettingsFC key={modId} /> : null
+
+          if (!ModuleSettingsFC) {
+            return null
+          }
+          const isVisible = homeWidgetsVisibility[modId] ?? true
+
+          return (
+            <Box
+              key={modId}
+              sx={{
+                display: isVisible ? 'block' : 'none'
+              }}
+            >
+              <ModuleSettingsFC />
+            </Box>
+          )
         })
-        .filter((widget) => widget !== null),
-    [usedModules]
+        .filter((widget) => widget !== null), // Still filter out modules with no SettingsFC
+    [usedModules, homeWidgetsVisibility] // Add homeWidgetsVisibility to dependency array
   )
 
   useEffect(() => {

@@ -59,6 +59,7 @@ type State = {
   setDropMessage: (message: string | null) => void
   setBlueprintToRunFromDrop: (blueprint: BlueprintDefinition | null) => void
   addRowHistoryEntry: (entryData: Omit<LogEntry, 'id' | 'timestamp'>) => void
+  setHomeWidgets: (newHomeWidgets: Record<ModuleId, boolean>) => void
 }
 
 const MAX_HISTORY_ENTRIES = 200

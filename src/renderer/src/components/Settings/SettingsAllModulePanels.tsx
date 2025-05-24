@@ -8,27 +8,47 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Button, // Added Button for toggle
-  Tooltip // Added Tooltip
+  Button,
+  Tooltip,
+  Switch,
+  FormControlLabel // Added Switch, FormControlLabel
 } from '@mui/material'
 import {
   ExpandMore as ExpandMoreIcon,
-  UnfoldLess as CollapseAllIcon, // Icon for Collapse All
-  UnfoldMore as ExpandAllIcon // Icon for Expand All
+  UnfoldLess as CollapseAllIcon,
+  UnfoldMore as ExpandAllIcon,
+  VisibilityOff as VisibilityOffIcon,
+  Visibility as VisibilityIcon // Icons for the switch
 } from '@mui/icons-material'
 import { moduleImplementations, type ModuleImplementationMap } from '@/modules/moduleRegistry'
-import { useMemo, useState, type FC, useEffect } from 'react' // Added useEffect
+import { useMemo, useState, type FC, useEffect } from 'react'
 import IoIcon from '@/components/IoIcon/IoIcon'
 import { ModuleId } from '@shared/module-ids'
+
+// Assuming mainStore has these (you'll need to implement them):
+// ui.homeWidgets: Record<ModuleId, boolean>
+// setUiValue: (key: string, value: any) => void; // Or a specific setter
 
 const SettingsAllModulePanels: FC = () => {
   const storedModules = useMainStore((state) => state.modules)
 
-  // --- State for Accordion Expansion ---
-  // Now an array to support multiple expansions for "Expand All"
+  // Get widget visibility state and setter from mainStore (adapt to your actual store structure)
+  const homeWidgets = useMainStore((state) => state.ui.homeWidgets || {})
+  const setHomeWidgets = useMainStore((state) => state.setHomeWidgets)
+
+  const handleToggleWidgetVisibility = (moduleId: ModuleId) => {
+    const currentVisibility = homeWidgets[moduleId] ?? true // Default to true if not set
+    // This assumes setUiValue can update a nested property or you have a specific action
+    setHomeWidgets({
+      ...homeWidgets,
+      [moduleId]: !currentVisibility
+    })
+  }
+
+  const [expandedPanels, setExpandedPanels] = useState<string[]>([]) // Start collapsed by default now
 
   const modulesWithSettings = useMemo(() => {
-    /* ... (same as before, no changes needed here) ... */
+    /* ... (same as before) ... */
     return (Object.keys(storedModules) as ModuleId[])
       .map((moduleId) => {
         const storeConfig = storedModules[moduleId]
@@ -65,43 +85,42 @@ const SettingsAllModulePanels: FC = () => {
       })
   }, [storedModules])
 
-  const [expandedPanels, setExpandedPanels] = useState<string[]>(
-    modulesWithSettings.map((mod) => mod!.id)
-  )
-  // Effect to default expand the first panel if list is not empty
+  // Initialize expandedPanels when modulesWithSettings is ready (e.g., expand all by default)
   useEffect(() => {
-    if (modulesWithSettings.length > 0 && expandedPanels.length === 0) {
-      // setExpandedPanels([modulesWithSettings[0]!.id]); // Default expand first
+    if (modulesWithSettings.length > 0) {
+      setExpandedPanels(modulesWithSettings.map((mod) => mod!.id))
     }
-  }, [modulesWithSettings]) // removed expandedPanels from dep to avoid loop if user collapses all
+  }, [modulesWithSettings])
 
   const handleAccordionChange =
     (panelId: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
-      setExpandedPanels(
-        (prevExpanded) =>
-          isExpanded
-            ? [...prevExpanded, panelId] // Add to array if not already present
-            : prevExpanded.filter((id) => id !== panelId) // Remove from array
+      setExpandedPanels((prevExpanded) =>
+        isExpanded ? [...prevExpanded, panelId] : prevExpanded.filter((id) => id !== panelId)
       )
     }
-
   const handleToggleAll = () => {
     if (expandedPanels.length === modulesWithSettings.length) {
-      // All are expanded, so collapse all
       setExpandedPanels([])
     } else {
-      // Not all (or none) are expanded, so expand all
       setExpandedPanels(modulesWithSettings.map((mod) => mod!.id))
     }
   }
-
   const areAllExpanded = useMemo(() => {
     if (modulesWithSettings.length === 0) return false
     return expandedPanels.length === modulesWithSettings.length
   }, [expandedPanels, modulesWithSettings])
 
   if (modulesWithSettings.length === 0) {
-    /* ... (same empty state) ... */
+    return (
+      <Paper sx={{ p: 3, textAlign: 'center' }}>
+        <Typography variant="h6" gutterBottom>
+          All Module Settings Panels
+        </Typography>
+        <Typography color="text.secondary">
+          No modules with configurable settings panels found.
+        </Typography>
+      </Paper>
+    )
   }
 
   return (
@@ -109,15 +128,13 @@ const SettingsAllModulePanels: FC = () => {
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
         <Box>
           <Typography variant="h6" gutterBottom sx={{ mb: 0 }}>
-            {' '}
-            {/* Removed gutterBottom from h6 */}
             All Module Settings Panels
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 0 }}>
-            Quickly access and configure settings for all available modules.
+            Configure all modules and their visibility on the Home screen.
           </Typography>
         </Box>
-        {modulesWithSettings.length > 0 && ( // Only show toggle if there are items
+        {modulesWithSettings.length > 0 && (
           <Tooltip title={areAllExpanded ? 'Collapse All Panels' : 'Expand All Panels'}>
             <Button
               size="small"
@@ -132,46 +149,91 @@ const SettingsAllModulePanels: FC = () => {
       </Stack>
 
       <Stack spacing={0.5}>
-        {' '}
-        {/* Reduced spacing between accordions */}
-        {modulesWithSettings.map((mod) => (
-          <Accordion
-            key={mod!.id}
-            expanded={expandedPanels.includes(mod!.id)} // Check if ID is in the array
-            onChange={handleAccordionChange(mod!.id)}
-            TransitionProps={{ unmountOnExit: true }} // Good for performance with many panels
-            sx={{
-              '&:before': { display: 'none' },
-              boxShadow: 'none',
-              borderBottom: '1px solid',
-              borderColor: 'divider',
-              '&:last-of-type': { borderBottom: 0 }
-            }}
-          >
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-              aria-controls={`${mod!.id}-settings-content`}
-              id={`${mod!.id}-settings-header`}
+        {modulesWithSettings.map((mod) => {
+          const isWidgetVisibleOnHome = homeWidgets[mod!.id] ?? true // Default to true
+
+          return (
+            <Accordion
+              key={mod!.id}
+              expanded={expandedPanels.includes(mod!.id)}
+              onChange={handleAccordionChange(mod!.id)}
+              TransitionProps={{ unmountOnExit: true }}
               sx={{
-                '& .MuiAccordionSummary-content': { alignItems: 'center', gap: 1.5 },
-                '&:hover': { bgcolor: 'action.hover' }
+                '&:before': { display: 'none' },
+                boxShadow: 'none',
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+                '&:last-of-type': { borderBottom: 0 }
               }}
             >
-              <IoIcon name={mod!.icon} style={{ fontSize: '1.5rem', opacity: 0.8 }} />
-              <Typography sx={{ fontWeight: 'medium', flexShrink: 0, mr: 1 }}>
-                {mod!.friendlyName}
-              </Typography>
-              <Typography variant="caption" color="text.secondary" noWrap>
-                ({mod!.category})
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails
-              sx={{ p: 2, bgcolor: 'background.default' /* Slightly different bg for details */ }}
-            >
-              {mod && <mod.SettingsComponent />}
-            </AccordionDetails>
-          </Accordion>
-        ))}
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls={`${mod!.id}-settings-content`}
+                id={`${mod!.id}-settings-header`}
+                sx={{
+                  '& .MuiAccordionSummary-content': {
+                    alignItems: 'center',
+                    gap: 1.5,
+                    width: '100%'
+                  }, // Ensure content takes full width
+                  '&:hover': { bgcolor: 'action.hover' }
+                }}
+              >
+                <IoIcon name={mod!.icon} style={{ fontSize: '1.5rem', opacity: 0.8 }} />
+                <Typography
+                  sx={{
+                    fontWeight: 'medium',
+                    flexShrink: 0,
+                    mr: 1,
+                    flexGrow: 1 /* Allow name to take space */
+                  }}
+                >
+                  {mod!.friendlyName}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" noWrap sx={{ mr: 2 }}>
+                  ({mod!.category})
+                </Typography>
+
+                {/* --- New Switch for Home Visibility --- */}
+                <Tooltip
+                  title={
+                    isWidgetVisibleOnHome ? 'Hide quick panel on Home' : 'Show quick panel on Home'
+                  }
+                >
+                  <FormControlLabel
+                    onClick={(event) => event.stopPropagation()} // Prevent accordion toggle
+                    onFocus={(event) => event.stopPropagation()} // Prevent accordion focus steal
+                    sx={{ mr: 0, ml: 'auto', my: -0.5 }} // Pull to the right, adjust vertical alignment
+                    control={
+                      <Switch
+                        size="small"
+                        checked={isWidgetVisibleOnHome}
+                        onChange={(e) => {
+                          e.stopPropagation() // Prevent accordion toggle
+                          handleToggleWidgetVisibility(mod!.id)
+                        }}
+                        // Optional: use custom icons for the switch
+                        // icon={<VisibilityOffIcon fontSize="small" />}
+                        // checkedIcon={<VisibilityIcon fontSize="small" />}
+                      />
+                    }
+                    // labelPlacement="start" // If you want label before switch
+                    label={
+                      null
+                      //   <Typography variant="caption" sx={{ fontSize: '0.7rem' }}>
+                      //     Home
+                      //   </Typography>
+                    } // Optional tiny label
+                  />
+                </Tooltip>
+                {/* The ExpandMoreIcon will render after this due to MUI's structure */}
+              </AccordionSummary>
+              <AccordionDetails sx={{ p: 2, bgcolor: 'background.default' }}>
+                {mod && <mod.SettingsComponent />}
+              </AccordionDetails>
+            </Accordion>
+          )
+        })}
       </Stack>
     </Paper>
   )
