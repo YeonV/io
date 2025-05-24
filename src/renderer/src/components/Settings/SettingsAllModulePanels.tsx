@@ -23,10 +23,6 @@ import { useMemo, useState, type FC, useEffect } from 'react'
 import IoIcon from '@/components/IoIcon/IoIcon'
 import { ModuleId } from '@shared/module-ids'
 
-// Assuming mainStore has these (you'll need to implement them):
-// ui.homeWidgets: Record<ModuleId, boolean>
-// setUiValue: (key: string, value: any) => void; // Or a specific setter
-
 const SettingsAllModulePanels: FC = () => {
   const storedModules = useMainStore((state) => state.modules)
 
