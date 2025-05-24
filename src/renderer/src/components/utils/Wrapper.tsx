@@ -1,26 +1,18 @@
-import { DarkMode, DeleteSweep, GridView, LightMode } from '@mui/icons-material'
-import { Box, Button, IconButton, Tooltip, Typography } from '@mui/material'
+// src/renderer/src/components/utils/Wrapper.tsx
+
+import { Box, Typography } from '@mui/material'
 import styles from '@/styles/app.module.css'
 import logo from '@/assets/icon.png'
 import logoTitle from '@/assets/logo-cropped.svg'
 import pkg from '../../../../../package.json'
-import { useMainStore } from '@/store/mainStore'
 import FiledropProvider from './FiledropProvider'
-import { nuke } from './nuke'
-import Settings from '../Settings/Settings'
+import Footer from '../Footer'
+import { useMainStore } from '@/store/mainStore'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
 const Wrapper = ({ children }: any) => {
-  const darkMode = useMainStore((state) => state.ui.darkMode)
-  const setDarkMode = useMainStore((state) => state.setDarkMode)
-
-  const toggleDarkmode = () => {
-    if (ipcRenderer) {
-      ipcRenderer.sendSync('toggle-darkmode', 'try')
-    }
-    setDarkMode(!darkMode)
-  }
+  const themeChoice = useMainStore((state) => state.ui.themeChoice)
 
   return (
     <FiledropProvider>
@@ -42,16 +34,20 @@ const Wrapper = ({ children }: any) => {
           }}
         >
           <header className={styles.logos}>
-            <img src={logo} style={{ width: '100px', filter: 'invert(0)' }} alt="logoIO" />
+            <img
+              src={logo}
+              style={{ width: '100px', filter: `invert(${themeChoice === 'dark' ? '0' : '1'})` }}
+              alt="logoIO"
+            />
             <div className={styles.imgBox}>
               <img
                 src={logoTitle}
-                style={{ width: '480px', filter: 'invert(0)' }}
+                style={{ width: '480px', filter: `invert(${themeChoice === 'dark' ? '0' : '1'})` }}
                 alt="InputOutput"
               />
             </div>
           </header>
-          <main style={{ width: '100%', maxWidth: 960, marginBottom: '50px' }}>
+          <main style={{ width: '100%', maxWidth: 960 }}>
             {children}
 
             {!ipcRenderer && (
@@ -66,62 +62,8 @@ const Wrapper = ({ children }: any) => {
               </Typography>
             )}
           </main>
-          <footer
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              position: 'fixed',
-              bottom: 0,
-              left: 0,
-              right: 0
-            }}
-          >
-            <div style={{ flexBasis: '150px' }}></div>
-            <Typography>hacked by Blade </Typography>
-            <div style={{ flexBasis: '225px' }}>
-              {/* DEV ONLY - NUKE BUTTON */}
-              {process.env.NODE_ENV === 'development' &&
-                ipcRenderer && ( // Show only in dev + Electron
-                  <Tooltip title="DEV ONLY: Reset All App Data">
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      onClick={nuke}
-                      startIcon={<DeleteSweep />}
-                      sx={{ mr: 1, fontSize: '0.7rem' }}
-                    >
-                      Nuke All
-                    </Button>
-                  </Tooltip>
-                )}
-              {process.env.NODE_ENV === 'development' && (
-                <IconButton
-                  onClick={() => {
-                    window.open(
-                      `${location.protocol}//${location.hostname}:1337/deck`,
-                      '_blank',
-                      'noopener,noreferrer'
-                    )
-                  }}
-                  sx={{ opacity: 0.3 }}
-                >
-                  <GridView color="primary" />
-                </IconButton>
-              )}
-              <Settings />
-              <IconButton
-                onClick={() => {
-                  // setDarkMode(!darkMode)
-                  toggleDarkmode()
-                }}
-                sx={{ opacity: 0.3 }}
-              >
-                {darkMode ? <LightMode color="primary" /> : <DarkMode color="primary" />}
-              </IconButton>
-            </div>
-          </footer>
+          <div />
+          <Footer />
         </div>
       </Box>
     </FiledropProvider>

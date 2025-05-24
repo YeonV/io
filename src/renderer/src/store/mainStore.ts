@@ -47,7 +47,7 @@ type State = {
   editRow: (rowId: string, updatedRowData: Partial<Row>) => void
   deleteRow: (row: Row) => void
   setEdit: (edit: boolean) => void
-  setDarkMode: ReturnType<typeof storeUIActions>['setDarkMode']
+  setThemeChoice: ReturnType<typeof storeUIActions>['setThemeChoice']
   setModuleConfigValue: (moduleId: ModuleId, key: string, value: any) => void
   addProfile: (name: string, icon?: string, includedRowIds?: string[]) => string
   updateProfile: (profileId: string, updates: Partial<Omit<ProfileDefinition, 'id'>>) => void
@@ -313,7 +313,12 @@ export const useMainStore = create<State>()(
         name: 'io-v2-storage',
         partialize: (state: State) => ({
           rows: state.rows,
-          ui: state.ui,
+          ui: {
+            // Persist relevant parts of UI state
+            themeChoice: state.ui.themeChoice,
+            homeWidgets: state.ui.homeWidgets // If you persist this
+            // Do NOT persist darkMode if it's derived, only themeChoice
+          },
           moduleStoredConfigs: Object.fromEntries(
             Object.entries(state.modules).map(([id, moduleFullConfig]) => [
               id,
@@ -368,6 +373,18 @@ export const useMainStore = create<State>()(
             mergedState.activeProfileId = persistedState.activeProfileId
           } else {
             mergedState.activeProfileId = currentState.activeProfileId || null
+          }
+          if (persistedState.ui) {
+            if (persistedState.ui.themeChoice) {
+              // Check for the new persisted key
+              mergedState.ui.themeChoice = persistedState.ui.themeChoice
+            }
+            if (persistedState.ui.homeWidgets) {
+              mergedState.ui.homeWidgets = {
+                ...(currentState.ui.homeWidgets || {}),
+                ...persistedState.ui.homeWidgets
+              }
+            }
           }
 
           // Merge the new state

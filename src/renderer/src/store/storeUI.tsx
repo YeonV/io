@@ -1,19 +1,28 @@
+// src/renderer/src/store/storeUI.tsx
 import { ModuleId } from '@shared/module-ids'
 import { produce } from 'immer'
 
+const ipcRenderer = window.electron?.ipcRenderer || false
+
 export const storeUI = () => ({
-  darkMode: true,
+  themeChoice: 'system' as 'system' | 'dark' | 'light',
   homeWidgets: {} as Record<ModuleId, boolean>
 })
 export const storeUIActions = (set: any) => ({
-  setDarkMode: (dark: boolean): void =>
+  setThemeChoice: (choice) => {
+    // Renamed and updated action
     set(
       produce((state: any) => {
-        state.ui.darkMode = dark
+        state.ui.themeChoice = choice
       }),
       false,
-      'ui/darkmode'
-    ),
+      `ui/setThemeChoice/${choice}`
+    )
+    // Send preference to main process
+    if (ipcRenderer) {
+      ipcRenderer.send('set-app-theme-preference', choice)
+    }
+  },
   setHomeWidgets: (newHomeWidgets: Record<ModuleId, boolean>) => {
     set(
       produce((state: any) => {

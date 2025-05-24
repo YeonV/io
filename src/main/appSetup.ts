@@ -1,10 +1,31 @@
 // src/main/appSetup.ts
-import { app } from 'electron'
+import { app, nativeTheme } from 'electron'
 import { release } from 'os'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import pkg from '../../package.json' with { type: 'json' } // For app UserModelId
 import { getMainWindow } from './windowManager' // For focusing on second instance
+import { getStore } from './windowManager'
+import { USER_THEME_PREFERENCE_KEY } from './ipcManager'
 
+export async function setupNativeTheme() {
+  // Call this after electron-store is loaded
+  const storeInstance = getStore()
+  if (storeInstance) {
+    const persistedPreference = storeInstance.get(USER_THEME_PREFERENCE_KEY, 'system') as
+      | 'light'
+      | 'dark'
+      | 'system'
+    console.log(
+      `[appSetup] Setting initial nativeTheme.themeSource based on persisted preference: ${persistedPreference}`
+    )
+    nativeTheme.themeSource = persistedPreference
+  } else {
+    console.warn(
+      '[appSetup] electron-store not available during setupNativeTheme. Defaulting nativeTheme.themeSource to "system".'
+    )
+    nativeTheme.themeSource = 'system' // Fallback
+  }
+}
 /**
  * Performs early application setup tasks.
  * - Disables security warnings.

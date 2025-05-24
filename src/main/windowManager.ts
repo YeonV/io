@@ -4,6 +4,7 @@ import { app, BrowserWindow, shell } from 'electron'
 import pkg from '../../package.json' with { type: 'json' } // Ensure your tsconfig.node.json allows this if "type": "module"
 import { attachTitlebarToWindow, setupTitlebar } from 'custom-electron-titlebar/main'
 import { is } from '@electron-toolkit/utils'
+import { CLOSE_BUTTON_BEHAVIOR_KEY } from './ipcManager'
 
 let _store: any = null // Internal variable for the electron-store instance
 let _mainWindow: BrowserWindow | null = null // <<< CORRECTED: Must be 'let' to be reassigned
@@ -85,11 +86,47 @@ export async function createMainWindow(iconPath: string): Promise<BrowserWindow 
     }
   })
 
-  _mainWindow.on('close', () => {
+  _mainWindow.on('close', (event) => {
     if (!_mainWindow) return // Should not happen if event fires
     const currentWindowState = _mainWindow.getBounds()
     if (pkg.env.VITRON_SAVE_WINDOWSIZE && _store) {
       _store.set('windowState', currentWindowState)
+    }
+    const behavior = _store?.get(CLOSE_BUTTON_BEHAVIOR_KEY, 'minimize') as 'minimize' | 'quit'
+    console.log(`[WindowManager] Main window 'close' event. Behavior: ${behavior}`)
+
+    if (behavior === 'minimize') {
+      if (process.platform === 'darwin' && app) {
+        // On macOS, hiding is often preferred over minimizing to dock
+        event.preventDefault()
+        // mainWindow.hide(); // Hides the window, keeps it in dock, accessible via app menu
+        // For true "minimize to tray" like behavior, you might hide and rely on tray to show/hide
+        // If you just want standard minimize:
+        // if (_mainWindow.isMinimizable()) {
+        //   _mainWindow.minimize()
+        // } else {
+        _mainWindow.hide() // Fallback if not minimizable but can be hidden
+        // }
+        event.preventDefault() // Prevent default close/quit
+      } else if (process.platform !== 'darwin') {
+        // For Windows/Linux
+        // Check if tray exists, otherwise default close might be better
+        // For now, just minimize if tray is intended.
+        // if (_mainWindow.isMinimizable()) {
+        //   _mainWindow.minimize()
+        // } else {
+        event.preventDefault()
+        _mainWindow.hide()
+        // }
+        event.preventDefault()
+      }
+      // If it's 'quit' or platform is darwin and app.isQuitting is true, let it close normally.
+    } else {
+      // behavior === 'quit'
+      // Allow default close, which will quit the app if it's the last window (unless 'window-all-closed' is handled)
+      console.log(
+        '[WindowManager] Close behavior is "quit", allowing window to close and app to potentially exit.'
+      )
     }
   })
 

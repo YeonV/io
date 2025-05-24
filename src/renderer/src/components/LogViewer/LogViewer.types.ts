@@ -22,4 +22,6 @@ export interface LogViewerProps {
   showExportButton?: boolean
   showLevelFilter?: boolean
   showSearchFilter?: boolean
+  showClearButton?: boolean
+  onClear?: () => void
 }

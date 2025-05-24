@@ -28,7 +28,8 @@ import {
 import {
   ExpandMore as ExpandMoreIcon,
   Download as DownloadIcon,
-  Search as SearchIcon
+  Search as SearchIcon,
+  ClearAll
 } from '@mui/icons-material'
 import CopyButton from '../CopyButton'
 
@@ -54,7 +55,9 @@ export const LogViewer: FC<LogViewerProps> = ({
   emptyStateMessage = 'No entries to display.',
   showExportButton = true,
   showLevelFilter = true,
-  showSearchFilter = true
+  showSearchFilter = true,
+  showClearButton = false,
+  onClear
 }) => {
   const [expandedAccordion, setExpandedAccordion] = useState<string | false>(
     defaultExpandedId || false
@@ -135,7 +138,11 @@ export const LogViewer: FC<LogViewerProps> = ({
       variant="outlined"
       sx={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}
     >
-      {(title || showExportButton || showLevelFilter || showSearchFilter) && (
+      {(title ||
+        showExportButton ||
+        showLevelFilter ||
+        showSearchFilter ||
+        (showClearButton && entries.length > 0)) && (
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -145,7 +152,6 @@ export const LogViewer: FC<LogViewerProps> = ({
             p: 1.5,
             borderBottom: 1,
             borderColor: 'divider',
-            bgcolor: 'action.focus',
             flexShrink: 0
           }}
         >
@@ -165,7 +171,7 @@ export const LogViewer: FC<LogViewerProps> = ({
               placeholder="Search..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              sx={{ minWidth: 150, maxWidth: 220 }}
+              sx={{ minWidth: 150, flexGrow: 1 }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -233,6 +239,15 @@ export const LogViewer: FC<LogViewerProps> = ({
               </IconButton>
             </Tooltip>
           )}
+          {showClearButton &&
+            entries.length > 0 &&
+            onClear && ( // <<< NEW CLEAR BUTTON
+              <Tooltip title="Clear All Log Entries">
+                <IconButton onClick={onClear} size="small" color="error">
+                  <ClearAll />
+                </IconButton>
+              </Tooltip>
+            )}
         </Stack>
       )}
 

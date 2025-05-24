@@ -70,7 +70,6 @@ const Home: FC = () => {
     )
     return allRowsArray.filter((row) => activeProfile.includedRowIds.includes(row.id))
   }, [rows, activeProfileId, profiles])
-  const setDarkModeStoreAction = useMainStore((state) => state.setDarkMode)
 
   const handleAddNewRowClick = useCallback(() => {
     setPrefillData(undefined)
@@ -151,16 +150,16 @@ const Home: FC = () => {
   }
 
   useEffect(() => {
-    if (ipcRenderer && useMainStore.getState().ui.darkMode === null) {
-      const isSystemDark = ipcRenderer.sendSync('get-darkmode') === 'yes'
-      if (setDarkModeStoreAction) setDarkModeStoreAction(isSystemDark)
-    }
+    // if (ipcRenderer && useMainStore.getState().ui.darkMode === null) {
+    //   const isSystemDark = ipcRenderer.sendSync('get-darkmode') === 'yes'
+    //   if (setDarkModeStoreAction) setDarkModeStoreAction(isSystemDark)
+    // }
     console.info(
       '%c   IO  %c\n ReactApp by Blade ',
       'padding: 10px 40px; color: #ffffff; border-radius: 5px 5px 0 0; background-color: #123456;',
       'background: #fff; color: #123456; border-radius: 0 0 5px 5px;padding: 5px 0;'
     )
-  }, [setDarkModeStoreAction])
+  }, [])
 
   useEffect(() => {
     if (!ipcRenderer) return

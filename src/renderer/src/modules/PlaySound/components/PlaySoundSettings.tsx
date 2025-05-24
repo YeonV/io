@@ -201,7 +201,7 @@ export const PlaySoundSettings: FC = () => {
       <Typography variant="overline">Sound Settings</Typography>
       <Button
         variant="outlined"
-        color="info"
+        color="primary"
         onClick={handleActualStopAllSounds}
         startIcon={<StopCircle />}
         fullWidth

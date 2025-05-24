@@ -4,6 +4,18 @@ import { useMainStore } from '@/store/mainStore'
 
 const SettingsHistory = () => {
   const rowHistory = useMainStore((state) => state.rowHistory)
+  const clearRowHistoryAction = () => {
+    // Define the action clearly
+    if (
+      window.confirm(
+        'Are you sure you want to clear all row trigger history? This cannot be undone.'
+      )
+    ) {
+      useMainStore.setState({ rowHistory: [] }, false, 'clearRowHistory/SettingsHistory')
+      // enqueueSnackbar('Row history cleared.', { variant: 'success' }); // If you have snackbar here
+      alert('Row history cleared.') // Simple alert for now
+    }
+  }
   return (
     <Paper sx={{ p: 0, height: 'calc(100vh - 160px)', display: 'flex', flexDirection: 'column' }}>
       {/* Adjust height as needed */}
@@ -19,6 +31,8 @@ const SettingsHistory = () => {
           showLevelFilter={true}
           showSearchFilter={true}
           showExportButton={true}
+          showClearButton={true}
+          onClear={clearRowHistoryAction}
           emptyStateMessage="No row trigger history yet."
         />
       </Box>
