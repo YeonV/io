@@ -1,9 +1,9 @@
 // src/renderer/src/modules/PlaySound/MiniPlayer.tsx
 import type { FC } from 'react'
 import { useEffect, useState, useRef, useCallback } from 'react'
-import type { PlaySoundOutputData } from './PlaySound.types'
-import { activeAudioPlayers, stopPlayer, blobUrlCache } from './PlaySound' // Assuming this path
-import { getAudioBufferFromDB } from './lib/db'
+import type { PlaySoundOutputData } from '../PlaySound.types'
+import { activeAudioPlayers, stopPlayer, blobUrlCache } from '../PlaySound' // Assuming this path
+import { getAudioBufferFromDB } from '../lib/db'
 import { AudioPlayerCore } from './AudioPlayerCore' // Import the new base component
 
 interface MiniPlayerProps {

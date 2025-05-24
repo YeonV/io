@@ -7,11 +7,11 @@ import DisplayButtons from '@/components/Row/DisplayButtons'
 import { useRowActivation } from '@/hooks/useRowActivation'
 import { isElectron } from '@/utils/isElectron'
 import { RestModuleCustomConfig, RestOutputRowData } from './Rest.types' // Updated import
-import RestEditor from './RestEditor'
-import { RestSettings } from './RestSettings'
+import RestEditor from './components/RestEditor'
+import { RestSettings } from './components/RestSettings'
 import { v4 as uuidv4 } from 'uuid'
 import { exampleGitHubStatsBlueprint } from './Blueprints/Example'
-import { RestOutputEdit } from './RestOutputEdit'
+import { RestOutputEdit } from './components/RestOutputEdit'
 
 const ipcRenderer = window.electron?.ipcRenderer
 

@@ -26,9 +26,9 @@ import {
   Layers,
   Repeat
 } from '@mui/icons-material'
-import type { PlaySoundOutputData } from './PlaySound.types'
-import { addAudioToDB, getAudioBufferFromDB, getAllAudioInfoFromDB } from './lib/db'
-import { previewPlayer, stopPlayer as stopAnyPlayer } from './PlaySound'
+import type { PlaySoundOutputData } from '../PlaySound.types'
+import { addAudioToDB, getAudioBufferFromDB, getAllAudioInfoFromDB } from '../lib/db'
+import { previewPlayer, stopPlayer as stopAnyPlayer } from '../PlaySound'
 import { useSnackbar } from 'notistack'
 import { useMainStore } from '@/store/mainStore'
 
@@ -386,7 +386,7 @@ export const PlaySoundOutputEdit: FC<PlaySoundOutputEditProps> = ({ output, onCh
         {/* <Box>
           <Typography gutterBottom variant="caption">
             Volume
-          </Typography>{' '}
+          </Typography>
           <Slider
             value={currentData.volume ?? 1}
             onChange={handleVolumeChange}

@@ -1,4 +1,4 @@
-// src/renderer/src/modules/REST/PresetTemplateEditorUI.tsx
+// src/renderer/src/modules/REST/PresetTemplateEditor.tsx
 import type { FC } from 'react'
 import {
   Box,
@@ -12,19 +12,19 @@ import {
   Paper,
   Divider
 } from '@mui/material'
-import type { BlueprintDefinition, SimpleInputField, RestPresetDefinition } from './Rest.types' // Adjust path
-import { Placeholder, PlaceholderEnabledInput } from '@/components/PlaceholderEnabledInput'
+import type { BlueprintDefinition, SimpleInputField, RestPresetDefinition } from '../Rest.types' // Adjust path
+import { Placeholder, DynamicInput } from '@/components/MagicInput/MagicInput'
 import { HeadersTemplateEditor } from './HeadersTemplateEditor'
 // We'll need a HeadersTemplateEditor component soon for headersTemplate
 // import { HeadersTemplateEditor } from './HeadersTemplateEditor';
 
-interface PresetTemplateEditorUIProps {
+interface PresetTemplateEditorProps {
   templateData: BlueprintDefinition['presetTemplate']
   onTemplateDataChange: (updatedTemplateData: BlueprintDefinition['presetTemplate']) => void
-  availableSimpleInputs: SimpleInputField[] // To pass to PlaceholderEnabledInput
+  availableSimpleInputs: SimpleInputField[] // To pass to DynamicInput
 }
 
-// Convert SimpleInputField[] to Placeholder[] for PlaceholderEnabledInput
+// Convert SimpleInputField[] to Placeholder[] for DynamicInput
 const mapSimpleInputsToPlaceholders = (simpleInputs: SimpleInputField[]): Placeholder[] => {
   return simpleInputs.map((si) => ({
     id: si.id,
@@ -33,7 +33,7 @@ const mapSimpleInputsToPlaceholders = (simpleInputs: SimpleInputField[]): Placeh
   }))
 }
 
-export const PresetTemplateEditorUI: FC<PresetTemplateEditorUIProps> = ({
+export const PresetTemplateEditor: FC<PresetTemplateEditorProps> = ({
   templateData,
   onTemplateDataChange,
   availableSimpleInputs
@@ -52,8 +52,6 @@ export const PresetTemplateEditorUI: FC<PresetTemplateEditorUIProps> = ({
 
   return (
     <Box sx={{ pt: 1 }}>
-      {' '}
-      {/* Add some padding if used directly in ToggleEditorView */}
       <Stack spacing={3}>
         {/* Section 1: Generated Preset Metadata Templates */}
         <Paper variant="outlined" sx={{ p: 2 }}>
@@ -62,7 +60,7 @@ export const PresetTemplateEditorUI: FC<PresetTemplateEditorUIProps> = ({
           </Typography>
           <Grid container spacing={2}>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <PlaceholderEnabledInput
+              <DynamicInput
                 label="Preset Name Template *"
                 value={templateData.nameTemplate || ''}
                 onChange={(val) => handleChange('nameTemplate', val)}
@@ -74,7 +72,7 @@ export const PresetTemplateEditorUI: FC<PresetTemplateEditorUIProps> = ({
               />
             </Grid>
             <Grid size={{ xs: 12, sm: 6 }}>
-              <PlaceholderEnabledInput
+              <DynamicInput
                 label="Preset Icon Template (Optional)"
                 value={templateData.iconTemplate || ''}
                 onChange={(val) => handleChange('iconTemplate', val)}
@@ -85,7 +83,7 @@ export const PresetTemplateEditorUI: FC<PresetTemplateEditorUIProps> = ({
               />
             </Grid>
             <Grid size={{ xs: 12 }}>
-              <PlaceholderEnabledInput
+              <DynamicInput
                 label="Preset Description Template (Optional)"
                 value={templateData.descriptionTemplate || ''}
                 onChange={(val) => handleChange('descriptionTemplate', val)}
@@ -130,7 +128,7 @@ export const PresetTemplateEditorUI: FC<PresetTemplateEditorUIProps> = ({
               </FormControl>
             </Grid>
             <Grid size={{ xs: 12, sm: 9 }}>
-              <PlaceholderEnabledInput
+              <DynamicInput
                 label="URL Template *"
                 value={templateData.urlTemplate || ''}
                 onChange={(val) => handleChange('urlTemplate', val)}
@@ -160,7 +158,7 @@ export const PresetTemplateEditorUI: FC<PresetTemplateEditorUIProps> = ({
                 <Typography variant="body2" sx={{ mt: 1, mb: 0.5, fontWeight: 'medium' }}>
                   Body Template Template
                 </Typography>
-                <PlaceholderEnabledInput
+                <DynamicInput
                   label="Body Content Template"
                   value={templateData.bodyTemplateTemplate || ''}
                   onChange={(val) => handleChange('bodyTemplateTemplate', val)}

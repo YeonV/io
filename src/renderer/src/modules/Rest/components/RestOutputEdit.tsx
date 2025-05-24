@@ -6,9 +6,9 @@ import {
   RestOutputRowData,
   RestPresetDefinition,
   SimpleInputFieldValue
-} from './Rest.types'
+} from '../Rest.types'
 import { useMainStore } from '@/store/mainStore'
-import { id } from './Rest'
+import { id } from '../Rest'
 import { v4 as uuidv4 } from 'uuid'
 import { Box, Button, Typography } from '@mui/material'
 import EditIcon from '@mui/icons-material/Edit'
@@ -139,7 +139,7 @@ export const RestOutputEdit: FC<{
             variant="caption"
             sx={{ mt: 1, textAlign: 'center', color: 'text.secondary' }}
           >
-            Current Label: &quot;{currentOutputData.label}&quot; ({currentOutputData.options.method}{' '}
+            Current Label: &quot;{currentOutputData.label}&quot; ({currentOutputData.options.method}
             {currentOutputData.host.substring(0, 30)}...)
           </Typography>
         )}

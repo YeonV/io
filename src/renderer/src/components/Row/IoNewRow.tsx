@@ -368,7 +368,7 @@ export const IoNewRow: FC<IoNewRowProps> = ({
               borderRadius: 1
             }}
           >
-            Configuring &quot;OFF&quot; action for Alexa device:{' '}
+            Configuring &quot;OFF&quot; action for Alexa device:
             {templateRow.input?.data.value || 'Unknown Device'}
           </Typography>
         )}
@@ -413,8 +413,8 @@ export const IoNewRow: FC<IoNewRowProps> = ({
           )}
           {!templateRow.inputModule && !isInputTypeLocked && (
             <Typography sx={{ mt: 1, color: 'text.disabled', fontSize: '0.8rem' }}>
-              {' '}
-              Select an input module.{' '}
+              
+              Select an input module.
             </Typography>
           )}
         </Box>
@@ -458,8 +458,8 @@ export const IoNewRow: FC<IoNewRowProps> = ({
           )}
           {!templateRow.outputModule && !isOutputTypeLocked && (
             <Typography sx={{ mt: 1, color: 'text.disabled', fontSize: '0.8rem' }}>
-              {' '}
-              Select an output module.{' '}
+              
+              Select an output module.
             </Typography>
           )}
         </Box>

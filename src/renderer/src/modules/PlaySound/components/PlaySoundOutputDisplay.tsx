@@ -4,7 +4,7 @@ import { Box, Stack, Tooltip, Typography } from '@mui/material'
 import { Loop as LoopIcon } from '@mui/icons-material'
 import type { OutputData } from '@shared/types'
 import DisplayButtons from '@/components/Row/DisplayButtons' // For the module type button
-import type { PlaySoundOutputData } from './PlaySound.types'
+import type { PlaySoundOutputData } from '../PlaySound.types'
 import MiniPlayer from './MiniPlayer' // Import the MiniPlayer component
 
 export interface PlaySoundOutputDisplayProps {

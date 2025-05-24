@@ -19,9 +19,13 @@ import {
   Typography,
   Box,
   Tooltip,
-  Switch // For boolean inputs
+  Switch
 } from '@mui/material'
-import type { BlueprintDefinition, SimpleInputFieldValue, RestPresetDefinition } from './Rest.types'
+import type {
+  BlueprintDefinition,
+  SimpleInputFieldValue,
+  RestPresetDefinition
+} from '../Rest.types'
 import { InfoOutlined } from '@mui/icons-material'
 
 // Placeholder substitution utility
@@ -33,7 +37,6 @@ function substitutePlaceholders(
   let result = template
   for (const key in inputs) {
     const placeholder = `{{blueprintInput.${key}}}`
-    // Ensure value is a string for replacement; handle boolean/number appropriately
     let valueToSubstitute = inputs[key]
     if (typeof valueToSubstitute === 'boolean') {
       valueToSubstitute = valueToSubstitute ? 'true' : 'false'
@@ -229,7 +232,7 @@ export const BlueprintRunnerDialog: FC<BlueprintRunnerDialogProps> = ({
         Configure: {blueprint.name}
         {blueprint.icon && (
           <Typography component="span" sx={{ ml: 1 }}>
-            <InfoOutlined fontSize="small" sx={{ verticalAlign: 'middle', opacity: 0.6 }} />{' '}
+            <InfoOutlined fontSize="small" sx={{ verticalAlign: 'middle', opacity: 0.6 }} />
             {/* Replace with IoIcon if desired */}
           </Typography>
         )}

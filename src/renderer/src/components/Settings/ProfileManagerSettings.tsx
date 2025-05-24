@@ -192,11 +192,10 @@ const ProfileEditorDialog: FC<ProfileEditorDialogProps> = ({
         </Stack>
       </DialogContent>
       <DialogActions>
-        {' '}
-        <Button onClick={onClose}>Cancel</Button>{' '}
+        <Button onClick={onClose}>Cancel</Button>
         <Button type="submit" variant="contained">
           Save Profile
-        </Button>{' '}
+        </Button>
       </DialogActions>
     </Dialog>
   )

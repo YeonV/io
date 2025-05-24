@@ -35,8 +35,8 @@ import type {
   RestModuleCustomConfig,
   BlueprintDefinition,
   SimpleInputFieldValue
-} from './Rest.types'
-import { id as restModuleId } from './Rest'
+} from '../Rest.types'
+import { id as restModuleId } from '../Rest'
 import { v4 as uuidv4 } from 'uuid'
 import { BlueprintRunnerDialog } from './BlueprintRunnerDialog'
 import IoIcon from '@/components/IoIcon/IoIcon'
@@ -424,7 +424,7 @@ export default function RestEditor({ open, setOpen, initialData, onChange }: Res
                     <MenuItem key={p.id} value={p.id}>
                       {p.icon && (
                         <IoIcon name={p.icon} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-                      )}{' '}
+                      )}
                       {p.name}
                     </MenuItem>
                   ))}
@@ -455,7 +455,7 @@ export default function RestEditor({ open, setOpen, initialData, onChange }: Res
                           name={bp.icon}
                           style={{ marginRight: 8, verticalAlign: 'middle' }}
                         />
-                      )}{' '}
+                      )}
                       {bp.name}
                     </MenuItem>
                   ))}

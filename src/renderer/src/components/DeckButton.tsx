@@ -386,8 +386,7 @@ const DeckButton: FC<DeckButtonProps> = ({
           <Button onClick={handleDialogSettingsClose}>Cancel</Button>
           <Button variant="contained" type="submit">
             Save Changes
-          </Button>{' '}
-          {/* Changed to "Save Changes" */}
+          </Button>
         </DialogActions>
       </Dialog>
     </>

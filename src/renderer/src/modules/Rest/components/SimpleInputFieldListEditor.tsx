@@ -1,7 +1,7 @@
 import type { FC } from 'react'
 import { Box, Button, Stack, Alert } from '@mui/material'
 import { AddCircleOutline as AddIcon } from '@mui/icons-material'
-import type { SimpleInputField } from './Rest.types'
+import type { SimpleInputField } from '../Rest.types'
 import { SimpleInputFieldItem } from './SimpleInputFieldItem'
 
 interface SimpleInputFieldListEditorProps {
@@ -69,7 +69,6 @@ export const SimpleInputFieldListEditor: FC<SimpleInputFieldListEditorProps> = (
         </Alert>
       )}
       <Stack spacing={0}>
-        {' '}
         {/* Let Paper in Item provide spacing */}
         {fieldsFromProps.map((field, index) => (
           <SimpleInputFieldItem

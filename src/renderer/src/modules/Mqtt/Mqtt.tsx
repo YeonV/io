@@ -388,7 +388,7 @@ export const InputEdit: FC<{
         </FormControl>
         <Tooltip title="Add New Broker Profile">
           <span>
-            {' '}
+            
             {/* IconButton disabled state needs a span wrapper for Tooltip */}
             <IconButton onClick={handleAddNewProfile} size="medium" sx={{ mb: '4px' }}>
               <AddLink />
@@ -611,8 +611,8 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   const brokerDisplay = resolveBrokerConfigForRowDisplay(d, ps)
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1, overflow: 'hidden' }}>
-      {' '}
-      <DisplayButtons data={{ ...input, name: 'MQTT In' }} />{' '}
+      
+      <DisplayButtons data={{ ...input, name: 'MQTT In' }} />
       <Button
         size="small"
         disabled
@@ -660,8 +660,8 @@ export const OutputDisplay: FC<{ output: OutputData }> = ({ output }) => {
     : 'N/A'
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1, overflow: 'hidden' }}>
-      {' '}
-      <DisplayButtons data={{ ...output, name: 'MQTT Out' }} />{' '}
+      
+      <DisplayButtons data={{ ...output, name: 'MQTT Out' }} />
       <Box
         sx={{
           display: 'flex',
@@ -680,7 +680,7 @@ export const OutputDisplay: FC<{ output: OutputData }> = ({ output }) => {
         <Typography noWrap variant="caption" title={d.payload}>
           P: {pl}
         </Typography>
-      </Box>{' '}
+      </Box>
     </Box>
   )
 }

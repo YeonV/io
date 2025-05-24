@@ -2,7 +2,7 @@
 import { useEffect, useState, type FC } from 'react'
 import { TextField, IconButton, Stack, Button, Typography, Paper } from '@mui/material'
 import { AddCircleOutline as AddIcon, RemoveCircleOutline as RemoveIcon } from '@mui/icons-material'
-import { Placeholder, PlaceholderEnabledInput } from '@/components/PlaceholderEnabledInput'
+import { Placeholder, DynamicInput } from '@/components/MagicInput/MagicInput'
 import { v4 as uuidv4 } from 'uuid' // For generating unique keys for new fields
 
 interface HeaderItem {
@@ -112,7 +112,7 @@ export const HeadersTemplateEditor: FC<HeadersTemplateEditorProps> = ({
             sx={{ flexGrow: 2, minWidth: '150px' }}
             placeholder="e.g., Content-Type"
           />
-          <PlaceholderEnabledInput
+          <DynamicInput
             label={`Header ${index + 1} Value Template`}
             value={item.valueTemplate}
             onChange={(val) => handleItemChange(index, 'valueTemplate', val)}

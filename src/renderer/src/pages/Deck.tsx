@@ -265,7 +265,7 @@ const Deck = () => {
         })}
         {Object.keys(rowsForCurrentProfile).length === 0 && (
           <Grid size={{ xs: 12 }} sx={{ textAlign: 'center', mt: 4 }}>
-            {' '}
+            
             {/* Wrap message in Grid item for centering */}
             <Typography variant="h6" color="textSecondary">
               NO ROWS IN THIS PROFILE

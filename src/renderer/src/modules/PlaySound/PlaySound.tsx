@@ -6,9 +6,9 @@ import type { PlaySoundOutputData, PlaySoundModuleCustomConfig } from './PlaySou
 import { getAudioBufferFromDB } from './lib/db' // For useOutputActions
 
 // Import the UI components we've created
-import { PlaySoundOutputEdit } from './PlaySoundOutputEdit'
-import { PlaySoundOutputDisplay } from './PlaySoundOutputDisplay'
-import { PlaySoundSettings } from './PlaySoundSettings'
+import { PlaySoundOutputEdit } from './components/PlaySoundOutputEdit'
+import { PlaySoundOutputDisplay } from './components/PlaySoundOutputDisplay'
+import { PlaySoundSettings } from './components/PlaySoundSettings'
 
 // --- Module Definition (Re-exported) ---
 export const id = 'playsound-module'

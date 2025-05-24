@@ -1,4 +1,4 @@
-// src/renderer/src/modules/REST/BlueprintDefinitionEditorDialog.tsx
+// src/renderer/src/modules/REST/BlueprintEditDialog.tsx
 import type { FC } from 'react'
 import { useEffect, useState, useCallback } from 'react' // Added useCallback
 import {
@@ -16,10 +16,10 @@ import {
 // JSONInput locale - path might need adjustment if ToggleEditorView is in a different dir
 
 import { v4 as uuidv4 } from 'uuid'
-import type { BlueprintDefinition, SimpleInputField } from './Rest.types'
+import type { BlueprintDefinition, SimpleInputField } from '../Rest.types'
 import { SimpleInputFieldListEditor } from './SimpleInputFieldListEditor' // UI editor for simple inputs
 import { ToggleEditorView } from '@/components/ToggleEditorView/ToggleEditorView'
-import { PresetTemplateEditorUI } from './PresetTemplateEditorUI'
+import { PresetTemplateEditor } from './PresetTemplateEditor'
 
 // Default empty/template structures for new blueprints
 const newBlueprintBaseTemplate: Omit<BlueprintDefinition, 'id' | 'name' | 'description' | 'icon'> =
@@ -48,14 +48,14 @@ const newBlueprintBaseTemplate: Omit<BlueprintDefinition, 'id' | 'name' | 'descr
     }
   }
 
-interface BlueprintDefinitionEditorDialogProps {
+interface BlueprintEditDialogProps {
   open: boolean
   onClose: () => void
   onSave: (blueprint: BlueprintDefinition) => void
   initialBlueprint?: BlueprintDefinition | null
 }
 
-export const BlueprintDefinitionEditorDialog: FC<BlueprintDefinitionEditorDialogProps> = ({
+export const BlueprintEditDialog: FC<BlueprintEditDialogProps> = ({
   open,
   onClose,
   onSave,
@@ -323,7 +323,7 @@ export const BlueprintDefinitionEditorDialog: FC<BlueprintDefinitionEditorDialog
               //     (Current Template Name: {currentData.nameTemplate})
               //   </Typography>
               // </Box>
-              <PresetTemplateEditorUI
+              <PresetTemplateEditor
                 templateData={currentData} // currentData is BlueprintDefinition['presetTemplate']
                 onTemplateDataChange={(newTemplateData) => {
                   setData(newTemplateData) // Update ToggleEditorView's internal object

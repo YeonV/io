@@ -265,7 +265,7 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
               <MenuItem onClick={handleManualTrigger} disabled={!isActive}>
-                {' '}
+                
                 {/* Disable if row isn't active */}
                 <ListItemIcon>
                   <PlayCircleOutline fontSize="small" />

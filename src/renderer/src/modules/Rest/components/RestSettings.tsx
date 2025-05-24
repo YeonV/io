@@ -32,13 +32,13 @@ import type {
   BlueprintDefinition,
   RestModuleCustomConfig,
   SimpleInputFieldValue
-} from './Rest.types'
-import { id as restModuleId } from './Rest'
+} from '../Rest.types'
+import { id as restModuleId } from '../Rest'
 import { RestPresetDialog } from './RestPresetDialog'
 import { BlueprintRunnerDialog } from './BlueprintRunnerDialog'
 import IoIcon from '@/components/IoIcon/IoIcon'
 import { useSnackbar } from 'notistack'
-import { BlueprintDefinitionEditorDialog } from './BlueprintDefinitionEditorDialog'
+import { BlueprintEditDialog } from './BlueprintEditDialog'
 
 const useRestModuleConfig = () => {
   return useMainStore(
@@ -416,7 +416,7 @@ export const RestSettings: FC = () => {
         />
       )}
       {blueprintEditorOpen && (
-        <BlueprintDefinitionEditorDialog
+        <BlueprintEditDialog
           open={blueprintEditorOpen}
           onClose={() => {
             setBlueprintEditorOpen(false)

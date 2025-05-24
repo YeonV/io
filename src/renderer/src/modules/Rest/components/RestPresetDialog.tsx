@@ -22,9 +22,9 @@ import {
 import { ExpandMore as ExpandMoreIcon, InfoOutlined } from '@mui/icons-material'
 import JSONInput from 'react-json-editor-ajrm'
 
-import locale from '@/modules/Rest/en'
+import locale from '@/modules/Rest/components/en'
 import { v4 as uuidv4 } from 'uuid'
-import type { RestPresetDefinition } from './Rest.types'
+import type { RestPresetDefinition } from '../Rest.types'
 import IoIcon from '@/components/IoIcon/IoIcon'
 
 // const EMPTY_JSON_OBJECT_STRING = '{}'

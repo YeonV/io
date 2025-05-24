@@ -24,7 +24,7 @@ import {
   getAllAudioInfoFromDB,
   deleteAudioFromDB,
   clearAllAudioFromDB
-} from './lib/db'
+} from '../lib/db'
 
 interface SettingsCachedAudioInfo {
   id: string
@@ -315,8 +315,7 @@ export const PlaySoundSettings: FC = () => {
                       onClick={() => handleDeleteCachedFile(file.id)}
                       color="error"
                     >
-                      {' '}
-                      <DeleteIcon fontSize="small" />{' '}
+                      <DeleteIcon fontSize="small" />
                     </IconButton>
                   }
                 >

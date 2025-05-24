@@ -12,14 +12,14 @@ type BaseTextFieldProps = Omit<
   TextFieldProps,
   'value' | 'onChange' | 'onKeyDown' | 'onBlur' | 'inputRef'
 >
-export interface PlaceholderEnabledInputProps extends BaseTextFieldProps {
+export interface DynamicInputProps extends BaseTextFieldProps {
   value: string
   onChange: (newValue: string) => void
   availablePlaceholders: Placeholder[]
   triggerSequence?: string
 }
 
-export const PlaceholderEnabledInput: FC<PlaceholderEnabledInputProps> = ({
+export const DynamicInput: FC<DynamicInputProps> = ({
   value,
   onChange,
   availablePlaceholders,

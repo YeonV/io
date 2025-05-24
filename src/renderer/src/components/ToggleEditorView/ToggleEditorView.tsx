@@ -484,8 +484,7 @@ export const ToggleEditorView = <T extends object | any[]>({
             />
             {jsonParseError && (
               <Alert severity="error" sx={{ mt: 1 }} icon={<WarningIcon fontSize="inherit" />}>
-                {' '}
-                {jsonParseError}{' '}
+                {jsonParseError}
               </Alert>
             )}
           </>
