@@ -30,7 +30,7 @@ export const OutputDisplay: FC<{
 }> = ({ output }) => {
   return (
     <>
-      <DisplayButtons data={output} variant="text" />
+      <DisplayButtons data={output} />
     </>
   )
 }

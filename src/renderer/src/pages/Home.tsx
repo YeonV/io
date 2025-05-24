@@ -1,4 +1,3 @@
-// src/renderer/src/pages/Home.tsx
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
 import { useMainStore } from '@/store/mainStore'
 import { Box, Button, Collapse } from '@mui/material'
@@ -10,6 +9,15 @@ import { log } from '@/utils'
 import type { ModuleId, OutputData, Row } from '@shared/types'
 import { moduleImplementations, ModuleImplementationMap } from '@/modules/moduleRegistry'
 import ProfileManagerSettings from '@/components/Settings/ProfileManagerSettings'
+import {
+  BlueprintDefinition,
+  RestModuleCustomConfig,
+  RestPresetDefinition,
+  SimpleInputFieldValue
+} from '@/modules/REST/REST.types'
+import { id as restModuleId } from '@/modules/REST/REST'
+import { v4 as uuidv4 } from 'uuid'
+import { BlueprintRunnerDialog } from '@/modules/REST/BlueprintRunnerDialog'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
@@ -49,7 +57,7 @@ const Home: FC = () => {
       console.log(
         "Active profile ID set, but profile definition not found (shouldn't happen ideally)"
       )
-      return allRowsArray // Fallback to showing all
+      return allRowsArray
     }
     console.log(
       'Profile is active, filter rows to only those included in the profile',
@@ -85,7 +93,59 @@ const Home: FC = () => {
     setPrefillData(undefined)
   }, [setEditState])
 
-  // Initial dark mode fetch & console info
+  const blueprintToRunFromDrop = useMainStore((state) => state.blueprintToRunFromDrop)
+  const setBlueprintToRunFromDrop = useMainStore((state) => state.setBlueprintToRunFromDrop)
+
+  const [isBlueprintRunnerOpen, setIsBlueprintRunnerOpen] = useState(false)
+  const [blueprintForRunner, setBlueprintForRunner] = useState<BlueprintDefinition | null>(null)
+
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue)
+
+  useEffect(() => {
+    if (blueprintToRunFromDrop) {
+      console.log('[Home.tsx] Detected blueprint to run from drop:', blueprintToRunFromDrop.name)
+      setBlueprintForRunner(blueprintToRunFromDrop)
+      setIsBlueprintRunnerOpen(true)
+
+      setBlueprintToRunFromDrop(null)
+    }
+  }, [blueprintToRunFromDrop, setBlueprintToRunFromDrop])
+
+  const handleBlueprintRunnerDialogClose = () => {
+    setIsBlueprintRunnerOpen(false)
+    setBlueprintForRunner(null)
+  }
+
+  const handleBlueprintApplyFromDrop = (
+    generatedPresetConfig: Omit<RestPresetDefinition, 'id'>,
+    _inputSnapshot: Record<string, SimpleInputFieldValue>,
+    saveAsGlobalPreset: boolean
+  ) => {
+    if (saveAsGlobalPreset) {
+      const newGlobalPreset: RestPresetDefinition = {
+        ...generatedPresetConfig,
+        id: uuidv4()
+      }
+      const currentGlobalPresets =
+        (useMainStore.getState().modules[restModuleId]?.config as RestModuleCustomConfig)
+          ?.presets || []
+      setModuleConfig(restModuleId, 'presets', [...currentGlobalPresets, newGlobalPreset])
+
+      alert(`Global REST Preset "${newGlobalPreset.name}" created from dropped Blueprint!`)
+      console.log(
+        `[Home.tsx] Global Preset "${newGlobalPreset.name}" created from dropped Blueprint.`
+      )
+    } else {
+      alert(
+        `Blueprint "${blueprintForRunner?.name}" processed. Configuration generated but not saved as a global preset.`
+      )
+      console.log(
+        `[Home.tsx] Blueprint "${blueprintForRunner?.name}" processed. Config:`,
+        generatedPresetConfig
+      )
+    }
+  }
+
   useEffect(() => {
     if (ipcRenderer && useMainStore.getState().ui.darkMode === null) {
       const isSystemDark = ipcRenderer.sendSync('get-darkmode') === 'yes'
@@ -101,7 +161,6 @@ const Home: FC = () => {
   useEffect(() => {
     if (!ipcRenderer) return
 
-    // --- Listener for general row triggering (e.g., from Keyboard.main.ts) ---
     const triggerRowListener = (_event: Electron.IpcRendererEvent, data: { id: string }) => {
       if (data.id) {
         console.debug(`Home: IPC 'trigger-row' received for ID: ${data.id}`)
@@ -109,30 +168,20 @@ const Home: FC = () => {
       }
     }
 
-    // --- Listener for the OLD generic 'update-row' (if you still use this IPC elsewhere) ---
-    // You might want to phase this out if 'deck-update-row-display' is more specific
     const legacyUpdateRowListener = (
       _event: Electron.IpcRendererEvent,
       data: { id: string; icon?: string; label?: string; settings?: any }
     ) => {
       if (data.id) {
         console.debug(`Home: IPC (legacy) 'update-row' received for ID: ${data.id}`, data)
-        const updatesForOutput: Partial<Row['output']['settings']> = {} // Assuming icon/label go into settings
+        const updatesForOutput: Partial<Row['output']['settings']> = {}
         const topLevelOutputUpdates: Partial<Pick<Row['output'], 'icon' | 'label'>> = {}
 
-        // Decide where icon/label should live in Row.output
-        // Option 1: In Row.output.settings (as in my previous suggestion for 'deck-update-row-display')
         if (data.icon !== undefined) updatesForOutput.icon = data.icon
         if (data.label !== undefined) updatesForOutput.label = data.label
         if (data.settings !== undefined) {
-          // If old endpoint sends a whole settings object
-          // Merge carefully, or decide if this path should only update icon/label from top-level data fields
           Object.assign(updatesForOutput, data.settings)
         }
-
-        // Option 2: Directly on Row.output (if that's your model)
-        // if (data.icon !== undefined) topLevelOutputUpdates.icon = data.icon;
-        // if (data.label !== undefined) topLevelOutputUpdates.label = data.label;
 
         if (
           Object.keys(updatesForOutput).length > 0 ||
@@ -150,17 +199,14 @@ const Home: FC = () => {
             editRow(data.id, { output: newOutputData })
           }
         }
-        // No need to ipcRenderer.send('set', ['rows', ...]) here;
-        // the mainStore update will trigger the other useEffect that syncs 'rows'.
       } else {
         console.debug("Home: IPC (legacy) 'update-row' received without data.id", data)
       }
     }
 
-    // --- NEW Listener for Deck-specific display updates (icon/label) ---
     const handleDeckUpdateRowDisplay = (
       _event: Electron.IpcRendererEvent,
-      data: { rowId: string; icon?: string; label?: string } // 'label' from Deck's dialog
+      data: { rowId: string; icon?: string; label?: string }
     ) => {
       log.info(`Home: IPC 'deck-update-row-display' received for row ${data.rowId}`, data)
       if (data.rowId) {
@@ -169,18 +215,17 @@ const Home: FC = () => {
           const outputUpdatesForMainStore: Partial<Pick<OutputData, 'icon' | 'label'>> = {}
 
           if (data.icon !== undefined) {
-            outputUpdatesForMainStore.icon = data.icon // Target row.output.icon
+            outputUpdatesForMainStore.icon = data.icon
           }
           if (data.label !== undefined) {
-            outputUpdatesForMainStore.label = data.label // Target row.output.label
+            outputUpdatesForMainStore.label = data.label
           }
 
           if (Object.keys(outputUpdatesForMainStore).length > 0) {
-            // Call editRowAction with updates directly for row.output
             editRow(data.rowId, {
               output: {
-                ...currentRow.output, // Preserve other output fields like name, data, settings
-                ...outputUpdatesForMainStore // Apply new icon and/or label
+                ...currentRow.output,
+                ...outputUpdatesForMainStore
               }
             })
           }
@@ -189,8 +234,8 @@ const Home: FC = () => {
     }
 
     ipcRenderer.on('trigger-row', triggerRowListener)
-    ipcRenderer.on('update-row', legacyUpdateRowListener) // Keep if still used, or remove if deprecated
-    ipcRenderer.on('deck-update-row-display', handleDeckUpdateRowDisplay) // ADD THIS
+    ipcRenderer.on('update-row', legacyUpdateRowListener)
+    ipcRenderer.on('deck-update-row-display', handleDeckUpdateRowDisplay)
 
     console.debug(
       'Home: Core IPC listeners (trigger-row, update-row, deck-update-row-display) attached.'
@@ -201,12 +246,11 @@ const Home: FC = () => {
       if (ipcRenderer) {
         ipcRenderer.removeListener('trigger-row', triggerRowListener)
         ipcRenderer.removeListener('update-row', legacyUpdateRowListener)
-        ipcRenderer.removeListener('deck-update-row-display', handleDeckUpdateRowDisplay) // CLEANUP THIS
+        ipcRenderer.removeListener('deck-update-row-display', handleDeckUpdateRowDisplay)
       }
     }
-  }, [editRow]) // editRowAction is a dependency
+  }, [editRow])
 
-  // --- This useEffect syncs 'rows' to main process whenever 'rows' state changes ---
   useEffect(() => {
     if (ipcRenderer) {
       console.debug(
@@ -217,9 +261,8 @@ const Home: FC = () => {
     } else {
       console.warn("Renderer (Home.tsx): ipcRenderer not available, cannot send 'rows' update.")
     }
-  }, [rows]) // This effect depends on 'rows' from useMainStore
+  }, [rows])
 
-  // --- This useEffect syncs 'activeProfileId' changes initiated by Deck/API ---
   useEffect(() => {
     if (!ipcRenderer) return
     const handleApiSetActiveProfile = (_event: any, profileId: string | null) => {
@@ -227,20 +270,16 @@ const Home: FC = () => {
         "Renderer: Received 'ipc-api-set-active-profile' from main, calling store action:",
         profileId
       )
-      setActiveProfile(profileId) // This updates Zustand.
-      // The mainStore's setActiveProfile action already sends IPC 'set' for 'activeProfileId'
-      // and 'active-profile-changed-for-main'.
+      setActiveProfile(profileId)
     }
     ipcRenderer.on('ipc-api-set-active-profile', handleApiSetActiveProfile)
     return () => {
       if (ipcRenderer) {
-        // Check again in cleanup
         ipcRenderer.removeListener('ipc-api-set-active-profile', handleApiSetActiveProfile)
       }
     }
   }, [setActiveProfile])
 
-  // --- Prepare data for rendering ---
   const usedModules = useMemo(
     (): ModuleId[] =>
       [...new Set(Object.values(rows).flatMap((r) => [r.inputModule, r.outputModule]))].filter(
@@ -263,53 +302,63 @@ const Home: FC = () => {
   )
 
   return (
-    <Wrapper>
-      {usedModules.map((modId) => (
-        <ModuleGlobalActionsRunner key={`${modId}-global`} moduleId={modId} />
-      ))}
-
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'center',
-          marginBottom: '1rem',
-          flexWrap: 'wrap'
-        }}
-      >
-        <ProfileManagerSettings key="profile-manager" />
-        {SettingsWidgets.length > 0 &&
-          SettingsWidgets.map((widget, index) => (
-            <div key={(widget as any)?.key || index} style={{ padding: '8px' }}>
-              {widget}
-            </div>
-          ))}
-      </div>
-
-      <div style={{ maxHeight: 'calc(100vh - 356px)', overflowY: 'auto' }}>
-        {rowsToDisplay.map((row) => (
-          <IoRow key={row.id} row={row} />
+    <>
+      <Wrapper>
+        {usedModules.map((modId) => (
+          <ModuleGlobalActionsRunner key={`${modId}-global`} moduleId={modId} />
         ))}
-      </div>
 
-      <Collapse in={showAddRow} timeout={500} unmountOnExit>
-        <Box sx={{ mt: 2, mb: 2 }}>
-          <IoNewRow
-            key={ioNewRowKey}
-            onComplete={handleAddRowComplete}
-            startNewPrefilledRow={startNewPrefilledRow}
-            initialPrefill={prefillData}
-          />
-        </Box>
-      </Collapse>
-      <Button
-        disabled={showAddRow}
-        variant="contained"
-        onClick={handleAddNewRowClick}
-        style={{ margin: '1rem auto', display: 'flex' }}
-      >
-        <Add /> Add New IO Row
-      </Button>
-    </Wrapper>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginBottom: '1rem',
+            flexWrap: 'wrap'
+          }}
+        >
+          <ProfileManagerSettings key="profile-manager" />
+          {SettingsWidgets.length > 0 &&
+            SettingsWidgets.map((widget, index) => (
+              <div key={(widget as any)?.key || index} style={{ padding: '8px' }}>
+                {widget}
+              </div>
+            ))}
+        </div>
+
+        <div style={{ maxHeight: 'calc(100vh - 356px)', overflowY: 'auto' }}>
+          {rowsToDisplay.map((row) => (
+            <IoRow key={row.id} row={row} />
+          ))}
+        </div>
+
+        <Collapse in={showAddRow} timeout={500} unmountOnExit>
+          <Box sx={{ mt: 2, mb: 2 }}>
+            <IoNewRow
+              key={ioNewRowKey}
+              onComplete={handleAddRowComplete}
+              startNewPrefilledRow={startNewPrefilledRow}
+              initialPrefill={prefillData}
+            />
+          </Box>
+        </Collapse>
+        <Button
+          disabled={showAddRow}
+          variant="contained"
+          onClick={handleAddNewRowClick}
+          style={{ margin: '1rem auto', display: 'flex' }}
+        >
+          <Add /> Add New IO Row
+        </Button>
+      </Wrapper>
+      {blueprintForRunner && (
+        <BlueprintRunnerDialog
+          open={isBlueprintRunnerOpen}
+          onClose={handleBlueprintRunnerDialogClose}
+          blueprint={blueprintForRunner}
+          onApply={handleBlueprintApplyFromDrop}
+        />
+      )}
+    </>
   )
 }
 

@@ -414,7 +414,7 @@ export const ProfileManagerSettings: FC = () => {
       elevation={2}
       sx={{
         p: 2,
-        minWidth: 250,
+        minWidth: 285,
         display: 'flex',
         flexDirection: 'column',
         gap: 1,
@@ -424,7 +424,7 @@ export const ProfileManagerSettings: FC = () => {
       }}
     >
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <Typography variant="overline">Active Profile</Typography>
+        <Typography variant="overline">Profiles</Typography>
       </Box>
       <FormControl fullWidth size="small">
         <Select
@@ -454,7 +454,7 @@ export const ProfileManagerSettings: FC = () => {
         sx={{ height: 41 }}
         fullWidth
       >
-        Manage Profiles
+        Manage Profiles ({sortedProfiles.length})
       </Button>
 
       <Dialog
