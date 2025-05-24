@@ -19840,7 +19840,7 @@ function getSvgIconUtilityClass(slot) {
   return generateUtilityClass("MuiSvgIcon", slot);
 }
 generateUtilityClasses("MuiSvgIcon", ["root", "colorPrimary", "colorSecondary", "colorAction", "colorError", "colorDisabled", "fontSizeInherit", "fontSizeSmall", "fontSizeMedium", "fontSizeLarge"]);
-const useUtilityClasses$1q = (ownerState) => {
+const useUtilityClasses$1r = (ownerState) => {
   const {
     color: color2,
     fontSize,
@@ -19979,7 +19979,7 @@ const SvgIcon$1 = /* @__PURE__ */ reactExports.forwardRef(function SvgIcon2(inPr
   if (!inheritViewBox) {
     more.viewBox = viewBox;
   }
-  const classes2 = useUtilityClasses$1q(ownerState);
+  const classes2 = useUtilityClasses$1r(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(SvgIconRoot, {
     as: component,
     className: clsx$2(classes2.root, className),
@@ -20870,7 +20870,7 @@ function getCollapseUtilityClass(slot) {
   return generateUtilityClass("MuiCollapse", slot);
 }
 generateUtilityClasses("MuiCollapse", ["root", "horizontal", "vertical", "entered", "hidden", "wrapper", "wrapperInner"]);
-const useUtilityClasses$1p = (ownerState) => {
+const useUtilityClasses$1q = (ownerState) => {
   const {
     orientation,
     classes: classes2
@@ -20996,7 +20996,7 @@ const Collapse$1 = /* @__PURE__ */ reactExports.forwardRef(function Collapse2(in
     orientation,
     collapsedSize: collapsedSizeProp
   };
-  const classes2 = useUtilityClasses$1p(ownerState);
+  const classes2 = useUtilityClasses$1q(ownerState);
   const theme2 = useTheme();
   const timer = useTimeout();
   const wrapperRef = reactExports.useRef(null);
@@ -21157,7 +21157,7 @@ function getPaperUtilityClass(slot) {
   return generateUtilityClass("MuiPaper", slot);
 }
 generateUtilityClasses("MuiPaper", ["root", "rounded", "outlined", "elevation", "elevation0", "elevation1", "elevation2", "elevation3", "elevation4", "elevation5", "elevation6", "elevation7", "elevation8", "elevation9", "elevation10", "elevation11", "elevation12", "elevation13", "elevation14", "elevation15", "elevation16", "elevation17", "elevation18", "elevation19", "elevation20", "elevation21", "elevation22", "elevation23", "elevation24"]);
-const useUtilityClasses$1o = (ownerState) => {
+const useUtilityClasses$1p = (ownerState) => {
   const {
     square,
     elevation,
@@ -21229,7 +21229,7 @@ const Paper = /* @__PURE__ */ reactExports.forwardRef(function Paper2(inProps, r
     square,
     variant
   };
-  const classes2 = useUtilityClasses$1o(ownerState);
+  const classes2 = useUtilityClasses$1p(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(PaperRoot, {
     as: component,
     ownerState,
@@ -21408,7 +21408,7 @@ function getAccordionUtilityClass(slot) {
   return generateUtilityClass("MuiAccordion", slot);
 }
 const accordionClasses = generateUtilityClasses("MuiAccordion", ["root", "heading", "rounded", "expanded", "disabled", "gutters", "region"]);
-const useUtilityClasses$1n = (ownerState) => {
+const useUtilityClasses$1o = (ownerState) => {
   const {
     classes: classes2,
     square,
@@ -21563,7 +21563,7 @@ const Accordion = /* @__PURE__ */ reactExports.forwardRef(function Accordion2(in
     disableGutters,
     expanded
   };
-  const classes2 = useUtilityClasses$1n(ownerState);
+  const classes2 = useUtilityClasses$1o(ownerState);
   const backwardCompatibleSlots = {
     transition: TransitionComponentProp,
     ...slots
@@ -21627,7 +21627,7 @@ function getAccordionDetailsUtilityClass(slot) {
   return generateUtilityClass("MuiAccordionDetails", slot);
 }
 generateUtilityClasses("MuiAccordionDetails", ["root"]);
-const useUtilityClasses$1m = (ownerState) => {
+const useUtilityClasses$1n = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -21654,7 +21654,7 @@ const AccordionDetails = /* @__PURE__ */ reactExports.forwardRef(function Accord
     ...other
   } = props;
   const ownerState = props;
-  const classes2 = useUtilityClasses$1m(ownerState);
+  const classes2 = useUtilityClasses$1n(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(AccordionDetailsRoot, {
     className: clsx$2(classes2.root, className),
     ref,
@@ -22051,7 +22051,7 @@ function getButtonBaseUtilityClass(slot) {
   return generateUtilityClass("MuiButtonBase", slot);
 }
 const buttonBaseClasses = generateUtilityClasses("MuiButtonBase", ["root", "disabled", "focusVisible"]);
-const useUtilityClasses$1l = (ownerState) => {
+const useUtilityClasses$1m = (ownerState) => {
   const {
     disabled,
     focusVisible,
@@ -22267,7 +22267,7 @@ const ButtonBase = /* @__PURE__ */ reactExports.forwardRef(function ButtonBase2(
     tabIndex,
     focusVisible
   };
-  const classes2 = useUtilityClasses$1l(ownerState);
+  const classes2 = useUtilityClasses$1m(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(ButtonBaseRoot, {
     as: ComponentProp,
     className: clsx$2(classes2.root, className),
@@ -22312,7 +22312,7 @@ function getAccordionSummaryUtilityClass(slot) {
   return generateUtilityClass("MuiAccordionSummary", slot);
 }
 const accordionSummaryClasses = generateUtilityClasses("MuiAccordionSummary", ["root", "expanded", "focusVisible", "disabled", "gutters", "contentGutters", "content", "expandIconWrapper"]);
-const useUtilityClasses$1k = (ownerState) => {
+const useUtilityClasses$1l = (ownerState) => {
   const {
     classes: classes2,
     expanded,
@@ -22434,7 +22434,7 @@ const AccordionSummary = /* @__PURE__ */ reactExports.forwardRef(function Accord
     disabled,
     disableGutters
   };
-  const classes2 = useUtilityClasses$1k(ownerState);
+  const classes2 = useUtilityClasses$1l(ownerState);
   const externalForwardedProps = {
     slots,
     slotProps
@@ -22544,7 +22544,7 @@ const rotateAnimation = typeof circularRotateKeyframe !== "string" ? css`
 const dashAnimation = typeof circularDashKeyframe !== "string" ? css`
         animation: ${circularDashKeyframe} 1.4s ease-in-out infinite;
       ` : null;
-const useUtilityClasses$1j = (ownerState) => {
+const useUtilityClasses$1k = (ownerState) => {
   const {
     classes: classes2,
     variant,
@@ -22666,7 +22666,7 @@ const CircularProgress = /* @__PURE__ */ reactExports.forwardRef(function Circul
     value,
     variant
   };
-  const classes2 = useUtilityClasses$1j(ownerState);
+  const classes2 = useUtilityClasses$1k(ownerState);
   const circleStyle = {};
   const rootStyle = {};
   const rootProps = {};
@@ -22711,7 +22711,7 @@ function getIconButtonUtilityClass(slot) {
   return generateUtilityClass("MuiIconButton", slot);
 }
 const iconButtonClasses = generateUtilityClasses("MuiIconButton", ["root", "disabled", "colorInherit", "colorPrimary", "colorSecondary", "colorError", "colorInfo", "colorSuccess", "colorWarning", "edgeStart", "edgeEnd", "sizeSmall", "sizeMedium", "sizeLarge", "loading", "loadingIndicator", "loadingWrapper"]);
-const useUtilityClasses$1i = (ownerState) => {
+const useUtilityClasses$1j = (ownerState) => {
   const {
     classes: classes2,
     disabled,
@@ -22896,7 +22896,7 @@ const IconButton = /* @__PURE__ */ reactExports.forwardRef(function IconButton2(
     loadingIndicator,
     size
   };
-  const classes2 = useUtilityClasses$1i(ownerState);
+  const classes2 = useUtilityClasses$1j(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(IconButtonRoot, {
     id: loading ? loadingId : idProp,
     className: clsx$2(classes2.root, className),
@@ -22935,7 +22935,7 @@ const InfoOutlinedIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("pa
 const ClearIcon$1 = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
 }));
-const useUtilityClasses$1h = (ownerState) => {
+const useUtilityClasses$1i = (ownerState) => {
   const {
     variant,
     color: color2,
@@ -23087,7 +23087,7 @@ const Alert = /* @__PURE__ */ reactExports.forwardRef(function Alert2(inProps, r
     variant,
     colorSeverity: color2 || severity
   };
-  const classes2 = useUtilityClasses$1h(ownerState);
+  const classes2 = useUtilityClasses$1i(ownerState);
   const externalForwardedProps = {
     slots: {
       closeButton: components.CloseButton,
@@ -23186,7 +23186,7 @@ const v6Colors = {
   textDisabled: true
 };
 const extendSxProp = internal_createExtendSxProp();
-const useUtilityClasses$1g = (ownerState) => {
+const useUtilityClasses$1h = (ownerState) => {
   const {
     align,
     gutterBottom,
@@ -23326,7 +23326,7 @@ const Typography = /* @__PURE__ */ reactExports.forwardRef(function Typography2(
     variantMapping
   };
   const Component = component || (paragraph ? "p" : variantMapping[variant] || defaultVariantMapping[variant]) || "span";
-  const classes2 = useUtilityClasses$1g(ownerState);
+  const classes2 = useUtilityClasses$1h(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(TypographyRoot, {
     as: Component,
     ref,
@@ -23345,7 +23345,7 @@ function getAlertTitleUtilityClass(slot) {
   return generateUtilityClass("MuiAlertTitle", slot);
 }
 generateUtilityClasses("MuiAlertTitle", ["root"]);
-const useUtilityClasses$1f = (ownerState) => {
+const useUtilityClasses$1g = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -23375,7 +23375,7 @@ const AlertTitle = /* @__PURE__ */ reactExports.forwardRef(function AlertTitle2(
     ...other
   } = props;
   const ownerState = props;
-  const classes2 = useUtilityClasses$1f(ownerState);
+  const classes2 = useUtilityClasses$1g(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(AlertTitleRoot, {
     gutterBottom: true,
     component: "div",
@@ -25734,7 +25734,7 @@ function resolveAnchorEl$1(anchorEl) {
 function isHTMLElement(element) {
   return element.nodeType !== void 0;
 }
-const useUtilityClasses$1e = (ownerState) => {
+const useUtilityClasses$1f = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -25835,7 +25835,7 @@ const PopperTooltip = /* @__PURE__ */ reactExports.forwardRef(function PopperToo
   if (TransitionProps !== null) {
     childProps.TransitionProps = TransitionProps;
   }
-  const classes2 = useUtilityClasses$1e(props);
+  const classes2 = useUtilityClasses$1f(props);
   const Root = slots.root ?? "div";
   const rootProps = useSlotProps({
     elementType: Root,
@@ -25982,7 +25982,7 @@ function getListSubheaderUtilityClass(slot) {
   return generateUtilityClass("MuiListSubheader", slot);
 }
 generateUtilityClasses("MuiListSubheader", ["root", "colorPrimary", "colorInherit", "gutters", "inset", "sticky"]);
-const useUtilityClasses$1d = (ownerState) => {
+const useUtilityClasses$1e = (ownerState) => {
   const {
     classes: classes2,
     color: color2,
@@ -26077,7 +26077,7 @@ const ListSubheader = /* @__PURE__ */ reactExports.forwardRef(function ListSubhe
     disableSticky,
     inset
   };
-  const classes2 = useUtilityClasses$1d(ownerState);
+  const classes2 = useUtilityClasses$1e(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ListSubheaderRoot, {
     as: component,
     className: clsx$2(classes2.root, className),
@@ -26096,7 +26096,7 @@ function getChipUtilityClass(slot) {
   return generateUtilityClass("MuiChip", slot);
 }
 const chipClasses = generateUtilityClasses("MuiChip", ["root", "sizeSmall", "sizeMedium", "colorDefault", "colorError", "colorInfo", "colorPrimary", "colorSecondary", "colorSuccess", "colorWarning", "disabled", "clickable", "clickableColorPrimary", "clickableColorSecondary", "deletable", "deletableColorPrimary", "deletableColorSecondary", "outlined", "filled", "outlinedPrimary", "outlinedSecondary", "filledPrimary", "filledSecondary", "avatar", "avatarSmall", "avatarMedium", "avatarColorPrimary", "avatarColorSecondary", "icon", "iconSmall", "iconMedium", "iconColorPrimary", "iconColorSecondary", "label", "labelSmall", "labelMedium", "deleteIcon", "deleteIconSmall", "deleteIconMedium", "deleteIconColorPrimary", "deleteIconColorSecondary", "deleteIconOutlinedColorPrimary", "deleteIconOutlinedColorSecondary", "deleteIconFilledColorPrimary", "deleteIconFilledColorSecondary", "focusVisible"]);
-const useUtilityClasses$1c = (ownerState) => {
+const useUtilityClasses$1d = (ownerState) => {
   const {
     classes: classes2,
     disabled,
@@ -26487,7 +26487,7 @@ const Chip = /* @__PURE__ */ reactExports.forwardRef(function Chip2(inProps, ref
     clickable,
     variant
   };
-  const classes2 = useUtilityClasses$1c(ownerState);
+  const classes2 = useUtilityClasses$1d(ownerState);
   const moreProps = component === ButtonBase ? {
     component: ComponentProp || "div",
     focusVisibleClassName: classes2.focusVisible,
@@ -26762,7 +26762,7 @@ const inputOverridesResolver = (props, styles2) => {
   } = props;
   return [styles2.input, ownerState.size === "small" && styles2.inputSizeSmall, ownerState.multiline && styles2.inputMultiline, ownerState.type === "search" && styles2.inputTypeSearch, ownerState.startAdornment && styles2.inputAdornedStart, ownerState.endAdornment && styles2.inputAdornedEnd, ownerState.hiddenLabel && styles2.inputHiddenLabel];
 };
-const useUtilityClasses$1b = (ownerState) => {
+const useUtilityClasses$1c = (ownerState) => {
   const {
     classes: classes2,
     color: color2,
@@ -27148,7 +27148,7 @@ const InputBase = /* @__PURE__ */ reactExports.forwardRef(function InputBase2(in
     startAdornment,
     type
   };
-  const classes2 = useUtilityClasses$1b(ownerState);
+  const classes2 = useUtilityClasses$1c(ownerState);
   const Root = slots.root || components.Root || InputBaseRoot;
   const rootProps = slotProps.root || componentsProps.root || {};
   const Input3 = slots.input || components.Input || InputBaseInput;
@@ -27241,7 +27241,7 @@ function getAutocompleteUtilityClass(slot) {
 }
 const autocompleteClasses = generateUtilityClasses("MuiAutocomplete", ["root", "expanded", "fullWidth", "focused", "focusVisible", "tag", "tagSizeSmall", "tagSizeMedium", "hasPopupIcon", "hasClearIcon", "inputRoot", "input", "inputFocused", "endAdornment", "clearIndicator", "popupIndicator", "popupIndicatorOpen", "popper", "popperDisablePortal", "paper", "listbox", "loading", "noOptions", "option", "groupLabel", "groupUl"]);
 var _ClearIcon, _ArrowDropDownIcon;
-const useUtilityClasses$1a = (ownerState) => {
+const useUtilityClasses$1b = (ownerState) => {
   const {
     classes: classes2,
     disablePortal,
@@ -27730,7 +27730,7 @@ const Autocomplete = /* @__PURE__ */ reactExports.forwardRef(function Autocomple
     popupOpen,
     size
   };
-  const classes2 = useUtilityClasses$1a(ownerState);
+  const classes2 = useUtilityClasses$1b(ownerState);
   const externalForwardedProps = {
     slots: {
       paper: PaperComponentProp,
@@ -28055,7 +28055,7 @@ function getBackdropUtilityClass(slot) {
   return generateUtilityClass("MuiBackdrop", slot);
 }
 generateUtilityClasses("MuiBackdrop", ["root", "invisible"]);
-const useUtilityClasses$19 = (ownerState) => {
+const useUtilityClasses$1a = (ownerState) => {
   const {
     classes: classes2,
     invisible
@@ -28118,7 +28118,7 @@ const Backdrop = /* @__PURE__ */ reactExports.forwardRef(function Backdrop2(inPr
     component,
     invisible
   };
-  const classes2 = useUtilityClasses$19(ownerState);
+  const classes2 = useUtilityClasses$1a(ownerState);
   const backwardCompatibleSlots = {
     transition: TransitionComponentProp,
     root: components.Root,
@@ -28171,7 +28171,7 @@ function getButtonUtilityClass(slot) {
 const buttonClasses = generateUtilityClasses("MuiButton", ["root", "text", "textInherit", "textPrimary", "textSecondary", "textSuccess", "textError", "textInfo", "textWarning", "outlined", "outlinedInherit", "outlinedPrimary", "outlinedSecondary", "outlinedSuccess", "outlinedError", "outlinedInfo", "outlinedWarning", "contained", "containedInherit", "containedPrimary", "containedSecondary", "containedSuccess", "containedError", "containedInfo", "containedWarning", "disableElevation", "focusVisible", "disabled", "colorInherit", "colorPrimary", "colorSecondary", "colorSuccess", "colorError", "colorInfo", "colorWarning", "textSizeSmall", "textSizeMedium", "textSizeLarge", "outlinedSizeSmall", "outlinedSizeMedium", "outlinedSizeLarge", "containedSizeSmall", "containedSizeMedium", "containedSizeLarge", "sizeMedium", "sizeSmall", "sizeLarge", "fullWidth", "startIcon", "endIcon", "icon", "iconSizeSmall", "iconSizeMedium", "iconSizeLarge", "loading", "loadingWrapper", "loadingIconPlaceholder", "loadingIndicator", "loadingPositionCenter", "loadingPositionStart", "loadingPositionEnd"]);
 const ButtonGroupContext = /* @__PURE__ */ reactExports.createContext({});
 const ButtonGroupButtonContext = /* @__PURE__ */ reactExports.createContext(void 0);
-const useUtilityClasses$18 = (ownerState) => {
+const useUtilityClasses$19 = (ownerState) => {
   const {
     color: color2,
     disableElevation,
@@ -28671,7 +28671,7 @@ const Button = /* @__PURE__ */ reactExports.forwardRef(function Button2(inProps,
     type,
     variant
   };
-  const classes2 = useUtilityClasses$18(ownerState);
+  const classes2 = useUtilityClasses$19(ownerState);
   const startIcon = (startIconProp || loading && loadingPosition === "start") && /* @__PURE__ */ jsxRuntimeExports.jsx(ButtonStartIcon, {
     className: classes2.startIcon,
     ownerState,
@@ -28725,7 +28725,7 @@ function getSwitchBaseUtilityClass(slot) {
   return generateUtilityClass("PrivateSwitchBase", slot);
 }
 generateUtilityClasses("PrivateSwitchBase", ["root", "checked", "disabled", "input", "edgeStart", "edgeEnd"]);
-const useUtilityClasses$17 = (ownerState) => {
+const useUtilityClasses$18 = (ownerState) => {
   const {
     classes: classes2,
     checked,
@@ -28862,7 +28862,7 @@ const SwitchBase = /* @__PURE__ */ reactExports.forwardRef(function SwitchBase2(
     disableFocusRipple,
     edge
   };
-  const classes2 = useUtilityClasses$17(ownerState);
+  const classes2 = useUtilityClasses$18(ownerState);
   const externalForwardedProps = {
     slots,
     slotProps: {
@@ -28949,7 +28949,7 @@ function getCheckboxUtilityClass(slot) {
   return generateUtilityClass("MuiCheckbox", slot);
 }
 const checkboxClasses = generateUtilityClasses("MuiCheckbox", ["root", "checked", "disabled", "indeterminate", "colorPrimary", "colorSecondary", "sizeSmall", "sizeMedium"]);
-const useUtilityClasses$16 = (ownerState) => {
+const useUtilityClasses$17 = (ownerState) => {
   const {
     classes: classes2,
     indeterminate,
@@ -29058,7 +29058,7 @@ const Checkbox = /* @__PURE__ */ reactExports.forwardRef(function Checkbox2(inPr
     indeterminate,
     size
   };
-  const classes2 = useUtilityClasses$16(ownerState);
+  const classes2 = useUtilityClasses$17(ownerState);
   const externalInputProps = slotProps.input ?? inputProps;
   const [RootSlot, rootSlotProps] = useSlot("root", {
     ref,
@@ -29093,6 +29093,105 @@ const Checkbox = /* @__PURE__ */ reactExports.forwardRef(function Checkbox2(inPr
     classes: classes2
   });
 });
+function mapEventPropToEvent(eventProp) {
+  return eventProp.substring(2).toLowerCase();
+}
+function clickedRootScrollbar$1(event, doc) {
+  return doc.documentElement.clientWidth < event.clientX || doc.documentElement.clientHeight < event.clientY;
+}
+function ClickAwayListener(props) {
+  const {
+    children,
+    disableReactTree = false,
+    mouseEvent = "onClick",
+    onClickAway,
+    touchEvent = "onTouchEnd"
+  } = props;
+  const movedRef = reactExports.useRef(false);
+  const nodeRef = reactExports.useRef(null);
+  const activatedRef = reactExports.useRef(false);
+  const syntheticEventRef = reactExports.useRef(false);
+  reactExports.useEffect(() => {
+    setTimeout(() => {
+      activatedRef.current = true;
+    }, 0);
+    return () => {
+      activatedRef.current = false;
+    };
+  }, []);
+  const handleRef = useForkRef$1(getReactElementRef(children), nodeRef);
+  const handleClickAway = useEventCallback$1((event) => {
+    const insideReactTree = syntheticEventRef.current;
+    syntheticEventRef.current = false;
+    const doc = ownerDocument$1(nodeRef.current);
+    if (!activatedRef.current || !nodeRef.current || "clientX" in event && clickedRootScrollbar$1(event, doc)) {
+      return;
+    }
+    if (movedRef.current) {
+      movedRef.current = false;
+      return;
+    }
+    let insideDOM;
+    if (event.composedPath) {
+      insideDOM = event.composedPath().includes(nodeRef.current);
+    } else {
+      insideDOM = !doc.documentElement.contains(
+        // @ts-expect-error returns `false` as intended when not dispatched from a Node
+        event.target
+      ) || nodeRef.current.contains(
+        // @ts-expect-error returns `false` as intended when not dispatched from a Node
+        event.target
+      );
+    }
+    if (!insideDOM && (disableReactTree || !insideReactTree)) {
+      onClickAway(event);
+    }
+  });
+  const createHandleSynthetic = (handlerName) => (event) => {
+    syntheticEventRef.current = true;
+    const childrenPropsHandler = children.props[handlerName];
+    if (childrenPropsHandler) {
+      childrenPropsHandler(event);
+    }
+  };
+  const childrenProps = {
+    ref: handleRef
+  };
+  if (touchEvent !== false) {
+    childrenProps[touchEvent] = createHandleSynthetic(touchEvent);
+  }
+  reactExports.useEffect(() => {
+    if (touchEvent !== false) {
+      const mappedTouchEvent = mapEventPropToEvent(touchEvent);
+      const doc = ownerDocument$1(nodeRef.current);
+      const handleTouchMove = () => {
+        movedRef.current = true;
+      };
+      doc.addEventListener(mappedTouchEvent, handleClickAway);
+      doc.addEventListener("touchmove", handleTouchMove);
+      return () => {
+        doc.removeEventListener(mappedTouchEvent, handleClickAway);
+        doc.removeEventListener("touchmove", handleTouchMove);
+      };
+    }
+    return void 0;
+  }, [handleClickAway, touchEvent]);
+  if (mouseEvent !== false) {
+    childrenProps[mouseEvent] = createHandleSynthetic(mouseEvent);
+  }
+  reactExports.useEffect(() => {
+    if (mouseEvent !== false) {
+      const mappedMouseEvent = mapEventPropToEvent(mouseEvent);
+      const doc = ownerDocument$1(nodeRef.current);
+      doc.addEventListener(mappedMouseEvent, handleClickAway);
+      return () => {
+        doc.removeEventListener(mappedMouseEvent, handleClickAway);
+      };
+    }
+    return void 0;
+  }, [handleClickAway, mouseEvent]);
+  return /* @__PURE__ */ reactExports.cloneElement(children, childrenProps);
+}
 function getScrollbarSize(win = window) {
   const documentWidth = win.document.documentElement.clientWidth;
   return win.innerWidth - documentWidth;
@@ -29653,7 +29752,7 @@ function getModalUtilityClass(slot) {
   return generateUtilityClass("MuiModal", slot);
 }
 generateUtilityClasses("MuiModal", ["root", "hidden", "backdrop"]);
-const useUtilityClasses$15 = (ownerState) => {
+const useUtilityClasses$16 = (ownerState) => {
   const {
     open,
     exited,
@@ -29760,7 +29859,7 @@ const Modal = /* @__PURE__ */ reactExports.forwardRef(function Modal2(inProps, r
     ...propsWithDefaults,
     exited
   };
-  const classes2 = useUtilityClasses$15(ownerState);
+  const classes2 = useUtilityClasses$16(ownerState);
   const childProps = {};
   if (children.props.tabIndex === void 0) {
     childProps.tabIndex = "-1";
@@ -29850,7 +29949,7 @@ const DialogBackdrop = styled(Backdrop, {
   // Improve scrollable dialog support.
   zIndex: -1
 });
-const useUtilityClasses$14 = (ownerState) => {
+const useUtilityClasses$15 = (ownerState) => {
   const {
     classes: classes2,
     scroll,
@@ -30053,7 +30152,7 @@ const Dialog = /* @__PURE__ */ reactExports.forwardRef(function Dialog2(inProps,
     maxWidth: maxWidth2,
     scroll
   };
-  const classes2 = useUtilityClasses$14(ownerState);
+  const classes2 = useUtilityClasses$15(ownerState);
   const backdropClick = reactExports.useRef();
   const handleMouseDown = (event) => {
     backdropClick.current = event.target === event.currentTarget;
@@ -30172,7 +30271,7 @@ function getDialogActionsUtilityClass(slot) {
   return generateUtilityClass("MuiDialogActions", slot);
 }
 generateUtilityClasses("MuiDialogActions", ["root", "spacing"]);
-const useUtilityClasses$13 = (ownerState) => {
+const useUtilityClasses$14 = (ownerState) => {
   const {
     classes: classes2,
     disableSpacing
@@ -30222,7 +30321,7 @@ const DialogActions = /* @__PURE__ */ reactExports.forwardRef(function DialogAct
     ...props,
     disableSpacing
   };
-  const classes2 = useUtilityClasses$13(ownerState);
+  const classes2 = useUtilityClasses$14(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(DialogActionsRoot, {
     className: clsx$2(classes2.root, className),
     ownerState,
@@ -30238,7 +30337,7 @@ function getDialogTitleUtilityClass(slot) {
   return generateUtilityClass("MuiDialogTitle", slot);
 }
 const dialogTitleClasses = generateUtilityClasses("MuiDialogTitle", ["root"]);
-const useUtilityClasses$12 = (ownerState) => {
+const useUtilityClasses$13 = (ownerState) => {
   const {
     classes: classes2,
     dividers
@@ -30299,7 +30398,7 @@ const DialogContent = /* @__PURE__ */ reactExports.forwardRef(function DialogCon
     ...props,
     dividers
   };
-  const classes2 = useUtilityClasses$12(ownerState);
+  const classes2 = useUtilityClasses$13(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContentRoot, {
     className: clsx$2(classes2.root, className),
     ownerState,
@@ -30311,7 +30410,7 @@ function getDialogContentTextUtilityClass(slot) {
   return generateUtilityClass("MuiDialogContentText", slot);
 }
 generateUtilityClasses("MuiDialogContentText", ["root"]);
-const useUtilityClasses$11 = (ownerState) => {
+const useUtilityClasses$12 = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -30340,7 +30439,7 @@ const DialogContentText = /* @__PURE__ */ reactExports.forwardRef(function Dialo
     className,
     ...ownerState
   } = props;
-  const classes2 = useUtilityClasses$11(ownerState);
+  const classes2 = useUtilityClasses$12(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContentTextRoot, {
     component: "p",
     variant: "body1",
@@ -30352,7 +30451,7 @@ const DialogContentText = /* @__PURE__ */ reactExports.forwardRef(function Dialo
     classes: classes2
   });
 });
-const useUtilityClasses$10 = (ownerState) => {
+const useUtilityClasses$11 = (ownerState) => {
   const {
     classes: classes2
   } = ownerState;
@@ -30379,7 +30478,7 @@ const DialogTitle = /* @__PURE__ */ reactExports.forwardRef(function DialogTitle
     ...other
   } = props;
   const ownerState = props;
-  const classes2 = useUtilityClasses$10(ownerState);
+  const classes2 = useUtilityClasses$11(ownerState);
   const {
     titleId = idProp
   } = reactExports.useContext(DialogContext);
@@ -30397,7 +30496,7 @@ function getDividerUtilityClass(slot) {
   return generateUtilityClass("MuiDivider", slot);
 }
 const dividerClasses = generateUtilityClasses("MuiDivider", ["root", "absolute", "fullWidth", "inset", "middle", "flexItem", "light", "vertical", "withChildren", "withChildrenVertical", "textAlignRight", "textAlignLeft", "wrapper", "wrapperVertical"]);
-const useUtilityClasses$$ = (ownerState) => {
+const useUtilityClasses$10 = (ownerState) => {
   const {
     absolute,
     children,
@@ -30611,7 +30710,7 @@ const Divider = /* @__PURE__ */ reactExports.forwardRef(function Divider2(inProp
     textAlign,
     variant
   };
-  const classes2 = useUtilityClasses$$(ownerState);
+  const classes2 = useUtilityClasses$10(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(DividerRoot, {
     as: component,
     className: clsx$2(classes2.root, className),
@@ -30630,7 +30729,7 @@ const Divider = /* @__PURE__ */ reactExports.forwardRef(function Divider2(inProp
 if (Divider) {
   Divider.muiSkipListHighlight = true;
 }
-const useUtilityClasses$_ = (ownerState) => {
+const useUtilityClasses$$ = (ownerState) => {
   const {
     classes: classes2,
     disableUnderline,
@@ -30909,7 +31008,7 @@ const FilledInput = /* @__PURE__ */ reactExports.forwardRef(function FilledInput
     multiline,
     type
   };
-  const classes2 = useUtilityClasses$_(props);
+  const classes2 = useUtilityClasses$$(props);
   const filledInputComponentsProps = {
     root: {
       ownerState
@@ -30941,7 +31040,7 @@ function getFormControlUtilityClasses(slot) {
   return generateUtilityClass("MuiFormControl", slot);
 }
 generateUtilityClasses("MuiFormControl", ["root", "marginNone", "marginNormal", "marginDense", "fullWidth", "disabled"]);
-const useUtilityClasses$Z = (ownerState) => {
+const useUtilityClasses$_ = (ownerState) => {
   const {
     classes: classes2,
     margin: margin2,
@@ -31031,7 +31130,7 @@ const FormControl = /* @__PURE__ */ reactExports.forwardRef(function FormControl
     size,
     variant
   };
-  const classes2 = useUtilityClasses$Z(ownerState);
+  const classes2 = useUtilityClasses$_(ownerState);
   const [adornedStart, setAdornedStart] = reactExports.useState(() => {
     let initialAdornedStart = false;
     if (children) {
@@ -31115,7 +31214,7 @@ function getFormControlLabelUtilityClasses(slot) {
   return generateUtilityClass("MuiFormControlLabel", slot);
 }
 const formControlLabelClasses = generateUtilityClasses("MuiFormControlLabel", ["root", "labelPlacementStart", "labelPlacementTop", "labelPlacementBottom", "disabled", "label", "error", "required", "asterisk"]);
-const useUtilityClasses$Y = (ownerState) => {
+const useUtilityClasses$Z = (ownerState) => {
   const {
     classes: classes2,
     disabled,
@@ -31250,7 +31349,7 @@ const FormControlLabel = /* @__PURE__ */ reactExports.forwardRef(function FormCo
     required,
     error: fcs.error
   };
-  const classes2 = useUtilityClasses$Y(ownerState);
+  const classes2 = useUtilityClasses$Z(ownerState);
   const externalForwardedProps = {
     slots,
     slotProps: {
@@ -31292,7 +31391,7 @@ function getFormHelperTextUtilityClasses(slot) {
 }
 const formHelperTextClasses = generateUtilityClasses("MuiFormHelperText", ["root", "error", "disabled", "sizeSmall", "sizeMedium", "contained", "focused", "filled", "required"]);
 var _span$3;
-const useUtilityClasses$X = (ownerState) => {
+const useUtilityClasses$Y = (ownerState) => {
   const {
     classes: classes2,
     contained,
@@ -31387,7 +31486,7 @@ const FormHelperText = /* @__PURE__ */ reactExports.forwardRef(function FormHelp
     required: fcs.required
   };
   delete ownerState.ownerState;
-  const classes2 = useUtilityClasses$X(ownerState);
+  const classes2 = useUtilityClasses$Y(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(FormHelperTextRoot, {
     as: component,
     className: clsx$2(classes2.root, className),
@@ -31408,7 +31507,7 @@ function getFormLabelUtilityClasses(slot) {
   return generateUtilityClass("MuiFormLabel", slot);
 }
 const formLabelClasses = generateUtilityClasses("MuiFormLabel", ["root", "colorSecondary", "focused", "disabled", "error", "filled", "required", "asterisk"]);
-const useUtilityClasses$W = (ownerState) => {
+const useUtilityClasses$X = (ownerState) => {
   const {
     classes: classes2,
     color: color2,
@@ -31505,7 +31604,7 @@ const FormLabel = /* @__PURE__ */ reactExports.forwardRef(function FormLabel2(in
     focused: fcs.focused,
     required: fcs.required
   };
-  const classes2 = useUtilityClasses$W(ownerState);
+  const classes2 = useUtilityClasses$X(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(FormLabelRoot, {
     as: component,
     ownerState,
@@ -31702,7 +31801,7 @@ function getIconUtilityClass(slot) {
   return generateUtilityClass("MuiIcon", slot);
 }
 generateUtilityClasses("MuiIcon", ["root", "colorPrimary", "colorSecondary", "colorAction", "colorError", "colorDisabled", "fontSizeInherit", "fontSizeSmall", "fontSizeMedium", "fontSizeLarge"]);
-const useUtilityClasses$V = (ownerState) => {
+const useUtilityClasses$W = (ownerState) => {
   const {
     color: color2,
     fontSize,
@@ -31814,7 +31913,7 @@ const Icon = /* @__PURE__ */ reactExports.forwardRef(function Icon2(inProps, ref
     component: Component,
     fontSize
   };
-  const classes2 = useUtilityClasses$V(ownerState);
+  const classes2 = useUtilityClasses$W(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(IconRoot, {
     as: Component,
     className: clsx$2(
@@ -31832,7 +31931,7 @@ const Icon = /* @__PURE__ */ reactExports.forwardRef(function Icon2(inProps, ref
   });
 });
 Icon.muiName = "Icon";
-const useUtilityClasses$U = (ownerState) => {
+const useUtilityClasses$V = (ownerState) => {
   const {
     classes: classes2,
     disableUnderline
@@ -31965,7 +32064,7 @@ const Input$1 = /* @__PURE__ */ reactExports.forwardRef(function Input2(inProps,
     type = "text",
     ...other
   } = props;
-  const classes2 = useUtilityClasses$U(props);
+  const classes2 = useUtilityClasses$V(props);
   const ownerState = {
     disableUnderline
   };
@@ -31998,13 +32097,13 @@ function getInputAdornmentUtilityClass(slot) {
 }
 const inputAdornmentClasses = generateUtilityClasses("MuiInputAdornment", ["root", "filled", "standard", "outlined", "positionStart", "positionEnd", "disablePointerEvents", "hiddenLabel", "sizeSmall"]);
 var _span$2;
-const overridesResolver$3 = (props, styles2) => {
+const overridesResolver$4 = (props, styles2) => {
   const {
     ownerState
   } = props;
   return [styles2.root, styles2[`position${capitalize(ownerState.position)}`], ownerState.disablePointerEvents === true && styles2.disablePointerEvents, styles2[ownerState.variant]];
 };
-const useUtilityClasses$T = (ownerState) => {
+const useUtilityClasses$U = (ownerState) => {
   const {
     classes: classes2,
     disablePointerEvents,
@@ -32021,7 +32120,7 @@ const useUtilityClasses$T = (ownerState) => {
 const InputAdornmentRoot = styled("div", {
   name: "MuiInputAdornment",
   slot: "Root",
-  overridesResolver: overridesResolver$3
+  overridesResolver: overridesResolver$4
 })(memoTheme(({
   theme: theme2
 }) => ({
@@ -32091,7 +32190,7 @@ const InputAdornment = /* @__PURE__ */ reactExports.forwardRef(function InputAdo
     position: position2,
     variant
   };
-  const classes2 = useUtilityClasses$T(ownerState);
+  const classes2 = useUtilityClasses$U(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(FormControlContext.Provider, {
     value: null,
     children: /* @__PURE__ */ jsxRuntimeExports.jsx(InputAdornmentRoot, {
@@ -32120,7 +32219,7 @@ function getInputLabelUtilityClasses(slot) {
   return generateUtilityClass("MuiInputLabel", slot);
 }
 generateUtilityClasses("MuiInputLabel", ["root", "focused", "disabled", "error", "required", "asterisk", "formControl", "sizeSmall", "shrink", "animated", "standard", "filled", "outlined"]);
-const useUtilityClasses$S = (ownerState) => {
+const useUtilityClasses$T = (ownerState) => {
   const {
     classes: classes2,
     formControl,
@@ -32309,7 +32408,7 @@ const InputLabel = /* @__PURE__ */ reactExports.forwardRef(function InputLabel2(
     required: fcs.required,
     focused: fcs.focused
   };
-  const classes2 = useUtilityClasses$S(ownerState);
+  const classes2 = useUtilityClasses$T(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabelRoot, {
     "data-shrink": shrink,
     ref,
@@ -32381,7 +32480,7 @@ const bufferKeyframe = keyframes`
 const bufferAnimation = typeof bufferKeyframe !== "string" ? css`
         animation: ${bufferKeyframe} 3s infinite linear;
       ` : null;
-const useUtilityClasses$R = (ownerState) => {
+const useUtilityClasses$S = (ownerState) => {
   const {
     classes: classes2,
     variant,
@@ -32656,7 +32755,7 @@ const LinearProgress = /* @__PURE__ */ reactExports.forwardRef(function LinearPr
     color: color2,
     variant
   };
-  const classes2 = useUtilityClasses$R(ownerState);
+  const classes2 = useUtilityClasses$S(ownerState);
   const isRtl = useRtl();
   const rootProps = {};
   const inlineStyles = {
@@ -32710,7 +32809,7 @@ function getListUtilityClass(slot) {
   return generateUtilityClass("MuiList", slot);
 }
 generateUtilityClasses("MuiList", ["root", "padding", "dense", "subheader"]);
-const useUtilityClasses$Q = (ownerState) => {
+const useUtilityClasses$R = (ownerState) => {
   const {
     classes: classes2,
     disablePadding,
@@ -32776,7 +32875,7 @@ const List$1 = /* @__PURE__ */ reactExports.forwardRef(function List2(inProps, r
     dense,
     disablePadding
   };
-  const classes2 = useUtilityClasses$Q(ownerState);
+  const classes2 = useUtilityClasses$R(ownerState);
   return /* @__PURE__ */ jsxRuntimeExports.jsx(ListContext.Provider, {
     value: context,
     children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ListRoot, {
@@ -32793,7 +32892,174 @@ function getListItemUtilityClass(slot) {
   return generateUtilityClass("MuiListItem", slot);
 }
 generateUtilityClasses("MuiListItem", ["root", "container", "dense", "alignItemsFlexStart", "divider", "gutters", "padding", "secondaryAction"]);
+function getListItemButtonUtilityClass(slot) {
+  return generateUtilityClass("MuiListItemButton", slot);
+}
 const listItemButtonClasses = generateUtilityClasses("MuiListItemButton", ["root", "focusVisible", "dense", "alignItemsFlexStart", "disabled", "divider", "gutters", "selected"]);
+const overridesResolver$3 = (props, styles2) => {
+  const {
+    ownerState
+  } = props;
+  return [styles2.root, ownerState.dense && styles2.dense, ownerState.alignItems === "flex-start" && styles2.alignItemsFlexStart, ownerState.divider && styles2.divider, !ownerState.disableGutters && styles2.gutters];
+};
+const useUtilityClasses$Q = (ownerState) => {
+  const {
+    alignItems,
+    classes: classes2,
+    dense,
+    disabled,
+    disableGutters,
+    divider,
+    selected
+  } = ownerState;
+  const slots = {
+    root: ["root", dense && "dense", !disableGutters && "gutters", divider && "divider", disabled && "disabled", alignItems === "flex-start" && "alignItemsFlexStart", selected && "selected"]
+  };
+  const composedClasses = composeClasses(slots, getListItemButtonUtilityClass, classes2);
+  return {
+    ...classes2,
+    ...composedClasses
+  };
+};
+const ListItemButtonRoot = styled(ButtonBase, {
+  shouldForwardProp: (prop) => rootShouldForwardProp(prop) || prop === "classes",
+  name: "MuiListItemButton",
+  slot: "Root",
+  overridesResolver: overridesResolver$3
+})(memoTheme(({
+  theme: theme2
+}) => ({
+  display: "flex",
+  flexGrow: 1,
+  justifyContent: "flex-start",
+  alignItems: "center",
+  position: "relative",
+  textDecoration: "none",
+  minWidth: 0,
+  boxSizing: "border-box",
+  textAlign: "left",
+  paddingTop: 8,
+  paddingBottom: 8,
+  transition: theme2.transitions.create("background-color", {
+    duration: theme2.transitions.duration.shortest
+  }),
+  "&:hover": {
+    textDecoration: "none",
+    backgroundColor: (theme2.vars || theme2).palette.action.hover,
+    // Reset on touch devices, it doesn't add specificity
+    "@media (hover: none)": {
+      backgroundColor: "transparent"
+    }
+  },
+  [`&.${listItemButtonClasses.selected}`]: {
+    backgroundColor: theme2.vars ? `rgba(${theme2.vars.palette.primary.mainChannel} / ${theme2.vars.palette.action.selectedOpacity})` : alpha(theme2.palette.primary.main, theme2.palette.action.selectedOpacity),
+    [`&.${listItemButtonClasses.focusVisible}`]: {
+      backgroundColor: theme2.vars ? `rgba(${theme2.vars.palette.primary.mainChannel} / calc(${theme2.vars.palette.action.selectedOpacity} + ${theme2.vars.palette.action.focusOpacity}))` : alpha(theme2.palette.primary.main, theme2.palette.action.selectedOpacity + theme2.palette.action.focusOpacity)
+    }
+  },
+  [`&.${listItemButtonClasses.selected}:hover`]: {
+    backgroundColor: theme2.vars ? `rgba(${theme2.vars.palette.primary.mainChannel} / calc(${theme2.vars.palette.action.selectedOpacity} + ${theme2.vars.palette.action.hoverOpacity}))` : alpha(theme2.palette.primary.main, theme2.palette.action.selectedOpacity + theme2.palette.action.hoverOpacity),
+    // Reset on touch devices, it doesn't add specificity
+    "@media (hover: none)": {
+      backgroundColor: theme2.vars ? `rgba(${theme2.vars.palette.primary.mainChannel} / ${theme2.vars.palette.action.selectedOpacity})` : alpha(theme2.palette.primary.main, theme2.palette.action.selectedOpacity)
+    }
+  },
+  [`&.${listItemButtonClasses.focusVisible}`]: {
+    backgroundColor: (theme2.vars || theme2).palette.action.focus
+  },
+  [`&.${listItemButtonClasses.disabled}`]: {
+    opacity: (theme2.vars || theme2).palette.action.disabledOpacity
+  },
+  variants: [{
+    props: ({
+      ownerState
+    }) => ownerState.divider,
+    style: {
+      borderBottom: `1px solid ${(theme2.vars || theme2).palette.divider}`,
+      backgroundClip: "padding-box"
+    }
+  }, {
+    props: {
+      alignItems: "flex-start"
+    },
+    style: {
+      alignItems: "flex-start"
+    }
+  }, {
+    props: ({
+      ownerState
+    }) => !ownerState.disableGutters,
+    style: {
+      paddingLeft: 16,
+      paddingRight: 16
+    }
+  }, {
+    props: ({
+      ownerState
+    }) => ownerState.dense,
+    style: {
+      paddingTop: 4,
+      paddingBottom: 4
+    }
+  }]
+})));
+const ListItemButton = /* @__PURE__ */ reactExports.forwardRef(function ListItemButton2(inProps, ref) {
+  const props = useDefaultProps({
+    props: inProps,
+    name: "MuiListItemButton"
+  });
+  const {
+    alignItems = "center",
+    autoFocus = false,
+    component = "div",
+    children,
+    dense = false,
+    disableGutters = false,
+    divider = false,
+    focusVisibleClassName,
+    selected = false,
+    className,
+    ...other
+  } = props;
+  const context = reactExports.useContext(ListContext);
+  const childContext = reactExports.useMemo(() => ({
+    dense: dense || context.dense || false,
+    alignItems,
+    disableGutters
+  }), [alignItems, context.dense, dense, disableGutters]);
+  const listItemRef = reactExports.useRef(null);
+  useEnhancedEffect$1(() => {
+    if (autoFocus) {
+      if (listItemRef.current) {
+        listItemRef.current.focus();
+      }
+    }
+  }, [autoFocus]);
+  const ownerState = {
+    ...props,
+    alignItems,
+    dense: childContext.dense,
+    disableGutters,
+    divider,
+    selected
+  };
+  const classes2 = useUtilityClasses$Q(ownerState);
+  const handleRef = useForkRef$1(listItemRef, ref);
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(ListContext.Provider, {
+    value: childContext,
+    children: /* @__PURE__ */ jsxRuntimeExports.jsx(ListItemButtonRoot, {
+      ref: handleRef,
+      href: other.href || other.to,
+      component: (other.href || other.to) && component === "div" ? "button" : component,
+      focusVisibleClassName: clsx$2(classes2.focusVisible, focusVisibleClassName),
+      ownerState,
+      className: clsx$2(classes2.root, className),
+      ...other,
+      classes: classes2,
+      children
+    })
+  });
+});
 function getListItemSecondaryActionClassesUtilityClass(slot) {
   return generateUtilityClass("MuiListItemSecondaryAction", slot);
 }
@@ -38526,7 +38792,12 @@ function IoIcon({
   );
 }
 IoIcon.defaultProps = IoIconDefaultProps;
-const DisplayButtons = ({ data, variant }) => {
+const DisplayButtons = ({
+  data,
+  variant,
+  sxDesktop,
+  sxMobile
+}) => {
   const desktop = useMediaQuery("(min-width:980px)");
   return desktop ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
     /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -38540,7 +38811,8 @@ const DisplayButtons = ({ data, variant }) => {
           width: "130px",
           minWidth: "45px",
           justifyContent: "flex-start",
-          mr: 2
+          mr: 2,
+          ...sxDesktop
         },
         children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(IoIcon, { name: data.icon, style: { marginRight: "10px" } }),
@@ -38561,16 +38833,18 @@ const DisplayButtons = ({ data, variant }) => {
       Button,
       {
         size: "small",
-        color: "inherit",
+        color: "primary",
         variant: "outlined",
         sx: {
           fontSize: 12,
           textTransform: "unset",
           flexGrow: 1,
           justifyContent: "flex-start",
-          mr: 2,
+          mr: 1,
+          ml: 1,
           maxWidth: "210px",
-          whiteSpace: "nowrap"
+          whiteSpace: "nowrap",
+          ...sxDesktop
         },
         children: data.label || data.data.text?.slice(-31)
       }
@@ -38586,7 +38860,8 @@ const DisplayButtons = ({ data, variant }) => {
         width: "100%",
         minWidth: "45px",
         justifyContent: "flex-start",
-        mr: 1
+        mr: 1,
+        ...sxMobile
       },
       children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -38594,7 +38869,7 @@ const DisplayButtons = ({ data, variant }) => {
           {
             name: data.icon,
             style: {
-              marginRight: data.data.text || data.data.value ? "10px" : 0
+              marginRight: data.data.text || data.data.value || data.label ? "10px" : 0
             }
           }
         ),
@@ -38862,8 +39137,17 @@ const AddCircleOutline = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("pa
 const AddLink = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M8 11h8v2H8zm12.1 1H22c0-2.76-2.24-5-5-5h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1M19 12h-2v3h-3v2h3v3h2v-3h3v-2h-3z"
 }));
+const ArrowDownward = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "m20 12-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8z"
+}));
+const ArrowUpward = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "m4 12 1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8z"
+}));
 const Audiotrack = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3z"
+}));
+const DebugIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M20 8h-2.81c-.45-.78-1.07-1.45-1.82-1.96L17 4.41 15.59 3l-2.17 2.17C12.96 5.06 12.49 5 12 5s-.96.06-1.41.17L8.41 3 7 4.41l1.62 1.63C7.88 6.55 7.26 7.22 6.81 8H4v2h2.09c-.05.33-.09.66-.09 1v1H4v2h2v1c0 .34.04.67.09 1H4v2h2.81c1.04 1.79 2.97 3 5.19 3s4.15-1.21 5.19-3H20v-2h-2.09c.05-.33.09-.66.09-1v-1h2v-2h-2v-1c0-.34-.04-.67-.09-1H20zm-4 4v3c0 .22-.03.47-.07.7l-.1.65-.37.65c-.72 1.24-2.04 2-3.46 2s-2.74-.77-3.46-2l-.37-.64-.1-.65C8.03 15.48 8 15.23 8 15v-4c0-.23.03-.48.07-.7l.1-.65.37-.65c.3-.52.72-.97 1.21-1.31l.57-.39.74-.18c.31-.08.63-.12.94-.12.32 0 .63.04.95.12l.68.16.61.42c.5.34.91.78 1.21 1.31l.38.65.1.65c.04.22.07.47.07.69zm-6 2h4v2h-4zm0-4h4v2h-4z"
 }));
 const Cached = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "m19 8-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4z"
@@ -38874,17 +39158,49 @@ const CalendarMonth = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path"
 const CheckCircle = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8z"
 }));
+const SuccessIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M16.59 7.58 10 14.17l-3.59-3.58L5 12l5 5 8-8zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
+}));
+const ContentCopyIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2m0 16H8V7h11z"
+}));
+const LoadPresetIcon = createSvgIcon([/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M5 5h2v3h10V5h2v6h2V5c0-1.1-.9-2-2-2h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h5v-2H5zm7-2c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1"
+}, "0"), /* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "m18.01 13-1.42 1.41 1.58 1.58H12v2h6.17l-1.58 1.59 1.42 1.41 3.99-4z"
+}, "1")]);
 const DarkMode = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1"
+}));
+const DataObjectIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M4 7v2c0 .55-.45 1-1 1H2v4h1c.55 0 1 .45 1 1v2c0 1.65 1.35 3 3 3h3v-2H7c-.55 0-1-.45-1-1v-2c0-1.3-.84-2.42-2-2.83v-.34C5.16 11.42 6 10.3 6 9V7c0-.55.45-1 1-1h3V4H7C5.35 4 4 5.35 4 7m17 3c-.55 0-1-.45-1-1V7c0-1.65-1.35-3-3-3h-3v2h3c.55 0 1 .45 1 1v2c0 1.3.84 2.42 2 2.83v.34c-1.16.41-2 1.52-2 2.83v2c0 .55-.45 1-1 1h-3v2h3c1.65 0 3-1.35 3-3v-2c0-.55.45-1 1-1h1v-4z"
 }));
 const Delete = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z"
 }));
+const DeleteBlueprintIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6zm2.46-7.12 1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"
+}));
+const DownloadIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M5 20h14v-2H5zM19 9h-4V3H9v6H5l7 7z"
+}));
 const Edit = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z"
 }));
+const UiViewIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M3 10h11v2H3zm0-2h11V6H3zm0 8h7v-2H3zm15.01-3.13.71-.71c.39-.39 1.02-.39 1.41 0l.71.71c.39.39.39 1.02 0 1.41l-.71.71zm-.71.71-5.3 5.3V21h2.12l5.3-5.3z"
+}));
+const ErrorIcon$1 = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2M12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8"
+}));
 const EventRepeat = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M21 12V6c0-1.1-.9-2-2-2h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h7v-2H5V10h14v2zm-5.36 8c.43 1.45 1.77 2.5 3.36 2.5 1.93 0 3.5-1.57 3.5-3.5s-1.57-3.5-3.5-3.5c-.95 0-1.82.38-2.45 1H18V18h-4v-4h1.5v1.43c.9-.88 2.14-1.43 3.5-1.43 2.76 0 5 2.24 5 5s-2.24 5-5 5c-2.42 0-4.44-1.72-4.9-4z"
+}));
+const ExpandMoreIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z"
+}));
+const BlueprintIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7s2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11"
 }));
 const ExportIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M19 9h-4V3H9v6H5l7 7zM5 18v2h14v-2z"
@@ -38901,6 +39217,9 @@ const Help = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
 const Info = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m1 15h-2v-6h2zm0-8h-2V7h2z"
 }));
+const InfoIcon$1 = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"
+}));
 const Layers = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "m11.99 18.54-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27z"
 }));
@@ -38915,6 +39234,9 @@ const LooksOne = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
 }));
 const MoreVert = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2m0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2"
+}));
+const VerboseIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M21 11.01 3 11v2h18zM3 16h12v2H3zM21 6H3v2.01L21 8z"
 }));
 const PauseIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M6 19h4V5H6zm8-14v14h4V5z"
@@ -38944,13 +39266,25 @@ const RecordVoiceOver = createSvgIcon([/* @__PURE__ */ jsxRuntimeExports.jsx("ci
 }, "0"), /* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M9 15c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4m7.76-9.64-1.68 1.69c.84 1.18.84 2.71 0 3.89l1.68 1.69c2.02-2.02 2.02-5.07 0-7.27M20.07 2l-1.63 1.63c2.77 3.02 2.77 7.56 0 10.74L20.07 16c3.9-3.89 3.91-9.95 0-14"
 }, "1")]);
+const RemoveIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M7 11v2h10v-2zm5-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8"
+}));
 const Repeat = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2z"
 }));
 const RepeatOne = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M7 7h10v3l4-4-4-4v3H5v6h2zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2zm-4-2V9h-1l-2 1v1h1.5v4z"
 }));
-const Settings$6 = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+const SaveIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3m3-10H5V5h10z"
+}));
+const SaveAsPresetIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7zm-6 .67 2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z"
+}));
+const SearchIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"
+}));
+const Settings$7 = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6"
 }));
 const Star = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
@@ -38965,8 +39299,11 @@ const Storage = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
 const Sync = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8m0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4z"
 }));
-const ToggleOff = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
-  d: "M17 7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h10c2.76 0 5-2.24 5-5s-2.24-5-5-5M7 15c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3"
+const TuneIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M3 17v2h6v-2zM3 5v2h10V5zm10 16v-2h8v-2h-8v-2h-2v6zM7 9v2H3v2h4v2h2V9zm14 4v-2H11v2zm-6-4h2V7h4V5h-4V3h-2z"
+}));
+const RevertIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8"
 }));
 const UploadFileIcon = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8zm4 18H6V4h7v5h5zM8 15.01l1.41 1.41L11 14.84V19h2v-4.16l1.59 1.59L16 15.01 12.01 11z"
@@ -38976,6 +39313,14 @@ const Videocam = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
 }));
 const VideocamOff = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
   d: "m21 6.5-4 4V7c0-.55-.45-1-1-1H9.82L21 17.18zM3.27 2 2 3.27 4.73 6H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.21 0 .39-.08.54-.18L19.73 21 21 19.73z"
+}));
+const WarningIcon$2 = createSvgIcon([/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M12 5.99 19.53 19H4.47zM12 2 1 21h22z"
+}, "0"), /* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M13 16h-2v2h2zm0-6h-2v5h2z"
+}, "1")]);
+const WarningIcon$1 = createSvgIcon(/* @__PURE__ */ jsxRuntimeExports.jsx("path", {
+  d: "M12 5.99 19.53 19H4.47zM12 2 1 21h22zm1 14h-2v2h2zm0-6h-2v4h2z"
 }));
 const EditButtons = ({
   data,
@@ -40694,7 +41039,7 @@ const useGlobalActions$b = () => {
   }, []);
   return null;
 };
-const Settings$5 = () => {
+const Settings$6 = () => {
   return localStorage.getItem("io-restart-needed") === "yes" ? /* @__PURE__ */ jsxRuntimeExports.jsx(
     ToggleButton,
     {
@@ -40731,7 +41076,7 @@ const alexaModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
   __proto__: null,
   InputDisplay: InputDisplay$b,
   InputEdit: InputEdit$b,
-  Settings: Settings$5,
+  Settings: Settings$6,
   id: id$h,
   moduleConfig: moduleConfig$h,
   useGlobalActions: useGlobalActions$b,
@@ -50088,7 +50433,7 @@ const useGlobalActions$7 = () => {
   }, [moduleEnabled, midiActive, selectedInputDeviceId]);
   return null;
 };
-const Settings$4 = () => {
+const Settings$5 = () => {
   const midiModuleConfigFromStore = useMainStore((state) => state.modules[id$d]?.config);
   const midiModuleConfig = midiModuleConfigFromStore;
   const midiActive = midiModuleConfig?.midiActive ?? false;
@@ -50209,7 +50554,7 @@ const midiModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePr
   __proto__: null,
   InputDisplay: InputDisplay$9,
   InputEdit: InputEdit$9,
-  Settings: Settings$4,
+  Settings: Settings$5,
   id: id$d,
   moduleConfig: moduleConfig$d,
   useGlobalActions: useGlobalActions$7,
@@ -53781,7 +54126,7 @@ const useInputActions$5 = (row) => {
     };
   }, [row.id, row.input.data.value]);
 };
-const Settings$3 = () => {
+const Settings$4 = () => {
   const handsModuleFullConfig = useMainStore((state) => state.modules[id$a]?.config);
   const handsConfig = handsModuleFullConfig;
   const cameraActive = handsConfig?.cameraActive ?? false;
@@ -53836,7 +54181,7 @@ const mphandsModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defin
   __proto__: null,
   InputDisplay: InputDisplay$6,
   InputEdit: InputEdit$6,
-  Settings: Settings$3,
+  Settings: Settings$4,
   id: id$a,
   moduleConfig: moduleConfig$a,
   useGlobalActions: useGlobalActions$6,
@@ -59395,7 +59740,7 @@ const useInputActions$4 = (row) => {
     };
   }, [row.id, row.input.data.value]);
 };
-const Settings$2 = () => {
+const Settings$3 = () => {
   const holisticModuleFullConfig = useMainStore((state) => state.modules[id$9]?.config);
   const holisticConfig = holisticModuleFullConfig;
   const cameraActive = holisticConfig?.cameraActive ?? false;
@@ -59438,7 +59783,7 @@ const mpholisticModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.de
   __proto__: null,
   InputDisplay: InputDisplay$5,
   InputEdit: InputEdit$5,
-  Settings: Settings$2,
+  Settings: Settings$3,
   id: id$9,
   moduleConfig: moduleConfig$9,
   useInputActions: useInputActions$4
@@ -59696,7 +60041,7 @@ const BrokerProfileDialog = ({ open, onClose, onSave, initialProfile }) => {
     }
   );
 };
-const Settings$1 = () => {
+const Settings$2 = () => {
   const moduleCfg = useMainStore(
     (state) => state.modules[id$6]?.config
   );
@@ -60370,7 +60715,7 @@ const mqttModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePr
   InputEdit: InputEdit$2,
   OutputDisplay: OutputDisplay$5,
   OutputEdit: OutputEdit$5,
-  Settings: Settings$1,
+  Settings: Settings$2,
   id: id$6,
   moduleConfig: moduleConfig$6,
   useGlobalActions: useGlobalActions$5,
@@ -61046,7 +61391,6 @@ const MiniPlayer = ({ rowId, outputData }) => {
   const [isLoadingSrc, setIsLoadingSrc] = reactExports.useState(false);
   const managedAudioElementRef = reactExports.useRef(null);
   const [playerCommand, setPlayerCommand] = reactExports.useState(null);
-  console.log(outputData);
   reactExports.useEffect(() => {
     let didUnmount = false;
     if (!outputData.audioId) {
@@ -61156,7 +61500,13 @@ const PlaySoundOutputDisplay = ({ output, rowId }) => {
   if (data.loop) ;
   if (data.cancelPrevious === false) ;
   return /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: { display: "flex", flexDirection: "column", width: "100%", gap: 0.5 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "center", width: "100%", gap: 1 }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(DisplayButtons, { data: { ...output, name: "Play Sound" } }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      DisplayButtons,
+      {
+        data: { ...output, name: "Play Sound", label: output.label },
+        sxMobile: { width: 50 }
+      }
+    ),
     /* @__PURE__ */ jsxRuntimeExports.jsx(Stack, { sx: { textAlign: "left", flexGrow: 1, overflow: "hidden", minWidth: 0 }, children: data.audioId && data.originalFileName && /* @__PURE__ */ jsxRuntimeExports.jsx(MiniPlayer, { rowId, outputData: data }) })
   ] }) });
 };
@@ -61306,9 +61656,22 @@ const PlaySoundSettings = () => {
     Paper,
     {
       elevation: 2,
-      sx: { p: 2, display: "flex", flexDirection: "column", gap: 1, minWidth: 220 },
+      sx: { p: 2, display: "flex", flexDirection: "column", gap: 1, minWidth: 285 },
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "overline", children: "Global Audio Control" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "overline", children: "Sound Settings" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            variant: "outlined",
+            color: "info",
+            onClick: handleActualStopAllSounds,
+            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(StopCircle, {}),
+            fullWidth: true,
+            size: "small",
+            sx: { height: 40 },
+            children: "Stop All Sounds"
+          }
+        ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
           {
@@ -61321,23 +61684,10 @@ const PlaySoundSettings = () => {
             sx: { height: 40 },
             disabled: isLoadingInitialCount && initialCachedFileCount === 0,
             children: [
-              "Manage Cached Sounds (",
+              "Manage Sounds (",
               isLoadingInitialCount && initialCachedFileCount === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsx(CircularProgress, { size: 14, sx: { mr: 0.5 } }) : initialCachedFileCount,
               ")"
             ]
-          }
-        ),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
-          Button,
-          {
-            variant: "contained",
-            color: "error",
-            onClick: handleActualStopAllSounds,
-            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(StopCircle, {}),
-            fullWidth: true,
-            size: "small",
-            sx: { height: 40 },
-            children: "Stop All Sounds"
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -61566,7 +61916,7 @@ function stopAllPlayers(stopThePreviewPlayer = true) {
 }
 const OutputEdit$4 = PlaySoundOutputEdit;
 const OutputDisplay$4 = PlaySoundOutputDisplay;
-const Settings = PlaySoundSettings;
+const Settings$1 = PlaySoundSettings;
 const useOutputActions$4 = (row) => {
   const { id: rowId, output } = row;
   reactExports.useEffect(() => {
@@ -61719,7 +62069,7 @@ const playsoundModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.def
   __proto__: null,
   OutputDisplay: OutputDisplay$4,
   OutputEdit: OutputEdit$4,
-  Settings,
+  Settings: Settings$1,
   activeAudioPlayers,
   blobUrlCache,
   id: id$5,
@@ -64436,6 +64786,1474 @@ class JSONInput extends reactExports.Component {
     }
   }
 }
+const locale$1 = {
+  format: "{reason} at line {line}",
+  symbols: {
+    colon: "colon",
+    // :
+    comma: "comma",
+    // ,  ،  、
+    semicolon: "semicolon",
+    // ;
+    slash: "slash",
+    // /  relevant for comment syntax support
+    backslash: "backslash",
+    // \  relevant for escaping character
+    brackets: {
+      round: "round brackets",
+      // ( )
+      square: "square brackets",
+      // [ ]
+      curly: "curly brackets",
+      // { }
+      angle: "angle brackets"
+      // < >
+    },
+    period: "period",
+    // . Also known as full point, full stop, or dot
+    quotes: {
+      single: "single quote",
+      // '
+      double: "double quote",
+      // "
+      grave: "grave accent"
+      // ` used on Javascript ES6 Syntax for String Templates
+    },
+    space: "space",
+    //
+    ampersand: "ampersand",
+    //	&
+    asterisk: "asterisk",
+    //	*  relevant for some comment sytanx
+    at: "at sign",
+    //	@  multiple uses in other coding languages including certain data types
+    equals: "equals sign",
+    //	=
+    hash: "hash",
+    //	#
+    percent: "percent",
+    //	%
+    plus: "plus",
+    //	+
+    minus: "minus",
+    //	−
+    dash: "dash",
+    //	−
+    hyphen: "hyphen",
+    //	−
+    tilde: "tilde",
+    //	~
+    underscore: "underscore",
+    //	_
+    bar: "vertical bar"
+    //	|
+  },
+  types: {
+    key: "key",
+    value: "value",
+    number: "number",
+    string: "string",
+    primitive: "primitive",
+    boolean: "boolean",
+    character: "character",
+    integer: "integer",
+    array: "array",
+    float: "float"
+    //... Reference: https://en.wikipedia.org/wiki/List_of_data_structures
+  },
+  invalidToken: {
+    tokenSequence: {
+      prohibited: "'{firstToken}' token cannot be followed by '{secondToken}' token(s)",
+      permitted: "'{firstToken}' token can only be followed by '{secondToken}' token(s)"
+    },
+    termSequence: {
+      prohibited: "A {firstTerm} cannot be followed by a {secondTerm}",
+      permitted: "A {firstTerm} can only be followed by a {secondTerm}"
+    },
+    double: "'{token}' token cannot be followed by another '{token}' token",
+    useInstead: "'{badToken}' token is not accepted. Use '{goodToken}' instead",
+    unexpected: "Unexpected '{token}' token found"
+  },
+  brace: {
+    curly: {
+      missingOpen: "Missing '{' open curly brace",
+      missingClose: "Open '{' curly brace is missing closing '}' curly brace",
+      cannotWrap: "'{token}' token cannot be wrapped in '{}' curly braces"
+    },
+    square: {
+      missingOpen: "Missing '[' open square brace",
+      missingClose: "Open '[' square brace is missing closing ']' square brace",
+      cannotWrap: "'{token}' token cannot be wrapped in '[]' square braces"
+    }
+  },
+  string: {
+    missingOpen: "Missing/invalid opening string '{quote}' token",
+    missingClose: "Missing/invalid closing string '{quote}' token",
+    mustBeWrappedByQuotes: "Strings must be wrapped by quotes",
+    nonAlphanumeric: "Non-alphanumeric token '{token}' is not allowed outside string notation",
+    unexpectedKey: "Unexpected key found at string position"
+  },
+  key: {
+    numberAndLetterMissingQuotes: "Key beginning with number and containing letters must be wrapped by quotes",
+    spaceMissingQuotes: "Key containing space must be wrapped by quotes",
+    unexpectedString: "Unexpected string found at key position"
+  },
+  noTrailingOrLeadingComma: "Trailing or leading commas in arrays and objects are not permitted"
+};
+function substitutePlaceholders(template, inputs) {
+  if (template === void 0) return void 0;
+  let result = template;
+  for (const key in inputs) {
+    const placeholder = `{{blueprintInput.${key}}}`;
+    let valueToSubstitute = inputs[key];
+    if (typeof valueToSubstitute === "boolean") {
+      valueToSubstitute = valueToSubstitute ? "true" : "false";
+    } else if (typeof valueToSubstitute === "number") {
+      valueToSubstitute = String(valueToSubstitute);
+    }
+    result = result.replace(
+      new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
+      String(valueToSubstitute ?? "")
+    );
+  }
+  result = result.replace(/\{\{blueprintInput\.[a-zA-Z0-9_]+\}\}/g, "");
+  return result;
+}
+function substituteObjectPlaceholders(templateObj, inputs) {
+  if (!templateObj) return void 0;
+  const result = {};
+  for (const key in templateObj) {
+    const substitutedValue = substitutePlaceholders(templateObj[key], inputs);
+    if (substitutedValue !== void 0) {
+      result[key] = substitutedValue;
+    }
+  }
+  return Object.keys(result).length > 0 ? result : void 0;
+}
+const BlueprintRunnerDialog = ({
+  open,
+  onClose,
+  blueprint,
+  onApply,
+  initialSnapshot
+}) => {
+  const [inputValues, setInputValues] = reactExports.useState({});
+  const [formErrors, setFormErrors] = reactExports.useState({});
+  const [saveAsGlobalPreset, setSaveAsGlobalPreset] = reactExports.useState(true);
+  reactExports.useEffect(() => {
+    if (open && blueprint) {
+      const initialFormValues = {};
+      blueprint.simpleInputs.forEach((inputField) => {
+        if (initialSnapshot && initialSnapshot[inputField.id] !== void 0) {
+          initialFormValues[inputField.id] = initialSnapshot[inputField.id];
+        } else if (inputField.defaultValue !== void 0) {
+          initialFormValues[inputField.id] = inputField.defaultValue;
+        } else {
+          switch (inputField.type) {
+            case "text":
+            case "url":
+              initialFormValues[inputField.id] = "";
+              break;
+            case "number":
+              initialFormValues[inputField.id] = 0;
+              break;
+            case "boolean":
+              initialFormValues[inputField.id] = false;
+              break;
+            case "select":
+              initialFormValues[inputField.id] = inputField.options?.[0]?.value ?? "";
+              break;
+            default:
+              initialFormValues[inputField.id] = "";
+          }
+        }
+      });
+      setInputValues(initialFormValues);
+      setFormErrors({});
+      setSaveAsGlobalPreset(true);
+    }
+  }, [open, blueprint, initialSnapshot]);
+  const handleInputChange = (id2, value) => {
+    setInputValues((prev2) => ({ ...prev2, [id2]: value }));
+    if (formErrors[id2]) {
+      setFormErrors((prev2) => ({ ...prev2, [id2]: "" }));
+    }
+  };
+  const validateForm = () => {
+    if (!blueprint) return false;
+    const errors = {};
+    let isValid = true;
+    blueprint.simpleInputs.forEach((field) => {
+      const value = inputValues[field.id];
+      if (field.required) {
+        if (value === void 0 || value === null || String(value).trim() === "") {
+          errors[field.id] = `${field.label} is required.`;
+          isValid = false;
+        }
+      }
+      if (field.type === "url" && value && !String(value).match(/^https?:\/\/.+/)) {
+        if (String(value).trim() !== "") {
+          errors[field.id] = `${field.label} must be a valid URL (e.g., http://example.com).`;
+          isValid = false;
+        }
+      }
+    });
+    setFormErrors(errors);
+    return isValid;
+  };
+  const handleApplyAction = () => {
+    if (!blueprint || !validateForm()) {
+      return;
+    }
+    const generatedPresetConfig = {
+      name: substitutePlaceholders(blueprint.presetTemplate.nameTemplate, inputValues) || "Generated Preset",
+      icon: substitutePlaceholders(blueprint.presetTemplate.iconTemplate, inputValues),
+      description: substitutePlaceholders(
+        blueprint.presetTemplate.descriptionTemplate,
+        inputValues
+      ),
+      url: substitutePlaceholders(blueprint.presetTemplate.urlTemplate, inputValues) || "",
+      // URL is critical
+      method: blueprint.presetTemplate.method,
+      // Method is usually fixed
+      headers: substituteObjectPlaceholders(blueprint.presetTemplate.headersTemplate, inputValues),
+      bodyTemplate: substitutePlaceholders(
+        blueprint.presetTemplate.bodyTemplateTemplate,
+        inputValues
+      )
+    };
+    if (!generatedPresetConfig.url) {
+      alert(
+        "Blueprint error: Resulting URL is empty after processing inputs. Please check Blueprint definition or inputs."
+      );
+      return;
+    }
+    onApply(generatedPresetConfig, inputValues, saveAsGlobalPreset);
+    onClose();
+  };
+  if (!blueprint) {
+    return /* @__PURE__ */ jsxRuntimeExports.jsxs(Dialog, { open, onClose, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Error" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { children: "Blueprint data not available." }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogActions, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: onClose, children: "Close" }) })
+    ] });
+  }
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Dialog,
+    {
+      open,
+      onClose,
+      maxWidth: "sm",
+      fullWidth: true,
+      PaperProps: {
+        component: "form",
+        onSubmit: (e2) => {
+          e2.preventDefault();
+          handleApplyAction();
+        }
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
+          "Configure: ",
+          blueprint.name,
+          blueprint.icon && /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { component: "span", sx: { ml: 1 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(InfoIcon$1, { fontSize: "small", sx: { verticalAlign: "middle", opacity: 0.6 } }),
+            " "
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", color: "text.secondary", sx: { mb: 2.5 }, children: blueprint.description }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 2.5, children: [
+            blueprint.simpleInputs.map((field) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { children: [
+              field.type === "text" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                TextField,
+                {
+                  label: field.label,
+                  value: inputValues[field.id] || "",
+                  onChange: (e2) => handleInputChange(field.id, e2.target.value),
+                  fullWidth: true,
+                  required: field.required,
+                  size: "small",
+                  placeholder: field.placeholder,
+                  error: !!formErrors[field.id],
+                  helperText: formErrors[field.id] || field.helpText
+                }
+              ),
+              field.type === "url" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                TextField,
+                {
+                  label: field.label,
+                  type: "url",
+                  value: inputValues[field.id] || "",
+                  onChange: (e2) => handleInputChange(field.id, e2.target.value),
+                  fullWidth: true,
+                  required: field.required,
+                  size: "small",
+                  placeholder: field.placeholder || "https://example.com",
+                  error: !!formErrors[field.id],
+                  helperText: formErrors[field.id] || field.helpText
+                }
+              ),
+              field.type === "number" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                TextField,
+                {
+                  label: field.label,
+                  type: "number",
+                  value: inputValues[field.id] ?? "",
+                  onChange: (e2) => handleInputChange(field.id, parseFloat(e2.target.value)),
+                  fullWidth: true,
+                  required: field.required,
+                  size: "small",
+                  placeholder: field.placeholder,
+                  error: !!formErrors[field.id],
+                  helperText: formErrors[field.id] || field.helpText
+                }
+              ),
+              field.type === "boolean" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  FormControlLabel,
+                  {
+                    control: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      Switch,
+                      {
+                        checked: !!inputValues[field.id],
+                        onChange: (e2) => handleInputChange(field.id, e2.target.checked),
+                        size: "small"
+                      }
+                    ),
+                    labelPlacement: "start",
+                    label: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                      Typography,
+                      {
+                        variant: "body2",
+                        sx: { mr: 1, color: formErrors[field.id] ? "error.main" : "text.primary" },
+                        children: [
+                          field.label,
+                          field.required ? " *" : ""
+                        ]
+                      }
+                    ),
+                    sx: { justifyContent: "space-between", ml: 0, mr: "auto", width: "100%" }
+                  }
+                ),
+                (formErrors[field.id] || field.helpText) && /* @__PURE__ */ jsxRuntimeExports.jsx(FormHelperText, { error: !!formErrors[field.id], sx: { ml: "14px" }, children: formErrors[field.id] || field.helpText })
+              ] }),
+              field.type === "select" && field.options && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                FormControl,
+                {
+                  fullWidth: true,
+                  size: "small",
+                  required: field.required,
+                  error: !!formErrors[field.id],
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: `blueprint-select-${field.id}-label`, children: field.label }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      Select,
+                      {
+                        labelId: `blueprint-select-${field.id}-label`,
+                        label: field.label,
+                        value: inputValues[field.id] !== void 0 ? String(inputValues[field.id]) : "",
+                        onChange: (e2) => handleInputChange(field.id, e2.target.value),
+                        children: field.options.map((opt) => /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: String(opt.value), children: opt.label }, String(opt.value)))
+                      }
+                    ),
+                    (formErrors[field.id] || field.helpText) && /* @__PURE__ */ jsxRuntimeExports.jsx(FormHelperText, { children: formErrors[field.id] || field.helpText })
+                  ]
+                }
+              )
+            ] }, field.id)),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              FormControlLabel,
+              {
+                control: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Checkbox,
+                  {
+                    checked: saveAsGlobalPreset,
+                    onChange: (e2) => setSaveAsGlobalPreset(e2.target.checked),
+                    size: "small"
+                  }
+                ),
+                label: /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "body2", children: [
+                  "Also save as a new Global REST Preset",
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "If checked, this configured REST call will also be added to your list of reusable global presets.", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    InfoIcon$1,
+                    {
+                      fontSize: "small",
+                      sx: { ml: 0.5, verticalAlign: "middle", opacity: 0.7 }
+                    }
+                  ) })
+                ] })
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: onClose, children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", variant: "contained", children: "Apply to Row Configuration" })
+        ] })
+      ]
+    }
+  );
+};
+const NamePresetDialog = ({ open, onClose, onSave }) => {
+  const [presetName, setPresetName] = reactExports.useState("");
+  const [presetIcon, setPresetIcon] = reactExports.useState("");
+  const [presetDescription, setPresetDescription] = reactExports.useState("");
+  reactExports.useEffect(() => {
+    if (open) {
+      setPresetName("");
+      setPresetIcon("");
+      setPresetDescription("");
+    }
+  }, [open]);
+  const handleInternalSave = () => {
+    if (!presetName.trim()) {
+      alert("Preset name is required.");
+      return;
+    }
+    onSave(presetName.trim(), presetIcon.trim() || void 0, presetDescription.trim() || void 0);
+    onClose();
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Dialog, { open, onClose, maxWidth: "xs", fullWidth: true, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Save as New Global Preset" }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 2, sx: { mt: 1 }, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        TextField,
+        {
+          label: "Global Preset Name *",
+          value: presetName,
+          onChange: (e2) => setPresetName(e2.target.value),
+          autoFocus: true,
+          fullWidth: true,
+          required: true
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        TextField,
+        {
+          label: "Global Preset Icon (Optional)",
+          value: presetIcon,
+          onChange: (e2) => setPresetIcon(e2.target.value),
+          placeholder: "e.g., mdi:cog",
+          fullWidth: true
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(
+        TextField,
+        {
+          label: "Global Preset Description (Optional)",
+          value: presetDescription,
+          onChange: (e2) => setPresetDescription(e2.target.value),
+          multiline: true,
+          rows: 2,
+          fullWidth: true
+        }
+      )
+    ] }) }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: onClose, children: "Cancel" }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: handleInternalSave, variant: "contained", children: "Save Global Preset" })
+    ] })
+  ] });
+};
+function RestEditor({ open, setOpen, initialData, onChange }) {
+  const [label, setLabel] = reactExports.useState("");
+  const [host, setHost] = reactExports.useState("https://");
+  const [method, setMethod] = reactExports.useState("GET");
+  const [headers, setHeaders] = reactExports.useState({});
+  const [body, setBody] = reactExports.useState("");
+  const [headersExpanded, setHeadersExpanded] = reactExports.useState(false);
+  const [bodyExpanded, setBodyExpanded] = reactExports.useState(false);
+  const [blueprintIdUsedOnRow, setBlueprintIdUsedOnRow] = reactExports.useState(void 0);
+  const [blueprintInputsSnapshotOnRow, setBlueprintInputsSnapshotOnRow] = reactExports.useState(void 0);
+  const [selectedPresetId, setSelectedPresetId] = reactExports.useState("");
+  const [selectedBlueprintId, setSelectedBlueprintId] = reactExports.useState("");
+  const [namePresetDialogOpen, setNamePresetDialogOpen] = reactExports.useState(false);
+  const [runningBlueprint, setRunningBlueprint] = reactExports.useState(null);
+  const [blueprintRunnerDialogOpen, setBlueprintRunnerDialogOpen] = reactExports.useState(false);
+  const moduleCfg = useMainStore(
+    (state) => state.modules[id$4]?.config
+  );
+  const globalPresets = moduleCfg?.presets || [];
+  const globalBlueprints = moduleCfg?.blueprints || [];
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
+  const parsedBodyForEditor = reactExports.useMemo(() => {
+    try {
+      return body ? JSON.parse(body) : {};
+    } catch {
+      return {};
+    }
+  }, [body]);
+  const populateEditorFields = (data, source) => {
+    let newLabel = "";
+    if (source === "initial" && data.label) {
+      newLabel = data.label;
+    } else if (data.name) {
+      newLabel = data.name;
+    }
+    setLabel(newLabel);
+    setHost(
+      data.host || data.url || "https://"
+    );
+    setMethod(
+      data.options?.method || data.method || "GET"
+    );
+    const newHeaders = data.options?.headers || data.headers || {};
+    setHeaders(newHeaders);
+    setHeadersExpanded(Object.keys(newHeaders).length > 0);
+    const newBody = data.options?.body || data.bodyTemplate || "";
+    setBody(newBody);
+    setBodyExpanded(!!newBody);
+    if (source !== "initial") {
+      setBlueprintIdUsedOnRow(void 0);
+      setBlueprintInputsSnapshotOnRow(void 0);
+    }
+  };
+  reactExports.useEffect(() => {
+    if (open) {
+      if (initialData) {
+        populateEditorFields(initialData, "initial");
+        setBlueprintIdUsedOnRow(initialData.blueprintIdUsed);
+        setBlueprintInputsSnapshotOnRow(initialData.blueprintInputsSnapshot);
+        setSelectedPresetId("");
+        setSelectedBlueprintId("");
+      } else {
+        populateEditorFields({});
+        setBlueprintIdUsedOnRow(void 0);
+        setBlueprintInputsSnapshotOnRow(void 0);
+      }
+    }
+  }, [open, initialData]);
+  const handleEditorClose = () => setOpen(false);
+  const handleSaveToRow = () => {
+    if (!host.trim() || !host.match(/^https?:\/\/.+/)) {
+      alert("A valid URL (starting with http:// or https://) is required.");
+      return;
+    }
+    const outputRowData = {
+      label: label.trim() || void 0,
+      host: host.trim(),
+      options: {
+        method,
+        headers: headersExpanded && Object.keys(headers).length > 0 ? headers : void 0,
+        body: bodyExpanded && body.trim() ? body.trim() : void 0
+      },
+      blueprintIdUsed: blueprintIdUsedOnRow,
+      blueprintInputsSnapshot: blueprintInputsSnapshotOnRow
+    };
+    onChange(outputRowData);
+    handleEditorClose();
+  };
+  const handleTestRequest = async () => {
+    if (!host.trim() || !host.match(/^https?:\/\/.+/)) {
+      alert("A valid URL is required to test.");
+      return;
+    }
+    console.log("Testing REST Request:", {
+      url: host,
+      method,
+      headers: headersExpanded ? headers : void 0,
+      body: bodyExpanded ? body : void 0
+    });
+    try {
+      const response = await fetch(host, {
+        method,
+        headers: headersExpanded && Object.keys(headers).length > 0 ? headers : void 0,
+        body: bodyExpanded && body.trim() ? body.trim() : void 0
+      });
+      alert(`Test Request Status: ${response.status} ${response.statusText}`);
+    } catch (e2) {
+      alert(`Test Request Failed: ${e2.message}`);
+    }
+  };
+  const handleLoadPreset = (event) => {
+    const presetId = event.target.value;
+    setSelectedPresetId(presetId);
+    setSelectedBlueprintId("");
+    const preset = globalPresets.find((p2) => p2.id === presetId);
+    if (preset) {
+      populateEditorFields(preset);
+      setLabel(preset.name);
+      setBlueprintIdUsedOnRow(void 0);
+      setBlueprintInputsSnapshotOnRow(void 0);
+    }
+  };
+  const handleInitiateBlueprintRun = (event) => {
+    const bpId = event.target.value;
+    setSelectedBlueprintId(bpId);
+    setSelectedPresetId("");
+    const blueprintToRun = globalBlueprints.find((bp) => bp.id === bpId);
+    if (blueprintToRun) {
+      setRunningBlueprint(blueprintToRun);
+      setBlueprintRunnerDialogOpen(true);
+    }
+  };
+  const handleBlueprintApplyToEditor = (generatedPresetConfig, inputSnapshot, saveAsGlobalPresetChosen) => {
+    populateEditorFields(generatedPresetConfig, "blueprint");
+    setBlueprintIdUsedOnRow(runningBlueprint?.id);
+    setBlueprintInputsSnapshotOnRow(inputSnapshot);
+    if (saveAsGlobalPresetChosen && runningBlueprint) {
+      const newGlobalPreset = {
+        ...generatedPresetConfig,
+        id: v4()
+      };
+      setModuleConfig(id$4, "presets", [...globalPresets, newGlobalPreset]);
+      alert(`Global Preset "${newGlobalPreset.name}" also created!`);
+      setSelectedPresetId(newGlobalPreset.id);
+    }
+    setBlueprintRunnerDialogOpen(false);
+    setRunningBlueprint(null);
+  };
+  const handleSaveAsNewGlobalPreset = (presetName, presetIcon, presetDescription) => {
+    if (!host.trim() || !host.match(/^https?:\/\/.+/)) {
+      alert("A valid URL is required to save as a global preset.");
+      return;
+    }
+    const newGlobalPresetDef = {
+      id: v4(),
+      name: presetName,
+      icon: presetIcon,
+      description: presetDescription,
+      url: host.trim(),
+      method,
+      headers: headersExpanded && Object.keys(headers).length > 0 ? headers : void 0,
+      bodyTemplate: bodyExpanded && body.trim() ? body.trim() : void 0
+    };
+    setModuleConfig(id$4, "presets", [...globalPresets, newGlobalPresetDef]);
+    alert(`Global Preset "${presetName}" saved!`);
+    setNamePresetDialogOpen(false);
+    setSelectedPresetId(newGlobalPresetDef.id);
+    setBlueprintIdUsedOnRow(void 0);
+    setBlueprintInputsSnapshotOnRow(void 0);
+  };
+  const handleHeaderChange = (data) => {
+    if (data.jsObject && !data.error) {
+      setHeaders(data.jsObject);
+    } else if (!data.jsObject && Object.keys(headers).length > 0 && !data.error) {
+      setHeaders({});
+    }
+    if (blueprintIdUsedOnRow) {
+      setBlueprintIdUsedOnRow(void 0);
+      setBlueprintInputsSnapshotOnRow(void 0);
+      setSelectedBlueprintId("");
+    }
+  };
+  const handleBodyJsonInputChange = (data) => {
+    if (typeof data.json === "string" && !data.error) {
+      setBody(data.json);
+    } else if (body.trim() !== "" && !data.json && !data.error) {
+      setBody("");
+    }
+    if (blueprintIdUsedOnRow) {
+      setBlueprintIdUsedOnRow(void 0);
+      setBlueprintInputsSnapshotOnRow(void 0);
+      setSelectedBlueprintId("");
+    }
+  };
+  reactExports.useEffect(() => {
+  }, [host, method, headersExpanded, bodyExpanded]);
+  const createDirectEditHandler = (originalHandler) => {
+    return (...args) => {
+      if (blueprintIdUsedOnRow) {
+        console.log(
+          "[RestEditor] Direct edit detected, clearing blueprint linkage for current row config."
+        );
+        setBlueprintIdUsedOnRow(void 0);
+        setBlueprintInputsSnapshotOnRow(void 0);
+        setSelectedBlueprintId("");
+      }
+      return originalHandler(...args);
+    };
+  };
+  const setHostDirect = createDirectEditHandler(setHost);
+  const setMethodDirect = createDirectEditHandler(setMethod);
+  const toggleHeadersExpandedDirect = createDirectEditHandler(
+    () => setHeadersExpanded((prev2) => !prev2)
+  );
+  const showBodyAccordion = method === "POST" || method === "PUT" || method === "PATCH";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Dialog, { onClose: handleEditorClose, open, maxWidth: "md", fullWidth: true, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", justifyContent: "space-between", alignItems: "center", children: [
+        "Configure REST Call",
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Save current configuration as a new Global Preset", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          IconButton,
+          {
+            onClick: () => setNamePresetDialogOpen(true),
+            color: "primary",
+            size: "small",
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(SaveAsPresetIcon, {})
+          }
+        ) })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 2.5, sx: { mt: 1 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: { xs: "column", sm: "row" }, spacing: { xs: 2.5, sm: 1 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, size: "small", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: "load-preset-label", children: "Load from Global Preset" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Select,
+              {
+                labelId: "load-preset-label",
+                label: "Load from Global Preset",
+                value: selectedPresetId,
+                onChange: handleLoadPreset,
+                IconComponent: globalPresets.length > 0 ? LoadPresetIcon : void 0,
+                displayEmpty: true,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "", disabled: globalPresets.length === 0, children: /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: globalPresets.length > 0 ? "Select a preset..." : "No global presets" }) }),
+                  globalPresets.map((p2) => /* @__PURE__ */ jsxRuntimeExports.jsxs(MenuItem, { value: p2.id, children: [
+                    p2.icon && /* @__PURE__ */ jsxRuntimeExports.jsx(IoIcon, { name: p2.icon, style: { marginRight: 8, verticalAlign: "middle" } }),
+                    " ",
+                    p2.name
+                  ] }, p2.id))
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, size: "small", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: "generate-from-blueprint-label", children: "Generate from Blueprint" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Select,
+              {
+                labelId: "generate-from-blueprint-label",
+                label: "Generate from Blueprint",
+                value: selectedBlueprintId,
+                onChange: handleInitiateBlueprintRun,
+                IconComponent: globalBlueprints.length > 0 ? BlueprintIcon : void 0,
+                displayEmpty: true,
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "", disabled: globalBlueprints.length === 0, children: /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: globalBlueprints.length > 0 ? "Select a blueprint..." : "No blueprints available" }) }),
+                  globalBlueprints.map((bp) => /* @__PURE__ */ jsxRuntimeExports.jsxs(MenuItem, { value: bp.id, children: [
+                    bp.icon && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      IoIcon,
+                      {
+                        name: bp.icon,
+                        style: { marginRight: 8, verticalAlign: "middle" }
+                      }
+                    ),
+                    " ",
+                    bp.name
+                  ] }, bp.id))
+                ]
+              }
+            )
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, { sx: { my: 1 } }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          TextField,
+          {
+            label: "Label for this Row (Optional)",
+            value: label,
+            onChange: createDirectEditHandler((e2) => setLabel(e2.target.value)),
+            fullWidth: true,
+            size: "small",
+            helperText: "A friendly name for this specific action in the row list."
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", spacing: 1, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { size: "small", sx: { minWidth: 120 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: "rest-method-label", children: "Method" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Select,
+              {
+                labelId: "rest-method-label",
+                label: "Method",
+                value: method,
+                onChange: (e2) => setMethodDirect(e2.target.value),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "GET", children: "GET" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "POST", children: "POST" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "PUT", children: "PUT" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "DELETE", children: "DELETE" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "PATCH", children: "PATCH" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "HEAD", children: "HEAD" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "OPTIONS", children: "OPTIONS" })
+                ]
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TextField,
+            {
+              label: "URL *",
+              value: host,
+              onChange: (e2) => setHostDirect(e2.target.value),
+              fullWidth: true,
+              required: true,
+              size: "small",
+              placeholder: "https://api.example.com/data"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Accordion, { expanded: headersExpanded, onChange: toggleHeadersExpandedDirect, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(AccordionSummary, { expandIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(ExpandMoreIcon, {}), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", children: "Headers" }),
+            !headersExpanded && Object.keys(headers).length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "caption", color: "textSecondary", sx: { ml: 1 }, children: [
+              "(",
+              Object.keys(headers).length,
+              " configured)"
+            ] })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(AccordionDetails, { sx: { p: 0, "& .jsoneditor-outer": { border: "none !important" } }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            JSONInput,
+            {
+              id: "rest-editor-headers",
+              placeholder: headers,
+              locale: locale$1,
+              colors: {
+                background: "transparent",
+                default: "#e0e0e0",
+                string: "#ce9178",
+                number: "#b5cea8",
+                colon: "#e0e0e0",
+                keys: "#9cdcfe"
+              },
+              style: {
+                outerBox: { width: "100%" },
+                container: { borderRadius: "4px", border: "1px solid rgba(255,255,255,0.23)" },
+                body: { fontSize: "13px" }
+              },
+              height: "150px",
+              width: "100%",
+              onChange: handleHeaderChange,
+              waitAfterKeyPress: 1e3,
+              confirmGood: false
+            }
+          ) })
+        ] }),
+        showBodyAccordion && /* @__PURE__ */ jsxRuntimeExports.jsxs(Accordion, { expanded: bodyExpanded, onChange: () => setBodyExpanded(!bodyExpanded), children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(AccordionSummary, { expandIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(ExpandMoreIcon, {}), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", children: "Body" }),
+            !bodyExpanded && body.trim() && /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "textSecondary", sx: { ml: 1 }, children: "(Configured)" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            AccordionDetails,
+            {
+              sx: { p: 0, "& .jsoneditor-outer": { border: "none !important" } },
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                JSONInput,
+                {
+                  id: "rest-editor-body",
+                  placeholder: parsedBodyForEditor,
+                  locale: locale$1,
+                  colors: {
+                    background: "transparent",
+                    default: "#e0e0e0",
+                    string: "#ce9178",
+                    number: "#b5cea8",
+                    colon: "#e0e0e0",
+                    keys: "#9cdcfe"
+                  },
+                  style: {
+                    outerBox: { width: "100%" },
+                    container: {
+                      borderRadius: "4px",
+                      border: "1px solid rgba(255,255,255,0.23)"
+                    },
+                    body: { fontSize: "13px" }
+                  },
+                  height: "200px",
+                  width: "100%",
+                  onChange: handleBodyJsonInputChange,
+                  waitAfterKeyPress: 1e3,
+                  confirmGood: false
+                }
+              )
+            }
+          )
+        ] })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { sx: { m: 1, justifyContent: "space-between" }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: handleTestRequest, color: "info", children: "Test Request" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", spacing: 1, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: handleEditorClose, children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: handleSaveToRow, variant: "contained", children: "Save to Row" })
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      NamePresetDialog,
+      {
+        open: namePresetDialogOpen,
+        onClose: () => setNamePresetDialogOpen(false),
+        onSave: handleSaveAsNewGlobalPreset
+      }
+    ),
+    runningBlueprint && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      BlueprintRunnerDialog,
+      {
+        open: blueprintRunnerDialogOpen,
+        onClose: () => {
+          setBlueprintRunnerDialogOpen(false);
+          setRunningBlueprint(null);
+          setSelectedBlueprintId("");
+        },
+        blueprint: runningBlueprint,
+        onApply: handleBlueprintApplyToEditor
+      }
+    )
+  ] });
+}
+const RestPresetDialog = ({
+  open,
+  onClose,
+  onSave,
+  initialPreset
+}) => {
+  const [presetId, setPresetId] = reactExports.useState("");
+  const [name, setName] = reactExports.useState("");
+  const [icon, setIcon] = reactExports.useState(void 0);
+  const [description, setDescription] = reactExports.useState("");
+  const [url, setUrl] = reactExports.useState("");
+  const [method, setMethod] = reactExports.useState("GET");
+  const [headers, setHeaders] = reactExports.useState({});
+  const [bodyTemplate, setBodyTemplate] = reactExports.useState("");
+  const [headersExpanded, setHeadersExpanded] = reactExports.useState(false);
+  const [bodyExpanded, setBodyExpanded] = reactExports.useState(false);
+  reactExports.useEffect(() => {
+    if (open) {
+      if (initialPreset) {
+        setPresetId(initialPreset.id);
+        setName(initialPreset.name || "");
+        setIcon(initialPreset.icon || void 0);
+        setDescription(initialPreset.description || "");
+        setUrl(initialPreset.url || "");
+        setMethod(initialPreset.method || "GET");
+        setHeaders(initialPreset.headers || {});
+        setBodyTemplate(initialPreset.bodyTemplate || "");
+        setHeadersExpanded(
+          !!(initialPreset.headers && Object.keys(initialPreset.headers).length > 0)
+        );
+        setBodyExpanded(!!initialPreset.bodyTemplate);
+      } else {
+        setPresetId(v4());
+        setName("");
+        setIcon(void 0);
+        setDescription("");
+        setUrl("https://");
+        setMethod("GET");
+        setHeaders({});
+        setBodyTemplate("");
+        setHeadersExpanded(false);
+        setBodyExpanded(false);
+      }
+    }
+  }, [open, initialPreset]);
+  const handleSaveAction = () => {
+    if (!name.trim()) {
+      alert("Preset Name is required.");
+      return;
+    }
+    if (!url.trim() || !url.match(/^https?:\/\/.+/)) {
+      alert("A valid URL (starting with http:// or https://) is required.");
+      return;
+    }
+    const presetToSave = {
+      id: presetId,
+      name: name.trim(),
+      icon,
+      description: description.trim(),
+      url: url.trim(),
+      method,
+      headers: headersExpanded && Object.keys(headers).length > 0 ? headers : void 0,
+      bodyTemplate: bodyExpanded && bodyTemplate.trim() ? bodyTemplate.trim() : void 0
+    };
+    onSave(presetToSave);
+    onClose();
+  };
+  const handleHeaderChange = (data) => {
+    if (data.jsObject && !data.error) {
+      setHeaders(data.jsObject);
+    } else if (!data.jsObject && Object.keys(headers).length > 0 && !data.error) {
+      setHeaders({});
+    }
+  };
+  const handleBodyChange = (data) => {
+    if (typeof data.json === "string" && !data.error) {
+      setBodyTemplate(data.json);
+    } else if (bodyTemplate.trim() !== "" && !data.json && !data.error) {
+      setBodyTemplate("");
+    }
+  };
+  const showBodyAccordion = method === "POST" || method === "PUT" || method === "PATCH";
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Dialog,
+    {
+      open,
+      onClose,
+      maxWidth: "sm",
+      fullWidth: true,
+      PaperProps: {
+        component: "form",
+        onSubmit: (e2) => {
+          e2.preventDefault();
+          handleSaveAction();
+        }
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
+          initialPreset ? "Edit" : "Create New",
+          " REST Preset"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 2.5, sx: { mt: 1 }, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TextField,
+            {
+              label: "Preset Name *",
+              value: name,
+              onChange: (e2) => setName(e2.target.value),
+              fullWidth: true,
+              autoFocus: true,
+              required: true
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TextField,
+            {
+              label: "Icon Name (Optional)",
+              value: icon || "",
+              onChange: (e2) => setIcon(e2.target.value || void 0),
+              InputProps: {
+                startAdornment: icon ? /* @__PURE__ */ jsxRuntimeExports.jsx(IoIcon, { name: icon, style: { marginRight: "1rem" } }) : null
+              },
+              placeholder: "e.g., mdi:cog or homeassistant:lightbulb",
+              fullWidth: true
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            TextField,
+            {
+              label: "Description (Optional)",
+              value: description,
+              onChange: (e2) => setDescription(e2.target.value),
+              multiline: true,
+              rows: 2,
+              fullWidth: true
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "subtitle2", sx: { pt: 1 }, children: "Request Configuration" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", spacing: 1, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { size: "small", sx: { minWidth: 120 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: "rest-preset-method-label", children: "Method" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                Select,
+                {
+                  labelId: "rest-preset-method-label",
+                  label: "Method",
+                  value: method,
+                  onChange: (e2) => setMethod(e2.target.value),
+                  children: [
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "GET", children: "GET" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "POST", children: "POST" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "PUT", children: "PUT" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "DELETE", children: "DELETE" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "PATCH", children: "PATCH" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "HEAD", children: "HEAD" }),
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "OPTIONS", children: "OPTIONS" })
+                  ]
+                }
+              )
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              TextField,
+              {
+                label: "URL *",
+                value: url,
+                onChange: (e2) => setUrl(e2.target.value),
+                fullWidth: true,
+                required: true,
+                size: "small",
+                placeholder: "https://api.example.com/data"
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Accordion,
+            {
+              expanded: headersExpanded,
+              onChange: () => setHeadersExpanded(!headersExpanded),
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(AccordionSummary, { expandIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(ExpandMoreIcon, {}), children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", children: "Headers" }),
+                  !headersExpanded && Object.keys(headers).length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "caption", color: "textSecondary", sx: { ml: 1 }, children: [
+                    "(",
+                    Object.keys(headers).length,
+                    " configured)"
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(AccordionDetails, { sx: { p: 0, "& .jsoneditor-outer": { border: "none !important" } }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  JSONInput,
+                  {
+                    id: `rest-preset-headers-${presetId}`,
+                    placeholder: headers,
+                    locale: locale$1,
+                    colors: {
+                      background: "transparent",
+                      default: "#e0e0e0",
+                      string: "#ce9178",
+                      number: "#b5cea8",
+                      colon: "#e0e0e0",
+                      keys: "#9cdcfe"
+                    },
+                    style: {
+                      outerBox: { width: "100%" },
+                      container: { borderRadius: "4px", border: "1px solid rgba(255,255,255,0.23)" },
+                      body: { fontSize: "13px" }
+                    },
+                    height: "150px",
+                    width: "100%",
+                    onChange: handleHeaderChange,
+                    waitAfterKeyPress: 1e3,
+                    confirmGood: false
+                  }
+                ) })
+              ]
+            }
+          ),
+          showBodyAccordion && /* @__PURE__ */ jsxRuntimeExports.jsxs(Accordion, { expanded: bodyExpanded, onChange: () => setBodyExpanded(!bodyExpanded), children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(AccordionSummary, { expandIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(ExpandMoreIcon, {}), children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "body2", children: [
+                "Body Template",
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "This body will be used as a template. You can use placeholders like {{value}} in the future, which could be replaced by data from trigger inputs.", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  InfoIcon$1,
+                  {
+                    fontSize: "small",
+                    sx: { ml: 0.5, verticalAlign: "middle", opacity: 0.7 }
+                  }
+                ) })
+              ] }),
+              !bodyExpanded && bodyTemplate.trim() && /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "textSecondary", sx: { ml: 1 }, children: "(Configured)" })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(AccordionDetails, { sx: { p: 0, "& .jsoneditor-outer": { border: "none !important" } }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              JSONInput,
+              {
+                id: `rest-preset-body-${presetId}`,
+                placeholder: bodyTemplate ? (() => {
+                  try {
+                    return JSON.parse(bodyTemplate);
+                  } catch (e2) {
+                    return {};
+                  }
+                })() : {},
+                locale: locale$1,
+                colors: {
+                  background: "transparent",
+                  default: "#e0e0e0",
+                  string: "#ce9178",
+                  number: "#b5cea8",
+                  colon: "#e0e0e0",
+                  keys: "#9cdcfe"
+                },
+                style: {
+                  outerBox: { width: "100%" },
+                  container: { borderRadius: "4px", border: "1px solid rgba(255,255,255,0.23)" },
+                  body: { fontSize: "13px" }
+                },
+                viewOnly: false,
+                height: "200px",
+                width: "100%",
+                onChange: handleBodyChange,
+                waitAfterKeyPress: 1e3,
+                confirmGood: false
+              }
+            ) })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: onClose, children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", variant: "contained", children: initialPreset ? "Save Changes" : "Create Preset" })
+        ] })
+      ]
+    }
+  );
+};
+const inputFieldTypes = ["text", "url", "number", "boolean", "select"];
+const SimpleInputFieldItem = ({
+  field,
+  index,
+  onChange,
+  onDelete,
+  onMoveUp,
+  onMoveDown,
+  isFirst,
+  isLast
+}) => {
+  const handleFieldChange = (prop, value) => {
+    onChange(index, { ...field, [prop]: value });
+  };
+  const handleOptionChange = (optIndex, optProp, optValue) => {
+    const newOptions = [...field.options || []];
+    if (newOptions[optIndex]) {
+      newOptions[optIndex] = { ...newOptions[optIndex], [optProp]: optValue };
+      handleFieldChange("options", newOptions);
+    }
+  };
+  const handleAddOption = () => {
+    const newOptions = [...field.options || [], { label: "", value: "" }];
+    handleFieldChange("options", newOptions);
+  };
+  const handleRemoveOption = (optIndex) => {
+    const newOptions = (field.options || []).filter((_, i2) => i2 !== optIndex);
+    handleFieldChange("options", newOptions);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Paper, { elevation: 2, sx: { p: 2, mb: 2, position: "relative" }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 2, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Box,
+      {
+        sx: { display: "flex", justifyContent: "space-between", alignItems: "center", mb: -1 },
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "subtitle2", gutterBottom: true, children: [
+            "Input Field #",
+            index + 1,
+            " Configuration"
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", spacing: 0.5, children: [
+            onMoveUp && /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Move Up", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { size: "small", onClick: () => onMoveUp(index), disabled: isFirst, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowUpward, { fontSize: "inherit" }) }) }),
+            onMoveDown && /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Move Down", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { size: "small", onClick: () => onMoveDown(index), disabled: isLast, children: /* @__PURE__ */ jsxRuntimeExports.jsx(ArrowDownward, { fontSize: "inherit" }) }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Delete this input field", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { size: "small", onClick: () => onDelete(index), color: "error", children: /* @__PURE__ */ jsxRuntimeExports.jsx(Delete, { fontSize: "inherit" }) }) })
+          ] })
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, {}),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { container: true, spacing: 2, alignItems: "flex-start", children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, md: 4 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        TextField,
+        {
+          label: "Field ID (key)",
+          value: field.id || "",
+          onChange: (e2) => handleFieldChange("id", e2.target.value.replace(/\s+/g, "_")),
+          fullWidth: true,
+          required: true,
+          size: "small",
+          helperText: "Unique key for this input (e.g., 'repoPath', 'userName'). No spaces.",
+          placeholder: "myInputFieldId"
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, md: 5 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        TextField,
+        {
+          label: "Label (display name)",
+          value: field.label || "",
+          onChange: (e2) => handleFieldChange("label", e2.target.value),
+          fullWidth: true,
+          required: true,
+          size: "small",
+          helperText: "User-friendly name shown in the form.",
+          placeholder: "GitHub Repository"
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, md: 3 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, size: "small", required: true, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: `field-type-label-${index}`, children: "Type" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Select,
+          {
+            labelId: `field-type-label-${index}`,
+            label: "Type",
+            value: field.type || "text",
+            onChange: (e2) => handleFieldChange("type", e2.target.value),
+            children: inputFieldTypes.map((type) => /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: type, children: type.charAt(0).toUpperCase() + type.slice(1) }, type))
+          }
+        )
+      ] }) }),
+      field.type !== "boolean" && // Default value not typical for boolean switch
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, md: field.type === "select" ? 12 : 6 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        TextField,
+        {
+          label: "Default Value (Optional)",
+          value: field.defaultValue !== void 0 ? String(field.defaultValue) : "",
+          onChange: (e2) => {
+            let val = e2.target.value;
+            if (field.type === "number") val = parseFloat(e2.target.value) || 0;
+            handleFieldChange("defaultValue", val);
+          },
+          fullWidth: true,
+          size: "small",
+          type: field.type === "number" ? "number" : "text",
+          placeholder: field.type === "select" ? "Enter one of the option values" : "Optional initial value"
+        }
+      ) }),
+      (field.type === "text" || field.type === "url" || field.type === "number") && /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, md: 6 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        TextField,
+        {
+          label: "Placeholder (Optional)",
+          value: field.placeholder || "",
+          onChange: (e2) => handleFieldChange("placeholder", e2.target.value),
+          fullWidth: true,
+          size: "small",
+          helperText: "Hint text within the input field."
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        TextField,
+        {
+          label: "Help Text (Optional)",
+          value: field.helpText || "",
+          onChange: (e2) => handleFieldChange("helpText", e2.target.value),
+          fullWidth: true,
+          size: "small",
+          multiline: true,
+          minRows: 1,
+          maxRows: 3,
+          helperText: "Additional guidance displayed below the input field."
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, md: 6 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        FormControlLabel,
+        {
+          control: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Switch,
+            {
+              checked: !!field.required,
+              onChange: (e2) => handleFieldChange("required", e2.target.checked),
+              size: "small"
+            }
+          ),
+          label: "Required Field"
+        }
+      ) }),
+      field.type === "boolean" && // Default value for boolean is via checked state
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, md: 6 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        FormControlLabel,
+        {
+          control: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Switch,
+            {
+              checked: field.defaultValue === true,
+              onChange: (e2) => handleFieldChange("defaultValue", e2.target.checked),
+              size: "small"
+            }
+          ),
+          label: "Default Value (for Boolean)"
+        }
+      ) }),
+      field.type === "select" && /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { size: { xs: 12 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", sx: { mt: 1, mb: 1, fontWeight: "medium" }, children: "Select Options:" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 1.5, children: [
+          (field.options || []).map((opt, optIndex) => /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", spacing: 1, alignItems: "center", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              TextField,
+              {
+                label: `Opt ${optIndex + 1} Label`,
+                value: opt.label,
+                onChange: (e2) => handleOptionChange(optIndex, "label", e2.target.value),
+                size: "small",
+                sx: { flexGrow: 1 }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              TextField,
+              {
+                label: `Opt ${optIndex + 1} Value`,
+                value: String(opt.value),
+                onChange: (e2) => handleOptionChange(optIndex, "value", e2.target.value),
+                size: "small",
+                sx: { flexGrow: 1 }
+              }
+            ),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              IconButton,
+              {
+                onClick: () => handleRemoveOption(optIndex),
+                size: "small",
+                color: "warning",
+                children: /* @__PURE__ */ jsxRuntimeExports.jsx(RemoveIcon, {})
+              }
+            )
+          ] }, optIndex)),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            Button,
+            {
+              startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(AddCircleOutline, {}),
+              onClick: handleAddOption,
+              size: "small",
+              variant: "text",
+              children: "Add Option"
+            }
+          )
+        ] })
+      ] })
+    ] })
+  ] }) });
+};
+const createNewSimpleInputField = (existingIds) => {
+  let newId = `inputField${existingIds.length + 1}`;
+  let count = 1;
+  while (existingIds.includes(newId)) {
+    newId = `inputField${existingIds.length + 1}_${count++}`;
+  }
+  return {
+    id: newId,
+    label: "",
+    type: "text",
+    required: false
+  };
+};
+const SimpleInputFieldListEditor = ({
+  value: fieldsFromProps,
+  onChange
+}) => {
+  const handleAddField = () => {
+    const existingIds = fieldsFromProps.map((f2) => f2.id);
+    const newField = createNewSimpleInputField(existingIds);
+    onChange([...fieldsFromProps, newField]);
+  };
+  const handleDeleteField = (indexToDelete) => {
+    onChange(fieldsFromProps.filter((_, index) => index !== indexToDelete));
+  };
+  const handleUpdateField = (indexToUpdate, updatedFieldData) => {
+    const newFields = [...fieldsFromProps];
+    if (newFields[indexToUpdate]) {
+      newFields[indexToUpdate] = updatedFieldData;
+      onChange(newFields);
+    }
+  };
+  const handleMoveField = (index, direction2) => {
+    const newFields = [...fieldsFromProps];
+    const fieldToMove = newFields[index];
+    if (!fieldToMove) return;
+    if (direction2 === "up" && index > 0) {
+      newFields.splice(index, 1);
+      newFields.splice(index - 1, 0, fieldToMove);
+      onChange(newFields);
+    } else if (direction2 === "down" && index < newFields.length - 1) {
+      newFields.splice(index, 1);
+      newFields.splice(index + 1, 0, fieldToMove);
+      onChange(newFields);
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { children: [
+    fieldsFromProps.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { severity: "info", sx: { mb: 2 }, children: 'No simple input fields defined yet. Click "Add Input Field" to begin.' }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 0, children: [
+      " ",
+      fieldsFromProps.map((field, index) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+        SimpleInputFieldItem,
+        {
+          field,
+          index,
+          onChange: handleUpdateField,
+          onDelete: handleDeleteField,
+          onMoveUp: handleMoveField.bind(null, index, "up"),
+          onMoveDown: handleMoveField.bind(null, index, "down"),
+          isFirst: index === 0,
+          isLast: index === fieldsFromProps.length - 1
+        },
+        field.id || `field-${index}`
+      ))
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Button,
+      {
+        startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(AddCircleOutline, {}),
+        onClick: handleAddField,
+        variant: "outlined",
+        size: "medium",
+        sx: { mt: fieldsFromProps.length > 0 ? 2 : 0, display: "flex", mx: "auto" },
+        children: "Add Input Field"
+      }
+    )
+  ] });
+};
 const locale = {
   format: "{reason} at line {line}",
   symbols: {
@@ -64550,214 +66368,1761 @@ const locale = {
   },
   noTrailingOrLeadingComma: "Trailing or leading commas in arrays and objects are not permitted"
 };
-function RestEditor({ onChange }) {
-  const [open, setOpen] = reactExports.useState(false);
-  const [name, setName] = reactExports.useState("UniqueName");
-  const [bodyExpanded, setBodyExpanded] = reactExports.useState(false);
-  const [headerExpanded, setHeaderExpanded] = reactExports.useState(false);
-  const [message, setMessage] = reactExports.useState("http://192.168.1.170");
-  const [method, setMethod] = reactExports.useState("GET");
-  const placeholderHeader = {
-    Authorization: "Bearer token"
-  };
-  const placeholderBody = {
-    id: "red",
-    action: "activate"
-  };
-  const [header, setHeader] = reactExports.useState(placeholderHeader);
-  const [body, setBody] = reactExports.useState(placeholderBody);
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleSave = () => {
-    onChange({
-      text: name,
-      host: message,
-      options: {
-        method,
-        ...headerExpanded && { headers: header },
-        ...bodyExpanded && { body: JSON.stringify(body) }
+const defaultJsonColors = {
+  /* ... */
+  background: "#1e1e1e",
+  default: "#e0e0e0",
+  string: "#ce9178",
+  number: "#b5cea8",
+  colon: "#e0e0e0",
+  keys: "#9cdcfe",
+  error: "#f44747"
+};
+const defaultJsonStyle = {
+  /* ... */
+  outerBox: { width: "100%" },
+  body: { fontSize: "13px" },
+  container: { border: "1px solid #444", borderRadius: "4px" }
+};
+const ToggleEditorView = ({
+  objectData,
+  stringData,
+  onObjectChange,
+  onStringChange,
+  children,
+  jsonInputId,
+  jsonInputHeight = "250px",
+  jsonInputColors = defaultJsonColors,
+  jsonInputStyle = defaultJsonStyle,
+  title,
+  validateStringToObject,
+  validateObjectToString,
+  disableSaveShortcut = false
+  // Default to shortcut enabled
+}) => {
+  const [currentView, setCurrentView] = reactExports.useState("ui");
+  const [isUiDirty, setIsUiDirty] = reactExports.useState(false);
+  const [isCodeDirty, setIsCodeDirty] = reactExports.useState(false);
+  const [jsonParseError, setJsonParseError] = reactExports.useState(null);
+  const [confirmSwitchDialogOpen, setConfirmSwitchDialogOpen] = reactExports.useState(false);
+  const [targetView, setTargetView] = reactExports.useState("ui");
+  const { enqueueSnackbar } = useSnackbar();
+  const [internalObjectData, setInternalObjectData] = reactExports.useState(objectData);
+  const [internalStringData, setInternalStringData] = reactExports.useState(stringData);
+  reactExports.useEffect(() => {
+    setInternalObjectData(objectData);
+    setIsUiDirty(false);
+  }, [objectData]);
+  reactExports.useEffect(() => {
+    setInternalStringData(stringData);
+    setIsCodeDirty(false);
+    setJsonParseError(null);
+  }, [stringData]);
+  const attemptCommitUiChanges = reactExports.useCallback(() => {
+    if (!isUiDirty) {
+      return true;
+    }
+    let validationResult = {
+      isValid: true,
+      stringifiedObject: JSON.stringify(internalObjectData, null, 2),
+      error: void 0
+    };
+    if (validateObjectToString) {
+      const result = validateObjectToString(internalObjectData);
+      validationResult = {
+        isValid: result.isValid,
+        stringifiedObject: result.stringifiedObject ?? "",
+        error: result.error
+      };
+    }
+    if (validationResult.isValid && validationResult.stringifiedObject !== "") {
+      onObjectChange(internalObjectData);
+      onStringChange(validationResult.stringifiedObject);
+      setIsUiDirty(false);
+      enqueueSnackbar("UI changes applied.", { variant: "success", autoHideDuration: 2e3 });
+      return true;
+    } else {
+      enqueueSnackbar(
+        `Error applying UI changes: ${validationResult.error || "Validation failed."}`,
+        { variant: "error" }
+      );
+      return false;
+    }
+  }, [
+    isUiDirty,
+    internalObjectData,
+    validateObjectToString,
+    onObjectChange,
+    onStringChange,
+    enqueueSnackbar
+  ]);
+  const attemptCommitCodeChanges = reactExports.useCallback(() => {
+    if (!isCodeDirty) {
+      return true;
+    }
+    let validationResult = {
+      isValid: true,
+      parsedObject: void 0,
+      error: void 0
+    };
+    try {
+      const parsed = JSON.parse(internalStringData);
+      validationResult.parsedObject = parsed;
+      if (validateStringToObject) {
+        const customValidation = validateStringToObject(internalStringData);
+        if (!customValidation.isValid) {
+          validationResult.isValid = false;
+          validationResult.error = customValidation.error;
+        } else {
+          validationResult.parsedObject = customValidation.parsedObject || parsed;
+        }
       }
-    });
-    setOpen(false);
+    } catch (e2) {
+      validationResult = {
+        isValid: false,
+        parsedObject: void 0,
+        error: `Invalid JSON: ${e2.message}`
+      };
+    }
+    if (validationResult.isValid && validationResult.parsedObject !== void 0) {
+      onStringChange(internalStringData);
+      onObjectChange(validationResult.parsedObject);
+      setIsCodeDirty(false);
+      setJsonParseError(null);
+      enqueueSnackbar("Code changes applied.", { variant: "success", autoHideDuration: 2e3 });
+      return true;
+    } else {
+      setJsonParseError(validationResult.error || "Invalid JSON structure.");
+      enqueueSnackbar(
+        `Error in Code Editor: ${validationResult.error || "Invalid JSON."}. Please fix and apply.`,
+        { variant: "error" }
+      );
+      return false;
+    }
+  }, [
+    isCodeDirty,
+    internalStringData,
+    validateStringToObject,
+    onStringChange,
+    onObjectChange,
+    enqueueSnackbar
+  ]);
+  const handleExplicitSaveCurrentView = () => {
+    if (currentView === "ui") {
+      attemptCommitUiChanges();
+    } else {
+      attemptCommitCodeChanges();
+    }
   };
-  const testRest = async () => {
-    await fetch(message, {
-      method,
-      ...headerExpanded && { headers: header },
-      ...bodyExpanded && { body: JSON.stringify(body) }
-    });
+  reactExports.useEffect(() => {
+    if (disableSaveShortcut) return;
+    const handleKeyDown = (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === "s") {
+        event.preventDefault();
+        console.log(
+          "[ToggleEditorView] Ctrl+S detected, attempting to apply changes for current view:",
+          currentView
+        );
+        if (currentView === "ui" && isUiDirty) {
+          attemptCommitUiChanges();
+        } else if (currentView === "code" && isCodeDirty) {
+          attemptCommitCodeChanges();
+        } else ;
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [
+    currentView,
+    isUiDirty,
+    isCodeDirty,
+    attemptCommitUiChanges,
+    attemptCommitCodeChanges,
+    disableSaveShortcut,
+    enqueueSnackbar
+  ]);
+  const handleViewChange = (_event, newView) => {
+    if (newView === null || newView === currentView) return;
+    setTargetView(newView);
+    if (currentView === "ui" && isUiDirty) {
+      setConfirmSwitchDialogOpen(true);
+    } else if (currentView === "code" && isCodeDirty) {
+      let isValidJson = false;
+      try {
+        JSON.parse(internalStringData);
+        isValidJson = true;
+        setJsonParseError(null);
+      } catch (e2) {
+        setJsonParseError(`Invalid JSON: ${e2.message}. Fix before switching or discard.`);
+        enqueueSnackbar(`Invalid JSON. Fix or discard changes.`, { variant: "error" });
+        return;
+      }
+      if (isValidJson) {
+        setConfirmSwitchDialogOpen(true);
+      }
+    } else {
+      performSwitch(newView);
+    }
   };
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Button,
+  const performSwitch = (toView) => {
+    if (toView === "code") {
+      setInternalStringData(JSON.stringify(internalObjectData, null, 2));
+    } else {
+      try {
+        const parsed = JSON.parse(internalStringData);
+        setInternalObjectData(parsed);
+        setJsonParseError(null);
+      } catch (e2) {
+        setJsonParseError(`Error parsing JSON for UI view: ${e2.message}`);
+        enqueueSnackbar(
+          `Error preparing UI view from code. JSON might be invalid. Reverting to last good UI state.`,
+          { variant: "error" }
+        );
+        setInternalObjectData(objectData);
+      }
+    }
+    setCurrentView(toView);
+    setIsUiDirty(false);
+    setIsCodeDirty(false);
+  };
+  const handleConfirmDialogChoice = (action) => {
+    setConfirmSwitchDialogOpen(false);
+    if (action === "cancel") return;
+    if (action === "discard") {
+      if (currentView === "ui") {
+        setInternalObjectData(objectData);
+        setIsUiDirty(false);
+      } else {
+        setInternalStringData(stringData);
+        setIsCodeDirty(false);
+        setJsonParseError(null);
+      }
+      performSwitch(targetView);
+      return;
+    }
+    let commitSuccessful = false;
+    if (currentView === "ui") commitSuccessful = attemptCommitUiChanges();
+    else commitSuccessful = attemptCommitCodeChanges();
+    if (commitSuccessful) performSwitch(targetView);
+  };
+  const handleCodeInputChange = (data) => {
+    if (data.json !== void 0) {
+      setInternalStringData(data.json);
+      setIsCodeDirty(true);
+      if (data.error) {
+        setJsonParseError(`JSON Syntax Error: ${data.error.reason || "Invalid"}`);
+      } else {
+        setJsonParseError(null);
+      }
+    }
+  };
+  const handleRevertCurrentViewChanges = () => {
+    if (currentView === "ui") {
+      if (isUiDirty) {
+        setInternalObjectData(objectData);
+        setIsUiDirty(false);
+        enqueueSnackbar("UI changes reverted to last applied state.", {
+          variant: "info",
+          autoHideDuration: 2e3
+        });
+      }
+    } else {
+      if (isCodeDirty || jsonParseError) {
+        setInternalStringData(stringData);
+        setIsCodeDirty(false);
+        setJsonParseError(null);
+        enqueueSnackbar("Code changes reverted to last applied state.", {
+          variant: "info",
+          autoHideDuration: 2e3
+        });
+      }
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Paper, { variant: "outlined", sx: { p: 0, mt: 2, borderColor: "rgba(255,255,255,0.12)" }, children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Stack,
       {
-        size: "large",
-        variant: "contained",
-        color: "secondary",
-        onClick: handleClickOpen,
-        sx: { height: 56 },
-        children: "RestEditor"
+        direction: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        sx: { p: 1.5, borderBottom: 1, borderColor: "divider", bgcolor: "action.focus" },
+        children: [
+          title && /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "subtitle1", sx: { fontWeight: "medium" }, children: title }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Box,
+            {
+              sx: {
+                flexGrow: title ? 1 : 0,
+                display: "flex",
+                justifyContent: title ? "flex-end" : "flex-start",
+                alignItems: "center",
+                gap: 1
+              },
+              children: [
+                currentView === "ui" && isUiDirty || currentView === "code" && (isCodeDirty || jsonParseError) ? /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Revert unapplied changes in this view", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Button,
+                  {
+                    size: "small",
+                    onClick: handleRevertCurrentViewChanges,
+                    startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(RevertIcon, {}),
+                    color: "warning",
+                    variant: "text",
+                    children: "Revert"
+                  }
+                ) }) : null,
+                currentView === "ui" && isUiDirty || currentView === "code" && isCodeDirty && !jsonParseError ? /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Apply changes made in this view (Ctrl+S / Cmd+S)", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Button,
+                  {
+                    size: "small",
+                    onClick: handleExplicitSaveCurrentView,
+                    startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(SaveIcon, {}),
+                    color: "primary",
+                    variant: "contained",
+                    children: "Apply"
+                  }
+                ) }) : null,
+                /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                  ToggleButtonGroup,
+                  {
+                    value: currentView,
+                    exclusive: true,
+                    onChange: handleViewChange,
+                    "aria-label": "Editor View",
+                    size: "small",
+                    children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(ToggleButton, { value: "ui", "aria-label": "UI View", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(UiViewIcon, { sx: { mr: 0.5, fontSize: "1.1rem" } }),
+                        " UI"
+                      ] }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsxs(ToggleButton, { value: "code", "aria-label": "Code View", children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(DataObjectIcon, { sx: { mr: 0.5, fontSize: "1.1rem" } }),
+                        " Code"
+                      ] })
+                    ]
+                  }
+                )
+              ]
+            }
+          )
+        ]
       }
     ),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(Dialog, { onClose: handleClose, open, children: [
-      /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "REST Editor" }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogContent, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { p: 2 }, children: [
+      currentView === "ui" && children(
+        internalObjectData,
+        (newData) => {
+          setInternalObjectData(newData);
+          setIsUiDirty(true);
+        },
+        setIsUiDirty
+      ),
+      currentView === "code" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          JSONInput,
+          {
+            id: jsonInputId,
+            placeholder: (() => {
+              try {
+                return JSON.parse(internalStringData);
+              } catch {
+                return Array.isArray(internalObjectData) ? [] : {};
+              }
+            })(),
+            onChange: handleCodeInputChange,
+            locale,
+            colors: jsonInputColors,
+            style: jsonInputStyle,
+            height: jsonInputHeight,
+            width: "100%",
+            confirmGood: false,
+            reset: false
+          }
+        ),
+        jsonParseError && /* @__PURE__ */ jsxRuntimeExports.jsxs(Alert, { severity: "error", sx: { mt: 1 }, icon: /* @__PURE__ */ jsxRuntimeExports.jsx(WarningIcon$2, { fontSize: "inherit" }), children: [
+          " ",
+          jsonParseError,
+          " "
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Dialog,
+      {
+        open: confirmSwitchDialogOpen,
+        onClose: () => handleConfirmDialogChoice("cancel"),
+        maxWidth: "xs",
+        children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Unapplied Changes" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContentText, { children: "You have unapplied changes in the current editor view. Do you want to apply them before switching?" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: () => handleConfirmDialogChoice("cancel"), children: "Cancel Switch" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: () => handleConfirmDialogChoice("discard"), color: "warning", children: "Discard Changes" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: () => handleConfirmDialogChoice("save"), variant: "contained", children: "Apply & Switch" })
+          ] })
+        ]
+      }
+    )
+  ] });
+};
+const AutocompletePopup = ({
+  suggestions,
+  activeIndex,
+  onSelect,
+  anchorEl
+  // Used for width matching
+}) => {
+  if (!suggestions.length) {
+    return null;
+  }
+  return (
+    // Paper is now directly the content of MUI Popper
+    // It should not have position: 'absolute' itself.
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Paper,
+      {
+        elevation: 4,
+        sx: {
+          // zIndex: 1350, // Popper's zIndex is usually sufficient or configurable on Popper itself
+          maxHeight: 200,
+          overflowY: "auto",
+          width: anchorEl ? anchorEl.offsetWidth : "auto",
+          // Match width of the anchor (TextField)
+          minWidth: anchorEl ? anchorEl.offsetWidth : "200px"
+        },
+        children: /* @__PURE__ */ jsxRuntimeExports.jsx(List$1, { dense: true, disablePadding: true, children: suggestions.map((suggestion, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          ListItemButton,
+          {
+            selected: index === activeIndex,
+            onClick: () => onSelect(suggestion),
+            onMouseDown: (e2) => e2.preventDefault(),
+            sx: {
+              minHeight: suggestion.description ? "auto" : "36px",
+              alignItems: "center",
+              justifyContent: "center"
+            },
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                ListItemText,
+                {
+                  primary: /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", component: "span", children: suggestion.label || suggestion.id }),
+                  secondary: suggestion.description ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+                    Typography,
+                    {
+                      variant: "caption",
+                      color: "text.disabled",
+                      component: "span",
+                      sx: { ml: 2 },
+                      children: suggestion.description
+                    }
+                  ) : null,
+                  slotProps: {
+                    primary: {
+                      sx: {
+                        fontWeight: index === activeIndex ? "fontWeightMedium" : "fontWeightRegular"
+                      }
+                    }
+                  }
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: { ml: 1, flexShrink: 0 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "text.disabled", children: `{{blueprintInput.${suggestion.id}}}` }) })
+            ]
+          },
+          suggestion.id
+        )) })
+      }
+    )
+  );
+};
+const PlaceholderEnabledInput = ({
+  value,
+  onChange,
+  availablePlaceholders,
+  triggerSequence = "{{",
+  multiline = false,
+  ...restTextFieldProps
+}) => {
+  const [inputValue, setInputValue] = reactExports.useState(value);
+  const [isPopupOpen, setIsPopupOpen] = reactExports.useState(false);
+  const [suggestions, setSuggestions] = reactExports.useState([]);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = reactExports.useState(0);
+  const inputRef = reactExports.useRef(null);
+  const actualInputRef = reactExports.useRef(null);
+  const triggerStartIndexRef = reactExports.useRef(null);
+  reactExports.useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+  const openSuggestionsPopup = (startIndex, currentFilter) => {
+    const relevantPlaceholders = availablePlaceholders.filter(
+      (p2) => (p2.label || p2.id).toLowerCase().includes(currentFilter.toLowerCase()) || p2.id.toLowerCase().includes(currentFilter.toLowerCase())
+    );
+    const suggestionItems = relevantPlaceholders.map((p2) => ({
+      id: p2.id,
+      label: p2.label || p2.id,
+      description: p2.description
+    }));
+    if (suggestionItems.length > 0) {
+      setSuggestions(suggestionItems);
+      setActiveSuggestionIndex(0);
+      setIsPopupOpen(true);
+      triggerStartIndexRef.current = startIndex;
+    } else {
+      closeSuggestionsPopup();
+    }
+  };
+  const closeSuggestionsPopup = reactExports.useCallback(() => {
+    setIsPopupOpen(false);
+    setActiveSuggestionIndex(0);
+    triggerStartIndexRef.current = null;
+  }, []);
+  const handleInputChange = (e2) => {
+    const newValue = e2.target.value;
+    const cursorPos = e2.target.selectionStart || 0;
+    setInputValue(newValue);
+    onChange(newValue);
+    const textBeforeCursor = newValue.substring(0, cursorPos);
+    const triggerPos = textBeforeCursor.lastIndexOf(triggerSequence);
+    const isWithinClosedPlaceholder = () => {
+      const nextClosingBraces = newValue.indexOf("}}", triggerPos + triggerSequence.length);
+      return nextClosingBraces !== -1 && cursorPos > nextClosingBraces;
+    };
+    if (triggerPos !== -1 && !isWithinClosedPlaceholder() && cursorPos > triggerPos) {
+      const currentFilter = textBeforeCursor.substring(triggerPos + triggerSequence.length);
+      openSuggestionsPopup(triggerPos, currentFilter);
+    } else if (isPopupOpen) {
+      closeSuggestionsPopup();
+    }
+  };
+  const insertPlaceholder = (placeholderId) => {
+    const inputElement = actualInputRef.current;
+    if (!inputElement || triggerStartIndexRef.current === null) return;
+    const placeholderToInsert = `${triggerSequence}blueprintInput.${placeholderId}}}`;
+    const textBeforeTrigger = inputValue.substring(0, triggerStartIndexRef.current);
+    const currentSelectionStart = inputElement.selectionStart || 0;
+    const textAfterFilter = inputValue.substring(currentSelectionStart);
+    const newValue = textBeforeTrigger + placeholderToInsert + textAfterFilter;
+    setInputValue(newValue);
+    onChange(newValue);
+    closeSuggestionsPopup();
+    setTimeout(() => {
+      const newCursorPos = textBeforeTrigger.length + placeholderToInsert.length;
+      inputElement.focus();
+      inputElement.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  };
+  const handleSuggestionSelect = (suggestion) => {
+    insertPlaceholder(suggestion.id);
+  };
+  const handleKeyDown = (e2) => {
+    if (!isPopupOpen || suggestions.length === 0) return;
+    switch (e2.key) {
+      case "ArrowDown":
+        e2.preventDefault();
+        setActiveSuggestionIndex((prev2) => (prev2 + 1) % suggestions.length);
+        break;
+      case "ArrowUp":
+        e2.preventDefault();
+        setActiveSuggestionIndex((prev2) => (prev2 - 1 + suggestions.length) % suggestions.length);
+        break;
+      case "Enter":
+        e2.preventDefault();
+        if (suggestions[activeSuggestionIndex]) {
+          insertPlaceholder(suggestions[activeSuggestionIndex].id);
+        }
+        break;
+      case "Escape":
+      case "Tab":
+        e2.preventDefault();
+        closeSuggestionsPopup();
+        break;
+    }
+  };
+  const handleClickAway = () => {
+    if (isPopupOpen) {
+      closeSuggestionsPopup();
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(ClickAwayListener, { onClickAway: handleClickAway, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Box,
+    {
+      sx: { position: "relative", width: restTextFieldProps.fullWidth ? "100%" : "auto" },
+      ref: inputRef,
+      children: [
         /* @__PURE__ */ jsxRuntimeExports.jsx(
           TextField,
           {
-            sx: { width: "100%", bgcolor: "#1e1e1e" },
-            value: name,
-            onChange: (e2) => setName(e2.target.value)
+            ...restTextFieldProps,
+            multiline,
+            value: inputValue,
+            onChange: handleInputChange,
+            onKeyDown: handleKeyDown,
+            inputRef: actualInputRef
           }
         ),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", sx: { width: "550px", mt: 2 }, children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsxs(
-            Select,
-            {
-              variant: "outlined",
-              value: method,
-              onChange: (e2) => setMethod(e2.target.value),
-              defaultValue: "GET",
-              sx: { bgcolor: "#1e1e1e" },
-              children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "GET", children: "GET" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "PUT", children: "PUT" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "POST", children: "POST" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "DELETE", children: "DELETE" })
-              ]
-            }
-          ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Popper,
+          {
+            open: isPopupOpen && suggestions.length > 0,
+            anchorEl: inputRef.current,
+            placement: "bottom-start",
+            modifiers: [
+              { name: "offset", options: { offset: [0, 8] } },
+              { name: "flip", enabled: true },
+              { name: "preventOverflow", enabled: true, options: { boundary: "scrollParent" } }
+            ],
+            sx: { zIndex: 1350 },
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              AutocompletePopup,
+              {
+                suggestions,
+                activeIndex: activeSuggestionIndex,
+                onSelect: handleSuggestionSelect,
+                anchorEl: inputRef.current
+              }
+            )
+          }
+        )
+      ]
+    }
+  ) });
+};
+const objectToHeaderList = (headersObj) => {
+  return Object.entries(headersObj).map(([key, value]) => ({
+    id: v4(),
+    // Assign a unique ID for list item stability
+    keyName: key,
+    valueTemplate: value
+  }));
+};
+const headerListToObject = (headerList) => {
+  const obj = {};
+  headerList.forEach((item) => {
+    if (item.keyName.trim()) {
+      obj[item.keyName.trim()] = item.valueTemplate;
+    }
+  });
+  return obj;
+};
+let newHeaderKeyCounter = 0;
+const getNewHeaderKey = (existingKeys) => {
+  let key = `New-Header-${newHeaderKeyCounter++}`;
+  while (existingKeys.includes(key)) {
+    key = `New-Header-${newHeaderKeyCounter++}`;
+  }
+  return key;
+};
+const HeadersTemplateEditor = ({
+  value: headersObjectFromProps,
+  onChange,
+  availablePlaceholders
+}) => {
+  const [headerList, setHeaderList] = reactExports.useState([]);
+  reactExports.useEffect(() => {
+    setHeaderList(objectToHeaderList(headersObjectFromProps || {}));
+    newHeaderKeyCounter = 0;
+  }, [headersObjectFromProps]);
+  const handleItemChange = (index, prop, newValue) => {
+    const newList = [...headerList];
+    if (newList[index]) {
+      const sanitizedNewValue = prop === "keyName" ? newValue.replace(/[^a-zA-Z0-9!#$%&'*+\-.^_`|~:]/g, "") : newValue;
+      newList[index] = { ...newList[index], [prop]: sanitizedNewValue };
+      setHeaderList(newList);
+      onChange(headerListToObject(newList));
+    }
+  };
+  const handleAddItem = () => {
+    const currentKeys = headerList.map((h2) => h2.keyName);
+    const newItem = {
+      id: v4(),
+      keyName: getNewHeaderKey(currentKeys),
+      // Start with a unique placeholder key
+      valueTemplate: ""
+    };
+    const newList = [...headerList, newItem];
+    setHeaderList(newList);
+    onChange(headerListToObject(newList));
+  };
+  const handleRemoveItem = (idToRemove) => {
+    const newList = headerList.filter((item) => item.id !== idToRemove);
+    setHeaderList(newList);
+    onChange(headerListToObject(newList));
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 1.5, children: [
+    headerList.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", color: "text.secondary", sx: { textAlign: "center", py: 1 }, children: 'No headers defined. Click "Add Header" to start.' }),
+    headerList.map((item, index) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+      Paper,
+      {
+        variant: "outlined",
+        sx: { p: 1.5, display: "flex", alignItems: "flex-start", gap: 1 },
+        children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             TextField,
             {
-              sx: { width: "100%", ml: 2, bgcolor: "#1e1e1e" },
-              value: message,
-              onChange: (e2) => setMessage(e2.target.value)
+              label: `Header ${index + 1} Name`,
+              value: item.keyName,
+              onChange: (e2) => handleItemChange(index, "keyName", e2.target.value),
+              size: "small",
+              sx: { flexGrow: 2, minWidth: "150px" },
+              placeholder: "e.g., Content-Type"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            PlaceholderEnabledInput,
+            {
+              label: `Header ${index + 1} Value Template`,
+              value: item.valueTemplate,
+              onChange: (val) => handleItemChange(index, "valueTemplate", val),
+              availablePlaceholders,
+              fullWidth: true,
+              size: "small",
+              sx: { flexGrow: 3, minWidth: "200px" },
+              placeholder: "e.g., application/json or {{blueprintInput.token}}"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            IconButton,
+            {
+              onClick: () => handleRemoveItem(item.id),
+              size: "small",
+              sx: { mt: "4px" },
+              color: "warning",
+              children: /* @__PURE__ */ jsxRuntimeExports.jsx(RemoveIcon, {})
             }
           )
-        ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Accordion,
-          {
-            sx: { border: "1px solid #555" },
-            expanded: headerExpanded,
-            onChange: () => setHeaderExpanded(!headerExpanded),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                AccordionSummary,
-                {
-                  expandIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(ToggleOff, {}),
-                  "aria-controls": "panel1a-content",
-                  id: "panel1a-header",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", children: "Header" })
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(AccordionDetails, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                JSONInput,
-                {
-                  id: "restheader",
-                  placeholder: header,
-                  locale,
-                  height: "100px",
-                  width: "100%",
-                  onBlur: (e2) => setHeader(e2.jsObject)
-                }
-              ) })
-            ]
-          }
-        ),
-        (method === "POST" || method === "PUT") && /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Accordion,
-          {
-            sx: { border: "1px solid #555" },
-            expanded: bodyExpanded,
-            onChange: () => setBodyExpanded(!bodyExpanded),
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(
-                AccordionSummary,
-                {
-                  expandIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(ToggleOff, {}),
-                  "aria-controls": "panel1a-content",
-                  id: "panel1a-header",
-                  children: /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "caption", children: "Body" })
-                }
-              ),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(AccordionDetails, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-                JSONInput,
-                {
-                  id: "restbody",
-                  placeholder: body,
-                  locale,
-                  height: "100px",
-                  width: "100%",
-                  onBlur: (e2) => setBody(e2.jsObject)
-                }
-              ) })
-            ]
-          }
-        )
+        ]
+      },
+      item.id
+    )),
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      Button,
+      {
+        startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(AddCircleOutline, {}),
+        onClick: handleAddItem,
+        size: "small",
+        variant: "text",
+        sx: { alignSelf: "flex-start" },
+        children: "Add Header"
+      }
+    )
+  ] });
+};
+const mapSimpleInputsToPlaceholders = (simpleInputs) => {
+  return simpleInputs.map((si) => ({
+    id: si.id,
+    label: si.label || si.id,
+    // Use label if available, else id
+    description: si.helpText || `Inserts value of '${si.id}' input.`
+  }));
+};
+const PresetTemplateEditorUI = ({
+  templateData,
+  onTemplateDataChange,
+  availableSimpleInputs
+}) => {
+  const placeholderOptions = mapSimpleInputsToPlaceholders(availableSimpleInputs);
+  const handleChange = (field, value) => {
+    onTemplateDataChange({
+      ...templateData,
+      [field]: value
+    });
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { pt: 1 }, children: [
+    " ",
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 3, children: [
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Paper, { variant: "outlined", sx: { p: 2 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "subtitle1", gutterBottom: true, sx: { fontWeight: "medium" }, children: "Generated Preset Details" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { container: true, spacing: 2, children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 6 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            PlaceholderEnabledInput,
+            {
+              label: "Preset Name Template *",
+              value: templateData.nameTemplate || "",
+              onChange: (val) => handleChange("nameTemplate", val),
+              availablePlaceholders: placeholderOptions,
+              fullWidth: true,
+              size: "small",
+              required: true,
+              helperText: "Name for the generated preset. E.g., 'API Call for {{blueprintInput.customerName}}'"
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 6 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            PlaceholderEnabledInput,
+            {
+              label: "Preset Icon Template (Optional)",
+              value: templateData.iconTemplate || "",
+              onChange: (val) => handleChange("iconTemplate", val),
+              availablePlaceholders: placeholderOptions,
+              fullWidth: true,
+              size: "small",
+              placeholder: "e.g., mdi:api or {{blueprintInput.iconChoice}}"
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            PlaceholderEnabledInput,
+            {
+              label: "Preset Description Template (Optional)",
+              value: templateData.descriptionTemplate || "",
+              onChange: (val) => handleChange("descriptionTemplate", val),
+              availablePlaceholders: placeholderOptions,
+              fullWidth: true,
+              multiline: true,
+              rows: 2,
+              size: "small",
+              placeholder: "e.g., Fetches data for {{blueprintInput.itemId}} from the API."
+            }
+          ) })
+        ] })
       ] }),
-      /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { sx: { m: 2 }, children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: handleClose, children: "Cancel" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: testRest, children: "Test" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: handleSave, children: "Save" })
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Divider, {}),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Paper, { variant: "outlined", sx: { p: 2 }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "subtitle1", gutterBottom: true, sx: { fontWeight: "medium" }, children: "REST Request Configuration" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { container: true, spacing: 2, alignItems: "flex-start", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 3 }, children: /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { fullWidth: true, size: "small", required: true, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: "preset-method-label", children: "HTTP Method" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Select,
+              {
+                labelId: "preset-method-label",
+                label: "HTTP Method",
+                value: templateData.method || "GET",
+                onChange: (e2) => handleChange("method", e2.target.value),
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "GET", children: "GET" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "POST", children: "POST" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "PUT", children: "PUT" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "DELETE", children: "DELETE" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "PATCH", children: "PATCH" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "HEAD", children: "HEAD" }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(MenuItem, { value: "OPTIONS", children: "OPTIONS" })
+                ]
+              }
+            )
+          ] }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 9 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            PlaceholderEnabledInput,
+            {
+              label: "URL Template *",
+              value: templateData.urlTemplate || "",
+              onChange: (val) => handleChange("urlTemplate", val),
+              availablePlaceholders: placeholderOptions,
+              fullWidth: true,
+              required: true,
+              size: "small",
+              placeholder: "https://api.example.com/resource/{{blueprintInput.resourceId}}"
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { size: { xs: 12 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", sx: { mt: 0, mb: 1, fontWeight: "medium" }, children: "Headers Template (Key-Value Pairs)" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              HeadersTemplateEditor,
+              {
+                value: templateData.headersTemplate || {},
+                onChange: (newHeaders) => handleChange("headersTemplate", newHeaders),
+                availablePlaceholders: placeholderOptions
+              }
+            )
+          ] }),
+          (templateData.method === "POST" || templateData.method === "PUT" || templateData.method === "PATCH") && /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { size: { xs: 12 }, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "body2", sx: { mt: 1, mb: 0.5, fontWeight: "medium" }, children: "Body Template Template" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(
+              PlaceholderEnabledInput,
+              {
+                label: "Body Content Template",
+                value: templateData.bodyTemplateTemplate || "",
+                onChange: (val) => handleChange("bodyTemplateTemplate", val),
+                availablePlaceholders: placeholderOptions,
+                fullWidth: true,
+                multiline: true,
+                rows: 6,
+                size: "small",
+                helperText: "Enter the request body. Use placeholders for dynamic content. For JSON, ensure valid structure.",
+                placeholder: `{
+  "id": "{{blueprintInput.itemId}}",
+  "data": "some static text or {{blueprintInput.otherValue}}"
+}`
+              }
+            )
+          ] })
+        ] })
       ] })
     ] })
   ] });
-}
+};
+const newBlueprintBaseTemplate = {
+  creatorInfo: { name: "My IO User" },
+  simpleInputs: [
+    {
+      id: "exampleInput",
+      label: "Example Input Field",
+      type: "text",
+      required: true,
+      helpText: "Describe this input.",
+      placeholder: "Enter value here"
+    }
+  ],
+  presetTemplate: {
+    nameTemplate: "Preset for {{blueprintInput.exampleInput}}",
+    iconTemplate: "mdi:cogs",
+    descriptionTemplate: "Generated from blueprint using {{blueprintInput.exampleInput}}.",
+    urlTemplate: "https://api.example.com/{{blueprintInput.exampleInput}}",
+    method: "GET",
+    headersTemplate: {
+      "Content-Type": "application/json"
+    },
+    bodyTemplateTemplate: ""
+  }
+};
+const BlueprintDefinitionEditorDialog = ({
+  open,
+  onClose,
+  onSave,
+  initialBlueprint
+}) => {
+  const [bpId, setBpId] = reactExports.useState("");
+  const [bpName, setBpName] = reactExports.useState("");
+  const [bpDescription, setBpDescription] = reactExports.useState("");
+  const [bpIcon, setBpIcon] = reactExports.useState("");
+  const [simpleInputsData, setSimpleInputsData] = reactExports.useState([]);
+  const [simpleInputsString, setSimpleInputsString] = reactExports.useState("[]");
+  const [presetTemplateData, setPresetTemplateData] = reactExports.useState(
+    newBlueprintBaseTemplate.presetTemplate
+    // Initial non-null default
+  );
+  const [presetTemplateString, setPresetTemplateString] = reactExports.useState("{}");
+  const [overallError, setOverallError] = reactExports.useState(null);
+  reactExports.useEffect(() => {
+    if (open) {
+      setOverallError(null);
+      if (initialBlueprint) {
+        setBpId(initialBlueprint.id);
+        setBpName(initialBlueprint.name);
+        setBpDescription(initialBlueprint.description || "");
+        setBpIcon(initialBlueprint.icon || "");
+        const initialSimpleInputs = initialBlueprint.simpleInputs || [];
+        setSimpleInputsData([...initialSimpleInputs]);
+        setSimpleInputsString(JSON.stringify(initialSimpleInputs, null, 2));
+        const initialPresetTemplate = initialBlueprint.presetTemplate || newBlueprintBaseTemplate.presetTemplate;
+        setPresetTemplateData({ ...initialPresetTemplate });
+        setPresetTemplateString(JSON.stringify(initialPresetTemplate, null, 2));
+      } else {
+        setBpId(v4());
+        setBpName("");
+        setBpDescription("");
+        setBpIcon("");
+        setSimpleInputsData([...newBlueprintBaseTemplate.simpleInputs]);
+        setSimpleInputsString(JSON.stringify(newBlueprintBaseTemplate.simpleInputs, null, 2));
+        setPresetTemplateData({ ...newBlueprintBaseTemplate.presetTemplate });
+        setPresetTemplateString(JSON.stringify(newBlueprintBaseTemplate.presetTemplate, null, 2));
+      }
+    }
+  }, [open, initialBlueprint]);
+  const handleSaveAction = () => {
+    setOverallError(null);
+    if (!bpId.trim() || !bpName.trim()) {
+      setOverallError("Blueprint ID and Name are required.");
+      return;
+    }
+    if (!Array.isArray(simpleInputsData)) {
+      setOverallError("'Simple Inputs' data is not a valid array. Please check the editor view.");
+      return;
+    }
+    if (typeof presetTemplateData !== "object" || presetTemplateData === null || !presetTemplateData.nameTemplate || !presetTemplateData.urlTemplate || !presetTemplateData.method) {
+      setOverallError(
+        "'Preset Template' data is invalid or missing required fields (nameTemplate, urlTemplate, method). Please check the editor view."
+      );
+      return;
+    }
+    const blueprintToSave = {
+      id: bpId.trim(),
+      name: bpName.trim(),
+      description: bpDescription.trim(),
+      icon: bpIcon.trim() || void 0,
+      creatorInfo: initialBlueprint?.creatorInfo || newBlueprintBaseTemplate.creatorInfo,
+      // Retain or default
+      simpleInputs: simpleInputsData,
+      presetTemplate: presetTemplateData
+    };
+    onSave(blueprintToSave);
+    onClose();
+  };
+  const validateSimpleInputsString = reactExports.useCallback((jsonString) => {
+    try {
+      const parsed = JSON.parse(jsonString);
+      if (!Array.isArray(parsed)) {
+        return { isValid: false, error: "Simple Inputs must be a JSON array." };
+      }
+      return { isValid: true, parsedObject: parsed };
+    } catch (e2) {
+      return { isValid: false, error: e2.message };
+    }
+  }, []);
+  const validatePresetTemplateString = reactExports.useCallback((jsonString) => {
+    try {
+      const parsed = JSON.parse(jsonString);
+      if (typeof parsed !== "object" || parsed === null) {
+        return { isValid: false, error: "Preset Template must be a JSON object." };
+      }
+      if (!parsed.nameTemplate || !parsed.urlTemplate || !parsed.method) {
+        return {
+          isValid: false,
+          error: "Preset Template is missing required fields: nameTemplate, urlTemplate, or method."
+        };
+      }
+      return { isValid: true, parsedObject: parsed };
+    } catch (e2) {
+      return { isValid: false, error: e2.message };
+    }
+  }, []);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Dialog,
+    {
+      open,
+      onClose,
+      maxWidth: "lg",
+      fullWidth: true,
+      PaperProps: {
+        component: "form",
+        onSubmit: (e2) => {
+          e2.preventDefault();
+          handleSaveAction();
+        }
+      },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogTitle, { children: [
+          initialBlueprint ? "Edit" : "Create New",
+          " Blueprint Definition"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { spacing: 2.5, sx: { mt: 1 }, children: [
+          overallError && /* @__PURE__ */ jsxRuntimeExports.jsx(Alert, { severity: "error", onClose: () => setOverallError(null), sx: { mb: 2 }, children: overallError }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h6", gutterBottom: true, children: "Blueprint Metadata" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(Grid, { container: true, spacing: 2, children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 3 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              TextField,
+              {
+                label: "Blueprint ID *",
+                value: bpId,
+                onChange: (e2) => setBpId(e2.target.value),
+                fullWidth: true,
+                required: true,
+                size: "small",
+                disabled: !!initialBlueprint,
+                helperText: initialBlueprint ? "ID cannot be changed." : "Unique identifier."
+              }
+            ) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 5 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              TextField,
+              {
+                label: "Blueprint Name *",
+                value: bpName,
+                onChange: (e2) => setBpName(e2.target.value),
+                fullWidth: true,
+                required: true,
+                size: "small",
+                autoFocus: !initialBlueprint
+              }
+            ) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12, sm: 4 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              TextField,
+              {
+                label: "Icon (Optional)",
+                value: bpIcon,
+                onChange: (e2) => setBpIcon(e2.target.value),
+                fullWidth: true,
+                size: "small",
+                placeholder: "e.g., mdi:cogs"
+              }
+            ) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Grid, { size: { xs: 12 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+              TextField,
+              {
+                label: "Description (Optional)",
+                value: bpDescription,
+                onChange: (e2) => setBpDescription(e2.target.value),
+                multiline: true,
+                rows: 2,
+                fullWidth: true,
+                size: "small"
+              }
+            ) })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ToggleEditorView,
+            {
+              title: "Simple Input Fields Configuration",
+              objectData: simpleInputsData,
+              stringData: simpleInputsString,
+              onObjectChange: setSimpleInputsData,
+              onStringChange: setSimpleInputsString,
+              jsonInputId: "blueprint-simpleinputs-json-editor",
+              jsonInputHeight: "300px",
+              validateStringToObject: validateSimpleInputsString,
+              validateObjectToString: (obj) => ({
+                isValid: true,
+                stringifiedObject: JSON.stringify(obj, null, 2)
+              }),
+              children: (currentData, setData, setUiDirty) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                SimpleInputFieldListEditor,
+                {
+                  value: currentData,
+                  onChange: (newFields) => {
+                    setData(newFields);
+                    setUiDirty(true);
+                  }
+                }
+              )
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            ToggleEditorView,
+            {
+              title: "REST Preset Template Configuration",
+              objectData: presetTemplateData,
+              stringData: presetTemplateString,
+              onObjectChange: setPresetTemplateData,
+              onStringChange: setPresetTemplateString,
+              jsonInputId: "blueprint-presettemplate-json-editor",
+              jsonInputHeight: "400px",
+              validateStringToObject: validatePresetTemplateString,
+              validateObjectToString: (obj) => ({
+                isValid: true,
+                stringifiedObject: JSON.stringify(obj, null, 2)
+              }),
+              children: (currentData, setData, setUiDirty) => (
+                // This is where the Phase 2, Part 2 GUI for PresetTemplate will go.
+                // For now, a placeholder or message.
+                // <Box sx={{ p: 2, border: '1px dashed grey', borderRadius: 1, textAlign: 'center' }}>
+                //   <Typography variant="body2" color="text.secondary">
+                //     Structured UI for Preset Template editor coming soon!
+                //     <br />
+                //     Please use the &quot;Code&quot; view for now to edit the Preset Template JSON.
+                //   </Typography>
+                //   <Typography variant="caption" component="div" sx={{ mt: 1 }}>
+                //     (Current Template Name: {currentData.nameTemplate})
+                //   </Typography>
+                // </Box>
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  PresetTemplateEditorUI,
+                  {
+                    templateData: currentData,
+                    onTemplateDataChange: (newTemplateData) => {
+                      setData(newTemplateData);
+                      setUiDirty(true);
+                    },
+                    availableSimpleInputs: simpleInputsData
+                  }
+                )
+              )
+            }
+          )
+        ] }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: onClose, children: "Cancel" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { type: "submit", variant: "contained", children: initialBlueprint ? "Save Blueprint Changes" : "Create Blueprint" })
+        ] })
+      ]
+    }
+  );
+};
+const useRestModuleConfig = () => {
+  return useMainStore(
+    (state) => state.modules[id$4]?.config
+  );
+};
+const RestSettings = () => {
+  const moduleCfg = useRestModuleConfig();
+  const presets = moduleCfg?.presets || [];
+  const blueprints = moduleCfg?.blueprints || [];
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
+  const { enqueueSnackbar } = useSnackbar();
+  const [blueprintEditorOpen, setBlueprintEditorOpen] = reactExports.useState(false);
+  const [editingBlueprintDef, setEditingBlueprintDef] = reactExports.useState(null);
+  const [managePresetsDialogOpen, setManagePresetsDialogOpen] = reactExports.useState(false);
+  const [addEditPresetDialogOpen, setAddEditPresetDialogOpen] = reactExports.useState(false);
+  const [editingPreset, setEditingPreset] = reactExports.useState(null);
+  const [selectBlueprintDialogOpen, setSelectBlueprintDialogOpen] = reactExports.useState(false);
+  const [runningBlueprint, setRunningBlueprint] = reactExports.useState(null);
+  const [blueprintRunnerDialogOpen, setBlueprintRunnerDialogOpen] = reactExports.useState(false);
+  const openAddPresetDialog = () => {
+    setEditingPreset(null);
+    setAddEditPresetDialogOpen(true);
+    setManagePresetsDialogOpen(false);
+  };
+  const openEditPresetDialog = (preset) => {
+    setEditingPreset(preset);
+    setAddEditPresetDialogOpen(true);
+    setManagePresetsDialogOpen(false);
+  };
+  const handleDeletePreset = (presetIdToDelete) => {
+    if (window.confirm("Are you sure you want to delete this preset?")) {
+      const updatedPresets = presets.filter((p2) => p2.id !== presetIdToDelete);
+      setModuleConfig(id$4, "presets", updatedPresets);
+    }
+  };
+  const handleSavePresetCallback = (presetToSave) => {
+    let updatedPresets;
+    const existingIndex = presets.findIndex((p2) => p2.id === presetToSave.id);
+    if (existingIndex > -1) {
+      updatedPresets = [...presets];
+      updatedPresets[existingIndex] = presetToSave;
+    } else {
+      updatedPresets = [...presets, { ...presetToSave, id: presetToSave.id || v4() }];
+    }
+    setModuleConfig(id$4, "presets", updatedPresets);
+    setAddEditPresetDialogOpen(false);
+  };
+  const handleOpenSelectBlueprintDialog = () => {
+    setSelectBlueprintDialogOpen(true);
+  };
+  const handleBlueprintSelectedToRun = (blueprint) => {
+    setRunningBlueprint(blueprint);
+    setBlueprintRunnerDialogOpen(true);
+    setSelectBlueprintDialogOpen(false);
+  };
+  const handleBlueprintRunnerDialogClose = () => {
+    setBlueprintRunnerDialogOpen(false);
+    setRunningBlueprint(null);
+  };
+  const handleBlueprintApplyAndCreatePreset = (generatedPresetConfig, _inputSnapshot, saveAsGlobalPreset) => {
+    if (saveAsGlobalPreset) {
+      const newGlobalPreset = { ...generatedPresetConfig, id: v4() };
+      setModuleConfig(id$4, "presets", [...presets, newGlobalPreset]);
+      enqueueSnackbar(`Global Preset "${newGlobalPreset.name}" created successfully!`, {
+        variant: "success"
+      });
+    } else {
+      enqueueSnackbar(
+        `Blueprint processed: ${generatedPresetConfig.name}. (Not saved as global preset)`,
+        { variant: "info" }
+      );
+    }
+  };
+  const handleExportBlueprint = (blueprint) => {
+    try {
+      const blueprintJson = JSON.stringify(blueprint, null, 2);
+      const blob = new Blob([blueprintJson], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a2 = document.createElement("a");
+      a2.href = url;
+      const fileName = `${blueprint.name.replace(/[^a-z0-9]/gi, "_").toLowerCase() || "untitled"}.ioBlueprint`;
+      a2.download = fileName;
+      document.body.appendChild(a2);
+      a2.click();
+      document.body.removeChild(a2);
+      URL.revokeObjectURL(url);
+      enqueueSnackbar(`Blueprint "${blueprint.name}" exported as ${fileName}`, {
+        variant: "success"
+      });
+    } catch (error) {
+      console.error("Error exporting blueprint:", error);
+      enqueueSnackbar("Failed to export blueprint.", { variant: "error" });
+    }
+  };
+  const handleDeleteBlueprint = (blueprintIdToDelete) => {
+    const blueprintToDelete = blueprints.find((bp) => bp.id === blueprintIdToDelete);
+    if (!blueprintToDelete) return;
+    if (window.confirm(
+      `Are you sure you want to delete the Blueprint: "${blueprintToDelete.name}"? This action cannot be undone.`
+    )) {
+      const updatedBlueprints = blueprints.filter((bp) => bp.id !== blueprintIdToDelete);
+      setModuleConfig(id$4, "blueprints", updatedBlueprints);
+      enqueueSnackbar(`Blueprint "${blueprintToDelete.name}" deleted.`, { variant: "info" });
+    }
+  };
+  const handleSaveBlueprintDefinition = (blueprintToSave) => {
+    const currentBlueprints = useMainStore.getState().modules[id$4]?.config?.blueprints || [];
+    let updatedBlueprints;
+    const existingIndex = currentBlueprints.findIndex((bp) => bp.id === blueprintToSave.id);
+    if (existingIndex > -1) {
+      updatedBlueprints = [...currentBlueprints];
+      updatedBlueprints[existingIndex] = blueprintToSave;
+      enqueueSnackbar(`Blueprint "${blueprintToSave.name}" updated!`, { variant: "success" });
+    } else {
+      updatedBlueprints = [...currentBlueprints, blueprintToSave];
+      enqueueSnackbar(`Blueprint "${blueprintToSave.name}" created!`, { variant: "success" });
+    }
+    setModuleConfig(id$4, "blueprints", updatedBlueprints);
+    setBlueprintEditorOpen(false);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Paper,
+    {
+      elevation: 2,
+      sx: { p: 2, minWidth: 285, display: "flex", flexDirection: "column", gap: 1 },
+      children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "overline", children: "REST Settings" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Button,
+          {
+            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(BlueprintIcon, {}),
+            onClick: handleOpenSelectBlueprintDialog,
+            variant: "outlined",
+            size: "small",
+            color: "info",
+            sx: { height: 41 },
+            fullWidth: true,
+            children: [
+              "Blueprints (",
+              blueprints.length,
+              ")"
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Button,
+          {
+            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, {}),
+            onClick: () => setManagePresetsDialogOpen(true),
+            variant: "outlined",
+            size: "small",
+            sx: { height: 41 },
+            fullWidth: true,
+            children: [
+              "Manage Presets (",
+              presets.length,
+              ")"
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Dialog,
+          {
+            open: managePresetsDialogOpen,
+            onClose: () => setManagePresetsDialogOpen(false),
+            fullWidth: true,
+            maxWidth: "md",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                DialogTitle,
+                {
+                  sx: { display: "flex", justifyContent: "space-between", alignItems: "center" },
+                  children: [
+                    "Manage REST Call Presets",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      Button,
+                      {
+                        startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(AddCircleOutline, {}),
+                        onClick: openAddPresetDialog,
+                        variant: "text",
+                        size: "small",
+                        sx: { height: 41 },
+                        children: "New Preset"
+                      }
+                    )
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(List$1, { dense: true, children: [
+                presets.map((preset) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  ListItem,
+                  {
+                    secondaryAction: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", spacing: 0.5, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Edit Preset", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { size: "small", onClick: () => openEditPresetDialog(preset), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, { fontSize: "small" }) }) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Delete Preset", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { size: "small", onClick: () => handleDeletePreset(preset.id), children: /* @__PURE__ */ jsxRuntimeExports.jsx(Delete, { fontSize: "small" }) }) })
+                    ] }),
+                    sx: { "&:hover": { bgcolor: "action.hover" } },
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      ListItemText,
+                      {
+                        primary: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", alignItems: "center", spacing: 1, children: [
+                          preset.icon && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            IoIcon,
+                            {
+                              name: preset.icon,
+                              style: { marginRight: "4px", opacity: 0.8, fontSize: "1.2rem" }
+                            }
+                          ),
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { component: "span", variant: "body1", children: preset.name }),
+                          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                            Typography,
+                            {
+                              variant: "caption",
+                              color: "text.secondary",
+                              sx: {
+                                ml: 1,
+                                flexShrink: 1,
+                                minWidth: 100,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap"
+                              },
+                              title: preset.url,
+                              children: [
+                                "(",
+                                preset.method,
+                                " ",
+                                preset.url,
+                                ")"
+                              ]
+                            }
+                          )
+                        ] }),
+                        secondary: preset.description,
+                        secondaryTypographyProps: { noWrap: true, textOverflow: "ellipsis" }
+                      }
+                    )
+                  },
+                  preset.id
+                )),
+                presets.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(ListItem, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  ListItemText,
+                  {
+                    primary: "No presets defined.",
+                    secondary: "Click 'Create New' or use a Blueprint."
+                  }
+                ) })
+              ] }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DialogActions, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: () => setManagePresetsDialogOpen(false), children: "Close" }) })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          RestPresetDialog,
+          {
+            open: addEditPresetDialogOpen,
+            onClose: () => setAddEditPresetDialogOpen(false),
+            onSave: handleSavePresetCallback,
+            initialPreset: editingPreset
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Dialog,
+          {
+            open: selectBlueprintDialogOpen,
+            onClose: () => setSelectBlueprintDialogOpen(false),
+            fullWidth: true,
+            maxWidth: "sm",
+            children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                DialogTitle,
+                {
+                  sx: { display: "flex", justifyContent: "space-between", alignItems: "center" },
+                  children: [
+                    "Select a Blueprint to Generate a Preset",
+                    /* @__PURE__ */ jsxRuntimeExports.jsx(
+                      Button,
+                      {
+                        startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(AddCircleOutline, {}),
+                        onClick: () => {
+                          setEditingBlueprintDef(null);
+                          setBlueprintEditorOpen(true);
+                        },
+                        variant: "text",
+                        size: "small",
+                        sx: { height: 41 },
+                        children: "New Blueprint"
+                      }
+                    )
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: /* @__PURE__ */ jsxRuntimeExports.jsxs(List$1, { children: [
+                blueprints.map((bp) => /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  ListItem,
+                  {
+                    secondaryAction: /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { direction: "row", spacing: 0.5, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Edit Blueprint Definition", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        IconButton,
+                        {
+                          edge: "end",
+                          "aria-label": "edit blueprint definition",
+                          onClick: () => {
+                            setEditingBlueprintDef(bp);
+                            setBlueprintEditorOpen(true);
+                            setSelectBlueprintDialogOpen(false);
+                          },
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, { fontSize: "small" })
+                        }
+                      ) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Export Blueprint", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        IconButton,
+                        {
+                          edge: "end",
+                          "aria-label": "export",
+                          onClick: () => handleExportBlueprint(bp),
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(DownloadIcon, {})
+                        }
+                      ) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Delete Blueprint", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        IconButton,
+                        {
+                          edge: "end",
+                          "aria-label": "delete blueprint",
+                          onClick: () => handleDeleteBlueprint(bp.id),
+                          children: /* @__PURE__ */ jsxRuntimeExports.jsx(DeleteBlueprintIcon, {})
+                        }
+                      ) })
+                    ] }),
+                    disablePadding: true,
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsxs(ListItemButton, { onClick: () => handleBlueprintSelectedToRun(bp), children: [
+                      bp.icon && /* @__PURE__ */ jsxRuntimeExports.jsx(ListItemIcon, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(IoIcon, { name: bp.icon }) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(
+                        ListItemText,
+                        {
+                          primary: bp.name,
+                          secondary: bp.description,
+                          sx: { maxWidth: 342 }
+                        }
+                      )
+                    ] })
+                  },
+                  bp.id
+                )),
+                blueprints.length === 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(ListItem, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  ListItemText,
+                  {
+                    primary: "No blueprints available.",
+                    secondary: "Import .ioBlueprint files."
+                  }
+                ) })
+              ] }) }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DialogActions, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: () => setSelectBlueprintDialogOpen(false), children: "Close" }) })
+            ]
+          }
+        ),
+        runningBlueprint && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          BlueprintRunnerDialog,
+          {
+            open: blueprintRunnerDialogOpen,
+            onClose: handleBlueprintRunnerDialogClose,
+            blueprint: runningBlueprint,
+            onApply: handleBlueprintApplyAndCreatePreset
+          }
+        ),
+        blueprintEditorOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          BlueprintDefinitionEditorDialog,
+          {
+            open: blueprintEditorOpen,
+            onClose: () => {
+              setBlueprintEditorOpen(false);
+              setEditingBlueprintDef(null);
+            },
+            initialBlueprint: editingBlueprintDef,
+            onSave: handleSaveBlueprintDefinition
+          }
+        )
+      ]
+    }
+  );
+};
+const exampleGitHubStatsBlueprint = {
+  id: "bp_github_repo_stats_v1",
+  // Unique ID for this blueprint
+  name: "GitHub Repository Latest Release Info",
+  description: "Creates a preset to fetch the latest release information for a public GitHub repository.",
+  icon: "mdi:github",
+  creatorInfo: { name: "IO Bundled Blueprints" },
+  simpleInputs: [
+    {
+      id: "repoPath",
+      label: "Repository Path (e.g., owner/repo)",
+      type: "text",
+      // Could be 'url' but 'text' is fine for path
+      required: true,
+      placeholder: "YeonV/io",
+      helpText: 'Enter the full path like "facebook/react" or "microsoft/vscode".'
+    }
+  ],
+  presetTemplate: {
+    nameTemplate: "GitHub: {{blueprintInput.repoPath}} Latest Release",
+    // Generated Preset Name
+    iconTemplate: "mdi:github",
+    // Fixed icon for presets generated by this
+    descriptionTemplate: "Fetches latest release data for the GitHub repository: {{blueprintInput.repoPath}}.",
+    urlTemplate: "https://api.github.com/repos/{{blueprintInput.repoPath}}/releases/latest",
+    method: "GET",
+    headersTemplate: {
+      Accept: "application/vnd.github.v3+json",
+      "User-Agent": "IO-App-Blueprint-Requester"
+      // Good practice to set a User-Agent
+    }
+    // bodyTemplateTemplate is undefined for GET
+  }
+};
+const RestOutputEdit = ({ output, onChange }) => {
+  const currentOutputData = output.data;
+  const { blueprintIdUsed, blueprintInputsSnapshot } = currentOutputData;
+  const [restEditorOpen, setRestEditorOpen] = reactExports.useState(false);
+  const [blueprintToRunForEdit, setBlueprintToRunForEdit] = reactExports.useState(
+    null
+  );
+  const [blueprintRunnerDialogOpenForEdit, setBlueprintRunnerDialogOpenForEdit] = reactExports.useState(false);
+  const globalBlueprints = useMainStore(
+    (state) => state.modules[id$4]?.config?.blueprints || []
+  );
+  const globalPresets = useMainStore(
+    // Needed if "save as global preset" is an option from simple edit
+    (state) => state.modules[id$4]?.config?.presets || []
+  );
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
+  const handleOpenRestEditor = () => setRestEditorOpen(true);
+  const handleRestEditorChange = (newOutputDataFromEditor) => {
+    onChange(newOutputDataFromEditor);
+  };
+  const handleOpenSimpleInputEditor = () => {
+    if (blueprintIdUsed) {
+      const blueprint = globalBlueprints.find((bp) => bp.id === blueprintIdUsed);
+      if (blueprint) {
+        setBlueprintToRunForEdit(blueprint);
+        setBlueprintRunnerDialogOpenForEdit(true);
+      } else {
+        alert(
+          `Error: Blueprint definition for '${blueprintIdUsed}' not found. Please perform an advanced edit.`
+        );
+      }
+    }
+  };
+  const handleBlueprintApplyToExistingRow = (generatedPresetConfig, newSnapshot, saveAsGlobalPresetChosen) => {
+    const updatedRowOutputData = {
+      label: generatedPresetConfig.name,
+      // Use the generated name as the row label
+      host: generatedPresetConfig.url,
+      options: {
+        method: generatedPresetConfig.method,
+        headers: generatedPresetConfig.headers,
+        body: generatedPresetConfig.bodyTemplate
+        // bodyTemplate from preset is the string body for output
+      },
+      blueprintIdUsed: blueprintToRunForEdit?.id,
+      // Retain/confirm the blueprint link
+      blueprintInputsSnapshot: newSnapshot
+      // Update with the new snapshot
+    };
+    onChange(updatedRowOutputData);
+    if (saveAsGlobalPresetChosen && blueprintToRunForEdit) {
+      const newGlobalPreset = {
+        ...generatedPresetConfig,
+        id: v4()
+      };
+      setModuleConfig(id$4, "presets", [...globalPresets, newGlobalPreset]);
+      alert(`Global Preset "${newGlobalPreset.name}" also created!`);
+    }
+    setBlueprintRunnerDialogOpenForEdit(false);
+    setBlueprintToRunForEdit(null);
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Box,
+    {
+      sx: { display: "flex", flexDirection: "column", gap: 1, marginTop: "1rem", width: "100%" },
+      children: [
+        blueprintIdUsed ? /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            variant: "outlined",
+            color: "info",
+            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(TuneIcon, {}),
+            onClick: handleOpenSimpleInputEditor,
+            fullWidth: true,
+            sx: { height: 56 },
+            children: "Edit Simple Inputs (Blueprint)"
+          }
+        ) : null,
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Button,
+          {
+            variant: blueprintIdUsed ? "outlined" : "contained",
+            color: blueprintIdUsed ? "inherit" : "secondary",
+            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(Edit, {}),
+            onClick: handleOpenRestEditor,
+            fullWidth: true,
+            sx: { height: 56 },
+            children: blueprintIdUsed ? "Advanced Edit REST Config" : "Configure REST Call"
+          }
+        ),
+        restEditorOpen && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          RestEditor,
+          {
+            initialData: currentOutputData,
+            onChange: handleRestEditorChange,
+            open: restEditorOpen,
+            setOpen: setRestEditorOpen
+          }
+        ),
+        currentOutputData.label && !restEditorOpen && !blueprintRunnerDialogOpenForEdit && // Only show if no dialogs are open
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Typography,
+          {
+            variant: "caption",
+            sx: { mt: 1, textAlign: "center", color: "text.secondary" },
+            children: [
+              'Current Label: "',
+              currentOutputData.label,
+              '" (',
+              currentOutputData.options.method,
+              " ",
+              currentOutputData.host.substring(0, 30),
+              "...)"
+            ]
+          }
+        ),
+        blueprintToRunForEdit && /* @__PURE__ */ jsxRuntimeExports.jsx(
+          BlueprintRunnerDialog,
+          {
+            open: blueprintRunnerDialogOpenForEdit,
+            onClose: () => {
+              setBlueprintRunnerDialogOpenForEdit(false);
+              setBlueprintToRunForEdit(null);
+            },
+            blueprint: blueprintToRunForEdit,
+            onApply: handleBlueprintApplyToExistingRow,
+            initialSnapshot: blueprintInputsSnapshot
+          }
+        )
+      ]
+    }
+  );
+};
 const ipcRenderer$5 = window.electron?.ipcRenderer;
 const id$4 = "rest-module";
 const groupId = "Network";
 const moduleConfig$4 = {
   menuLabel: "Network",
-  inputs: [
-    // {
-    //   name: 'REST',
-    //   icon: 'webhook'
-    // }
-  ],
+  inputs: [],
   outputs: [
     {
-      name: "REST",
+      name: "REST Call",
       icon: "webhook",
       editable: true,
       supportedContexts: ["electron", "web"]
     }
   ],
   config: {
-    enabled: true
+    enabled: true,
+    presets: [
+      {
+        id: v4(),
+        name: "Example GET Unsplash",
+        icon: "mdi:image",
+        description: "Fetches a random image from Unsplash API (requires API key).",
+        url: "https://api.unsplash.com/photos/random",
+        method: "GET",
+        headers: {
+          Authorization: "Client-ID YOUR_UNSPLASH_ACCESS_KEY",
+          "Accept-Version": "v1"
+        }
+      }
+    ],
+    blueprints: [exampleGitHubStatsBlueprint]
+    // Initialize with our example blueprint
   }
 };
-const OutputDisplay$3 = ({ output }) => /* @__PURE__ */ jsxRuntimeExports.jsx(DisplayButtons, { data: output });
-const OutputEdit$3 = ({ output, onChange }) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", marginTop: "1rem" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(RestEditor, { onChange }),
-    output.data.text && /* @__PURE__ */ jsxRuntimeExports.jsx(
-      Button,
-      {
-        size: "large",
-        color: "inherit",
-        variant: "outlined",
-        disabled: true,
-        sx: {
-          height: 56,
-          fontSize: 16,
-          fontWeight: 400,
-          textTransform: "unset",
-          flexGrow: 1,
-          justifyContent: "flex-start",
-          ml: 1,
-          whiteSpace: "nowrap"
-        },
-        children: output.data.text?.slice(-31)
+const OutputDisplay$3 = ({ output }) => {
+  const outputData = output.data;
+  const isBlueprintConfigured = !!outputData.blueprintIdUsed;
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(
+    DisplayButtons,
+    {
+      data: {
+        ...output,
+        name: output.name,
+        label: outputData.label,
+        icon: isBlueprintConfigured ? output.icon || "api" : output.icon
       }
-    )
-  ] });
+    }
+  );
 };
+const OutputEdit$3 = RestOutputEdit;
+const Settings = RestSettings;
 const useOutputActions$3 = (row) => {
   const { id: rowId, output } = row;
   const outputData = output.data;
@@ -64773,7 +68138,7 @@ const useOutputActions$3 = (row) => {
     }
     if (!host || !method) {
       console.warn(
-        `[REST Output] Row ${rowId}: Host or method not configured. Listener not attached.`
+        `[REST Output] Row ${rowId}: Host or method not configured for row. Listener not attached.`
       );
       return;
     }
@@ -64781,27 +68146,29 @@ const useOutputActions$3 = (row) => {
       `[REST Output] Attaching 'io_input' listener for Row ${rowId}. Target: ${method} ${host}`
     );
     const listener = async (event) => {
-      if (!(event instanceof CustomEvent && typeof event.detail === "string")) {
-        return;
-      }
-      const triggerRowId = event.detail;
+      if (!(event instanceof CustomEvent)) return;
+      const triggerRowId = typeof event.detail === "object" && event.detail !== null ? event.detail.rowId : event.detail;
       if (triggerRowId === rowId) {
+        if (!outputData.host || !outputData.options?.method) {
+          console.warn(
+            `[REST Output] Row ${rowId} triggered but host/method is missing post-init. Aborting.`
+          );
+          return;
+        }
         console.log(`[REST Output] Row ${rowId} TRIGGERED! Config:`, {
-          host,
-          method,
-          headers: headers || {},
-          body: body || null
+          host: outputData.host,
+          method: outputData.options.method,
+          headers: outputData.options.headers || {},
+          body: outputData.options.body || null
         });
         try {
           if (isElectron() && ipcRenderer$5) {
             console.debug(`[REST Output Electron] Invoking 'rest-request' for row ${rowId}`);
             const result = await ipcRenderer$5.invoke("rest-request", {
-              url: host,
-              method,
-              headers: headers || {},
-              // Send empty object if undefined
-              body: body || null
-              // Send null if undefined/empty
+              url: outputData.host,
+              method: outputData.options.method,
+              headers: outputData.options.headers || {},
+              body: outputData.options.body || null
             });
             console.log(
               `[REST Output Electron] IPC 'rest-request' result for row ${rowId}:`,
@@ -64810,19 +68177,19 @@ const useOutputActions$3 = (row) => {
           } else {
             console.debug(`[REST Output Web] Performing direct fetch for row ${rowId}`);
             const fetchOptions = {
-              method,
-              headers: headers || {}
+              method: outputData.options.method,
+              headers: outputData.options.headers || {}
             };
-            if (method !== "GET" && method !== "HEAD" && body) {
-              fetchOptions.body = body;
-              if (!fetchOptions.headers["Content-Type"] && body.startsWith("{") && body.endsWith("}")) {
-                fetchOptions.headers["Content-Type"] = "application/json";
-              }
+            if (outputData.options.method !== "GET" && outputData.options.method !== "HEAD" && outputData.options.body) {
+              fetchOptions.body = outputData.options.body;
             }
-            const response = await fetch(host, fetchOptions);
+            const response = await fetch(outputData.host, fetchOptions);
             console.log(`[REST Output Web] Fetch status for row ${rowId}: ${response.status}`);
             if (!response.ok) {
-              throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+              const errorBody = await response.text();
+              throw new Error(
+                `HTTP error ${response.status}: ${response.statusText}. Body: ${errorBody}`
+              );
             }
           }
         } catch (error) {
@@ -64835,15 +68202,25 @@ const useOutputActions$3 = (row) => {
       console.debug(`[REST Output] Removing 'io_input' listener for Row ${rowId}`);
       window.removeEventListener("io_input", listener);
     };
-  }, [rowId, isActive, host, method, JSON.stringify(headers), body, inactiveReason]);
+  }, [rowId, isActive, host, method, JSON.stringify(headers), body, inactiveReason, outputData]);
 };
 const InputDisplay$1 = ({ input }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DisplayButtons, { data: input }) });
 };
 const InputEdit$1 = ({ input, onChange }) => {
+  const [restEditorOpen, setRestEditorOpen] = reactExports.useState(false);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { style: { display: "flex", marginTop: "1rem" }, children: [
-    /* @__PURE__ */ jsxRuntimeExports.jsx(RestEditor, { onChange }),
-    input.data.text && /* @__PURE__ */ jsxRuntimeExports.jsx(
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
+      RestEditor,
+      {
+        initialData: input.data,
+        onChange,
+        open: restEditorOpen,
+        setOpen: setRestEditorOpen
+      }
+    ),
+    input.data.text && // 'text' property might not exist on generic input.data
+    /* @__PURE__ */ jsxRuntimeExports.jsx(
       Button,
       {
         size: "large",
@@ -64865,12 +68242,9 @@ const InputEdit$1 = ({ input, onChange }) => {
     )
   ] });
 };
-const useInputActions = (row) => {
-  log$1.success3("hotkey triggered", row.id);
-  window.dispatchEvent(new CustomEvent(`io_input`, { detail: row.id }));
+const useInputActions = (_row) => {
 };
 const useGlobalActions$4 = () => {
-  log$1.info1("useGlobalActions:", "rest");
 };
 const restModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
@@ -64878,6 +68252,7 @@ const restModule = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePr
   InputEdit: InputEdit$1,
   OutputDisplay: OutputDisplay$3,
   OutputEdit: OutputEdit$3,
+  Settings,
   groupId,
   id: id$4,
   moduleConfig: moduleConfig$4,
@@ -64902,7 +68277,7 @@ const moduleConfig$3 = {
   }
 };
 const OutputDisplay$2 = ({ output }) => {
-  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DisplayButtons, { data: output, variant: "text" }) });
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(jsxRuntimeExports.Fragment, { children: /* @__PURE__ */ jsxRuntimeExports.jsx(DisplayButtons, { data: output }) });
 };
 const OutputEdit$2 = ({ output, onChange }) => {
   return /* @__PURE__ */ jsxRuntimeExports.jsx(EditButtons, { data: output, onChange, title: "Spoken Text", speak: true });
@@ -79904,6 +83279,7 @@ for (const moduleId in modulesObjectFromFile) {
     }
   }
 }
+const MAX_HISTORY_ENTRIES = 200;
 const useMainStore = create()(
   devtools(
     persist(
@@ -79917,6 +83293,8 @@ const useMainStore = create()(
         globalAudioCommandTimestamp: null,
         isWindowBeingDraggedOver: false,
         dropMessage: "Drop .ioProfile file",
+        blueprintToRunFromDrop: null,
+        rowHistory: [],
         ...storeUIActions(set2),
         enableModule: (moduleId) => {
           set2(
@@ -80114,6 +83492,30 @@ const useMainStore = create()(
         },
         setDropMessage: (message) => {
           set2({ dropMessage: message }, false, "setDropMessage");
+        },
+        setBlueprintToRunFromDrop: (blueprint) => set2(
+          produce((state) => {
+            state.blueprintToRunFromDrop = blueprint;
+          }),
+          false,
+          "setBlueprintToRunFromDrop"
+        ),
+        addRowHistoryEntry: (entryData) => {
+          set2(
+            produce((state) => {
+              const newEntry = {
+                id: v4(),
+                timestamp: Date.now(),
+                ...entryData
+              };
+              state.rowHistory.unshift(newEntry);
+              if (state.rowHistory.length > MAX_HISTORY_ENTRIES) {
+                state.rowHistory.pop();
+              }
+            }),
+            false,
+            "addRowHistoryEntry"
+          );
         }
       }),
       {
@@ -80989,9 +84391,9 @@ const IoRow = ({ row }) => {
                 minHeight: "50px",
                 display: "flex",
                 alignItems: "center",
-                padding: mobile ? "10px 0 10px 10px" : "0 0 0 10px",
+                padding: mobile ? "0px 0 0px 0px" : "0 0 0 10px",
                 borderRight: !mobile ? "1px solid #666" : "none",
-                borderBottom: "1px solid #666"
+                borderBottom: mobile ? 0 : "1px solid #666"
               },
               children: SelectedModuleInputDisplay ? /* @__PURE__ */ jsxRuntimeExports.jsx(SelectedModuleInputDisplay, { input: row.input }) : /* @__PURE__ */ jsxRuntimeExports.jsx(Help, { fontSize: "large", sx: { color: "text.disabled" } })
             }
@@ -81003,9 +84405,9 @@ const IoRow = ({ row }) => {
                 flexBasis: desktop ? "50%" : "100%",
                 display: "flex",
                 alignItems: "center",
-                padding: mobile ? "10px 10px 10px 10px" : "0 10px 0 10px",
+                padding: mobile ? "0px 0px 20px 0px" : "0 10px 0 10px",
                 justifyContent: "space-between",
-                borderBottom: "1px solid #666"
+                borderBottom: mobile ? 0 : "1px solid #666"
               },
               children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -81112,13 +84514,20 @@ const FiledropProvider = ({ children }) => {
   const isWindowBeingDraggedOver = useMainStore((state) => state.isWindowBeingDraggedOver);
   const dropMessage = useMainStore((state) => state.dropMessage);
   const setIsWindowBeingDraggedOver = useMainStore((state) => state.setIsWindowBeingDraggedOver);
-  const [showImportConfirmDialog, setShowImportConfirmDialog] = reactExports.useState(false);
+  const setDropMessageGlobal = useMainStore((state) => state.setDropMessage);
+  const [showProfileImportConfirmDialog, setShowProfileImportConfirmDialog] = reactExports.useState(false);
   const [importedProfileData, setImportedProfileData] = reactExports.useState(null);
-  const [isImporting, setIsImporting] = reactExports.useState(false);
+  const [isImportingProfile, setIsImportingProfile] = reactExports.useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const addProfile = useMainStore((state) => state.addProfile);
   const addRowAction = useMainStore((state) => state.addRow);
   const setActiveProfile = useMainStore((state) => state.setActiveProfile);
+  const setBlueprintToRunFromDrop = useMainStore((state) => state.setBlueprintToRunFromDrop);
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
+  const getRestModuleBlueprints = reactExports.useCallback(
+    () => useMainStore.getState().modules[id$4]?.config?.blueprints || [],
+    []
+  );
   const processDroppedProfileFile = reactExports.useCallback(
     async (file) => {
       if (!file) return;
@@ -81138,67 +84547,32 @@ const FiledropProvider = ({ children }) => {
             throw new Error("Invalid .ioProfile structure: Missing 'profile' or 'rows' array.");
           }
           setImportedProfileData(parsedData);
-          setShowImportConfirmDialog(true);
-          console.debug("[FiledropProvider] File parsed, showing confirmation dialog.");
+          setShowProfileImportConfirmDialog(true);
+          console.debug("[FiledropProvider] Profile file parsed, showing confirmation dialog.");
         } catch (parseError) {
-          console.error("[FiledropProvider] Error parsing or processing profile file:", parseError);
-          enqueueSnackbar(`Import Error: ${parseError.message || "Invalid file content."}`, {
-            variant: "error"
-          });
+          console.error("[FiledropProvider] Error parsing profile file:", parseError);
+          enqueueSnackbar(
+            `Profile Import Error: ${parseError.message || "Invalid file content."}`,
+            {
+              variant: "error"
+            }
+          );
         }
       };
       reader.onerror = () => {
-        enqueueSnackbar("Error reading file.", { variant: "error" });
+        enqueueSnackbar("Error reading profile file.", { variant: "error" });
       };
       reader.readAsText(file);
     },
     [enqueueSnackbar]
   );
-  const handleGlobalDrop = reactExports.useCallback(
-    (e2) => {
-      e2.preventDefault();
-      setIsWindowBeingDraggedOver(false);
-      if (e2.dataTransfer.files && e2.dataTransfer.files.length > 0) {
-        const file = e2.dataTransfer.files[0];
-        if (file.name.endsWith(".json") || file.name.endsWith(".ioProfile")) {
-          console.debug(
-            "[FiledropProvider] Global drop, attempting to process as profile:",
-            file.name
-          );
-          processDroppedProfileFile(file);
-        } else {
-          console.debug(
-            "[FiledropProvider] File dropped on global area is not an .ioProfile, ignoring.",
-            file.name
-          );
-        }
-      }
-    },
-    [processDroppedProfileFile, setIsWindowBeingDraggedOver]
-  );
-  const handleGlobalDragOver = reactExports.useCallback(
-    (e2) => {
-      e2.preventDefault();
-      if (e2.dataTransfer.types.includes("Files")) {
-        if (!isWindowBeingDraggedOver) {
-          setIsWindowBeingDraggedOver(true);
-        }
-      }
-      e2.dataTransfer.dropEffect = "copy";
-    },
-    [isWindowBeingDraggedOver, setIsWindowBeingDraggedOver]
-  );
-  const handleCloseConfirmDialog = () => {
-    setShowImportConfirmDialog(false);
-    setImportedProfileData(null);
-  };
-  const handleConfirmImport = async () => {
+  const handleConfirmProfileImport = async () => {
     if (!importedProfileData) return;
-    setIsImporting(true);
+    setIsImportingProfile(true);
     try {
       const audioIdMap = {};
       if (importedProfileData.audioData) {
-        console.debug("[FiledropProvider] Processing embedded audio data for import...");
+        console.debug("[FiledropProvider] Processing embedded audio data for profile import...");
         for (const oldAudioIdFromFile in importedProfileData.audioData) {
           const audioEntry = importedProfileData.audioData[oldAudioIdFromFile];
           try {
@@ -81210,7 +84584,7 @@ const FiledropProvider = ({ children }) => {
             );
             audioIdMap[oldAudioIdFromFile] = newLocalAudioId;
           } catch (err2) {
-            console.error(`Error importing audio entry ${oldAudioIdFromFile}:`, err2);
+            console.error(`Error importing audio entry ${oldAudioIdFromFile} for profile:`, err2);
           }
         }
       }
@@ -81243,36 +84617,159 @@ const FiledropProvider = ({ children }) => {
       enqueueSnackbar(`Profile "${newProfileName}" imported successfully!`, { variant: "success" });
       setActiveProfile(newProfileActualId);
     } catch (error) {
-      console.error("[FiledropProvider] Error during final import process:", error);
-      enqueueSnackbar(`Import failed: ${error.message || "Unknown error"}`, { variant: "error" });
+      console.error("[FiledropProvider] Error during final profile import process:", error);
+      enqueueSnackbar(`Profile Import failed: ${error.message || "Unknown error"}`, {
+        variant: "error"
+      });
     } finally {
-      setIsImporting(false);
-      handleCloseConfirmDialog();
+      setIsImportingProfile(false);
+      setShowProfileImportConfirmDialog(false);
+      setImportedProfileData(null);
     }
   };
+  const handleCloseProfileConfirmDialog = () => {
+    setShowProfileImportConfirmDialog(false);
+    setImportedProfileData(null);
+  };
+  const processDroppedBlueprintFile = reactExports.useCallback(
+    async (file) => {
+      if (!file) return;
+      console.debug("[FiledropProvider] Processing dropped .ioBlueprint file:", file.name);
+      const reader = new FileReader();
+      reader.onload = async (e2) => {
+        try {
+          const fileContent = e2.target?.result;
+          const parsedData = JSON.parse(fileContent);
+          if (!parsedData.id || !parsedData.name || !Array.isArray(parsedData.simpleInputs) || !parsedData.presetTemplate) {
+            throw new Error(
+              "Invalid .ioBlueprint structure: Missing required fields (id, name, simpleInputs, presetTemplate)."
+            );
+          }
+          const currentBlueprints = getRestModuleBlueprints();
+          if (currentBlueprints.some((bp) => bp.id === parsedData.id)) {
+            enqueueSnackbar(
+              `Blueprint with ID "${parsedData.id}" (${parsedData.name}) already exists. Import skipped.`,
+              { variant: "warning", autoHideDuration: 5e3 }
+            );
+            return;
+          }
+          const moduleConf = useMainStore.getState().modules[id$4]?.config;
+          if (!moduleConf?.blueprints) {
+            setModuleConfig(id$4, "blueprints", [parsedData]);
+          } else {
+            setModuleConfig(id$4, "blueprints", [...currentBlueprints, parsedData]);
+          }
+          enqueueSnackbar(
+            `Blueprint "${parsedData.name}" imported successfully! Opening for configuration...`,
+            { variant: "success" }
+          );
+          setBlueprintToRunFromDrop(parsedData);
+        } catch (parseError) {
+          console.error(
+            "[FiledropProvider] Error parsing or processing blueprint file:",
+            parseError
+          );
+          enqueueSnackbar(
+            `Blueprint Import Error: ${parseError.message || "Invalid file content."}`,
+            { variant: "error" }
+          );
+        }
+      };
+      reader.onerror = () => {
+        enqueueSnackbar("Error reading blueprint file.", { variant: "error" });
+      };
+      reader.readAsText(file);
+    },
+    [enqueueSnackbar, setModuleConfig, getRestModuleBlueprints, setBlueprintToRunFromDrop]
+  );
+  const handleGlobalDrop = reactExports.useCallback(
+    (e2) => {
+      e2.preventDefault();
+      e2.stopPropagation();
+      setIsWindowBeingDraggedOver(false);
+      if (e2.dataTransfer.files && e2.dataTransfer.files.length > 0) {
+        const file = e2.dataTransfer.files[0];
+        if (file.name.endsWith(".ioProfile") || file.name.endsWith(".json") && file.type === "application/json") {
+          console.debug(
+            "[FiledropProvider] Global drop, attempting to process as .ioProfile:",
+            file.name
+          );
+          processDroppedProfileFile(file);
+        } else if (file.name.endsWith(".ioBlueprint")) {
+          console.debug(
+            "[FiledropProvider] Global drop, attempting to process as .ioBlueprint:",
+            file.name
+          );
+          processDroppedBlueprintFile(file);
+        } else {
+          console.debug(
+            "[FiledropProvider] File dropped on global area is not .ioProfile or .ioBlueprint, ignoring.",
+            file.name
+          );
+          setDropMessageGlobal(null);
+        }
+      } else {
+        setDropMessageGlobal(null);
+      }
+    },
+    [
+      processDroppedProfileFile,
+      processDroppedBlueprintFile,
+      setIsWindowBeingDraggedOver,
+      setDropMessageGlobal
+    ]
+  );
+  const handleGlobalDragOver = reactExports.useCallback(
+    (e2) => {
+      e2.preventDefault();
+      e2.stopPropagation();
+      if (e2.dataTransfer.types.includes("Files")) {
+        if (!isWindowBeingDraggedOver) {
+          setIsWindowBeingDraggedOver(true);
+        }
+        const files = e2.dataTransfer.items;
+        let potentialMessage = "Drop .ioProfile or .ioBlueprint file";
+        if (files && files.length > 0) {
+          const firstFileName = files[0].type === "application/json" ? "file.json" : files[0].name;
+          if (firstFileName?.endsWith(".ioBlueprint")) {
+            potentialMessage = "Drop .ioBlueprint file";
+          } else if (firstFileName?.endsWith(".ioProfile")) {
+            potentialMessage = "Drop .ioProfile file";
+          }
+        }
+        setDropMessageGlobal(potentialMessage);
+      }
+      e2.dataTransfer.dropEffect = "copy";
+    },
+    [isWindowBeingDraggedOver, setIsWindowBeingDraggedOver, setDropMessageGlobal]
+  );
   reactExports.useEffect(() => {
-    const handleDocDragEnter = (e2) => {
-      if (e2.dataTransfer?.types.includes("Files")) {
-        setIsWindowBeingDraggedOver(true);
+    const handleDocDragEnter = (ev) => {
+      if (ev.dataTransfer && Array.from(ev.dataTransfer.types).includes("Files")) {
+        if (!isWindowBeingDraggedOver) {
+          setIsWindowBeingDraggedOver(true);
+        }
       }
     };
-    const handleDocDragLeave = (e2) => {
-      if (!e2.relatedTarget || e2.relatedTarget.nodeName === "HTML") {
+    const handleDocDragLeave = (ev) => {
+      if (!ev.relatedTarget || ev.relatedTarget.nodeName === "HTML") {
         setIsWindowBeingDraggedOver(false);
+        setDropMessageGlobal(null);
       }
     };
     const handleDocDrop = () => {
       setIsWindowBeingDraggedOver(false);
+      setDropMessageGlobal(null);
     };
-    document.addEventListener("dragenter", handleDocDragEnter);
-    document.addEventListener("dragleave", handleDocDragLeave);
-    document.addEventListener("drop", handleDocDrop);
+    document.addEventListener("dragenter", handleDocDragEnter, false);
+    document.addEventListener("dragleave", handleDocDragLeave, false);
+    document.addEventListener("drop", handleDocDrop, false);
     return () => {
-      document.removeEventListener("dragenter", handleDocDragEnter);
-      document.removeEventListener("dragleave", handleDocDragLeave);
-      document.removeEventListener("drop", handleDocDrop);
+      document.removeEventListener("dragenter", handleDocDragEnter, false);
+      document.removeEventListener("dragleave", handleDocDragLeave, false);
+      document.removeEventListener("drop", handleDocDrop, false);
     };
-  }, [setIsWindowBeingDraggedOver]);
+  }, [setIsWindowBeingDraggedOver, setDropMessageGlobal, isWindowBeingDraggedOver]);
   return /* @__PURE__ */ jsxRuntimeExports.jsxs(
     Box,
     {
@@ -81282,6 +84779,9 @@ const FiledropProvider = ({ children }) => {
         width: "100%",
         height: "100%",
         position: "relative"
+        // If this Box itself is meant to be the primary global drop surface,
+        // ensure its z-index allows it to receive events if children are overlaid.
+        // However, the document listeners are more robust for window-wide drag state.
       },
       children: [
         children,
@@ -81294,21 +84794,23 @@ const FiledropProvider = ({ children }) => {
               left: 0,
               right: 0,
               bottom: 0,
-              bgcolor: "rgba(0, 0, 0, 0.65)",
-              zIndex: 9990,
+              bgcolor: "rgba(0, 0, 0, 0.75)",
+              // Slightly darker
+              zIndex: 1301,
+              // Higher than MUI Dialogs (usually 1300)
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
               pointerEvents: "none",
-              borderRadius: 2,
+              // Let drop events pass through to onDrop handler of this Box
+              borderRadius: 1,
+              // More subtle
               outline: "3px dashed",
-              outlineColor: "primary.light",
+              outlineColor: "primary.main",
+              // Brighter
               outlineOffset: "-3px",
               boxSizing: "border-box"
-            },
-            onClick: () => {
-              setIsWindowBeingDraggedOver(false);
             },
             children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
               Box,
@@ -81316,19 +84818,25 @@ const FiledropProvider = ({ children }) => {
                 sx: {
                   position: "absolute",
                   bottom: "3px",
+                  // Keep consistent
                   width: "calc(100% - 6px)",
                   textAlign: "center",
-                  bgcolor: "#000",
+                  bgcolor: "rgba(0,0,0,0.8)",
+                  // Slightly transparent black
+                  color: "common.white",
                   left: "3px",
                   boxSizing: "border-box",
-                  height: "40px",
+                  height: "45px",
+                  // Slightly taller
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center"
+                  justifyContent: "center",
+                  borderRadius: "0 0 4px 4px"
+                  // Match outline
                 },
                 children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(UploadFileIcon, { sx: { color: "primary.contrastText", mr: 1 } }),
-                  /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h6", color: "primary.contrastText", children: dropMessage || "Drop .ioProfile file here" })
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(UploadFileIcon, { sx: { mr: 1.5 } }),
+                  /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h6", children: dropMessage || "Drop .ioProfile or .ioBlueprint file" })
                 ]
               }
             )
@@ -81337,12 +84845,12 @@ const FiledropProvider = ({ children }) => {
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Dialog,
           {
-            open: showImportConfirmDialog,
-            onClose: handleCloseConfirmDialog,
-            disableEscapeKeyDown: isImporting,
+            open: showProfileImportConfirmDialog,
+            onClose: handleCloseProfileConfirmDialog,
+            disableEscapeKeyDown: isImportingProfile,
             children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(DialogTitle, { children: "Valid Profile detected. Import?" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: isImporting ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { alignItems: "center", spacing: 2, sx: { p: 3 }, children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(DialogContent, { children: isImportingProfile ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Stack, { alignItems: "center", spacing: 2, sx: { p: 3 }, children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsx(CircularProgress, {}),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { children: "Importing profile and audio data..." })
               ] }) : importedProfileData && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
@@ -81364,15 +84872,15 @@ const FiledropProvider = ({ children }) => {
                 ] })
               ] }) }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs(DialogActions, { children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: handleCloseConfirmDialog, disabled: isImporting, children: "Cancel" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(Button, { onClick: handleCloseProfileConfirmDialog, disabled: isImportingProfile, children: "Cancel" }),
                 /* @__PURE__ */ jsxRuntimeExports.jsx(
                   Button,
                   {
-                    onClick: handleConfirmImport,
+                    onClick: handleConfirmProfileImport,
                     variant: "contained",
                     color: "info",
-                    disabled: isImporting,
-                    children: isImporting ? "Importing..." : "Confirm Import"
+                    disabled: isImportingProfile,
+                    children: isImportingProfile ? "Importing..." : "Confirm Profile Import"
                   }
                 )
               ] })
@@ -81800,7 +85308,7 @@ const ProfileManagerSettings = () => {
       elevation: 2,
       sx: {
         p: 2,
-        minWidth: 250,
+        minWidth: 285,
         display: "flex",
         flexDirection: "column",
         gap: 1,
@@ -81809,7 +85317,7 @@ const ProfileManagerSettings = () => {
         marginTop: "0.5rem"
       },
       children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: { display: "flex", justifyContent: "center", alignItems: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "overline", children: "Active Profile" }) }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: { display: "flex", justifyContent: "center", alignItems: "center" }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "overline", children: "Profiles" }) }),
         /* @__PURE__ */ jsxRuntimeExports.jsx(FormControl, { fullWidth: true, size: "small", children: /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Select,
           {
@@ -81826,16 +85334,20 @@ const ProfileManagerSettings = () => {
             ]
           }
         ) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx(
+        /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
           {
-            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$6, {}),
+            startIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$7, {}),
             onClick: handleOpenProfileManager,
             variant: "outlined",
             size: "small",
             sx: { height: 41 },
             fullWidth: true,
-            children: "Manage Profiles"
+            children: [
+              "Manage Profiles (",
+              sortedProfiles.length,
+              ")"
+            ]
           }
         ),
         /* @__PURE__ */ jsxRuntimeExports.jsxs(
@@ -81969,6 +85481,456 @@ const ProfileManagerSettings = () => {
     }
   );
 };
+const getLogLevelIcon = (level) => {
+  switch (level?.toLowerCase()) {
+    case "info":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(InfoIcon$1, { fontSize: "inherit", color: "info" });
+    case "warn":
+    case "warning":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(WarningIcon$1, { fontSize: "inherit", color: "warning" });
+    case "error":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(ErrorIcon$1, { fontSize: "inherit", color: "error" });
+    case "success":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(SuccessIcon, { fontSize: "inherit", color: "success" });
+    case "debug":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(DebugIcon, { fontSize: "inherit", sx: { color: "grey.500" } });
+    case "verbose":
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(VerboseIcon, { fontSize: "inherit", sx: { color: "grey.400" } });
+    default:
+      return /* @__PURE__ */ jsxRuntimeExports.jsx(DataObjectIcon, { fontSize: "inherit", color: "disabled" });
+  }
+};
+const getLogLevelChipColor = (level) => {
+  switch (level?.toLowerCase()) {
+    case "info":
+      return "info";
+    case "warn":
+    case "warning":
+      return "warning";
+    case "error":
+      return "error";
+    case "success":
+      return "success";
+    default:
+      return void 0;
+  }
+};
+const ALL_POSSIBLE_LEVELS = [
+  "error",
+  "warn",
+  "warning",
+  "success",
+  "info",
+  "debug",
+  "verbose"
+];
+const CopyButton = ({
+  valueToCopy,
+  tooltipTitle = "Copy to clipboard",
+  onCopySuccess,
+  onCopyError,
+  children,
+  // To allow custom icon if needed, though we default to ContentCopyIcon
+  ...iconButtonProps
+  // Spread remaining IconButtonProps
+}) => {
+  const { enqueueSnackbar } = useSnackbar();
+  const handleCopyToClipboard = async (event) => {
+    event.stopPropagation();
+    if (!valueToCopy && typeof valueToCopy !== "string") {
+      enqueueSnackbar("Nothing to copy.", { variant: "info", autoHideDuration: 2e3 });
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(valueToCopy);
+      enqueueSnackbar("Copied to clipboard!", { variant: "success", autoHideDuration: 1500 });
+      if (onCopySuccess) {
+        onCopySuccess(valueToCopy);
+      }
+    } catch (err2) {
+      console.error("Failed to copy to clipboard: ", err2);
+      enqueueSnackbar("Failed to copy. See console for error.", { variant: "error" });
+      if (onCopyError) {
+        onCopyError(err2);
+      }
+    }
+  };
+  return /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: tooltipTitle, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+    IconButton,
+    {
+      "aria-label": tooltipTitle,
+      onClick: handleCopyToClipboard,
+      size: "small",
+      sx: { position: "absolute", top: 10, right: 10, zIndex: 1 },
+      ...iconButtonProps,
+      children: children || /* @__PURE__ */ jsxRuntimeExports.jsx(ContentCopyIcon, { fontSize: iconButtonProps.size === "small" ? "inherit" : "small" })
+    }
+  ) });
+};
+const LogViewer = ({
+  entries,
+  title,
+  maxHeight: maxHeight2 = "600px",
+  defaultExpandedId = null,
+  emptyStateMessage = "No entries to display.",
+  showExportButton = true,
+  showLevelFilter = true,
+  showSearchFilter = true
+}) => {
+  const [expandedAccordion, setExpandedAccordion] = reactExports.useState(
+    defaultExpandedId || false
+  );
+  const [selectedLevels, setSelectedLevels] = reactExports.useState([]);
+  const [searchTerm, setSearchTerm] = reactExports.useState("");
+  const availableLevels = reactExports.useMemo(() => {
+    const levelsFromEntries = new Set(entries.map((e2) => e2.level).filter(Boolean));
+    return Array.from(/* @__PURE__ */ new Set([...ALL_POSSIBLE_LEVELS, ...levelsFromEntries])).sort();
+  }, [entries]);
+  reactExports.useEffect(() => {
+    setSelectedLevels(availableLevels);
+  }, [availableLevels]);
+  const handleChange = (panelId) => (_event, isExpanded) => setExpandedAccordion(isExpanded ? panelId : false);
+  const handleExport = () => {
+    const entriesToExport = filteredAndSortedEntries;
+    if (entriesToExport.length === 0) {
+      alert("No entries to export.");
+      return;
+    }
+    try {
+      const jsonString = JSON.stringify(entriesToExport, null, 2);
+      const blob = new Blob([jsonString], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a2 = document.createElement("a");
+      a2.href = url;
+      a2.download = `${title?.replace(/\s+/g, "_").toLowerCase() || "log_export"}_${dayjs().format("YYYYMMDD_HHmmss")}.json`;
+      document.body.appendChild(a2);
+      a2.click();
+      document.body.removeChild(a2);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error exporting log entries:", error);
+      alert("Failed to export log entries.");
+    }
+  };
+  const handleLevelFilterChange = (event) => {
+    const {
+      target: { value }
+    } = event;
+    setSelectedLevels(
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
+  const filteredAndSortedEntries = reactExports.useMemo(() => {
+    const lowerSearchTerm = searchTerm.toLowerCase().trim();
+    const levelFiltered = selectedLevels.length === 0 && availableLevels.length > 0 ? [] : entries.filter((entry) => !entry.level || selectedLevels.includes(entry.level));
+    const searchFiltered = lowerSearchTerm === "" ? levelFiltered : levelFiltered.filter(
+      (entry) => entry.summary?.toLowerCase().includes(lowerSearchTerm) || entry.source?.toLowerCase().includes(lowerSearchTerm) || typeof entry.details === "string" && entry.details.toLowerCase().includes(lowerSearchTerm) || typeof entry.details === "object" && entry.details !== null && JSON.stringify(entry.details).toLowerCase().includes(lowerSearchTerm)
+    );
+    return [...searchFiltered].sort((a2, b2) => b2.timestamp - a2.timestamp);
+  }, [entries, selectedLevels, availableLevels, searchTerm]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(
+    Paper,
+    {
+      variant: "outlined",
+      sx: { display: "flex", flexDirection: "column", height: "100%", width: "100%" },
+      children: [
+        (title || showExportButton || showLevelFilter || showSearchFilter) && /* @__PURE__ */ jsxRuntimeExports.jsxs(
+          Stack,
+          {
+            direction: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+            spacing: 1.5,
+            sx: {
+              p: 1.5,
+              borderBottom: 1,
+              borderColor: "divider",
+              bgcolor: "action.focus",
+              flexShrink: 0
+            },
+            children: [
+              title && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                Typography,
+                {
+                  variant: "subtitle1",
+                  sx: { fontWeight: "medium", flexGrow: 1, textAlign: "left" },
+                  children: title
+                }
+              ),
+              showSearchFilter && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                TextField,
+                {
+                  variant: "outlined",
+                  size: "small",
+                  placeholder: "Search...",
+                  value: searchTerm,
+                  onChange: (e2) => setSearchTerm(e2.target.value),
+                  sx: { minWidth: 150, maxWidth: 220 },
+                  InputProps: {
+                    startAdornment: /* @__PURE__ */ jsxRuntimeExports.jsx(InputAdornment, { position: "start", children: /* @__PURE__ */ jsxRuntimeExports.jsx(SearchIcon, { fontSize: "small" }) })
+                  }
+                }
+              ),
+              showLevelFilter && availableLevels.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs(FormControl, { size: "small", sx: { minWidth: 130, maxWidth: 180 }, children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(InputLabel, { id: "log-level-filter-label", children: "Level" }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  Select,
+                  {
+                    labelId: "log-level-filter-label",
+                    id: "log-level-filter-select",
+                    multiple: true,
+                    value: selectedLevels,
+                    onChange: handleLevelFilterChange,
+                    input: /* @__PURE__ */ jsxRuntimeExports.jsx(OutlinedInput, { label: "Level", notched: selectedLevels.length > 0 }),
+                    renderValue: (selected) => {
+                      const s2 = selected;
+                      if (s2.length === 0 && availableLevels.length > 0) return /* @__PURE__ */ jsxRuntimeExports.jsx("em", { children: "None" });
+                      if (s2.length === availableLevels.length) return "All";
+                      if (s2.length === 1) {
+                        const levelName = s2[0];
+                        return /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: { display: "flex", alignItems: "center", gap: 0.5 }, children: [
+                          /* @__PURE__ */ jsxRuntimeExports.jsx(
+                            Box,
+                            {
+                              sx: {
+                                display: "flex",
+                                alignItems: "center",
+                                fontSize: "1em",
+                                mr: 0.5,
+                                opacity: 0.8
+                              },
+                              children: getLogLevelIcon(levelName)
+                            }
+                          ),
+                          levelName.charAt(0).toUpperCase() + levelName.slice(1)
+                        ] });
+                      }
+                      return `${s2.length} Levels`;
+                    },
+                    MenuProps: { PaperProps: { style: { maxHeight: 240, width: 200 } } },
+                    children: availableLevels.map((level) => /* @__PURE__ */ jsxRuntimeExports.jsxs(MenuItem, { value: level, children: [
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Checkbox, { checked: selectedLevels.indexOf(level) > -1, size: "small" }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(ListItemText, { primary: level.charAt(0).toUpperCase() + level.slice(1) }),
+                      /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: { ml: "auto", display: "flex", alignItems: "center", opacity: 0.7 }, children: getLogLevelIcon(level) })
+                    ] }, level))
+                  }
+                )
+              ] }),
+              showExportButton && entries.length > 0 && /* @__PURE__ */ jsxRuntimeExports.jsx(Tooltip, { title: "Export displayed entries to JSON", children: /* @__PURE__ */ jsxRuntimeExports.jsx(IconButton, { onClick: handleExport, size: "small", children: /* @__PURE__ */ jsxRuntimeExports.jsx(DownloadIcon, {}) }) })
+            ]
+          }
+        ),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(
+          Box,
+          {
+            sx: {
+              overflowY: "auto",
+              maxHeight: maxHeight2,
+              flexGrow: 1,
+              p: filteredAndSortedEntries.length > 0 ? { xs: 0.5, sm: 1 } : 0
+            },
+            children: filteredAndSortedEntries.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs(Typography, { variant: "body2", color: "text.secondary", sx: { textAlign: "center", p: 3 }, children: [
+              emptyStateMessage,
+              (selectedLevels.length > 0 || searchTerm) && entries.length > 0 ? "(No entries match current filters)" : ""
+            ] }) : filteredAndSortedEntries.map((entry) => /* @__PURE__ */ jsxRuntimeExports.jsxs(
+              Accordion,
+              {
+                expanded: expandedAccordion === entry.id,
+                onChange: handleChange(entry.id),
+                TransitionProps: { unmountOnExit: true },
+                sx: {
+                  "&:before": { display: "none" },
+                  boxShadow: "none",
+                  borderBottom: 1,
+                  borderColor: "divider",
+                  "&:last-of-type": { borderBottom: 0 }
+                },
+                children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    AccordionSummary,
+                    {
+                      expandIcon: /* @__PURE__ */ jsxRuntimeExports.jsx(ExpandMoreIcon, {}),
+                      "aria-controls": `log-entry-${entry.id}-content`,
+                      id: `log-entry-${entry.id}-header`,
+                      sx: {
+                        "& .MuiAccordionSummary-content": {
+                          alignItems: "center",
+                          gap: 1,
+                          width: "100%",
+                          display: "flex",
+                          pr: 0.5
+                        },
+                        py: 0,
+                        px: { xs: 1, sm: 1.5 },
+                        minHeight: "40px",
+                        "&.Mui-expanded": { minHeight: "40px" }
+                      },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          Box,
+                          {
+                            sx: {
+                              display: "flex",
+                              alignItems: "center",
+                              color: "text.secondary",
+                              fontSize: "1rem",
+                              width: 24,
+                              justifyContent: "center",
+                              flexShrink: 0,
+                              mr: 0.5
+                            },
+                            children: entry.icon ? /* @__PURE__ */ jsxRuntimeExports.jsx(IoIcon, { name: entry.icon, style: { fontSize: "1.1em" } }) : getLogLevelIcon(entry.level)
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          Typography,
+                          {
+                            variant: "caption",
+                            color: "text.secondary",
+                            sx: { width: "120px", flexShrink: 0, textAlign: "left", fontSize: "0.7rem" },
+                            children: dayjs(entry.timestamp).format("YY-MM-DD HH:mm:ss")
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          Box,
+                          {
+                            sx: {
+                              width: "90px",
+                              flexShrink: 0,
+                              textAlign: "left",
+                              overflow: "hidden",
+                              mr: 0.5
+                            },
+                            children: entry.source && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              Chip,
+                              {
+                                component: "div",
+                                label: entry.source,
+                                size: "small",
+                                variant: "outlined",
+                                sx: {
+                                  height: "18px",
+                                  fontSize: "0.6rem",
+                                  cursor: "default",
+                                  textOverflow: "ellipsis",
+                                  overflow: "hidden",
+                                  maxWidth: "100%",
+                                  p: "0 4px"
+                                },
+                                title: entry.source
+                              }
+                            )
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          Typography,
+                          {
+                            variant: "body2",
+                            component: "div",
+                            noWrap: true,
+                            sx: {
+                              flexGrow: 1,
+                              fontWeight: expandedAccordion === entry.id ? "medium" : "normal",
+                              textAlign: "left",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              fontSize: "0.8rem"
+                            },
+                            children: entry.summary
+                          }
+                        ),
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          Box,
+                          {
+                            sx: {
+                              width: "75px",
+                              flexShrink: 0,
+                              textAlign: "right",
+                              mr: 0.5
+                            },
+                            children: entry.level && getLogLevelChipColor(entry.level) && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                              Chip,
+                              {
+                                component: "div",
+                                label: entry.level.toUpperCase(),
+                                size: "small",
+                                color: getLogLevelChipColor(entry.level),
+                                sx: {
+                                  height: "18px",
+                                  fontSize: "0.6rem",
+                                  fontWeight: "medium",
+                                  cursor: "default",
+                                  p: "0 4px"
+                                }
+                              }
+                            )
+                          }
+                        )
+                      ]
+                    }
+                  ),
+                  /* @__PURE__ */ jsxRuntimeExports.jsxs(
+                    AccordionDetails,
+                    {
+                      sx: {
+                        bgcolor: "action.hover",
+                        p: 1.5,
+                        borderTop: 1,
+                        borderColor: "divider",
+                        position: "relative"
+                      },
+                      children: [
+                        /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          CopyButton,
+                          {
+                            valueToCopy: typeof entry.details === "string" ? entry.details : typeof entry.details === "object" && entry.details !== null ? JSON.stringify(entry.details, null, 2) : `Log Entry Summary: ${entry.summary}
+Timestamp: ${dayjs(entry.timestamp).format("YYYY-MM-DD HH:mm:ss.SSS")}`
+                          }
+                        ),
+                        typeof entry.details === "string" && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          Typography,
+                          {
+                            component: "pre",
+                            variant: "body2",
+                            sx: {
+                              textAlign: "left",
+                              whiteSpace: "pre-wrap",
+                              wordBreak: "break-all",
+                              fontFamily: "monospace",
+                              fontSize: "0.8rem"
+                            },
+                            children: entry.details
+                          }
+                        ),
+                        typeof entry.details === "object" && entry.details !== null && !Object.prototype.hasOwnProperty.call(entry.details, "$$typeof") && /* @__PURE__ */ jsxRuntimeExports.jsx(
+                          Typography,
+                          {
+                            component: "pre",
+                            variant: "body2",
+                            sx: {
+                              textAlign: "left",
+                              whiteSpace: "pre-wrap",
+                              wordBreak: "break-all",
+                              fontFamily: "monospace",
+                              fontSize: "0.8rem"
+                            },
+                            children: JSON.stringify(entry.details, null, 2)
+                          }
+                        ),
+                        typeof entry.details === "object" && entry.details !== null && Object.prototype.hasOwnProperty.call(entry.details, "$$typeof") && entry.details
+                      ]
+                    }
+                  )
+                ]
+              },
+              entry.id
+            ))
+          }
+        )
+      ]
+    }
+  );
+};
 const ipcRenderer = window.electron?.ipcRenderer || false;
 const ModuleGlobalActionsRunner = ({ moduleId }) => {
   const hook = moduleImplementations[moduleId]?.useGlobalActions;
@@ -81987,6 +85949,8 @@ const Home = () => {
   const activeProfileId = useMainStore((state) => state.activeProfileId);
   const profiles = useMainStore((state) => state.profiles);
   const setActiveProfile = useMainStore((state) => state.setActiveProfile);
+  const addRowHistoryEntry = useMainStore((state) => state.addRowHistoryEntry);
+  const rowHistory = useMainStore((state) => state.rowHistory);
   const rowsToDisplay = reactExports.useMemo(() => {
     const allRowsArray = Object.values(rows);
     if (!activeProfileId) {
@@ -82032,6 +85996,45 @@ const Home = () => {
     setEditState(false);
     setPrefillData(void 0);
   }, [setEditState]);
+  const blueprintToRunFromDrop = useMainStore((state) => state.blueprintToRunFromDrop);
+  const setBlueprintToRunFromDrop = useMainStore((state) => state.setBlueprintToRunFromDrop);
+  const [isBlueprintRunnerOpen, setIsBlueprintRunnerOpen] = reactExports.useState(false);
+  const [blueprintForRunner, setBlueprintForRunner] = reactExports.useState(null);
+  const setModuleConfig = useMainStore((state) => state.setModuleConfigValue);
+  reactExports.useEffect(() => {
+    if (blueprintToRunFromDrop) {
+      console.log("[Home.tsx] Detected blueprint to run from drop:", blueprintToRunFromDrop.name);
+      setBlueprintForRunner(blueprintToRunFromDrop);
+      setIsBlueprintRunnerOpen(true);
+      setBlueprintToRunFromDrop(null);
+    }
+  }, [blueprintToRunFromDrop, setBlueprintToRunFromDrop]);
+  const handleBlueprintRunnerDialogClose = () => {
+    setIsBlueprintRunnerOpen(false);
+    setBlueprintForRunner(null);
+  };
+  const handleBlueprintApplyFromDrop = (generatedPresetConfig, _inputSnapshot, saveAsGlobalPreset) => {
+    if (saveAsGlobalPreset) {
+      const newGlobalPreset = {
+        ...generatedPresetConfig,
+        id: v4()
+      };
+      const currentGlobalPresets = useMainStore.getState().modules[id$4]?.config?.presets || [];
+      setModuleConfig(id$4, "presets", [...currentGlobalPresets, newGlobalPreset]);
+      alert(`Global REST Preset "${newGlobalPreset.name}" created from dropped Blueprint!`);
+      console.log(
+        `[Home.tsx] Global Preset "${newGlobalPreset.name}" created from dropped Blueprint.`
+      );
+    } else {
+      alert(
+        `Blueprint "${blueprintForRunner?.name}" processed. Configuration generated but not saved as a global preset.`
+      );
+      console.log(
+        `[Home.tsx] Blueprint "${blueprintForRunner?.name}" processed. Config:`,
+        generatedPresetConfig
+      );
+    }
+  };
   reactExports.useEffect(() => {
     if (ipcRenderer && useMainStore.getState().ui.darkMode === null) {
       const isSystemDark = ipcRenderer.sendSync("get-darkmode") === "yes";
@@ -82094,9 +86097,7 @@ const Home = () => {
             editRow(data.rowId, {
               output: {
                 ...currentRow.output,
-                // Preserve other output fields like name, data, settings
                 ...outputUpdatesForMainStore
-                // Apply new icon and/or label
               }
             });
           }
@@ -82158,44 +86159,186 @@ const Home = () => {
     }).filter((widget) => widget !== null),
     [usedModules]
   );
-  return /* @__PURE__ */ jsxRuntimeExports.jsxs(Wrapper, { children: [
-    usedModules.map((modId) => /* @__PURE__ */ jsxRuntimeExports.jsx(ModuleGlobalActionsRunner, { moduleId: modId }, `${modId}-global`)),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      "div",
-      {
-        style: {
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "1rem",
-          flexWrap: "wrap"
-        },
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileManagerSettings, {}, "profile-manager"),
-          SettingsWidgets.length > 0 && SettingsWidgets.map((widget, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "8px" }, children: widget }, widget?.key || index))
-        ]
+  const dummyLogEntries = [
+    {
+      id: v4(),
+      timestamp: Date.now() - 1e3 * 60 * 5,
+      // 5 minutes ago
+      level: "info",
+      icon: "mdi:information-outline",
+      // Example using mdi icon via IoIcon
+      summary: "User logged in successfully.",
+      source: "Auth System",
+      details: { userId: "blade123", ipAddress: "192.168.1.100", sessionDuration: "3600s" }
+    },
+    {
+      id: v4(),
+      timestamp: Date.now() - 1e3 * 60 * 2,
+      // 2 minutes ago
+      level: "success",
+      summary: 'Row "Toggle Lights" triggered by Keyboard Shortcut (Ctrl+Alt+L).',
+      source: "Row Engine",
+      details: {
+        rowId: "row-abc-123",
+        rowName: "Toggle Lights",
+        triggerType: "Keyboard",
+        triggerDetails: "Ctrl+Alt+L",
+        outputModule: "REST Call",
+        outputAction: "Sent GET to http://lightcontrol/toggle",
+        status: "Success"
       }
-    ),
-    /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { maxHeight: "calc(100vh - 356px)", overflowY: "auto" }, children: rowsToDisplay.map((row) => /* @__PURE__ */ jsxRuntimeExports.jsx(IoRow, { row }, row.id)) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsx(Collapse$1, { in: showAddRow, timeout: 500, unmountOnExit: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: { mt: 2, mb: 2 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
-      IoNewRow,
+    },
+    {
+      id: v4(),
+      timestamp: Date.now() - 1e3 * 30,
+      // 30 seconds ago
+      level: "warn",
+      summary: 'MQTT connection to broker "Main Home" temporarily lost.',
+      source: "MQTT Module",
+      details: "Attempting to reconnect in 10 seconds. Error: timeout."
+    },
+    {
+      id: v4(),
+      timestamp: Date.now(),
+      level: "error",
+      summary: 'Failed to execute REST call for Blueprint "GitHub Stats"',
+      source: "REST Module",
+      details: {
+        blueprintId: "bp_github_repo_stats_v1",
+        url: "https://api.github.com/repos/YeonV/io/releases/latest",
+        statusCode: 403,
+        responseBody: {
+          message: "API rate limit exceeded for your IP address.",
+          documentation_url: "..."
+        },
+        errorStack: "Error: Forbidden at <anonymous>:123:45"
+      }
+    },
+    {
+      id: v4(),
+      timestamp: Date.now() - 1e3 * 60 * 60,
+      // 1 hour ago
+      level: "debug",
+      icon: "mdi:bug",
+      summary: "PlaceholderEnabledInput received new props.",
+      source: "UI Components",
+      details: {
+        component: "PlaceholderEnabledInput",
+        propsReceived: { value: "test", availablePlaceholders: [{ id: "test" }] }
+      }
+    }
+  ];
+  reactExports.useEffect(() => {
+    const logRowTrigger = (event) => {
+      if (!(event instanceof CustomEvent) || !event.detail) return;
+      const eventDetail = event.detail;
+      const rowId = typeof eventDetail === "object" && eventDetail.rowId ? eventDetail.rowId : typeof eventDetail === "string" ? eventDetail : null;
+      if (!rowId) {
+        console.warn(
+          "[History Logger] io_input event dispatched without a clear rowId in detail:",
+          eventDetail
+        );
+        return;
+      }
+      const storeState = useMainStore.getState();
+      const row = storeState.rows[rowId];
+      if (row) {
+        const historyEntryData = {
+          level: "info",
+          icon: row.output.icon || row.input.icon || "mdi:play-circle-outline",
+          source: `${row.outputModule.replace("-module", "")}`,
+          summary: `${row.input.name || row.inputModule.replace("-module", "")} triggered ${row.output.name || row.outputModule.replace("-module", "")} ${row.output.data.originalFileName || row.output.data.text}`,
+          details: {
+            // rowId: row.id,
+            // triggeredByModule: row.inputModule,
+            // inputConfigName: row.input.data.name || 'Default Input',
+            // ...(inputPayload !== undefined && { inputPayloadReceived: inputPayload }),
+            // outputModule: row.outputModule || 'N/A',
+            // outputConfigName: row.output.data.name || 'Default Output'
+            ...row
+          }
+        };
+        addRowHistoryEntry(historyEntryData);
+        console.log(`[History Logger] Logged trigger for row: ${rowId}`);
+      } else {
+        console.warn(`[History Logger] Row with ID '${rowId}' not found for io_input event.`);
+      }
+    };
+    console.debug("[Home.tsx] Attaching global io_input listener for history logging.");
+    window.addEventListener("io_input", logRowTrigger);
+    return () => {
+      console.debug("[Home.tsx] Removing global io_input listener for history logging.");
+      window.removeEventListener("io_input", logRowTrigger);
+    };
+  }, [addRowHistoryEntry]);
+  return /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+    /* @__PURE__ */ jsxRuntimeExports.jsxs(Wrapper, { children: [
+      usedModules.map((modId) => /* @__PURE__ */ jsxRuntimeExports.jsx(ModuleGlobalActionsRunner, { moduleId: modId }, `${modId}-global`)),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        "div",
+        {
+          style: {
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: "1rem",
+            flexWrap: "wrap"
+          },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(ProfileManagerSettings, {}, "profile-manager"),
+            SettingsWidgets.length > 0 && SettingsWidgets.map((widget, index) => /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { padding: "8px" }, children: widget }, widget?.key || index))
+          ]
+        }
+      ),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(Box, { sx: {
+        mt: 3
+        /* or however you want to position it */
+      }, children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Typography, { variant: "h5", gutterBottom: true, children: "Log Viewer Test" }),
+        /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: {
+          height: "400px"
+          /* Give it a defined height for scrolling */
+        }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+          LogViewer,
+          {
+            title: "Application Event Log (Dummy Data)",
+            entries: rowHistory,
+            maxHeight: "100%",
+            defaultExpandedId: dummyLogEntries[1]?.id,
+            showExportButton: true
+          }
+        ) })
+      ] }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx("div", { style: { maxHeight: "calc(100vh - 356px)", overflowY: "auto" }, children: rowsToDisplay.map((row) => /* @__PURE__ */ jsxRuntimeExports.jsx(IoRow, { row }, row.id)) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsx(Collapse$1, { in: showAddRow, timeout: 500, unmountOnExit: true, children: /* @__PURE__ */ jsxRuntimeExports.jsx(Box, { sx: { mt: 2, mb: 2 }, children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+        IoNewRow,
+        {
+          onComplete: handleAddRowComplete,
+          startNewPrefilledRow,
+          initialPrefill: prefillData
+        },
+        ioNewRowKey
+      ) }) }),
+      /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        Button,
+        {
+          disabled: showAddRow,
+          variant: "contained",
+          onClick: handleAddNewRowClick,
+          style: { margin: "1rem auto", display: "flex" },
+          children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Add, {}),
+            " Add New IO Row"
+          ]
+        }
+      )
+    ] }),
+    blueprintForRunner && /* @__PURE__ */ jsxRuntimeExports.jsx(
+      BlueprintRunnerDialog,
       {
-        onComplete: handleAddRowComplete,
-        startNewPrefilledRow,
-        initialPrefill: prefillData
-      },
-      ioNewRowKey
-    ) }) }),
-    /* @__PURE__ */ jsxRuntimeExports.jsxs(
-      Button,
-      {
-        disabled: showAddRow,
-        variant: "contained",
-        onClick: handleAddNewRowClick,
-        style: { margin: "1rem auto", display: "flex" },
-        children: [
-          /* @__PURE__ */ jsxRuntimeExports.jsx(Add, {}),
-          " Add New IO Row"
-        ]
+        open: isBlueprintRunnerOpen,
+        onClose: handleBlueprintRunnerDialogClose,
+        blueprint: blueprintForRunner,
+        onApply: handleBlueprintApplyFromDrop
       }
     )
   ] });
@@ -87734,7 +91877,7 @@ const DeckButton = ({
             sx: { opacity: 1, position: "absolute", top: -5, right: -5, zIndex: 10 },
             size: "small",
             title: "Edit Deck Button Appearance",
-            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$6, { color: "primary", fontSize: "small" })
+            children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$7, { color: "primary", fontSize: "small" })
           }
         )
       }
@@ -88216,7 +92359,7 @@ const Deck = () => {
                   {
                     onClick: () => setDeckShowSettings(!showSettings),
                     title: "Toggle Layout Edit Mode",
-                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$6, { fontSize: "small", color: showSettings ? "primary" : "action" })
+                    children: /* @__PURE__ */ jsxRuntimeExports.jsx(Settings$7, { fontSize: "small", color: showSettings ? "primary" : "action" })
                   }
                 )
               ] })
