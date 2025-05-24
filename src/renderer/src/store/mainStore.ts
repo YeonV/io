@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 import modulesFromFile from '@/modules/modules'
 import { storeUI, storeUIActions } from './storeUI'
 import { BlueprintDefinition } from '@/modules/REST/REST.types'
+import { LogEntry } from '@/components/LogViewer/LogViewer.types'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
@@ -37,6 +38,7 @@ type State = {
   isWindowBeingDraggedOver: boolean
   dropMessage: string | null
   blueprintToRunFromDrop: BlueprintDefinition | null
+  rowHistory: LogEntry[]
 
   // Actions
   enableModule: (moduleId: ModuleId) => void
@@ -56,7 +58,10 @@ type State = {
   setIsWindowBeingDraggedOver: (isDragging: boolean) => void
   setDropMessage: (message: string | null) => void
   setBlueprintToRunFromDrop: (blueprint: BlueprintDefinition | null) => void
+  addRowHistoryEntry: (entryData: Omit<LogEntry, 'id' | 'timestamp'>) => void
 }
+
+const MAX_HISTORY_ENTRIES = 200
 
 export const useMainStore = create<State>()(
   devtools(
@@ -72,6 +77,7 @@ export const useMainStore = create<State>()(
         isWindowBeingDraggedOver: false,
         dropMessage: 'Drop .ioProfile file',
         blueprintToRunFromDrop: null,
+        rowHistory: [],
         ...storeUIActions(set),
 
         enableModule: (moduleId: ModuleId) => {
@@ -283,7 +289,24 @@ export const useMainStore = create<State>()(
             }),
             false,
             'setBlueprintToRunFromDrop'
+          ),
+        addRowHistoryEntry: (entryData) => {
+          set(
+            produce((state: State) => {
+              const newEntry: LogEntry = {
+                id: uuidv4(),
+                timestamp: Date.now(),
+                ...entryData
+              }
+              state.rowHistory.unshift(newEntry)
+              if (state.rowHistory.length > MAX_HISTORY_ENTRIES) {
+                state.rowHistory.pop()
+              }
+            }),
+            false,
+            'addRowHistoryEntry'
           )
+        }
       }),
       {
         name: 'io-v2-storage',

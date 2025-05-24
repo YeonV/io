@@ -44,6 +44,8 @@ const Home: FC = () => {
   const activeProfileId = useMainStore((state) => state.activeProfileId)
   const profiles = useMainStore((state) => state.profiles)
   const setActiveProfile = useMainStore((state) => state.setActiveProfile)
+  const addRowHistoryEntry = useMainStore((state) => state.addRowHistoryEntry)
+  const rowHistory = useMainStore((state) => state.rowHistory)
 
   const rowsToDisplay = useMemo(() => {
     const allRowsArray = Object.values(rows)
@@ -368,6 +370,61 @@ const Home: FC = () => {
     }
   ]
 
+  useEffect(() => {
+    const logRowTrigger = (event: Event) => {
+      if (!(event instanceof CustomEvent) || !event.detail) return
+
+      const eventDetail = event.detail
+      // Determine rowId and potential payload from the event detail
+      const rowId =
+        typeof eventDetail === 'object' && eventDetail.rowId
+          ? eventDetail.rowId
+          : typeof eventDetail === 'string'
+            ? eventDetail
+            : null
+      if (!rowId) {
+        console.warn(
+          '[History Logger] io_input event dispatched without a clear rowId in detail:',
+          eventDetail
+        )
+        return
+      }
+
+      const storeState = useMainStore.getState()
+      const row = storeState.rows[rowId]
+
+      if (row) {
+        const historyEntryData: Omit<LogEntry, 'id' | 'timestamp'> = {
+          level: 'info',
+          icon: row.output.icon || row.input.icon || 'mdi:play-circle-outline',
+          source: `${row.outputModule.replace('-module', '')}`,
+          summary: `${row.input.name || row.inputModule.replace('-module', '')} triggered ${row.output.name || row.outputModule.replace('-module', '')} ${row.output.data.originalFileName || row.output.data.text}`,
+          details: {
+            // rowId: row.id,
+            // triggeredByModule: row.inputModule,
+            // inputConfigName: row.input.data.name || 'Default Input',
+            // ...(inputPayload !== undefined && { inputPayloadReceived: inputPayload }),
+            // outputModule: row.outputModule || 'N/A',
+            // outputConfigName: row.output.data.name || 'Default Output'
+            ...row
+          }
+        }
+        addRowHistoryEntry(historyEntryData)
+        console.log(`[History Logger] Logged trigger for row: ${rowId}`)
+      } else {
+        console.warn(`[History Logger] Row with ID '${rowId}' not found for io_input event.`)
+      }
+    }
+
+    console.debug('[Home.tsx] Attaching global io_input listener for history logging.')
+    window.addEventListener('io_input', logRowTrigger)
+
+    return () => {
+      console.debug('[Home.tsx] Removing global io_input listener for history logging.')
+      window.removeEventListener('io_input', logRowTrigger)
+    }
+  }, [addRowHistoryEntry])
+
   return (
     <>
       <Wrapper>
@@ -399,7 +456,7 @@ const Home: FC = () => {
           <Box sx={{ height: '400px' /* Give it a defined height for scrolling */ }}>
             <LogViewer
               title="Application Event Log (Dummy Data)"
-              entries={dummyLogEntries}
+              entries={rowHistory}
               maxHeight="100%" // Will take height from parent Box
               defaultExpandedId={dummyLogEntries[1]?.id} // Expand the second entry by default (if it exists)
               showExportButton={true}
