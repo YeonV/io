@@ -21,4 +21,5 @@ export interface LogViewerProps {
   emptyStateMessage?: string
   showExportButton?: boolean
   showLevelFilter?: boolean
+  showSearchFilter?: boolean
 }
