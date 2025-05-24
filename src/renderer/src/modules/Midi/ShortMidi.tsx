@@ -5,7 +5,7 @@ import { Stack, TextField, Typography } from '@mui/material'
 import { log } from '@/utils'
 import { useMainStore } from '@/store/mainStore'
 import type { ModuleConfig } from '@shared/types'
-import { MidiModuleCustomConfig } from './MidiM'
+import { MidiModuleCustomConfig } from './Midi'
 
 const ShortMidi = ({
   value = 'C4',

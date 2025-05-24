@@ -1,7 +1,7 @@
 // src/renderer/src/modules/MQTT/MQTT.main.ts
 import { type BrowserWindow, ipcMain } from 'electron'
 import type { IOMainModulePart } from '../../../../shared/types'
-import type { MqttBrokerConfig } from './MqttM.types'
+import type { MqttBrokerConfig } from './Mqtt.types'
 import { MainModuleDeps } from '../../../../main/moduleLoader'
 import mqtt from 'mqtt'
 

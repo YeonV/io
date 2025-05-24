@@ -3,7 +3,7 @@ import type { FC } from 'react'
 import { useState, useEffect, useCallback } from 'react'
 import { Box, Button, Typography, Stack, Alert } from '@mui/material'
 import { AddCircleOutline as AddIcon } from '@mui/icons-material'
-import type { SimpleInputField } from './RestM.types' // Adjust path if needed
+import type { SimpleInputField } from './Rest.types' // Adjust path if needed
 import { SimpleInputFieldItem } from './SimpleInputFieldItem' // Adjust path if needed
 import { v4 as uuidv4 } from 'uuid' // For generating unique keys for new fields if needed
 

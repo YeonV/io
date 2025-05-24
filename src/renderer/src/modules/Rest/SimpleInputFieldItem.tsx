@@ -26,7 +26,7 @@ import {
   ArrowUpward,
   ArrowDownward
 } from '@mui/icons-material'
-import type { SimpleInputField, SimpleInputFieldValue } from './RestM.types' // Adjust path if needed
+import type { SimpleInputField, SimpleInputFieldValue } from './Rest.types' // Adjust path if needed
 
 interface SimpleInputFieldItemProps {
   field: SimpleInputField

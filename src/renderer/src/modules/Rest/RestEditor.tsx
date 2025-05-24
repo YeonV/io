@@ -36,8 +36,8 @@ import type {
   RestModuleCustomConfig,
   BlueprintDefinition, // Added
   SimpleInputFieldValue // Added
-} from './RestM.types'
-import { id as restModuleId } from './RestM'
+} from './Rest.types'
+import { id as restModuleId } from './Rest'
 import { v4 as uuidv4 } from 'uuid'
 import { BlueprintRunnerDialog } from './BlueprintRunnerDialog' // Added
 import IoIcon from '@/components/IoIcon/IoIcon'

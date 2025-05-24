@@ -21,7 +21,7 @@ import {
   Tooltip,
   Switch // For boolean inputs
 } from '@mui/material'
-import type { BlueprintDefinition, SimpleInputFieldValue, RestPresetDefinition } from './RestM.types'
+import type { BlueprintDefinition, SimpleInputFieldValue, RestPresetDefinition } from './Rest.types'
 import { InfoOutlined } from '@mui/icons-material'
 
 // Placeholder substitution utility
