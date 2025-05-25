@@ -28,18 +28,14 @@ import {
   // Icons for specific settings will be imported as needed
 } from '@mui/icons-material'
 
-import ProfileManagerSettings from './ProfileManagerSettings' // Assuming this is the one from the Home screen
-// Import module settings components if they are separate and we want to embed them directly
-// e.g., import { RestSettingsComponent } from '@/modules/Rest/components/RestSettings';
-// For now, we'll have a placeholder for module-specific settings management.
-
 import SettingsAbout from './SettingsAbout'
 import SettingsGeneral from './SettingsGeneral'
 import SettingsAppearance from './SettingsAppearance'
 import SettingsModule from './SettingsModuleBrowser'
 import SettingsHistory from './SettingsHistory'
 import { TransitionProps } from '@mui/material/transitions'
-import SettingsAllModulePanels from './SettingsAllModulePanels'
+import SettingsAllModulePanels from './SettingsAllModules'
+import SettingsProfiles from './SettingsProfiles'
 
 type SettingsCategory =
   | 'general'
@@ -67,7 +63,7 @@ const SettingsDialogContent: FC<{ category: SettingsCategory }> = ({ category })
     case 'appearance':
       return <SettingsAppearance />
     case 'profiles':
-      return <ProfileManagerSettings />
+      return <SettingsProfiles />
     case 'modules':
       return <SettingsModule />
     case 'allModulePanels':
