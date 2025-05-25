@@ -8,125 +8,142 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Stack
-} from '@mui/material'
+  Stack,
+  Paper,
+  Grid
+} from '@mui/material' // Added Grid
 import { DeleteSweep as ClearIcon, WarningAmberOutlined as WarningIcon } from '@mui/icons-material'
 import { useState, type FC } from 'react'
 import { useMainStore } from '@/store/mainStore'
 import { id as restModuleId } from '@/modules/Rest/Rest'
-import { nuke as nukeAllAppData } from '../utils/nuke' // Path relative to components/Settings/
+import { nuke as nukeAllAppData } from '../utils/nuke'
 import { clearAllAudioFromDB } from '@/modules/PlaySound/lib/db'
 import { useSnackbar } from 'notistack'
+
+interface DataClearAction {
+  id: string
+  label: string
+  description: string
+  actionFn: () => void
+  buttonColor?: 'warning' | 'error'
+  buttonVariant?: 'outlined' | 'contained'
+}
 
 const SettingsData: FC = () => {
   const { enqueueSnackbar } = useSnackbar()
   const setModuleConfigValue = useMainStore((state) => state.setModuleConfigValue)
 
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [confirmDialogOpen, setConfirmDialogOpen] =
+    useState(false) /* ... (same confirm dialog state) ... */
   const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
   const [confirmTitle, setConfirmTitle] = useState('')
   const [confirmMessage, setConfirmMessage] = useState('')
-
   const openConfirmation = (title: string, message: string, action: () => void) => {
-    setConfirmTitle(title)
+    /* ... (same) ... */ setConfirmTitle(title)
     setConfirmMessage(message)
     setConfirmAction(() => action)
     setConfirmDialogOpen(true)
   }
-  const handleClearRowHistory = () => {
-    openConfirmation('Clear History?', '...', () => {
-      useMainStore.setState(
-        (state) => ({ ...state, rowHistory: [] }),
-        false,
-        'clearRowHistory/manual'
-      )
-      enqueueSnackbar('Row history cleared.', { variant: 'success' })
-      setConfirmDialogOpen(false)
-    })
-  }
-  const handleClearRestData = () => {
-    openConfirmation('Clear REST Data?', '...', () => {
-      setModuleConfigValue(restModuleId, 'presets', [])
-      setModuleConfigValue(restModuleId, 'blueprints', [])
-      enqueueSnackbar('REST data cleared.', { variant: 'success' })
-      setConfirmDialogOpen(false)
-    })
-  }
-  const handleClearSoundCache = () => {
-    openConfirmation('Clear Sounds?', '...', async () => {
-      try {
-        await clearAllAudioFromDB()
-        enqueueSnackbar('Sound cache cleared.', { variant: 'success' })
-      } catch (e) {
-        enqueueSnackbar('Failed to clear sound cache.', { variant: 'error' })
-      }
-      setConfirmDialogOpen(false)
-    })
-  }
-  const handleNukeAllData = () => {
-    openConfirmation('NUKE ALL DATA?', 'WARNING: ...', () => {
-      nukeAllAppData()
-      setConfirmDialogOpen(false)
-    })
-  }
+
+  const dataClearActions: DataClearAction[] = [
+    {
+      id: 'clearHistory',
+      label: 'Clear Row Trigger History',
+      description: 'Removes all entries from the row trigger history log.',
+      actionFn: () => {
+        useMainStore.setState(
+          (state) => ({ ...state, rowHistory: [] }),
+          false,
+          'clearRowHistory/manual'
+        )
+        enqueueSnackbar('Row history cleared.', { variant: 'success' })
+      },
+      buttonColor: 'warning',
+      buttonVariant: 'outlined'
+    },
+    {
+      id: 'clearRestData',
+      label: 'Clear REST Presets & Blueprints',
+      description: 'Deletes all saved REST presets and imported/created blueprints.',
+      actionFn: () => {
+        setModuleConfigValue(restModuleId, 'presets', [])
+        setModuleConfigValue(restModuleId, 'blueprints', [])
+        enqueueSnackbar('REST data cleared.', { variant: 'success' })
+      },
+      buttonColor: 'warning',
+      buttonVariant: 'outlined'
+    },
+    {
+      id: 'clearSoundCache',
+      label: 'Clear Cached Sounds (PlaySound)',
+      description: 'Removes all audio files cached by the PlaySound module.',
+      actionFn: async () => {
+        try {
+          await clearAllAudioFromDB()
+          enqueueSnackbar('Sound cache cleared.', { variant: 'success' })
+        } catch (e) {
+          enqueueSnackbar('Failed to clear sound cache.', { variant: 'error' })
+        }
+      },
+      buttonColor: 'warning',
+      buttonVariant: 'outlined'
+    },
+    {
+      id: 'nukeAll',
+      label: 'Reset All Application Data (NUKE)',
+      description:
+        'Resets the entire application to its default state. All your data (rows, profiles, settings) will be lost. This action is irreversible.',
+      actionFn: () => nukeAllAppData(),
+      buttonColor: 'error',
+      buttonVariant: 'contained'
+    }
+  ]
 
   return (
-    // Removed top Typography title and Divider
     <>
-      <Stack spacing={2} alignItems="flex-start">
-        <Button
-          variant="outlined"
-          color="warning"
-          startIcon={<ClearIcon />}
-          onClick={handleClearRowHistory}
-          size="small"
-        >
-          Clear Row History
-        </Button>
-        {/* ... other clear buttons ... */}
-        <Button
-          variant="outlined"
-          color="warning"
-          startIcon={<ClearIcon />}
-          onClick={handleClearRestData}
-          size="small"
-        >
-          Clear REST Presets & Blueprints
-        </Button>
-        <Button
-          variant="outlined"
-          color="warning"
-          startIcon={<ClearIcon />}
-          onClick={handleClearSoundCache}
-          size="small"
-        >
-          Clear Cached Sounds
-        </Button>
-
-        <Box
-          sx={{
-            mt: '16px !important',
-            pt: 2,
-            borderTop: 1,
-            borderColor: 'rgba(255,255,255,0.12)',
-            width: '100%'
-          }}
-        >
-          {/* Use !important for mt if Stack spacing overrides */}
-          <Button
-            variant="contained"
-            color="error"
-            startIcon={<WarningIcon />}
-            onClick={handleNukeAllData}
-            size="small"
-          >
-            Reset All Application Data (NUKE)
-          </Button>
-          <Typography variant="caption" display="block" sx={{ mt: 0.5, color: 'error.light' }}>
-            Resets the entire application. All your data will be lost.
-          </Typography>
-        </Box>
+      <Stack spacing={2}>
+        {' '}
+        {/* Use Stack for consistent spacing between Paper sections */}
+        {dataClearActions.map((item) => (
+          <Paper key={item.id} variant="outlined" sx={{ p: 2, borderRadius: 1.5 }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Box>
+                <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                  {item.label}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" display="block">
+                  {item.description}
+                </Typography>
+              </Box>
+              <Button
+                variant={item.buttonVariant || 'outlined'}
+                color={item.buttonColor || 'warning'}
+                startIcon={item.buttonColor === 'error' ? <WarningIcon /> : <ClearIcon />}
+                onClick={() =>
+                  openConfirmation(
+                    item.buttonColor === 'error'
+                      ? `Confirm ${item.label}`
+                      : `Confirm ${item.label}`,
+                    item.buttonColor === 'error'
+                      ? `${item.description} Are you absolutely sure?`
+                      : `Are you sure you want to ${item.label.toLowerCase()}? This cannot be undone.`,
+                    () => {
+                      item.actionFn()
+                      setConfirmDialogOpen(false)
+                    }
+                  )
+                }
+                size="small"
+                sx={{ ml: 2, flexShrink: 0 }} // Prevent button from shrinking too much
+              >
+                {item.buttonColor === 'error' ? 'Reset' : 'Clear'}
+              </Button>
+            </Stack>
+          </Paper>
+        ))}
       </Stack>
+
+      {/* Confirmation Dialog (same as before) */}
       <Dialog open={confirmDialogOpen} onClose={() => setConfirmDialogOpen(false)}>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center' }}>
           <WarningIcon color="warning" sx={{ mr: 1 }} /> {confirmTitle}

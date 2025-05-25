@@ -10,9 +10,16 @@ import {
   Radio,
   CircularProgress,
   Alert,
-  Stack
+  Stack,
+  Paper, // Added Paper
+  Tooltip, // Added Tooltip
+  Chip
 } from '@mui/material'
-// WindowBehaviorIcon will be in AccordionSummary
+import {
+  Minimize as MinimizeIcon, // For Minimize to Tray option
+  ExitToApp as QuitIcon // For Quit Application option
+  // WindowBehaviorIcon will be in AccordionSummary of parent
+} from '@mui/icons-material'
 import { useSnackbar } from 'notistack'
 
 const ipcRenderer = window.electron?.ipcRenderer
@@ -25,7 +32,6 @@ const SettingsWindowBehavior: FC = () => {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    /* ... (same data fetching logic as before) ... */
     if (ipcRenderer) {
       setIsLoading(true)
       ipcRenderer
@@ -43,10 +49,9 @@ const SettingsWindowBehavior: FC = () => {
     } else {
       setCloseBehavior('minimize')
     }
-  }, [enqueueSnackbar]) // Added enqueueSnackbar to deps if it's used in error handling
+  }, [enqueueSnackbar])
 
   const handleCloseBehaviorChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    /* ... (same update logic as before) ... */
     if (!ipcRenderer) return
     const newBehavior = event.target.value as CloseBehavior
     setCloseBehavior(newBehavior)
@@ -91,9 +96,9 @@ const SettingsWindowBehavior: FC = () => {
 
   return (
     // Removed top Box, Typography title, and Divider
-    closeBehavior !== null && ( // Ensure closeBehavior is loaded
-      <FormControl component="fieldset">
-        <Typography variant="body2" component="legend" sx={{ mb: 1, fontWeight: 'medium' }}>
+    closeBehavior !== null && (
+      <FormControl component="fieldset" sx={{ width: '100%' }}>
+        <Typography variant="body1" component="legend" sx={{ mb: 1.5, fontWeight: 500 }}>
           When closing the main window:
         </Typography>
         <RadioGroup
@@ -102,20 +107,82 @@ const SettingsWindowBehavior: FC = () => {
           value={closeBehavior}
           onChange={handleCloseBehaviorChange}
         >
-          <FormControlLabel
-            value="minimize"
-            control={<Radio size="small" />}
-            label="Minimize to System Tray (Recommended)"
-          />
-          <FormControlLabel
-            value="quit"
-            control={<Radio size="small" />}
-            label="Quit the Application"
-          />
+          <Paper
+            variant="outlined"
+            sx={{
+              p: 1.5,
+              mb: 1.5,
+              borderRadius: 1.5,
+              bgcolor: closeBehavior === 'minimize' ? 'action.selected' : 'transparent',
+              cursor: 'pointer'
+            }}
+            onClick={() => handleCloseBehaviorChange({ target: { value: 'minimize' } } as any)}
+          >
+            <FormControlLabel
+              value="minimize"
+              control={<Radio size="small" sx={{ py: 0 }} />} // Reduced padding on radio
+              label={
+                <Box>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <MinimizeIcon fontSize="small" sx={{ opacity: 0.8 }} />
+                    <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                      Minimize to System Tray
+                    </Typography>
+                    <Chip
+                      label="Recommended"
+                      size="small"
+                      color="success"
+                      variant="outlined"
+                      sx={{ fontSize: '0.65rem', height: '18px' }}
+                    />
+                  </Stack>
+                  <Typography
+                    variant="caption"
+                    display="block"
+                    sx={{ mt: 0.5, ml: 4, color: 'text.secondary' }}
+                  >
+                    IO continues running in the background. Access it from the system tray icon.
+                  </Typography>
+                </Box>
+              }
+              sx={{ width: '100%', ml: 0 }}
+            />
+          </Paper>
+
+          <Paper
+            variant="outlined"
+            sx={{
+              p: 1.5,
+              borderRadius: 1.5,
+              bgcolor: closeBehavior === 'quit' ? 'action.selected' : 'transparent',
+              cursor: 'pointer'
+            }}
+            onClick={() => handleCloseBehaviorChange({ target: { value: 'quit' } } as any)}
+          >
+            <FormControlLabel
+              value="quit"
+              control={<Radio size="small" sx={{ py: 0 }} />}
+              label={
+                <Box>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <QuitIcon fontSize="small" sx={{ opacity: 0.8 }} />
+                    <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                      Quit the Application
+                    </Typography>
+                  </Stack>
+                  <Typography
+                    variant="caption"
+                    display="block"
+                    sx={{ mt: 0.5, ml: 4, color: 'text.secondary' }}
+                  >
+                    Closing the window will exit IO completely.
+                  </Typography>
+                </Box>
+              }
+              sx={{ width: '100%', ml: 0 }}
+            />
+          </Paper>
         </RadioGroup>
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-          Choose if IO should continue running in the background or exit completely.
-        </Typography>
       </FormControl>
     )
   )
