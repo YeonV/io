@@ -6,10 +6,16 @@ import { ProfileManagerContent } from './ProfileManagerContent' // Import the co
 const SettingsProfiles: FC = () => {
   return (
     <Paper
-      sx={{ p: 0, display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}
+      sx={{
+        p: 0, // Remove padding from this Paper, ProfileManagerContent has its own
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%', // Take full height of its parent (the main content Box)
+        overflow: 'hidden' // Prevent this Paper from scrolling, content inside will scroll
+      }}
     >
       {/* Optional: Title for this specific settings pane, if needed */}
-      {/* <Typography variant="h6" sx={{ p: 2, pb: 1, borderBottom:1, borderColor:'divider' }}>
+      {/* <Typography variant="h6" sx={{ p: 2, pb: 1, borderBottom: 1, borderColor: 'divider' }}>
         Profile Management
       </Typography> */}
 

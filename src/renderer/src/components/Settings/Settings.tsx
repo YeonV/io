@@ -154,7 +154,7 @@ export default function Settings() {
               flexGrow: 1,
               p: { xs: 2, sm: 3 }, // Responsive padding
               overflowY: 'auto', // Allow content to scroll
-              height: 'calc(100vh - 64px)' // Full height minus AppBar
+              height: 'calc(100vh - 110px)' // Full height minus AppBar
             }}
           >
             <SettingsDialogContent category={selectedCategory} />

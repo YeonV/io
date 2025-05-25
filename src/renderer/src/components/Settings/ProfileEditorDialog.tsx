@@ -84,11 +84,13 @@ export const ProfileEditorDialog: FC<ProfileEditorDialogProps> = ({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        component: 'form',
-        onSubmit: (e) => {
-          e.preventDefault()
-          handleSaveDialog()
+      slotProps={{
+        paper: {
+          component: 'form',
+          onSubmit: (e) => {
+            e.preventDefault()
+            handleSaveDialog()
+          }
         }
       }}
     >

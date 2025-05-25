@@ -1,6 +1,6 @@
 // src/renderer/src/components/Settings/ProfileManagerContent.tsx
-import type { ChangeEvent, FC } from 'react'
-import { useState, useMemo, useRef, useEffect } from 'react' // Added useEffect
+import type { ChangeEvent, FC, MouseEvent } from 'react' // Added MouseEvent
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { useMainStore } from '@/store/mainStore'
 import type { ProfileDefinition, Row, ModuleId } from '@shared/types'
 import { v4 as uuidv4 } from 'uuid'
@@ -15,12 +15,11 @@ import {
   ListItemIcon,
   Paper,
   Stack,
-  Tooltip,
-  FormControlLabel,
-  Switch,
-  Divider,
+  Tooltip /* Switch, FormControlLabel, */, // Switch and FormControlLabel for audio toggle removed
   TextField,
-  InputAdornment, // Added TextField, InputAdornment
+  InputAdornment,
+  ToggleButton,
+  ToggleButtonGroup, // Added ToggleButton(Group)
   ListItemButton
 } from '@mui/material'
 import {
@@ -29,15 +28,17 @@ import {
   PersonAdd,
   FileUpload as ImportIcon,
   FileDownload as ExportIcon,
-  Search as SearchIcon, // For search bar
-  PlayCircleOutline as ActivateIcon, // For activating profile
-  CheckCircleOutline as ActiveIcon, // To show next to active profile name
-  CheckCircleOutline
+  Search as SearchIcon,
+  PlayCircleOutline as ActivateIcon, // Consistently use this icon
+  // CheckCircleOutline as ActiveIcon, // Removed, row highlighting is enough
+  MusicNote,
+  MusicOff
 } from '@mui/icons-material'
 import IoIcon from '../IoIcon/IoIcon'
-import { PlaySoundOutputData } from '@/modules/PlaySound/PlaySound.types' // Assuming path
-import { addAudioToDB, getAudioBufferFromDB } from '@/modules/PlaySound/lib/db' // Assuming path
-import { arrayBufferToBase64, base64ToArrayBuffer, downloadJsonFile } from '@/utils/utils' // Assuming path
+// ... other imports (PlaySound types, DB functions, utils, ProfileEditorDialog, ProfileExportFormat, useSnackbar) ...
+import { PlaySoundOutputData } from '@/modules/PlaySound/PlaySound.types'
+import { addAudioToDB, getAudioBufferFromDB } from '@/modules/PlaySound/lib/db'
+import { arrayBufferToBase64, base64ToArrayBuffer, downloadJsonFile } from '@/utils/utils'
 import { ProfileEditorDialog } from './ProfileEditorDialog'
 import type { ProfileExportFormat } from './ProfileManagerSettings.types'
 import { useSnackbar } from 'notistack'
@@ -57,8 +58,8 @@ export const ProfileManagerContent: FC = () => {
   const [profileEditorOpen, setProfileEditorOpen] = useState(false)
   const [editingProfile, setEditingProfile] = useState<ProfileDefinition | null>(null)
   const importFileInputRef = useRef<HTMLInputElement>(null)
-  const [includeAudioOnExport, setIncludeAudioOnExport] = useState(true)
-  const [searchTerm, setSearchTerm] = useState('') // For profile search
+  const [includeAudioOnExport, setIncludeAudioOnExport] = useState(true) // Now for ToggleButton
+  const [searchTerm, setSearchTerm] = useState('')
 
   const handleAddNewProfile = () => {
     setEditingProfile(null)
@@ -134,14 +135,76 @@ export const ProfileManagerContent: FC = () => {
     downloadJsonFile(exportData, fileName)
     enqueueSnackbar(`Profile "${profileToExport.name}" export initiated.`, { variant: 'info' })
   }
-
   const handleImportProfileClick = () => importFileInputRef.current?.click()
   const handleImportFileSelected = async (event: ChangeEvent<HTMLInputElement>) => {
-    /* ... (same import logic as before) ... */
+    const file = event.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = async (e) => {
+      try {
+        const fileContent = e.target?.result as string
+        const importedData = JSON.parse(fileContent) as ProfileExportFormat
+        if (!importedData.profile || !Array.isArray(importedData.rows))
+          throw new Error('Invalid profile file structure.')
+        const audioIdMap: Record<string, string> = {}
+        if (importedData.audioData) {
+          for (const oldAudioIdFromFile in importedData.audioData) {
+            const audioEntry = importedData.audioData[oldAudioIdFromFile]
+            try {
+              const audioBuffer = base64ToArrayBuffer(audioEntry.base64Data)
+              const newLocalAudioId = await addAudioToDB(
+                audioEntry.originalFileName,
+                audioEntry.mimeType,
+                audioBuffer
+              )
+              audioIdMap[oldAudioIdFromFile] = newLocalAudioId
+            } catch (err) {
+              console.error(`Error importing audio ${oldAudioIdFromFile}:`, err)
+            }
+          }
+        }
+        const newImportedRowIdsForProfile: string[] = []
+        for (const importedRow of importedData.rows) {
+          const newRowId = uuidv4()
+          const newRowData = { ...importedRow, id: newRowId }
+          newImportedRowIdsForProfile.push(newRowId)
+          if (newRowData.outputModule === 'playsound-module' && newRowData.output.data.audioId) {
+            const oldAudioId = newRowData.output.data.audioId
+            const newLocalAudioId = audioIdMap[oldAudioId]
+            if (newLocalAudioId) {
+              newRowData.output.data.audioId = newLocalAudioId
+              const audioEntryFromImport = importedData.audioData?.[oldAudioId]
+              newRowData.output.data.originalFileName =
+                audioEntryFromImport?.originalFileName || 'Imported Audio'
+            } else {
+              delete newRowData.output.data.audioId
+              delete newRowData.output.data.originalFileName
+            }
+          }
+          addRowAction(newRowData)
+        }
+        const newProfileName = importedData.profile.name || `Imported Profile ${Date.now()}`
+        const newProfileIcon = importedData.profile.icon || 'file_upload'
+        const newProfileActualId = addProfile(
+          newProfileName,
+          newProfileIcon,
+          newImportedRowIdsForProfile
+        )
+        enqueueSnackbar(`Profile "${newProfileName}" imported successfully!`, {
+          variant: 'success'
+        })
+        setActiveProfileGlobal(newProfileActualId) // Activate the newly imported profile
+      } catch (error: any) {
+        console.error('[ImportProfile] Error:', error)
+        enqueueSnackbar(`Failed to import profile: ${error.message}`, { variant: 'error' })
+      }
+    }
+    if (file) reader.readAsText(file)
+    if (event.target) event.target.value = ''
   }
 
-  // --- NEW: Activate Profile Handler ---
   const handleActivateProfileFromList = (profileId: string) => {
+    if (activeProfileId === profileId) return // Don't re-activate if already active
     setActiveProfileGlobal(profileId)
     enqueueSnackbar(`Profile "${profiles[profileId]?.name || 'Profile'}" activated.`, {
       variant: 'info',
@@ -164,13 +227,20 @@ export const ProfileManagerContent: FC = () => {
     return filtered.sort((a, b) => a.name.localeCompare(b.name))
   }, [profiles, searchTerm])
 
+  const handleAudioExportToggle = (event: MouseEvent<HTMLElement>, newValue: boolean | null) => {
+    if (newValue !== null) {
+      // ToggleButton can return null if no exclusive selection and current is clicked
+      setIncludeAudioOnExport(newValue)
+    }
+  }
+
   return (
     <Box
       sx={{
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        p: { xs: 1, sm: 1.5 } /* Add padding to the Box */
+        p: { xs: 1, sm: 1.5, md: 2 }
       }}
     >
       {/* --- Top Action Row --- */}
@@ -180,7 +250,7 @@ export const ProfileManagerContent: FC = () => {
         alignItems={{ xs: 'stretch', sm: 'center' }}
         spacing={1}
         sx={{
-          p: { xs: 1, sm: 1.5 },
+          pb: { xs: 1, sm: 1.5 },
           borderBottom: 1,
           borderColor: 'divider',
           mb: 1.5,
@@ -216,30 +286,29 @@ export const ProfileManagerContent: FC = () => {
           sx={{
             display: 'flex',
             alignItems: 'center',
-            justifyContent: { xs: 'space-between', sm: 'flex-end' },
+            justifyContent: { xs: 'center', sm: 'flex-end' },
             pt: { xs: 1, sm: 0 }
           }}
         >
-          <Tooltip
-            title={
-              includeAudioOnExport
-                ? 'Audio data WILL be included in export'
-                : 'Audio data will NOT be included in export'
-            }
+          <ToggleButtonGroup
+            value={includeAudioOnExport}
+            exclusive
+            onChange={handleAudioExportToggle}
+            aria-label="Include audio in export"
+            size="small"
           >
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={includeAudioOnExport}
-                  onChange={(e) => setIncludeAudioOnExport(e.target.checked)}
-                  size="small"
-                />
-              }
-              label={<Typography variant="caption">Include Audio in Export</Typography>}
-              sx={{ mr: 1, ml: 0 }} // No extra margin if it's tight
-              labelPlacement="start"
-            />
-          </Tooltip>
+            <ToggleButton value={true} aria-label="Include Audio">
+              <Tooltip title="Audio data WILL be included in export">
+                <MusicNote fontSize="small" />
+              </Tooltip>
+            </ToggleButton>
+            <ToggleButton value={false} aria-label="Exclude Audio">
+              <Tooltip title="Audio data will NOT be included in export">
+                <MusicOff fontSize="small" />
+              </Tooltip>
+            </ToggleButton>
+          </ToggleButtonGroup>
+          {/* Optional label */}
         </Box>
       </Stack>
 
@@ -292,28 +361,29 @@ export const ProfileManagerContent: FC = () => {
           {filteredAndSortedProfiles.map((p, index) => (
             <ListItem
               key={p.id}
-              divider={index < filteredAndSortedProfiles.length - 1} // Add divider except for last item
-              disablePadding // Let ListItemButton handle padding
+              divider={index < filteredAndSortedProfiles.length - 1}
+              disablePadding
+              onDoubleClick={() => handleActivateProfileFromList(p.id)} // <<< DOUBLE CLICK TO ACTIVATE
               secondaryAction={
                 <Stack direction="row" spacing={0.25}>
-                  {' '}
-                  {/* Reduced spacing for compact action icons */}
-                  {activeProfileId !== p.id && ( // Show Activate button only if not active
-                    <Tooltip title="Activate Profile">
+                  <Tooltip
+                    title={activeProfileId === p.id ? 'Profile is active' : 'Activate Profile'}
+                  >
+                    {/* Span needed for tooltip on disabled button */}
+                    <span>
                       <IconButton
                         size="small"
                         onClick={() => handleActivateProfileFromList(p.id)}
                         color="primary"
+                        disabled={activeProfileId === p.id} // <<< KEEP ICON, JUST DISABLE
                       >
                         <ActivateIcon fontSize="small" />
                       </IconButton>
-                    </Tooltip>
-                  )}
+                    </span>
+                  </Tooltip>
+                  {/* ... Export, Edit, Delete IconButtons (same) ... */}
                   <Tooltip title="Export Profile">
-                    <IconButton
-                      size="small"
-                      onClick={() => handleExportProfile(p.id)} /* color="primary" */
-                    >
+                    <IconButton size="small" onClick={() => handleExportProfile(p.id)}>
                       <ExportIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
@@ -333,18 +403,11 @@ export const ProfileManagerContent: FC = () => {
                   </Tooltip>
                 </Stack>
               }
-              sx={
-                {
-                  // No direct bgcolor here, handled by ListItemButton hover/selected
-                  // '&:hover': {bgcolor: 'action.hover'}, // Moved to ListItemButton
-                  // pl: 1, // Padding for the start of the list item content
-                }
-              }
             >
               <ListItemButton
                 selected={activeProfileId === p.id}
-                onClick={() => handleActivateProfileFromList(p.id)} // Also allow click on item to activate
-                sx={{ py: 0.75, borderRadius: 'inherit' }} // Padding inside button, inherit border radius
+                // onClick={() => handleActivateProfileFromList(p.id)} // Removed single click activate from here
+                sx={{ py: 0.75, borderRadius: 'inherit' }}
               >
                 <ListItemIcon
                   sx={{
@@ -352,17 +415,14 @@ export const ProfileManagerContent: FC = () => {
                     color: activeProfileId === p.id ? 'primary.main' : 'inherit'
                   }}
                 >
-                  {activeProfileId === p.id ? (
-                    <CheckCircleOutline color="primary" sx={{ fontSize: '1.3rem' }} />
-                  ) : (
-                    <IoIcon name={p.icon || 'people'} style={{ fontSize: '1.3rem' }} />
-                  )}
+                  {/* Keep custom profile icon always visible */}
+                  <IoIcon name={p.icon || 'people'} style={{ fontSize: '1.3rem' }} />
                 </ListItemIcon>
                 <ListItemText
                   primary={p.name}
-                  secondary={`${p.includedRowIds.length} row(s) included`}
+                  secondary={`${p.includedRowIds.length} row(s) included ${activeProfileId === p.id ? '(Active)' : ''}`} // Indicate active here too
                   primaryTypographyProps={{
-                    fontWeight: activeProfileId === p.id ? 'bold' : 500, // Medium weight for non-active, bold for active
+                    fontWeight: activeProfileId === p.id ? 'bold' : 500,
                     color: activeProfileId === p.id ? 'primary.main' : 'text.primary',
                     fontSize: '0.95rem'
                   }}
@@ -398,4 +458,4 @@ export const ProfileManagerContent: FC = () => {
   )
 }
 
-// export default ProfileManagerContent; // Keep this if it's default export of its file
+export default ProfileManagerContent

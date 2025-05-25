@@ -96,7 +96,7 @@ export const ProfileManagerSettings: FC = () => {
         onClose={() => setManageProfilesDialogOpen(false)}
         fullWidth
         maxWidth="md" // Or your preferred size for profile management
-        PaperProps={{ sx: { height: 'calc(100% - 64px)' } }} // Example fixed height for dialog
+        PaperProps={{ sx: { height: 'auto', maxHeight: 'min(800px, 75vh)' } }} // Example fixed height for dialog
       >
         <DialogTitle
           sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
