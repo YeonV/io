@@ -10,8 +10,8 @@ import {
   Alert,
   Stack,
   Paper
-} from '@mui/material' // Added Paper
-import { VisibilityOff as StartHiddenIcon } from '@mui/icons-material' // LoginIcon will be in AccordionSummary
+} from '@mui/material'
+// LoginIcon is for the AccordionSummary title, StartHiddenIcon removed from here
 import { useSnackbar } from 'notistack'
 
 const ipcRenderer = window.electron?.ipcRenderer
@@ -50,7 +50,7 @@ const SettingsStartup: FC = () => {
       setOpenAtLogin(false)
       setOpenAsHidden(false)
     }
-  }, [enqueueSnackbar])
+  }, [])
 
   const updateLoginSettings = async (newOpenAtLogin: boolean, newOpenAsHiddenSetting?: boolean) => {
     if (!ipcRenderer) return
@@ -130,9 +130,7 @@ const SettingsStartup: FC = () => {
   }
 
   return (
-    <Stack spacing={2.5}>
-      {' '}
-      {/* Overall stack for this section's content */}
+    <Stack spacing={2}>
       <Paper variant="outlined" sx={{ p: 2, borderRadius: 1.5 }}>
         <FormControlLabel
           control={<Switch checked={openAtLogin === true} onChange={handleToggleOpenAtLogin} />}
@@ -142,13 +140,9 @@ const SettingsStartup: FC = () => {
               Launch automatically on system login
             </Typography>
           }
-          sx={{ justifyContent: 'space-between', ml: 0, width: '100%' }}
+          sx={{ justifyContent: 'space-between', ml: 0, width: '100%', display: 'flex' }}
         />
-        <Typography
-          variant="caption"
-          display="block"
-          sx={{ mt: 0.5, ml: 0, pl: 0, color: 'text.secondary' }}
-        >
+        <Typography variant="caption" display="block" sx={{ mt: 0.5, color: 'text.secondary' }}>
           Automatically start IO when you log into your computer.
         </Typography>
       </Paper>
@@ -171,32 +165,22 @@ const SettingsStartup: FC = () => {
           }
           labelPlacement="start"
           label={
-            <Stack direction="row" alignItems="center" spacing={0.5}>
-              <StartHiddenIcon
-                sx={{
-                  fontSize: '1.2rem',
-                  opacity: 0.8,
-                  color: !openAtLogin ? 'text.disabled' : 'text.primary'
-                }}
-              />
-              <Typography
-                variant="body1"
-                sx={{ fontWeight: 500, color: !openAtLogin ? 'text.disabled' : 'text.primary' }}
-              >
-                Start minimised to system tray
-              </Typography>
-            </Stack>
+            <Typography
+              variant="body1"
+              sx={{ fontWeight: 500, color: !openAtLogin ? 'text.disabled' : 'text.primary' }}
+            >
+              Start minimised to system tray
+            </Typography>
           }
-          sx={{ justifyContent: 'space-between', ml: 0, width: '100%' }}
-          disabled={!openAtLogin} // Disable the entire label interaction
+          sx={{ justifyContent: 'space-between', ml: 0, width: '100%', display: 'flex' }}
+          disabled={!openAtLogin}
         />
         <Typography
           variant="caption"
           display="block"
-          sx={{ mt: 0.5, ml: 0, pl: 0, color: !openAtLogin ? 'text.disabled' : 'text.secondary' }}
+          sx={{ mt: 0.5, color: !openAtLogin ? 'text.disabled' : 'text.secondary' }}
         >
-          If launching on login, IO will start hidden in the system tray without showing the main
-          window.
+          If launching on login, IO will start hidden in the system tray.
         </Typography>
       </Paper>
     </Stack>

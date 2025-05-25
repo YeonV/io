@@ -102,8 +102,6 @@ const SettingsData: FC = () => {
   return (
     <>
       <Stack spacing={2}>
-        {' '}
-        {/* Use Stack for consistent spacing between Paper sections */}
         {dataClearActions.map((item) => (
           <Paper key={item.id} variant="outlined" sx={{ p: 2, borderRadius: 1.5 }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center">

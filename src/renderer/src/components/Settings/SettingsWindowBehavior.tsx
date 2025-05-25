@@ -11,15 +11,10 @@ import {
   CircularProgress,
   Alert,
   Stack,
-  Paper, // Added Paper
-  Tooltip, // Added Tooltip
+  Paper,
   Chip
 } from '@mui/material'
-import {
-  Minimize as MinimizeIcon, // For Minimize to Tray option
-  ExitToApp as QuitIcon // For Quit Application option
-  // WindowBehaviorIcon will be in AccordionSummary of parent
-} from '@mui/icons-material'
+
 import { useSnackbar } from 'notistack'
 
 const ipcRenderer = window.electron?.ipcRenderer
@@ -49,7 +44,7 @@ const SettingsWindowBehavior: FC = () => {
     } else {
       setCloseBehavior('minimize')
     }
-  }, [enqueueSnackbar])
+  }, [])
 
   const handleCloseBehaviorChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!ipcRenderer) return
@@ -95,7 +90,6 @@ const SettingsWindowBehavior: FC = () => {
   }
 
   return (
-    // Removed top Box, Typography title, and Divider
     closeBehavior !== null && (
       <FormControl component="fieldset" sx={{ width: '100%' }}>
         <Typography variant="body1" component="legend" sx={{ mb: 1.5, fontWeight: 500 }}>
@@ -110,7 +104,8 @@ const SettingsWindowBehavior: FC = () => {
           <Paper
             variant="outlined"
             sx={{
-              p: 1.5,
+              p: 2,
+              pb: 0,
               mb: 1.5,
               borderRadius: 1.5,
               bgcolor: closeBehavior === 'minimize' ? 'action.selected' : 'transparent',
@@ -120,39 +115,43 @@ const SettingsWindowBehavior: FC = () => {
           >
             <FormControlLabel
               value="minimize"
-              control={<Radio size="small" sx={{ py: 0 }} />} // Reduced padding on radio
+              control={<Radio size="small" sx={{ py: 0 }} />}
+              labelPlacement="start" // <<< MOVES RADIO TO THE RIGHT
               label={
-                <Box>
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <MinimizeIcon fontSize="small" sx={{ opacity: 0.8 }} />
-                    <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                      Minimize to System Tray
-                    </Typography>
+                <Box sx={{ textAlign: 'left', width: '100%' }}>
+                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                    Minimize to System Tray{' '}
                     <Chip
                       label="Recommended"
                       size="small"
                       color="success"
                       variant="outlined"
-                      sx={{ fontSize: '0.65rem', height: '18px' }}
+                      sx={{ fontSize: '0.65rem', height: '18px', ml: 0.5 }}
                     />
-                  </Stack>
+                  </Typography>
                   <Typography
                     variant="caption"
                     display="block"
-                    sx={{ mt: 0.5, ml: 4, color: 'text.secondary' }}
+                    sx={{ mt: 0.5, color: 'text.secondary' }}
                   >
                     IO continues running in the background. Access it from the system tray icon.
                   </Typography>
                 </Box>
               }
-              sx={{ width: '100%', ml: 0 }}
+              sx={{
+                width: '100%',
+                ml: 0,
+                justifyContent: 'space-between',
+                flexDirection: 'row-reverse' /* Puts control (Radio) last */
+              }}
             />
           </Paper>
 
           <Paper
             variant="outlined"
             sx={{
-              p: 1.5,
+              p: 2,
+              pb: 0,
               borderRadius: 1.5,
               bgcolor: closeBehavior === 'quit' ? 'action.selected' : 'transparent',
               cursor: 'pointer'
@@ -162,24 +161,27 @@ const SettingsWindowBehavior: FC = () => {
             <FormControlLabel
               value="quit"
               control={<Radio size="small" sx={{ py: 0 }} />}
+              labelPlacement="start" // <<< MOVES RADIO TO THE RIGHT
               label={
-                <Box>
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <QuitIcon fontSize="small" sx={{ opacity: 0.8 }} />
-                    <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                      Quit the Application
-                    </Typography>
-                  </Stack>
+                <Box sx={{ textAlign: 'left', width: '100%' }}>
+                  <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
+                    Quit the Application
+                  </Typography>
                   <Typography
                     variant="caption"
                     display="block"
-                    sx={{ mt: 0.5, ml: 4, color: 'text.secondary' }}
+                    sx={{ mt: 0.5, color: 'text.secondary' }}
                   >
                     Closing the window will exit IO completely.
                   </Typography>
                 </Box>
               }
-              sx={{ width: '100%', ml: 0 }}
+              sx={{
+                width: '100%',
+                ml: 0,
+                justifyContent: 'space-between',
+                flexDirection: 'row-reverse'
+              }}
             />
           </Paper>
         </RadioGroup>

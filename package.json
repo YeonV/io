@@ -6,7 +6,17 @@
   "exports": "./out/main/index.js",
   "main": "./out/main/index.js",
   "type": "module",
-  "author": "YeonV",
+  "author": {
+    "name": "YeonV aka Blade",
+    "email": "dev@yeonv.com",
+    "url": "https://yeonv.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yeonv/io.git",
+    "directory": "packages/io"
+  },
   "homepage": "https:/yeonv.com",
   "engines": {
     "node": ">=18"

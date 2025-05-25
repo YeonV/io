@@ -9,11 +9,15 @@ import ErrorBoundary from './components/utils/ErrorBoundary'
 
 import Deck from './pages/Deck'
 import { SnackbarProvider } from 'notistack'
+import { useShallow } from 'zustand/react/shallow'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
 const App = () => {
   const themeChoice = useMainStore((state) => state.ui.themeChoice)
+  const { primaryLight, primaryDark, secondaryDark, secondaryLight } = useMainStore(
+    useShallow((state) => state.ui.themeColors)
+  )
 
   const [osShouldUseDark, setOsShouldUseDark] = useState(() => {
     if (ipcRenderer) {
@@ -66,22 +70,22 @@ const App = () => {
           main:
             pkg.env.VITRON_PRIMARY_COLOR === 'default'
               ? currentMode === 'dark'
-                ? '#CCC'
-                : '#333'
+                ? primaryDark
+                : primaryLight
               : pkg.env.VITRON_PRIMARY_COLOR
         },
         secondary: {
           main:
             pkg.env.VITRON_SECONDARY_COLOR === 'default'
               ? currentMode === 'dark'
-                ? '#999'
-                : '#666'
+                ? secondaryDark
+                : secondaryLight
               : pkg.env.VITRON_SECONDARY_COLOR
         },
         mode: currentMode
       }
     })
-  }, [themeChoice, osShouldUseDark])
+  }, [themeChoice, osShouldUseDark, primaryLight, primaryDark, secondaryLight, secondaryDark])
 
   return (
     <ThemeProvider theme={muiTheme}>
