@@ -42,6 +42,7 @@ import { arrayBufferToBase64, base64ToArrayBuffer, downloadJsonFile } from '@/ut
 import { ProfileEditorDialog } from './ProfileEditorDialog'
 import type { ProfileExportFormat } from './ProfileManagerSettings.types'
 import { useSnackbar } from 'notistack'
+import ConfirmDialog from '../utils/ConfirmDialog';
 
 export const ProfileManagerContent: FC = () => {
   const profiles = useMainStore((state) => state.profiles)
@@ -57,6 +58,10 @@ export const ProfileManagerContent: FC = () => {
 
   const [profileEditorOpen, setProfileEditorOpen] = useState(false)
   const [editingProfile, setEditingProfile] = useState<ProfileDefinition | null>(null)
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [confirmDialogTitle, setConfirmDialogTitle] = useState('');
+  const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
   const importFileInputRef = useRef<HTMLInputElement>(null)
   const [includeAudioOnExport, setIncludeAudioOnExport] = useState(true) // Now for ToggleButton
   const [searchTerm, setSearchTerm] = useState('')
@@ -70,19 +75,20 @@ export const ProfileManagerContent: FC = () => {
     setProfileEditorOpen(true)
   }
   const handleDeleteProfile = (profileId: string) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete the profile "${profiles[profileId]?.name || profileId}"?`
-      )
-    ) {
-      deleteProfile(profileId)
+    setConfirmDialogTitle('Delete Profile');
+    setConfirmDialogMessage(
+      `Are you sure you want to delete the profile "${profiles[profileId]?.name || profileId}"?`
+    );
+    setConfirmAction(() => () => {
+      deleteProfile(profileId);
       if (editingProfile?.id === profileId) {
-        setProfileEditorOpen(false)
-        setEditingProfile(null)
+        setProfileEditorOpen(false);
+        setEditingProfile(null);
       }
-      enqueueSnackbar('Profile deleted.', { variant: 'info' })
-    }
-  }
+      enqueueSnackbar('Profile deleted.', { variant: 'info' });
+    });
+    setConfirmDialogOpen(true);
+  };
   const handleSaveProfileFromEditor = (
     profileData: Omit<ProfileDefinition, 'id'> & { id?: string }
   ) => {
@@ -453,6 +459,22 @@ export const ProfileManagerContent: FC = () => {
         onSave={handleSaveProfileFromEditor}
         initialProfile={editingProfile}
         allRows={allRows}
+      />
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        onClose={() => {
+          setConfirmDialogOpen(false);
+          setConfirmAction(null);
+        }}
+        onConfirm={() => {
+          if (confirmAction) {
+            confirmAction();
+          }
+          setConfirmDialogOpen(false);
+          setConfirmAction(null);
+        }}
+        title={confirmDialogTitle}
+        message={confirmDialogMessage}
       />
     </Box>
   )

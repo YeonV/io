@@ -39,6 +39,7 @@ import { BlueprintRunnerDialog } from './BlueprintRunnerDialog'
 import IoIcon from '@/components/IoIcon/IoIcon'
 import { useSnackbar } from 'notistack'
 import { BlueprintEditDialog } from './BlueprintEditDialog'
+import ConfirmDialog from '@/components/utils/ConfirmDialog';
 
 const useRestModuleConfig = () => {
   return useMainStore(
@@ -54,6 +55,12 @@ export const RestSettings: FC = () => {
   const { enqueueSnackbar } = useSnackbar()
   const [blueprintEditorOpen, setBlueprintEditorOpen] = useState(false)
   const [editingBlueprintDef, setEditingBlueprintDef] = useState<BlueprintDefinition | null>(null)
+
+  // For ConfirmDialog (add this near other useState calls)
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [confirmDialogTitle, setConfirmDialogTitle] = useState('');
+  const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
 
   const [managePresetsDialogOpen, setManagePresetsDialogOpen] = useState(false)
   const [addEditPresetDialogOpen, setAddEditPresetDialogOpen] = useState(false)
@@ -74,11 +81,15 @@ export const RestSettings: FC = () => {
     setManagePresetsDialogOpen(false)
   }
   const handleDeletePreset = (presetIdToDelete: string) => {
-    if (window.confirm('Are you sure you want to delete this preset?')) {
-      const updatedPresets = presets.filter((p) => p.id !== presetIdToDelete)
-      setModuleConfig(restModuleId, 'presets', updatedPresets)
-    }
-  }
+    setConfirmDialogTitle('Delete Preset');
+    setConfirmDialogMessage('Are you sure you want to delete this preset?');
+    setConfirmAction(() => () => {
+      const updatedPresets = presets.filter((p) => p.id !== presetIdToDelete);
+      setModuleConfig(restModuleId, 'presets', updatedPresets);
+      enqueueSnackbar('Preset deleted.', { variant: 'info' }); // Added feedback
+    });
+    setConfirmDialogOpen(true);
+  };
   const handleSavePresetCallback = (presetToSave: RestPresetDefinition) => {
     let updatedPresets
     const existingIndex = presets.findIndex((p) => p.id === presetToSave.id)
@@ -147,19 +158,20 @@ export const RestSettings: FC = () => {
     }
   }
   const handleDeleteBlueprint = (blueprintIdToDelete: string) => {
-    const blueprintToDelete = blueprints.find((bp) => bp.id === blueprintIdToDelete)
-    if (!blueprintToDelete) return
+    const blueprintToDelete = blueprints.find((bp) => bp.id === blueprintIdToDelete);
+    if (!blueprintToDelete) return;
 
-    if (
-      window.confirm(
-        `Are you sure you want to delete the Blueprint: "${blueprintToDelete.name}"? This action cannot be undone.`
-      )
-    ) {
-      const updatedBlueprints = blueprints.filter((bp) => bp.id !== blueprintIdToDelete)
-      setModuleConfig(restModuleId, 'blueprints', updatedBlueprints)
-      enqueueSnackbar(`Blueprint "${blueprintToDelete.name}" deleted.`, { variant: 'info' })
-    }
-  }
+    setConfirmDialogTitle('Delete Blueprint');
+    setConfirmDialogMessage(
+      `Are you sure you want to delete the Blueprint: "${blueprintToDelete.name}"? This action cannot be undone.`
+    );
+    setConfirmAction(() => () => {
+      const updatedBlueprints = blueprints.filter((bp) => bp.id !== blueprintIdToDelete);
+      setModuleConfig(restModuleId, 'blueprints', updatedBlueprints);
+      enqueueSnackbar(\`Blueprint "\${blueprintToDelete.name}" deleted.\`, { variant: 'info' });
+    });
+    setConfirmDialogOpen(true);
+  };
 
   const handleSaveBlueprintDefinition = (blueprintToSave: BlueprintDefinition) => {
     const currentBlueprints =
@@ -426,6 +438,22 @@ export const RestSettings: FC = () => {
           onSave={handleSaveBlueprintDefinition}
         />
       )}
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        onClose={() => {
+          setConfirmDialogOpen(false);
+          setConfirmAction(null);
+        }}
+        onConfirm={() => {
+          if (confirmAction) {
+            confirmAction();
+          }
+          setConfirmDialogOpen(false);
+          setConfirmAction(null);
+        }}
+        title={confirmDialogTitle}
+        message={confirmDialogMessage}
+      />
     </Paper>
   )
 }
