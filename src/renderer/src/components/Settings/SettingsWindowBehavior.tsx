@@ -8,12 +8,11 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  Divider,
   CircularProgress,
   Alert,
   Stack
 } from '@mui/material'
-import { CloseFullscreenOutlined as WindowBehaviorIcon } from '@mui/icons-material' // Example icon
+// WindowBehaviorIcon will be in AccordionSummary
 import { useSnackbar } from 'notistack'
 
 const ipcRenderer = window.electron?.ipcRenderer
@@ -21,42 +20,42 @@ type CloseBehavior = 'minimize' | 'quit'
 
 const SettingsWindowBehavior: FC = () => {
   const { enqueueSnackbar } = useSnackbar()
-  const [closeBehavior, setCloseBehavior] = useState<CloseBehavior | null>(null) // null for loading
+  const [closeBehavior, setCloseBehavior] = useState<CloseBehavior | null>(null)
   const [isLoading, setIsLoading] = useState(!!ipcRenderer)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    /* ... (same data fetching logic as before) ... */
     if (ipcRenderer) {
       setIsLoading(true)
       ipcRenderer
         .invoke('get-close-button-behavior')
         .then((behavior: CloseBehavior) => {
-          setCloseBehavior(behavior || 'minimize') // Default if undefined
+          setCloseBehavior(behavior || 'minimize')
           setError(null)
         })
         .catch((err) => {
           setError('Failed to load close button behavior setting.')
-          setCloseBehavior('minimize') // Default safely
+          setCloseBehavior('minimize')
           console.error("Error 'get-close-button-behavior':", err)
         })
         .finally(() => setIsLoading(false))
     } else {
-      setCloseBehavior('minimize') // Default for web where it's less relevant
+      setCloseBehavior('minimize')
     }
-  }, [])
+  }, [enqueueSnackbar]) // Added enqueueSnackbar to deps if it's used in error handling
 
   const handleCloseBehaviorChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    /* ... (same update logic as before) ... */
     if (!ipcRenderer) return
     const newBehavior = event.target.value as CloseBehavior
-    setCloseBehavior(newBehavior) // Optimistic UI update
-
+    setCloseBehavior(newBehavior)
     try {
       const result = await ipcRenderer.invoke('set-close-button-behavior', newBehavior)
       if (!result.success) {
         enqueueSnackbar(`Error: ${result.error || 'Could not update close behavior.'}`, {
           variant: 'error'
         })
-        // Revert UI or re-fetch
         ipcRenderer.invoke('get-close-button-behavior').then((b) => setCloseBehavior(b))
       } else {
         enqueueSnackbar('Close button behavior updated.', {
@@ -71,75 +70,54 @@ const SettingsWindowBehavior: FC = () => {
 
   if (!ipcRenderer) {
     return (
-      <Box>
-        <Typography
-          variant="subtitle1"
-          component="div"
-          sx={{ fontWeight: 'medium', mb: 1, display: 'flex', alignItems: 'center' }}
-        >
-          <WindowBehaviorIcon sx={{ mr: 1, color: 'text.disabled' }} /> Window Behavior
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
-        <Alert severity="info">
-          Window behavior settings are only available in the desktop application.
-        </Alert>
-      </Box>
+      <Alert severity="info">
+        Window behavior settings are only available in the desktop application.
+      </Alert>
     )
+  }
+  if (isLoading) {
+    return (
+      <Stack direction="row" spacing={1} alignItems="center" sx={{ justifyContent: 'center' }}>
+        <CircularProgress size={20} />{' '}
+        <Typography variant="body2" color="text.secondary">
+          Loading...
+        </Typography>
+      </Stack>
+    )
+  }
+  if (error) {
+    return <Alert severity="warning">{error}</Alert>
   }
 
   return (
-    <Box>
-      <Typography
-        variant="subtitle1"
-        component="div"
-        sx={{ fontWeight: 'medium', mb: 1, display: 'flex', alignItems: 'center' }}
-      >
-        <WindowBehaviorIcon sx={{ mr: 1, color: 'text.secondary' }} /> Window Behavior
-      </Typography>
-      <Divider sx={{ mb: 2 }} />
-      {isLoading && (
-        <Stack direction="row" spacing={1} alignItems="center">
-          <CircularProgress size={20} />{' '}
-          <Typography variant="body2" color="text.secondary">
-            Loading...
-          </Typography>
-        </Stack>
-      )}
-      {error && !isLoading && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
-
-      {!isLoading && !error && closeBehavior !== null && (
-        <FormControl component="fieldset">
-          <Typography variant="body2" component="legend" sx={{ mb: 1, fontWeight: 'medium' }}>
-            When closing the main window:
-          </Typography>
-          <RadioGroup
-            aria-label="close-button-behavior"
-            name="close-button-behavior-group"
-            value={closeBehavior}
-            onChange={handleCloseBehaviorChange}
-          >
-            <FormControlLabel
-              value="minimize"
-              control={<Radio size="small" />}
-              label="Minimize to System Tray (Recommended)"
-            />
-            <FormControlLabel
-              value="quit"
-              control={<Radio size="small" />}
-              label="Quit the Application"
-            />
-          </RadioGroup>
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
-            Choose if IO should continue running in the background or exit completely.
-          </Typography>
-        </FormControl>
-      )}
-    </Box>
+    // Removed top Box, Typography title, and Divider
+    closeBehavior !== null && ( // Ensure closeBehavior is loaded
+      <FormControl component="fieldset">
+        <Typography variant="body2" component="legend" sx={{ mb: 1, fontWeight: 'medium' }}>
+          When closing the main window:
+        </Typography>
+        <RadioGroup
+          aria-label="close-button-behavior"
+          name="close-button-behavior-group"
+          value={closeBehavior}
+          onChange={handleCloseBehaviorChange}
+        >
+          <FormControlLabel
+            value="minimize"
+            control={<Radio size="small" />}
+            label="Minimize to System Tray (Recommended)"
+          />
+          <FormControlLabel
+            value="quit"
+            control={<Radio size="small" />}
+            label="Quit the Application"
+          />
+        </RadioGroup>
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+          Choose if IO should continue running in the background or exit completely.
+        </Typography>
+      </FormControl>
+    )
   )
 }
-
 export default SettingsWindowBehavior

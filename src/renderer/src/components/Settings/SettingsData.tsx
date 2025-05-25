@@ -3,7 +3,6 @@ import {
   Typography,
   Box,
   Button,
-  Divider,
   Dialog,
   DialogActions,
   DialogContent,
@@ -15,7 +14,7 @@ import { DeleteSweep as ClearIcon, WarningAmberOutlined as WarningIcon } from '@
 import { useState, type FC } from 'react'
 import { useMainStore } from '@/store/mainStore'
 import { id as restModuleId } from '@/modules/Rest/Rest'
-import { nuke as nukeAllAppData } from '../utils/nuke'
+import { nuke as nukeAllAppData } from '../utils/nuke' // Path relative to components/Settings/
 import { clearAllAudioFromDB } from '@/modules/PlaySound/lib/db'
 import { useSnackbar } from 'notistack'
 
@@ -23,13 +22,11 @@ const SettingsData: FC = () => {
   const { enqueueSnackbar } = useSnackbar()
   const setModuleConfigValue = useMainStore((state) => state.setModuleConfigValue)
 
-  // --- State for Data Management ---
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
   const [confirmTitle, setConfirmTitle] = useState('')
   const [confirmMessage, setConfirmMessage] = useState('')
 
-  // --- Data Management Functions (from previous version) ---
   const openConfirmation = (title: string, message: string, action: () => void) => {
     setConfirmTitle(title)
     setConfirmMessage(message)
@@ -74,11 +71,8 @@ const SettingsData: FC = () => {
   }
 
   return (
+    // Removed top Typography title and Divider
     <>
-      <Typography variant="subtitle1" component="div" sx={{ fontWeight: 'medium', mb: 1, mt: 4 }}>
-        Data Management
-      </Typography>
-      <Divider sx={{ mb: 2 }} />
       <Stack spacing={2} alignItems="flex-start">
         <Button
           variant="outlined"
@@ -89,6 +83,7 @@ const SettingsData: FC = () => {
         >
           Clear Row History
         </Button>
+        {/* ... other clear buttons ... */}
         <Button
           variant="outlined"
           color="warning"
@@ -109,8 +104,15 @@ const SettingsData: FC = () => {
         </Button>
 
         <Box
-          sx={{ mt: 2, pt: 2, borderTop: 1, borderColor: 'rgba(255,255,255,0.12)', width: '100%' }}
+          sx={{
+            mt: '16px !important',
+            pt: 2,
+            borderTop: 1,
+            borderColor: 'rgba(255,255,255,0.12)',
+            width: '100%'
+          }}
         >
+          {/* Use !important for mt if Stack spacing overrides */}
           <Button
             variant="contained"
             color="error"
@@ -125,7 +127,7 @@ const SettingsData: FC = () => {
           </Typography>
         </Box>
       </Stack>
-      <Dialog open={confirmDialogOpen} onClose={() => setConfirmDialogOpen(false)} /* ... */>
+      <Dialog open={confirmDialogOpen} onClose={() => setConfirmDialogOpen(false)}>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center' }}>
           <WarningIcon color="warning" sx={{ mr: 1 }} /> {confirmTitle}
         </DialogTitle>
@@ -149,5 +151,4 @@ const SettingsData: FC = () => {
     </>
   )
 }
-
 export default SettingsData

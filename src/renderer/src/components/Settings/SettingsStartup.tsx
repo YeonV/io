@@ -8,10 +8,9 @@ import {
   Switch,
   CircularProgress,
   Alert,
-  Stack,
-  Divider
+  Stack
 } from '@mui/material'
-import { Login as LoginIcon, VisibilityOffOutlined as StartHiddenIcon } from '@mui/icons-material'
+import { VisibilityOff as StartHiddenIcon } from '@mui/icons-material' // LoginIcon will be in AccordionSummary
 import { useSnackbar } from 'notistack'
 
 const ipcRenderer = window.electron?.ipcRenderer
@@ -24,14 +23,15 @@ const SettingsStartup: FC = () => {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    /* ... (same data fetching logic as before) ... */
     if (ipcRenderer) {
       setIsLoading(true)
       ipcRenderer
         .invoke('get-login-item-settings')
         .then((settings) => {
-          if (settings && typeof settings.openAtLogin === 'boolean') {
+          /* ... */ if (settings && typeof settings.openAtLogin === 'boolean') {
             setOpenAtLogin(settings.openAtLogin)
-            setOpenAsHidden(settings.openAsHidden || false) // settings.openAsHidden might be macOS specific
+            setOpenAsHidden(settings.openAsHidden || false)
             setError(null)
           } else {
             setError('Could not retrieve startup settings.')
@@ -50,17 +50,16 @@ const SettingsStartup: FC = () => {
       setOpenAtLogin(false)
       setOpenAsHidden(false)
     }
-  }, [])
+  }, [enqueueSnackbar])
 
   const updateLoginSettings = async (newOpenAtLogin: boolean, newOpenAsHiddenSetting?: boolean) => {
+    /* ... (same update logic as before) ... */
     if (!ipcRenderer) return
-
     const effectiveOpenAsHidden = newOpenAtLogin
       ? newOpenAsHiddenSetting !== undefined
         ? newOpenAsHiddenSetting
         : (openAsHidden ?? true)
       : false
-
     try {
       const result = await ipcRenderer.invoke('set-login-item-settings', {
         openAtLogin: newOpenAtLogin,
@@ -70,7 +69,6 @@ const SettingsStartup: FC = () => {
         enqueueSnackbar(`Error: ${result.error || 'Could not update startup settings.'}`, {
           variant: 'error'
         })
-        // Re-fetch to get actual state if update failed
         ipcRenderer.invoke('get-login-item-settings').then((s) => {
           setOpenAtLogin(s.openAtLogin)
           setOpenAsHidden(s.openAsHidden)
@@ -89,111 +87,93 @@ const SettingsStartup: FC = () => {
     _event: React.ChangeEvent<HTMLInputElement>,
     checked: boolean
   ) => {
-    setOpenAtLogin(checked) // Optimistic
+    /* ... (same) ... */ setOpenAtLogin(checked)
     if (!checked && openAsHidden) setOpenAsHidden(false)
     updateLoginSettings(checked, checked ? (openAsHidden ?? true) : false)
   }
-
   const handleToggleOpenAsHidden = (
     _event: React.ChangeEvent<HTMLInputElement>,
     checked: boolean
   ) => {
-    setOpenAsHidden(checked) // Optimistic
+    /* ... (same) ... */ setOpenAsHidden(checked)
     if (openAtLogin) updateLoginSettings(true, checked)
   }
 
   if (!ipcRenderer) {
     return (
-      <Box>
-        <Typography
-          variant="subtitle1"
-          component="div"
-          sx={{ fontWeight: 'medium', mb: 1, display: 'flex', alignItems: 'center' }}
-        >
-          <LoginIcon sx={{ mr: 1, color: 'text.disabled' }} /> Application Startup
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
-        <Alert severity="info">
-          Startup settings are only available in the desktop application.
-        </Alert>
-      </Box>
+      <Alert severity="info">Startup settings are only available in the desktop application.</Alert>
     )
   }
 
-  return (
-    <Box>
-      <Typography
-        variant="subtitle1"
-        component="div"
-        sx={{ fontWeight: 'medium', mb: 1, display: 'flex', alignItems: 'center' }}
+  if (isLoading) {
+    return (
+      <Stack
+        direction="row"
+        spacing={1}
+        alignItems="center"
+        sx={{ minHeight: '70px', justifyContent: 'center' }}
       >
-        <LoginIcon sx={{ mr: 1, color: 'text.secondary' }} /> Application Startup
-      </Typography>
-      <Divider sx={{ mb: 2 }} />
-      {isLoading && (
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ minHeight: '70px' }}>
-          <CircularProgress size={20} />{' '}
-          <Typography variant="body2" color="text.secondary">
-            Loading...
-          </Typography>
-        </Stack>
-      )}
-      {error && !isLoading && (
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
+        <CircularProgress size={20} />{' '}
+        <Typography variant="body2" color="text.secondary">
+          Loading...
+        </Typography>
+      </Stack>
+    )
+  }
+  if (error) {
+    return (
+      <Alert severity="warning" sx={{ mb: 0 }}>
+        {error}
+      </Alert>
+    ) // Removed mb:2, parent accordion has padding
+  }
 
-      {!isLoading && !error && (
-        <>
-          <Box>
-            <FormControlLabel
-              control={<Switch checked={openAtLogin === true} onChange={handleToggleOpenAtLogin} />}
-              label="Launch automatically on system login"
+  return (
+    // Removed top Box, Typography title, and Divider - these are now in AccordionSummary
+    <Stack spacing={1.5}>
+      {' '}
+      {/* Use Stack for consistent spacing of items */}
+      <Box>
+        <FormControlLabel
+          control={<Switch checked={openAtLogin === true} onChange={handleToggleOpenAtLogin} />}
+          label="Launch automatically on system login"
+        />
+        <Typography
+          variant="caption"
+          display="block"
+          sx={{ mt: 0, ml: 4.5, color: 'text.secondary' }}
+        >
+          Automatically start IO when you log into your computer.
+        </Typography>
+      </Box>
+      <Box
+        sx={{ opacity: openAtLogin ? 1 : 0.5, pl: 2, pointerEvents: openAtLogin ? 'auto' : 'none' }}
+      >
+        <FormControlLabel
+          control={
+            <Switch
+              checked={openAsHidden === true}
+              onChange={handleToggleOpenAsHidden}
+              disabled={!openAtLogin}
             />
-            <Typography
-              variant="caption"
-              display="block"
-              sx={{ mt: 0, ml: 4.5, color: 'text.secondary', mb: 1.5 }}
-            >
-              Automatically start IO when you log into your computer.
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              opacity: openAtLogin ? 1 : 0.5,
-              pl: 2,
-              mt: 0,
-              pointerEvents: openAtLogin ? 'auto' : 'none'
-            }}
-          >
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={openAsHidden === true}
-                  onChange={handleToggleOpenAsHidden}
-                  disabled={!openAtLogin}
-                />
-              }
-              label={
-                <Stack direction="row" alignItems="center" spacing={0.5}>
-                  <StartHiddenIcon sx={{ fontSize: '1.1rem', opacity: 0.7 }} />
-                  <span>Start minimised to system tray</span>
-                </Stack>
-              }
-            />
-            <Typography
-              variant="caption"
-              display="block"
-              sx={{ mt: 0, ml: 6.5, color: 'text.secondary' }}
-            >
-              If launching on login, IO will start hidden in the system tray.
-            </Typography>
-          </Box>
-        </>
-      )}
-    </Box>
+          }
+          label={
+            <Stack direction="row" alignItems="center" spacing={0.5}>
+              {' '}
+              <StartHiddenIcon sx={{ fontSize: '1.1rem', opacity: 0.7 }} />{' '}
+              <span>Start minimised to system tray</span>{' '}
+            </Stack>
+          }
+        />
+        <Typography
+          variant="caption"
+          display="block"
+          sx={{ mt: 0, ml: 6.5, color: 'text.secondary' }}
+        >
+          If launching on login, IO will start hidden in the system tray.
+        </Typography>
+      </Box>
+    </Stack>
   )
 }
-
 export default SettingsStartup
