@@ -1,79 +1,6 @@
-name: Create App Release
-
-on:
-  workflow_dispatch:
-    inputs:
-      build_macos:
-        description: 'Build for macOS?'
-        required: true
-        type: boolean
-        default: true
-      build_windows:
-        description: 'Build for Windows?'
-        required: true
-        type: boolean
-        default: true
-      build_linux:
-        description: 'Build for Linux?'
-        required: true
-        type: boolean
-        default: true
-      version_override:
-        description: 'Override package version (e.g., 0.2.2-beta1). Leave empty to use package.json.'
-        required: false
-        type: string
-        default: ''
-
-jobs:
-  prepare_release_info:
-    name: Prepare Release Info
-    runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      is_manual_dispatch: ${{ github.event_name == 'workflow_dispatch' }}
-      current_version: ${{ github.event.inputs.version_override || steps.package-version.outputs.current-version }}
-      release_body_file: .release-notes.md
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Get App Version from package.json
-        id: package-version
-        if: github.event.inputs.version_override == ''
-        uses: martinbeentjes/npm-get-version-action@v1.3.0
-      - name: Output overridden version if provided
-        if: github.event.inputs.version_override != ''
-        run: echo "Using overridden version ${{ github.event.inputs.version_override }}"
-      - name: Generate Release Notes
-        id: generate_notes
-        run: |
-          if git describe --tags --abbrev=0 @^ > /dev/null 2>&1; then
-            git log --pretty=format:"+ %s" $(git describe --tags --abbrev=0 @^)..@ > .release-notes.md
-          else
-            echo "+ Initial release or no previous tags found." > .release-notes.md
-          fi
-      - name: Create GitHub Release
-        id: create_release
-        if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.event.inputs.version_override || steps.package-version.outputs.current-version }}
-          release_name: Release ${{ github.event.inputs.version_override || steps.package-version.outputs.current-version }}
-          body_path: .release-notes.md
-          draft: false
-          prerelease: false
-
   build_app:
     name: Build App (${{ matrix.platform_name }})
-    if: >
-      (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')) ||
-      (github.event_name == 'workflow_dispatch' && 
-        ((matrix.platform_id == 'macos' && github.event.inputs.build_macos == true) ||
-         (matrix.platform_id == 'windows' && github.event.inputs.build_windows == true) ||
-         (matrix.platform_id == 'linux' && github.event.inputs.build_linux == true)))
+    if: (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')) || github.event_name == 'workflow_dispatch'
     needs: prepare_release_info
     runs-on: ${{ matrix.os_runner }}
     strategy:
@@ -126,6 +53,26 @@ jobs:
             python_path_command: 'python'
             
     steps:
+      - name: Check if build is selected for this OS (Manual Dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "Selected build_macos: ${{ github.event.inputs.build_macos }}"
+          echo "Selected build_windows: ${{ github.event.inputs.build_windows }}"
+          echo "Selected build_linux: ${{ github.event.inputs.build_linux }}"
+          echo "Current matrix platform_id: ${{ matrix.platform_id }}"
+          if [[ "${{ matrix.platform_id }}" == "macos" && "${{ github.event.inputs.build_macos }}" != "true" ]]; then
+            echo "macOS build not selected, skipping job."
+            exit 78 # Special exit code to skip without failing
+          elif [[ "${{ matrix.platform_id }}" == "windows" && "${{ github.event.inputs.build_windows }}" != "true" ]]; then
+            echo "Windows build not selected, skipping job."
+            exit 78
+          elif [[ "${{ matrix.platform_id }}" == "linux" && "${{ github.event.inputs.build_linux }}" != "true" ]]; then
+            echo "Linux build not selected, skipping job."
+            exit 78
+          fi
+          echo "Build selected for ${{ matrix.platform_id }}, proceeding."
+        shell: bash
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
