@@ -9,20 +9,20 @@ jobs:
     steps:
       - run: echo "Hello"
 
-  # prepare_release_info:
-  #   name: Prepare Release Info
+  prepare_release_info:
+    name: Prepare Release Info
   #   # This job runs for both push-to-main (Release commit) and workflow_dispatch
-  #   runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
   #   outputs:
   #     upload_url: ${{ steps.create_release.outputs.upload_url }} # Only set if release is created
   #     is_manual_dispatch: ${{ github.event_name == 'workflow_dispatch' }}
   #     current_version: ${{ steps.package-version.outputs.current-version }}
   #     release_body_file: .release-notes.md # Path to the file containing release notes
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0 # Needed for git describe and git log
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Needed for git describe and git log
 
   #     - name: Get App Version
   #       id: package-version
