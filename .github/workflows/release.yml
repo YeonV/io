@@ -20,12 +20,15 @@ jobs:
       - name: Get commit-messages
         id: get_messages
         run: |
-          git log --pretty=format:"+ %s" $(git describe --tags --abbrev=0 @^)..@ >> /tmp/messages.txt
-          cp /tmp/messages.txt .messages.md
-          cat /tmp/messages.txt
-          echo 'MESSAGES<<EOF' >> $GITHUB_ENV
-          cat /tmp/messages.txt >> $GITHUB_ENV # Simplified printf
-          echo EOF >> $GITHUB_ENV
+          git log --pretty=format:"+ %s" $(git describe --tags --abbrev=0 @^)..@ > .messages.md
+          cat .messages.md # For logging purposes, optional
+          
+          # Use a heredoc with a unique delimiter for GITHUB_ENV
+          # See: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
+          delimiter=$(uuidgen) # Generate a unique delimiter
+          echo "MESSAGES<<$delimiter" >> $GITHUB_ENV
+          cat .messages.md >> $GITHUB_ENV
+          echo "$delimiter" >> $GITHUB_ENV
       - name: get-npm-version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.0 # Using a specific version

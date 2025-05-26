@@ -1,7 +1,7 @@
 {
   "name": "io",
   "productName": "io",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Input/Output: Your local IFTTT-style automation hub. Supports global Keyboard-Shortcuts, Alexa Device Emulation, Hand Gesture Recognition, MQTT, REST and more...",
   "keywords": [
     "electron",
