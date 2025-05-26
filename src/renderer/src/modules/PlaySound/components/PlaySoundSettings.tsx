@@ -1,7 +1,7 @@
 import type { FC, DragEvent, ChangeEvent } from 'react'
-import { useEffect, useState, useRef, useCallback, } from 'react'
-import ConfirmDialog from '@/components/utils/ConfirmDialog';
-import InfoDialog from '@/components/utils/InfoDialog';
+import { useEffect, useState, useRef, useCallback } from 'react'
+import ConfirmDialog from '@/components/utils/ConfirmDialog'
+import InfoDialog from '@/components/utils/InfoDialog'
 import {
   Box,
   Button,
@@ -47,21 +47,21 @@ export const PlaySoundSettings: FC = () => {
   const batchFileInputRef = useRef<HTMLInputElement>(null)
 
   // For ConfirmDialog
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [confirmDialogTitle, setConfirmDialogTitle] = useState('');
-  const [confirmDialogMessage, setConfirmDialogMessage] = useState('');
-  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [confirmDialogTitle, setConfirmDialogTitle] = useState('')
+  const [confirmDialogMessage, setConfirmDialogMessage] = useState('')
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
 
   // For InfoDialog
-  const [infoDialogOpen, setInfoDialogOpen] = useState(false);
-  const [infoDialogTitle, setInfoDialogTitle] = useState('');
-  const [infoDialogMessage, setInfoDialogMessage] = useState('');
+  const [infoDialogOpen, setInfoDialogOpen] = useState(false)
+  const [infoDialogTitle, setInfoDialogTitle] = useState('')
+  const [infoDialogMessage, setInfoDialogMessage] = useState('')
 
   const showInfoDialog = (title: string, message: string) => {
-    setInfoDialogTitle(title);
-    setInfoDialogMessage(message);
-    setInfoDialogOpen(true);
-  };
+    setInfoDialogTitle(title)
+    setInfoDialogMessage(message)
+    setInfoDialogOpen(true)
+  }
 
   const triggerGlobalAudioStop = useMainStore((state) => state.setGlobalAudioCommandTimestamp)
   const isWindowBeingDraggedOver = useMainStore((state) => state.isWindowBeingDraggedOver)
@@ -101,31 +101,37 @@ export const PlaySoundSettings: FC = () => {
   const handleCloseManageCacheDialog = () => setManageCacheDialogOpen(false)
 
   const handleDeleteCachedFile = async (audioId: string) => {
-    setConfirmDialogTitle('Delete Cached Sound');
-    setConfirmDialogMessage('Are you sure you want to delete this cached sound? Rows using it will need a new file selected.');
-    setConfirmAction(() => async () => { // Note: confirmAction itself is now async
+    setConfirmDialogTitle('Delete Cached Sound')
+    setConfirmDialogMessage(
+      'Are you sure you want to delete this cached sound? Rows using it will need a new file selected.'
+    )
+    setConfirmAction(() => async () => {
+      // Note: confirmAction itself is now async
       console.warn(
         `[PlaySound Settings] Deleting audioId ${audioId}. If playing, it might continue until row is re-triggered or app restart unless PlaySoundModule handles this.`
-      );
-      await deleteAudioFromDB(audioId);
-      fetchCachedFilesData(false); // For the dialog list
-      fetchCachedFilesData(true);  // For the button count
-    });
-    setConfirmDialogOpen(true);
-  };
+      )
+      await deleteAudioFromDB(audioId)
+      fetchCachedFilesData(false) // For the dialog list
+      fetchCachedFilesData(true) // For the button count
+    })
+    setConfirmDialogOpen(true)
+  }
 
   const handleClearAllCache = async () => {
-    setConfirmDialogTitle('Clear All Cached Sounds');
-    setConfirmDialogMessage('Are you sure you want to delete ALL cached sounds? This cannot be undone.');
-    setConfirmAction(() => async () => { // Note: confirmAction itself is now async
-      triggerGlobalAudioStop();
-      await clearAllAudioFromDB();
-      fetchCachedFilesData(false); // For the dialog list
-      setInitialCachedFileCount(0); // Update count immediately
-      showInfoDialog('Cache Cleared', 'All cached sounds have been deleted.');
-    });
-    setConfirmDialogOpen(true);
-  };
+    setConfirmDialogTitle('Clear All Cached Sounds')
+    setConfirmDialogMessage(
+      'Are you sure you want to delete ALL cached sounds? This cannot be undone.'
+    )
+    setConfirmAction(() => async () => {
+      // Note: confirmAction itself is now async
+      triggerGlobalAudioStop()
+      await clearAllAudioFromDB()
+      fetchCachedFilesData(false) // For the dialog list
+      setInitialCachedFileCount(0) // Update count immediately
+      showInfoDialog('Cache Cleared', 'All cached sounds have been deleted.')
+    })
+    setConfirmDialogOpen(true)
+  }
 
   const handleActualStopAllSounds = () => {
     console.info(
@@ -172,7 +178,7 @@ export const PlaySoundSettings: FC = () => {
     console.info(
       `[PlaySound Settings] Batch import finished. Processed ${filesProcessed}/${totalFiles}.`
     )
-    showInfoDialog('Batch Import Complete', \`Processed \${filesProcessed} of \${totalFiles} files.\`);
+    showInfoDialog('Batch Import Complete', `Processed \${filesProcessed} of \${totalFiles} files.`)
     fetchCachedFilesData(true)
     if (manageCacheDialogOpen) fetchCachedFilesData(false)
     setTimeout(() => setBatchImportProgress(0), 1500)
@@ -383,15 +389,16 @@ export const PlaySoundSettings: FC = () => {
       <ConfirmDialog
         open={confirmDialogOpen}
         onClose={() => {
-          setConfirmDialogOpen(false);
-          setConfirmAction(null);
+          setConfirmDialogOpen(false)
+          setConfirmAction(null)
         }}
-        onConfirm={async () => { // onConfirm can be async if the action is
+        onConfirm={async () => {
+          // onConfirm can be async if the action is
           if (confirmAction) {
-            await confirmAction(); // Await if the action is async
+            await confirmAction() // Await if the action is async
           }
-          setConfirmDialogOpen(false);
-          setConfirmAction(null);
+          setConfirmDialogOpen(false)
+          setConfirmAction(null)
         }}
         title={confirmDialogTitle}
         message={confirmDialogMessage}

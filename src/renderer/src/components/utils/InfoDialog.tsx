@@ -1,16 +1,16 @@
-import { FC } from 'react';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import { FC } from 'react'
+import Button from '@mui/material/Button'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
 
 interface InfoDialogProps {
-  open: boolean;
-  onClose: () => void;
-  title: string;
-  message: string;
+  open: boolean
+  onClose: () => void
+  title: string
+  message: string
 }
 
 const InfoDialog: FC<InfoDialogProps> = ({ open, onClose, title, message }) => {
@@ -23,9 +23,7 @@ const InfoDialog: FC<InfoDialogProps> = ({ open, onClose, title, message }) => {
     >
       <DialogTitle id="info-dialog-title">{title}</DialogTitle>
       <DialogContent>
-        <DialogContentText id="info-dialog-description">
-          {message}
-        </DialogContentText>
+        <DialogContentText id="info-dialog-description">{message}</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} autoFocus>
@@ -33,7 +31,7 @@ const InfoDialog: FC<InfoDialogProps> = ({ open, onClose, title, message }) => {
         </Button>
       </DialogActions>
     </Dialog>
-  );
-};
+  )
+}
 
-export default InfoDialog;
+export default InfoDialog
