@@ -55,7 +55,7 @@ jobs:
     name: Build App (${{ matrix.os }})
     
     if: (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')) || github.event_name == 'workflow_dispatch'
-    needs: test 
+    needs: prepare_release_info
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
