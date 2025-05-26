@@ -1,62 +1,72 @@
-name: Create App Release
+name: Create App Release and Build
 
 on:
   push:
     branches: [main]
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
-  create_release:
-    name: Create release
-    if: "startsWith(github.event.head_commit.message, 'Release')"
+  prepare_release_info:
+    name: Prepare Release Info
+    # This job runs for both push-to-main (Release commit) and workflow_dispatch
     runs-on: ubuntu-latest
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      current_version: ${{ steps.package-version.outputs.current-version }} # Changed output name for clarity
+      upload_url: ${{ steps.create_release.outputs.upload_url }} # Only set if release is created
+      is_manual_dispatch: ${{ github.event_name == 'workflow_dispatch' }}
+      current_version: ${{ steps.package-version.outputs.current-version }}
+      release_body_file: .release-notes.md # Path to the file containing release notes
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # Updated to v4
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Get commit-messages
-        id: get_messages
-        run: |
-          git log --pretty=format:"+ %s" $(git describe --tags --abbrev=0 @^)..@ > .messages.md
-          cat .messages.md # For logging purposes, optional
-          
-          # Use a heredoc with a unique delimiter for GITHUB_ENV
-          # See: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#multiline-strings
-          delimiter=$(uuidgen) # Generate a unique delimiter
-          echo "MESSAGES<<$delimiter" >> $GITHUB_ENV
-          cat .messages.md >> $GITHUB_ENV
-          echo "$delimiter" >> $GITHUB_ENV
-      - name: get-npm-version
+          fetch-depth: 0 # Needed for git describe and git log
+
+      - name: Get App Version
         id: package-version
-        uses: martinbeentjes/npm-get-version-action@v1.3.0 # Using a specific version
-      - name: Create release
+        uses: martinbeentjes/npm-get-version-action@v1.3.0
+
+      - name: Generate Release Notes
+        id: generate_notes
+        run: |
+          # Get commit messages since the last tag
+          # If no previous tag, it might log all history up to the first commit.
+          # Consider a fallback or ensuring a tag always exists.
+          if git describe --tags --abbrev=0 @^ > /dev/null 2>&1; then
+            git log --pretty=format:"+ %s" $(git describe --tags --abbrev=0 @^)..@ > .release-notes.md
+          else
+            echo "+ Initial release or no previous tags found." > .release-notes.md
+          fi
+          echo "Release notes generated in .release-notes.md:"
+          cat .release-notes.md
+      
+      - name: Create GitHub Release (only on Release commit to main)
         id: create_release
+        if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.package-version.outputs.current-version }}
           release_name: Release ${{ steps.package-version.outputs.current-version }}
-          body: |
-            io
-            ${{ env.MESSAGES }}
+          body_path: .release-notes.md # Use the file directly
           draft: false
           prerelease: false
+      
+      - name: Output if manual dispatch
+        run: echo "Is manual dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
 
-  build_release:
-    name: Build & Release (${{ matrix.os }}) # Added matrix.os to job name for clarity
-    if: "startsWith(github.event.head_commit.message, 'Release')"
-    needs: create_release
+
+  build_app: # Renamed from build_release for clarity
+    name: Build App (${{ matrix.os }})
+    # Run if it's a Release commit on push OR if it's a manual dispatch
+    if: (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')) || github.event_name == 'workflow_dispatch'
+    needs: prepare_release_info
     runs-on: ${{ matrix.os }}
-    # continue-on-error: true # Consider removing this for production to catch errors
     strategy:
-      fail-fast: false # Prevent cancelling other jobs in matrix if one fails
+      fail-fast: false
       matrix:
         node-version: ['20.x']
-        python-version: ['3.11'] # Specify a Python version, 3.11 is a good choice
+        python-version: ['3.11']
         os: [macos-latest, ubuntu-latest, windows-latest]
         include:
           - os: macos-latest
@@ -68,12 +78,12 @@ jobs:
             OSNAME: linux
             OSEND: AppImage
             FILEPART: Installer
-            ASSET_CONTENT_TYPE: application/x-iso9660-appimage # Or application/octet-stream
+            ASSET_CONTENT_TYPE: application/x-iso9660-appimage
           - os: windows-latest
             OSNAME: win
             OSEND: exe
             FILEPART: Setup
-            ASSET_CONTENT_TYPE: application/vnd.microsoft.portable-executable # Or application/octet-stream
+            ASSET_CONTENT_TYPE: application/vnd.microsoft.portable-executable
 
     steps:
       - name: Checkout code
@@ -85,7 +95,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn' # Enable caching for yarn dependencies
+          cache: 'yarn'
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -106,15 +116,8 @@ jobs:
 
       - name: Rebuild native modules for Electron (RobotJS)
         env:
-          # Conditionally set CXXFLAGS and MACOSX_DEPLOYMENT_TARGET for macOS
           CXXFLAGS: ${{ matrix.os == 'macos-latest' && '-std=c++20 -stdlib=libc++' || '' }}
           MACOSX_DEPLOYMENT_TARGET: ${{ matrix.os == 'macos-latest' && '11.0' || '' }}
-          # Explicitly tell node-gyp which Python to use (from setup-python)
-          # This helps avoid ambiguity if multiple Pythons are present or PATH issues
-          PYTHON: ${{ env.pythonLocation }}/bin/python # For Linux/macOS
-          # For Windows, the path would be like: ${{ env.pythonLocation }}\python.exe
-          # A more robust way:
-          # PYTHON_EXEC: ${{ (matrix.os == 'windows-latest' && format('{0}\python.exe', env.pythonLocation)) || format('{0}/bin/python', env.pythonLocation) }}
         run: |
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
             export PYTHON_EXEC="${{ env.pythonLocation }}\python.exe"
@@ -127,29 +130,35 @@ jobs:
       - name: Build Project (macOS/Linux)
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          # Correctly reference the output from the 'create_release' job
-          REACT_APP_VERSION: ${{ needs.create_release.outputs.current_version }}
-        run: yarn dist -p "never"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GH_TOKEN is used by electron-builder for auto-updates/publishing
+          REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
+        run: yarn dist -p "never" # -p "never" prevents auto-publishing by electron-builder
 
       - name: Build Project (Windows)
         if: matrix.os == 'windows-latest'
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          REACT_APP_VERSION: ${{ needs.create_release.outputs.current_version }}
-        shell: pwsh # Using PowerShell for more consistent env var setting on Windows
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
+        shell: pwsh
         run: |
           $env:GH_TOKEN = "${{ secrets.GH_TOKEN }}"
           yarn dist -p "never"
 
-      - name: Upload Release Asset
-        id: upload-release-asset
+      - name: Upload Release Asset (only on Release commit to main)
+        if: needs.prepare_release_info.outputs.is_manual_dispatch == 'false' && needs.prepare_release_info.outputs.upload_url != ''
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
-          # Ensure current_version is correctly referenced from the create_release job output
-          asset_path: ./dist/io-${{ needs.create_release.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
-          asset_name: io-${{ matrix.OSNAME }}.${{ matrix.OSEND }} # Changed asset_name to include OSNAME for clarity
+          upload_url: ${{ needs.prepare_release_info.outputs.upload_url }}
+          asset_path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
+          asset_name: io-${{ matrix.OSNAME }}.${{ matrix.OSEND }}
           asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE }}
+
+      - name: Upload Build Artifact (only on manual dispatch)
+        if: needs.prepare_release_info.outputs.is_manual_dispatch == 'true'
+        uses: actions/upload-artifact@v4 # Use v4 for upload-artifact
+        with:
+          name: io-${{ matrix.OSNAME }}-${{ needs.prepare_release_info.outputs.current_version }}
+          path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
+          retention-days: 7 # Optional: how long to keep the artifact
