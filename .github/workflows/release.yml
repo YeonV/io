@@ -47,8 +47,8 @@ jobs:
       #     draft: false
       #     prerelease: false
       
-      - name: Output if manual dispatch
-        run: echo "Is manual dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
+      # - name: Output if manual dispatch
+      #   run: echo "Is manual dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
 
 
   build_app: # Renamed from build_release for clarity
