@@ -24,9 +24,9 @@ jobs:
         with:
           fetch-depth: 0 # Needed for git describe and git log
 
-  #     - name: Get App Version
-  #       id: package-version
-  #       uses: martinbeentjes/npm-get-version-action@v1.3.0
+      - name: Get App Version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.0
 
   #     - name: Generate Release Notes
   #       id: generate_notes
