@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
-      current-version: ${{ steps.package-version.outputs.current-version }}
+      current_version: ${{ steps.package-version.outputs.current-version }} # Changed output name for clarity
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4 # Updated to v4
         with:
           fetch-depth: 0
       - name: Get commit-messages
@@ -24,19 +24,19 @@ jobs:
           cp /tmp/messages.txt .messages.md
           cat /tmp/messages.txt
           echo 'MESSAGES<<EOF' >> $GITHUB_ENV
-          printf '%b\n' "$(cat /tmp/messages.txt)" >> $GITHUB_ENV
+          cat /tmp/messages.txt >> $GITHUB_ENV # Simplified printf
           echo EOF >> $GITHUB_ENV
       - name: get-npm-version
         id: package-version
-        uses: martinbeentjes/npm-get-version-action@master
+        uses: martinbeentjes/npm-get-version-action@v1.3.0 # Using a specific version
       - name: Create release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.package-version.outputs.current-version}}
-          release_name: Release ${{ steps.package-version.outputs.current-version}}
+          tag_name: ${{ steps.package-version.outputs.current-version }}
+          release_name: Release ${{ steps.package-version.outputs.current-version }}
           body: |
             io
             ${{ env.MESSAGES }}
@@ -44,31 +44,33 @@ jobs:
           prerelease: false
 
   build_release:
-    name: Build & Release
+    name: Build & Release (${{ matrix.os }}) # Added matrix.os to job name for clarity
     if: "startsWith(github.event.head_commit.message, 'Release')"
     needs: create_release
     runs-on: ${{ matrix.os }}
-    continue-on-error: true
+    # continue-on-error: true # Consider removing this for production to catch errors
     strategy:
+      fail-fast: false # Prevent cancelling other jobs in matrix if one fails
       matrix:
-        node-version: [20.x]
-
+        node-version: ['20.x']
+        python-version: ['3.11'] # Specify a Python version, 3.11 is a good choice
         os: [macos-latest, ubuntu-latest, windows-latest]
-        # os: [ubuntu-latest, windows-latest]
         include:
-        - os: macos-latest
-          OSNAME: mac
-          OSEND: dmg
-          FILEPART: Installer
-        - os: ubuntu-latest
-          OSNAME: linux
-          OSEND: AppImage
-          FILEPART: Installer
-
-        - os: windows-latest
-          OSNAME: win
-          OSEND: exe
-          FILEPART: Setup
+          - os: macos-latest
+            OSNAME: mac
+            OSEND: dmg
+            FILEPART: Installer
+            ASSET_CONTENT_TYPE: application/x-apple-diskimage
+          - os: ubuntu-latest
+            OSNAME: linux
+            OSEND: AppImage
+            FILEPART: Installer
+            ASSET_CONTENT_TYPE: application/x-iso9660-appimage # Or application/octet-stream
+          - os: windows-latest
+            OSNAME: win
+            OSEND: exe
+            FILEPART: Setup
+            ASSET_CONTENT_TYPE: application/vnd.microsoft.portable-executable # Or application/octet-stream
 
     steps:
       - name: Checkout code
@@ -80,49 +82,62 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn' # Enable caching for yarn dependencies
 
-      - name: Install Linux dependencies for robotjs
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Python build dependencies
+        run: python -m pip install --upgrade pip setuptools wheel
+
+      - name: Install Linux dependencies for RobotJS & Electron build
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3
-        # libx11-dev provides Xutil.h
-        # libxtst-dev is often needed for XTest extension (sending events)
-        # libpng++-dev might be needed for screen capture parts of robotjs (good to have)
-        # libxkbfile-dev for keyboard mapping
-        # libsecret-1-dev and libgconf-2-4 are common Electron build dependencies on Linux
-        # build-essential provides make, g++, etc.
-        # python3 is needed for node-gyp
-      - name: Install Node Modules and Build RobotJS for macOS
-        if: matrix.os == 'macos-latest'
-        env:
-          # These flags are for the C++ compiler when node-gyp runs
-          CXXFLAGS: "-std=c++20 -stdlib=libc++"
-          MACOSX_DEPLOYMENT_TARGET: "11.0" # Or a suitable target for macos-latest
+          sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential libgconf-2-4 libatk1.0-0 libatk-bridge2.0-0 libgdk-pixbuf2.0-0 libgtk-3-0 libgbm-dev libnss3-dev libxss-dev libasound2
+
+      - name: Install Node Modules
         run: yarn install --frozen-lockfile
 
-      - name: Rebuild native modules for Electron (especially for macOS)
-        if: matrix.os == 'macos-latest' # Or apply to all OS if you suspect issues elsewhere
+      - name: Rebuild native modules for Electron (RobotJS)
         env:
-          # These flags are crucial for your specific Electron 36 + Xcode 16.3 on macOS
-          # They might also be needed on the GitHub Actions macos-latest runner
-          CXXFLAGS: "-std=c++20 -stdlib=libc++"
-          MACOSX_DEPLOYMENT_TARGET: "11.0" # Or a suitable target for macos-latest (Xcode 15.x based)
-        run: yarn rebuild # This runs your "electron-rebuild -f -w robotjs ..." command
+          # Conditionally set CXXFLAGS and MACOSX_DEPLOYMENT_TARGET for macOS
+          CXXFLAGS: ${{ matrix.os == 'macos-latest' && '-std=c++20 -stdlib=libc++' || '' }}
+          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.os == 'macos-latest' && '11.0' || '' }}
+          # Explicitly tell node-gyp which Python to use (from setup-python)
+          # This helps avoid ambiguity if multiple Pythons are present or PATH issues
+          PYTHON: ${{ env.pythonLocation }}/bin/python # For Linux/macOS
+          # For Windows, the path would be like: ${{ env.pythonLocation }}\python.exe
+          # A more robust way:
+          # PYTHON_EXEC: ${{ (matrix.os == 'windows-latest' && format('{0}\python.exe', env.pythonLocation)) || format('{0}/bin/python', env.pythonLocation) }}
+        run: |
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            export PYTHON_EXEC="${{ env.pythonLocation }}\python.exe"
+          else
+            export PYTHON_EXEC="${{ env.pythonLocation }}/bin/python"
+          fi
+          echo "Using Python executable: $PYTHON_EXEC for rebuild"
+          PYTHON=$PYTHON_EXEC yarn rebuild
 
-      - name: Build Non-Win project
-        if: matrix.OSNAME != 'win'
+      - name: Build Project (macOS/Linux)
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         env:
-          release_version: ${{ steps.package-version.outputs.current-version}}
-          REACT_APP_VERSION: ${{ steps.package-version.outputs.current-version}}
-        run: GH_TOKEN=${{secrets.GH_TOKEN}} yarn dist -p "never"
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          # Correctly reference the output from the 'create_release' job
+          REACT_APP_VERSION: ${{ needs.create_release.outputs.current_version }}
+        run: yarn dist -p "never"
 
-      - name: Build Win project
-        if: matrix.OSNAME == 'win'
+      - name: Build Project (Windows)
+        if: matrix.os == 'windows-latest'
         env:
-          release_version: ${{ steps.package-version.outputs.current-version}}
-          REACT_APP_VERSION: ${{ steps.package-version.outputs.current-version}}
-        run: set GH_TOKEN=${{secrets.GH_TOKEN}} && yarn dist -p "never"
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          REACT_APP_VERSION: ${{ needs.create_release.outputs.current_version }}
+        shell: pwsh # Using PowerShell for more consistent env var setting on Windows
+        run: |
+          $env:GH_TOKEN = "${{ secrets.GH_TOKEN }}"
+          yarn dist -p "never"
 
       - name: Upload Release Asset
         id: upload-release-asset
@@ -131,6 +146,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./dist/io-${{ needs.create_release.outputs.current-version}}-${{matrix.FILEPART}}.${{matrix.OSEND}}
-          asset_name: io.${{matrix.OSEND}}
-          asset_content_type: application/octet-stream
+          # Ensure current_version is correctly referenced from the create_release job output
+          asset_path: ./dist/io-${{ needs.create_release.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
+          asset_name: io-${{ matrix.OSNAME }}.${{ matrix.OSEND }} # Changed asset_name to include OSNAME for clarity
+          asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE }}
