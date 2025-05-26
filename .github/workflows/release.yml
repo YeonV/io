@@ -1,11 +1,13 @@
-name: Create App Release and Build
+name: Create App Release
 
 on:
-  workflow_dispatch: {}
-  # push:
-  #   branches: [main]
+  workflow_dispatch:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Hello"
   prepare_release_info:
     name: Prepare Release Info
     # This job runs for both push-to-main (Release commit) and workflow_dispatch
@@ -56,109 +58,109 @@ jobs:
         run: echo "Is manual dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
 
 
-  # build_app: # Renamed from build_release for clarity
-  #   name: Build App (${{ matrix.os }})
-  #   # Run if it's a Release commit on push OR if it's a manual dispatch
-  #   if: (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')) || github.event_name == 'workflow_dispatch'
-  #   needs: prepare_release_info
-  #   runs-on: ${{ matrix.os }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       node-version: ['20.x']
-  #       python-version: ['3.11']
-  #       os: [macos-latest, ubuntu-latest, windows-latest]
-  #       include:
-  #         - os: macos-latest
-  #           OSNAME: mac
-  #           OSEND: dmg
-  #           FILEPART: Installer
-  #           ASSET_CONTENT_TYPE: application/x-apple-diskimage
-  #         - os: ubuntu-latest
-  #           OSNAME: linux
-  #           OSEND: AppImage
-  #           FILEPART: Installer
-  #           ASSET_CONTENT_TYPE: application/x-iso9660-appimage
-  #         - os: windows-latest
-  #           OSNAME: win
-  #           OSEND: exe
-  #           FILEPART: Setup
-  #           ASSET_CONTENT_TYPE: application/vnd.microsoft.portable-executable
+  build_app: # Renamed from build_release for clarity
+    name: Build App (${{ matrix.os }})
+    # Run if it's a Release commit on push OR if it's a manual dispatch
+    if: (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')) || github.event_name == 'workflow_dispatch'
+    needs: prepare_release_info
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: ['20.x']
+        python-version: ['3.11']
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        include:
+          - os: macos-latest
+            OSNAME: mac
+            OSEND: dmg
+            FILEPART: Installer
+            ASSET_CONTENT_TYPE: application/x-apple-diskimage
+          - os: ubuntu-latest
+            OSNAME: linux
+            OSEND: AppImage
+            FILEPART: Installer
+            ASSET_CONTENT_TYPE: application/x-iso9660-appimage
+          - os: windows-latest
+            OSNAME: win
+            OSEND: exe
+            FILEPART: Setup
+            ASSET_CONTENT_TYPE: application/vnd.microsoft.portable-executable
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-  #     - name: Use Node.js ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #         cache: 'yarn'
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
-  #     - name: Set up Python ${{ matrix.python-version }}
-  #       uses: actions/setup-python@v5
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
-  #     - name: Install Python build dependencies
-  #       run: python -m pip install --upgrade pip setuptools wheel
+      - name: Install Python build dependencies
+        run: python -m pip install --upgrade pip setuptools wheel
 
-  #     - name: Install Linux dependencies for RobotJS & Electron build
-  #       if: matrix.os == 'ubuntu-latest'
-  #       run: |
-  #         sudo apt-get update
-  #         sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential libgconf-2-4 libatk1.0-0 libatk-bridge2.0-0 libgdk-pixbuf2.0-0 libgtk-3-0 libgbm-dev libnss3-dev libxss-dev libasound2
+      - name: Install Linux dependencies for RobotJS & Electron build
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential libgconf-2-4 libatk1.0-0 libatk-bridge2.0-0 libgdk-pixbuf2.0-0 libgtk-3-0 libgbm-dev libnss3-dev libxss-dev libasound2
 
-  #     - name: Install Node Modules
-  #       run: yarn install --frozen-lockfile
+      - name: Install Node Modules
+        run: yarn install --frozen-lockfile
 
-  #     - name: Rebuild native modules for Electron (RobotJS)
-  #       env:
-  #         CXXFLAGS: ${{ matrix.os == 'macos-latest' && '-std=c++17 -stdlib=libc++' || '' }}
-  #         MACOSX_DEPLOYMENT_TARGET: ${{ matrix.os == 'macos-latest' && '11.0' || '' }}
-  #       run: |
-  #         if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-  #           export PYTHON_EXEC="${{ env.pythonLocation }}\python.exe"
-  #         else
-  #           export PYTHON_EXEC="${{ env.pythonLocation }}/bin/python"
-  #         fi
-  #         echo "Using Python executable: $PYTHON_EXEC for rebuild"
-  #         PYTHON=$PYTHON_EXEC yarn rebuild
+      - name: Rebuild native modules for Electron (RobotJS)
+        env:
+          CXXFLAGS: ${{ matrix.os == 'macos-latest' && '-std=c++17 -stdlib=libc++' || '' }}
+          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.os == 'macos-latest' && '11.0' || '' }}
+        run: |
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            export PYTHON_EXEC="${{ env.pythonLocation }}\python.exe"
+          else
+            export PYTHON_EXEC="${{ env.pythonLocation }}/bin/python"
+          fi
+          echo "Using Python executable: $PYTHON_EXEC for rebuild"
+          PYTHON=$PYTHON_EXEC yarn rebuild
 
-  #     - name: Build Project (macOS/Linux)
-  #       if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
-  #       env:
-  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GH_TOKEN is used by electron-builder for auto-updates/publishing
-  #         REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
-  #       run: yarn dist -p "never" # -p "never" prevents auto-publishing by electron-builder
+      - name: Build Project (macOS/Linux)
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GH_TOKEN is used by electron-builder for auto-updates/publishing
+          REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
+        run: yarn dist -p "never" # -p "never" prevents auto-publishing by electron-builder
 
-  #     - name: Build Project (Windows)
-  #       if: matrix.os == 'windows-latest'
-  #       env:
-  #         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #         REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
-  #       shell: pwsh
-  #       run: |
-  #         $env:GH_TOKEN = "${{ secrets.GH_TOKEN }}"
-  #         yarn dist -p "never"
+      - name: Build Project (Windows)
+        if: matrix.os == 'windows-latest'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
+        shell: pwsh
+        run: |
+          $env:GH_TOKEN = "${{ secrets.GH_TOKEN }}"
+          yarn dist -p "never"
 
-  #     - name: Upload Release Asset (only on Release commit to main)
-  #       if: needs.prepare_release_info.outputs.is_manual_dispatch == 'false' && needs.prepare_release_info.outputs.upload_url != ''
-  #       uses: actions/upload-release-asset@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         upload_url: ${{ needs.prepare_release_info.outputs.upload_url }}
-  #         asset_path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
-  #         asset_name: io-${{ matrix.OSNAME }}.${{ matrix.OSEND }}
-  #         asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE }}
+      - name: Upload Release Asset (only on Release commit to main)
+        if: needs.prepare_release_info.outputs.is_manual_dispatch == 'false' && needs.prepare_release_info.outputs.upload_url != ''
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.prepare_release_info.outputs.upload_url }}
+          asset_path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
+          asset_name: io-${{ matrix.OSNAME }}.${{ matrix.OSEND }}
+          asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE }}
 
-  #     - name: Upload Build Artifact (only on manual dispatch)
-  #       if: needs.prepare_release_info.outputs.is_manual_dispatch == 'true'
-  #       uses: actions/upload-artifact@v4 # Use v4 for upload-artifact
-  #       with:
-  #         name: io-${{ matrix.OSNAME }}-${{ needs.prepare_release_info.outputs.current_version }}
-  #         path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
-  #         retention-days: 7 # Optional: how long to keep the artifact
+      - name: Upload Build Artifact (only on manual dispatch)
+        if: needs.prepare_release_info.outputs.is_manual_dispatch == 'true'
+        uses: actions/upload-artifact@v4 # Use v4 for upload-artifact
+        with:
+          name: io-${{ matrix.OSNAME }}-${{ needs.prepare_release_info.outputs.current_version }}
+          path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
+          retention-days: 7 # Optional: how long to keep the artifact
