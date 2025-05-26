@@ -2,6 +2,27 @@ name: Create App Release
 
 on:
   workflow_dispatch:
+    inputs:
+      build_macos:
+        description: 'Build for macOS?'
+        required: true
+        type: boolean
+        default: true
+      build_windows:
+        description: 'Build for Windows?'
+        required: true
+        type: boolean
+        default: true
+      build_linux:
+        description: 'Build for Linux?'
+        required: true
+        type: boolean
+        default: true
+      version_override:
+        description: 'Override package version (e.g., 0.2.2-beta1). Leave empty to use package.json.'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   prepare_release_info:
@@ -10,16 +31,20 @@ jobs:
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
       is_manual_dispatch: ${{ github.event_name == 'workflow_dispatch' }}
-      current_version: ${{ steps.package-version.outputs.current-version }}
+      current_version: ${{ github.event.inputs.version_override || steps.package-version.outputs.current-version }}
       release_body_file: .release-notes.md
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 
-      - name: Get App Version
+          fetch-depth: 0
+      - name: Get App Version from package.json
         id: package-version
+        if: github.event.inputs.version_override == ''
         uses: martinbeentjes/npm-get-version-action@v1.3.0
+      - name: Output overridden version if provided
+        if: github.event.inputs.version_override != ''
+        run: echo "Using overridden version ${{ github.event.inputs.version_override }}"
       - name: Generate Release Notes
         id: generate_notes
         run: |
@@ -28,9 +53,6 @@ jobs:
           else
             echo "+ Initial release or no previous tags found." > .release-notes.md
           fi
-          echo "Release notes generated in .release-notes.md:"
-          cat .release-notes.md
-      
       - name: Create GitHub Release
         id: create_release
         if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
@@ -38,81 +60,110 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.package-version.outputs.current-version }}
-          release_name: Release ${{ steps.package-version.outputs.current-version }}
+          tag_name: ${{ github.event.inputs.version_override || steps.package-version.outputs.current-version }}
+          release_name: Release ${{ github.event.inputs.version_override || steps.package-version.outputs.current-version }}
           body_path: .release-notes.md
           draft: false
           prerelease: false
 
-  build_app: 
-    name: Build App (${{ matrix.os }})
-    if: (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')) || github.event_name == 'workflow_dispatch'
+  build_app:
+    name: Build App (${{ matrix.platform_name }})
+    if: >
+      (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')) ||
+      (github.event_name == 'workflow_dispatch' && 
+        ((matrix.platform_id == 'macos' && github.event.inputs.build_macos == true) ||
+         (matrix.platform_id == 'windows' && github.event.inputs.build_windows == true) ||
+         (matrix.platform_id == 'linux' && github.event.inputs.build_linux == true)))
     needs: prepare_release_info
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os_runner }}
     strategy:
       fail-fast: false
       matrix:
-        node-version: ['22.x'] # Node 22 is very new, ensure compatibility or consider LTS like 20.x
-        python-version: ['3.11']
-        os: [macos-latest, ubuntu-latest, windows-latest]
         include:
-          - os: macos-latest
-            OSNAME: mac
-            OSEND: dmg
-            FILEPART: Installer
-            ASSET_CONTENT_TYPE: application/x-apple-diskimage
-          - os: ubuntu-latest
-            OSNAME: linux
-            OSEND: AppImage
-            FILEPART: Installer
-            ASSET_CONTENT_TYPE: application/x-iso9660-appimage
-          - os: windows-latest
-            OSNAME: win
-            OSEND: exe
-            FILEPART: Setup
-            ASSET_CONTENT_TYPE: application/vnd.microsoft.portable-executable
+          - platform_id: macos
+            platform_name: macOS
+            os_runner: macos-latest
+            node_version: '20.x'
+            python_version: '3.11'
+            asset_file_part: Installer
+            asset_extension: dmg
+            asset_content_type: application/x-apple-diskimage
+            needs_rebuild: true
+            cxx_flags: '-std=c++20 -stdlib=libc++'
+            c_flags: '-std=c17'
+            gyp_defines: "mac_deployment_target=11.0 clang_CXX_language_standard=c++20 clang_CXX_library=libc++"
+            deployment_target: '11.0'
+            python_path_command: 'which python3'
+
+          - platform_id: linux
+            platform_name: Linux
+            os_runner: ubuntu-latest
+            node_version: '20.x'
+            python_version: '3.11'
+            asset_file_part: Installer
+            asset_extension: AppImage
+            asset_content_type: application/x-iso9660-appimage
+            needs_rebuild: true
+            cxx_flags: ''
+            c_flags: ''
+            gyp_defines: ''
+            deployment_target: ''
+            python_path_command: 'which python3'
+
+          - platform_id: windows
+            platform_name: Windows
+            os_runner: windows-latest
+            node_version: '20.x'
+            python_version: '3.11'
+            asset_file_part: Setup
+            asset_extension: exe
+            asset_content_type: application/vnd.microsoft.portable-executable
+            needs_rebuild: true
+            cxx_flags: ''
+            c_flags: ''
+            gyp_defines: ''
+            deployment_target: ''
+            python_path_command: 'python'
+            
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js ${{ matrix.node_version }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ matrix.node_version }}
           cache: 'yarn'
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python_version }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python_version }}
       - name: Install Python build dependencies
         run: python -m pip install --upgrade pip setuptools wheel
-      - name: Install Linux dependencies for RobotJS & Electron build
-        if: matrix.os == 'ubuntu-latest'
+      - name: Install Linux dependencies
+        if: matrix.platform_id == 'linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3          
       - name: Install Node Modules
-        run: yarn install --ignore-scripts # Install first, then rebuild
-      - name: Rebuild native modules for Electron (RobotJS)
-        if: matrix.os == 'macos-latest'
+        run: yarn install --frozen-lockfile --ignore-scripts
+      - name: Rebuild native modules
+        if: matrix.needs_rebuild == true
         env:
-          # Force C++ standard for node-gyp on macOS
-          GYP_DEFINES: "mac_deployment_target=11.0 clang_CXX_ लैंग्वेज_standard=c++20 clang_CXX_library=libc++"
-          # CXXFLAGS and CFLAGS might still be useful as fallbacks or for other modules
-          CXXFLAGS: "-std=c++20 -stdlib=libc++"
-          CFLAGS: "-std=c17" # C standard for C parts if any
-          MACOSX_DEPLOYMENT_TARGET: '11.0' # Explicitly set deployment target
-          # LDFLAGS: "-stdlib=libc++" # Sometimes needed too
-        run: PYTHON=$(which python3) yarn rebuild # Ensure python3 is used
-      - name: Build Project (macOS/Linux)
-        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+          GYP_DEFINES: ${{ matrix.gyp_defines }}
+          CXXFLAGS: ${{ matrix.cxx_flags }}
+          CFLAGS: ${{ matrix.c_flags }}
+          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.deployment_target }}
+        run: PYTHON=$(${{ matrix.python_path_command }}) yarn rebuild
+      - name: Build Project (Unix)
+        if: matrix.platform_id == 'macos' || matrix.platform_id == 'linux'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
           REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
         run: yarn dist -p "never" 
       - name: Build Project (Windows)
-        if: matrix.os == 'windows-latest'
+        if: matrix.platform_id == 'windows'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
@@ -121,19 +172,19 @@ jobs:
           $env:GH_TOKEN = "${{ secrets.GH_TOKEN }}"
           yarn dist -p "never"
       - name: Upload Release Asset
-        if: needs.prepare_release_info.outputs.is_manual_dispatch == 'false' && needs.prepare_release_info.outputs.upload_url != ''
+        if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release') && needs.prepare_release_info.outputs.upload_url != ''
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.prepare_release_info.outputs.upload_url }}
-          asset_path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
-          asset_name: io-${{ matrix.OSNAME }}.${{ matrix.OSEND }}
-          asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE }}
+          asset_path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.asset_file_part }}.${{ matrix.asset_extension }}
+          asset_name: io-${{ matrix.platform_id }}.${{ matrix.asset_extension }}
+          asset_content_type: ${{ matrix.asset_content_type }}
       - name: Upload Build Artifact
-        if: needs.prepare_release_info.outputs.is_manual_dispatch == 'true'
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4 
         with:
-          name: io-${{ matrix.OSNAME }}-${{ needs.prepare_release_info.outputs.current_version }}
-          path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
+          name: io-${{ matrix.platform_id }}-${{ needs.prepare_release_info.outputs.current_version }}
+          path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.asset_file_part }}.${{ matrix.asset_extension }}
           retention-days: 7
