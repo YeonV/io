@@ -6,7 +6,7 @@ on:
 jobs:
   prepare_release_info:
     name: Prepare Release Info
-  #   # This job runs for both push-to-main (Release commit) and workflow_dispatch
+  
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
@@ -17,7 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Needed for git describe and git log
+          fetch-depth: 0 
 
       - name: Get App Version
         id: package-version
@@ -47,15 +47,15 @@ jobs:
           draft: false
           prerelease: false
       
-      # - name: Output if manual dispatch
-      #   run: echo "Is manual dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
+      
+      
 
 
-  build_app: # Renamed from build_release for clarity
+  build_app: 
     name: Build App (${{ matrix.os }})
-    # Run if it's a Release commit on push OR if it's a manual dispatch
+    
     if: (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')) || github.event_name == 'workflow_dispatch'
-    needs: test # prepare_release_info
+    needs: test 
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -125,9 +125,9 @@ jobs:
       - name: Build Project (macOS/Linux)
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GH_TOKEN is used by electron-builder for auto-updates/publishing
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
           REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
-        run: yarn dist -p "never" # -p "never" prevents auto-publishing by electron-builder
+        run: yarn dist -p "never" 
 
       - name: Build Project (Windows)
         if: matrix.os == 'windows-latest'
@@ -152,8 +152,8 @@ jobs:
 
       - name: Upload Build Artifact (only on manual dispatch)
         if: needs.prepare_release_info.outputs.is_manual_dispatch == 'true'
-        uses: actions/upload-artifact@v4 # Use v4 for upload-artifact
+        uses: actions/upload-artifact@v4 
         with:
           name: io-${{ matrix.OSNAME }}-${{ needs.prepare_release_info.outputs.current_version }}
           path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
-          retention-days: 7 # Optional: how long to keep the artifact
+          retention-days: 7 
