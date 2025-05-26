@@ -6,7 +6,6 @@ on:
 jobs:
   prepare_release_info:
     name: Prepare Release Info
-  
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
@@ -18,11 +17,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 
-
       - name: Get App Version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.0
-
       - name: Generate Release Notes
         id: generate_notes
         run: |
@@ -46,14 +43,9 @@ jobs:
           body_path: .release-notes.md
           draft: false
           prerelease: false
-      
-      
-      
-
 
   build_app: 
     name: Build App (${{ matrix.os }})
-    
     if: (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')) || github.event_name == 'workflow_dispatch'
     needs: prepare_release_info
     runs-on: ${{ matrix.os }}
@@ -79,51 +71,42 @@ jobs:
             OSEND: exe
             FILEPART: Setup
             ASSET_CONTENT_TYPE: application/vnd.microsoft.portable-executable
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'yarn'
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
       - name: Install Python build dependencies
         run: python -m pip install --upgrade pip setuptools wheel
-
       - name: Install Linux dependencies for RobotJS & Electron build
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3
-
-
       - name: Install Node Modules
         run: yarn install
-
       - name: Rebuild native modules for Electron (RobotJS)
         if: matrix.os == 'macos-latest'
         env:
-          CXXFLAGS: '-std=c++17 -stdlib=libc++' 
-          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.os == 'macos-latest' && '11.0' || '' }}
-        run: PYTHON=$PYTHON_EXEC yarn rebuild
-
+          CXXFLAGS: '-std=c++20 -stdlib=libc++'
+          CFLAGS: '-std=c17'
+          MACOSX_DEPLOYMENT_TARGET: '11.0'
+        run: PYTHON=$(which python) yarn rebuild
       - name: Build Project (macOS/Linux)
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
           REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
         run: yarn dist -p "never" 
-
       - name: Build Project (Windows)
         if: matrix.os == 'windows-latest'
         env:
@@ -133,8 +116,7 @@ jobs:
         run: |
           $env:GH_TOKEN = "${{ secrets.GH_TOKEN }}"
           yarn dist -p "never"
-
-      - name: Upload Release Asset (only on Release commit to main)
+      - name: Upload Release Asset
         if: needs.prepare_release_info.outputs.is_manual_dispatch == 'false' && needs.prepare_release_info.outputs.upload_url != ''
         uses: actions/upload-release-asset@v1
         env:
@@ -144,11 +126,10 @@ jobs:
           asset_path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
           asset_name: io-${{ matrix.OSNAME }}.${{ matrix.OSEND }}
           asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE }}
-
-      - name: Upload Build Artifact (only on manual dispatch)
+      - name: Upload Build Artifact
         if: needs.prepare_release_info.outputs.is_manual_dispatch == 'true'
         uses: actions/upload-artifact@v4 
         with:
           name: io-${{ matrix.OSNAME }}-${{ needs.prepare_release_info.outputs.current_version }}
           path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
-          retention-days: 7 
+          retention-days: 7
