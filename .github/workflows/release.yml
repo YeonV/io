@@ -8,11 +8,11 @@ jobs:
     name: Prepare Release Info
   #   # This job runs for both push-to-main (Release commit) and workflow_dispatch
     runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }} # Only set if release is created
-      is_manual_dispatch: ${{ github.event_name == 'workflow_dispatch' }}
-      current_version: ${{ steps.package-version.outputs.current-version }}
-      release_body_file: .release-notes.md # Path to the file containing release notes
+    # outputs:
+    #   upload_url: ${{ steps.create_release.outputs.upload_url }} # Only set if release is created
+    #   is_manual_dispatch: ${{ github.event_name == 'workflow_dispatch' }}
+    #   current_version: ${{ steps.package-version.outputs.current-version }}
+    #   release_body_file: .release-notes.md # Path to the file containing release notes
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,18 +34,18 @@ jobs:
           echo "Release notes generated in .release-notes.md:"
           cat .release-notes.md
       
-      # - name: Create GitHub Release
-      #   id: create_release
-      #   if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
-      #   uses: actions/create-release@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: ${{ steps.package-version.outputs.current-version }}
-      #     release_name: Release ${{ steps.package-version.outputs.current-version }}
-      #     body_path: .release-notes.md
-      #     draft: false
-      #     prerelease: false
+      - name: Create GitHub Release
+        id: create_release
+        if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.package-version.outputs.current-version }}
+          release_name: Release ${{ steps.package-version.outputs.current-version }}
+          body_path: .release-notes.md
+          draft: false
+          prerelease: false
       
       - name: Output if manual dispatch
         run: echo "Is manual dispatch: ${{ github.event_name == 'workflow_dispatch' }}"
