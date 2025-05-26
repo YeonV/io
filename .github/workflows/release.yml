@@ -34,7 +34,7 @@ jobs:
           echo "Release notes generated in .release-notes.md:"
           cat .release-notes.md
       
-      - name: Create GitHub Release (only on Release commit to main)
+      - name: Create GitHub Release
         id: create_release
         if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
         uses: actions/create-release@v1
