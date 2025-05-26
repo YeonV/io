@@ -7,7 +7,6 @@ import {
   Stack,
   Divider,
   Grid,
-  Link as MuiLink,
   Chip,
   CircularProgress,
   Alert
@@ -18,7 +17,6 @@ import {
   BuildOutlined as VersionIcon,
   Code as CodeIcon,
   InfoOutlined as AboutAppIcon, // Used for "Report an Issue"
-  SystemUpdateAlt as UpdateIcon, // For update check
   CheckCircleOutline as UpToDateIcon,
   NewReleasesOutlined as NewReleaseIcon,
   Download,

@@ -66,7 +66,7 @@ const SettingsGeneral: FC = () => {
   const [expandedAccordions, setExpandedAccordions] = useState<string[]>(initialExpanded)
 
   const handleAccordionChange =
-    (panelId: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
+    (panelId: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
       setExpandedAccordions((prev) =>
         isExpanded ? [...prev, panelId] : prev.filter((id) => id !== panelId)
       )

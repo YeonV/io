@@ -1,8 +1,8 @@
 // src/renderer/src/components/Settings/ProfileManagerContent.tsx
 import type { ChangeEvent, FC, MouseEvent } from 'react' // Added MouseEvent
-import { useState, useMemo, useRef, useEffect } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { useMainStore } from '@/store/mainStore'
-import type { ProfileDefinition, Row, ModuleId } from '@shared/types'
+import type { ProfileDefinition, Row } from '@shared/types'
 import { v4 as uuidv4 } from 'uuid'
 import {
   Box,
@@ -13,7 +13,6 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Paper,
   Stack,
   Tooltip /* Switch, FormControlLabel, */, // Switch and FormControlLabel for audio toggle removed
   TextField,
@@ -227,7 +226,7 @@ export const ProfileManagerContent: FC = () => {
     return filtered.sort((a, b) => a.name.localeCompare(b.name))
   }, [profiles, searchTerm])
 
-  const handleAudioExportToggle = (event: MouseEvent<HTMLElement>, newValue: boolean | null) => {
+  const handleAudioExportToggle = (_event: MouseEvent<HTMLElement>, newValue: boolean | null) => {
     if (newValue !== null) {
       // ToggleButton can return null if no exclusive selection and current is clicked
       setIncludeAudioOnExport(newValue)

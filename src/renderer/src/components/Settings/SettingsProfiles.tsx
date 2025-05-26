@@ -1,6 +1,6 @@
 // src/renderer/src/components/Settings/SettingsProfiles.tsx
 import type { FC } from 'react'
-import { Paper, Typography, Box } from '@mui/material'
+import { Paper } from '@mui/material'
 import { ProfileManagerContent } from './ProfileManagerContent' // Import the core content
 
 const SettingsProfiles: FC = () => {

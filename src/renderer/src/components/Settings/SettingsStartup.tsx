@@ -2,7 +2,6 @@
 import type { FC } from 'react'
 import { useState, useEffect } from 'react'
 import {
-  Box,
   Typography,
   FormControlLabel,
   Switch,

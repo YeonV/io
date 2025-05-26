@@ -14,7 +14,6 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions, // Keep Dialog for the widget's "Manage" button
   SelectChangeEvent
 } from '@mui/material'
 import { Settings as SettingsIcon } from '@mui/icons-material'

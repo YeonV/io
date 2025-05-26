@@ -93,8 +93,22 @@ jobs:
         # libsecret-1-dev and libgconf-2-4 are common Electron build dependencies on Linux
         # build-essential provides make, g++, etc.
         # python3 is needed for node-gyp
-      - name: Install Node Modules
+      - name: Install Node Modules and Build RobotJS for macOS
+        if: matrix.os == 'macos-latest'
+        env:
+          # These flags are for the C++ compiler when node-gyp runs
+          CXXFLAGS: "-std=c++20 -stdlib=libc++"
+          MACOSX_DEPLOYMENT_TARGET: "11.0" # Or a suitable target for macos-latest
         run: yarn install --frozen-lockfile
+
+      - name: Rebuild native modules for Electron (especially for macOS)
+        if: matrix.os == 'macos-latest' # Or apply to all OS if you suspect issues elsewhere
+        env:
+          # These flags are crucial for your specific Electron 36 + Xcode 16.3 on macOS
+          # They might also be needed on the GitHub Actions macos-latest runner
+          CXXFLAGS: "-std=c++20 -stdlib=libc++"
+          MACOSX_DEPLOYMENT_TARGET: "11.0" # Or a suitable target for macos-latest (Xcode 15.x based)
+        run: yarn rebuild # This runs your "electron-rebuild -f -w robotjs ..." command
 
       - name: Build Non-Win project
         if: matrix.OSNAME != 'win'
