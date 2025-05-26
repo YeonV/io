@@ -32,6 +32,7 @@ import {
   Tooltip
 } from '@mui/material'
 import { AddCircleOutline, Delete, Edit, AddLink, Add } from '@mui/icons-material'
+import ConfirmDialog from '@/components/utils/ConfirmDialog'
 import { log } from '@/utils'
 import { v4 as uuidv4 } from 'uuid'
 import DisplayButtons from '@/components/Row/DisplayButtons'
@@ -209,6 +210,11 @@ export const Settings: FC = () => {
       state.modules[id]?.config as (ModuleDefaultConfig & MqttModuleCustomConfig) | undefined
   )
   const brokerConnections = moduleCfg?.brokerConnections || []
+
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [confirmDialogTitle, setConfirmDialogTitle] = useState('')
+  const [confirmDialogMessage, setConfirmDialogMessage] = useState('')
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
   const setModuleConfig = useMainStore((state) => state.setModuleConfigValue)
 
   const [manageDialogOpen, setManageDialogOpen] = useState(false)
@@ -226,13 +232,18 @@ export const Settings: FC = () => {
     setManageDialogOpen(false)
   }
   const handleDeleteProfile = (profileId: string) => {
-    if (window.confirm('Delete profile? Rows using it will need reconfiguration.')) {
+    setConfirmDialogTitle('Delete MQTT Profile')
+    setConfirmDialogMessage(
+      'Are you sure you want to delete this profile? Rows using it will need reconfiguration.'
+    )
+    setConfirmAction(() => () => {
       setModuleConfig(
         id,
         'brokerConnections',
         brokerConnections.filter((p) => p.id !== profileId)
       )
-    }
+    })
+    setConfirmDialogOpen(true)
   }
   const handleSaveProfileCallback = (profileToSave: MqttBrokerConfig) => {
     let updatedConnections
@@ -329,6 +340,22 @@ export const Settings: FC = () => {
         onClose={() => setAddEditDialogOpen(false)}
         onSave={handleSaveProfileCallback}
         initialProfile={editingProfile}
+      />
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        onClose={() => {
+          setConfirmDialogOpen(false)
+          setConfirmAction(null)
+        }}
+        onConfirm={() => {
+          if (confirmAction) {
+            confirmAction()
+          }
+          setConfirmDialogOpen(false)
+          setConfirmAction(null)
+        }}
+        title={confirmDialogTitle}
+        message={confirmDialogMessage}
       />
     </Paper>
   )

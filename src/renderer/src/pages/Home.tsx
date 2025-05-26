@@ -1,4 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import InfoDialog from '@/components/utils/InfoDialog'
 import { useMainStore } from '@/store/mainStore'
 import { Box, Button, Collapse } from '@mui/material'
 import { Add } from '@mui/icons-material'
@@ -33,6 +34,16 @@ const ModuleGlobalActionsRunner: FC<{ moduleId: ModuleId }> = ({ moduleId }) => 
 }
 
 const Home: FC = () => {
+  const [infoDialogOpen, setInfoDialogOpen] = useState(false)
+  const [infoDialogTitle, setInfoDialogTitle] = useState('')
+  const [infoDialogMessage, setInfoDialogMessage] = useState('')
+
+  const showInfoDialog = (title: string, message: string) => {
+    setInfoDialogTitle(title)
+    setInfoDialogMessage(message)
+    setInfoDialogOpen(true)
+  }
+
   const showAddRow = useMainStore((state) => state.edit)
   const setEditState = useMainStore((state) => state.setEdit)
   const [prefillData, setPrefillData] = useState<PrefillData | undefined>(undefined)
@@ -134,12 +145,16 @@ const Home: FC = () => {
           ?.presets || []
       setModuleConfig(restModuleId, 'presets', [...currentGlobalPresets, newGlobalPreset])
 
-      alert(`Global REST Preset "${newGlobalPreset.name}" created from dropped Blueprint!`)
+      showInfoDialog(
+        'Preset Created',
+        `Global REST Preset "${newGlobalPreset.name}" created from dropped Blueprint!`
+      )
       console.log(
         `[Home.tsx] Global Preset "${newGlobalPreset.name}" created from dropped Blueprint.`
       )
     } else {
-      alert(
+      showInfoDialog(
+        'Blueprint Processed',
         `Blueprint "${blueprintForRunner?.name}" processed. Configuration generated but not saved as a global preset.`
       )
       console.log(
@@ -431,6 +446,12 @@ const Home: FC = () => {
           onApply={handleBlueprintApplyFromDrop}
         />
       )}
+      <InfoDialog
+        open={infoDialogOpen}
+        onClose={() => setInfoDialogOpen(false)}
+        title={infoDialogTitle}
+        message={infoDialogMessage}
+      />
     </>
   )
 }

@@ -21,6 +21,7 @@ import {
   MenuItem
 } from '@mui/material'
 import { useMainStore } from '@/store/mainStore'
+import ConfirmDialog from '../utils/ConfirmDialog' // Added import
 import {
   WbSunnyOutlined as LightModeIcon,
   Brightness2Outlined as DarkModeIcon,
@@ -48,6 +49,11 @@ const defaultThemeColorsFromStore = {
 const SettingsAppearance: FC = () => {
   const themeChoice = useMainStore((state) => state.ui.themeChoice)
   const setThemeChoice = useMainStore((state) => state.setThemeChoice)
+
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+  const [confirmDialogTitle, setConfirmDialogTitle] = useState('')
+  const [confirmDialogMessage, setConfirmDialogMessage] = useState('')
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
 
   const themeColors = useMainStore(useShallow((state) => state.ui.themeColors))
   const setThemeColorsAction = useMainStore((state) => state.setThemeColors) // From your storeUIActions
@@ -130,11 +136,11 @@ const SettingsAppearance: FC = () => {
   }
 
   const handleResetAppearance = () => {
-    if (
-      window.confirm(
-        'Reset all appearance settings to their defaults? This includes theme choice, custom colors, and home panel visibility.'
-      )
-    ) {
+    setConfirmDialogTitle('Reset Appearance Settings')
+    setConfirmDialogMessage(
+      'Reset all appearance settings to their defaults? This includes theme choice, custom colors, and home panel visibility.'
+    )
+    setConfirmAction(() => () => {
       setThemeChoice('system')
       setThemeColorsAction('primaryLight', defaultThemeColorsFromStore.primaryLight)
       setThemeColorsAction('primaryDark', defaultThemeColorsFromStore.primaryDark)
@@ -145,7 +151,8 @@ const SettingsAppearance: FC = () => {
         (Object.keys(storedModules) as ModuleId[]).map((moduleId) => [moduleId, true])
       ) as Record<ModuleId, boolean>
       setHomeWidgetsConfig(allVisibleHomeWidgets)
-    }
+    })
+    setConfirmDialogOpen(true)
   }
 
   const themeOptions = [
@@ -413,6 +420,22 @@ const SettingsAppearance: FC = () => {
           </Button>
         </Box>
       </Stack>
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        onClose={() => {
+          setConfirmDialogOpen(false)
+          setConfirmAction(null)
+        }}
+        onConfirm={() => {
+          if (confirmAction) {
+            confirmAction()
+          }
+          setConfirmDialogOpen(false)
+          setConfirmAction(null)
+        }}
+        title={confirmDialogTitle}
+        message={confirmDialogMessage}
+      />
     </Paper>
   )
 }
