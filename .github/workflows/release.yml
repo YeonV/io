@@ -111,12 +111,11 @@ jobs:
         run: yarn install
 
       - name: Rebuild native modules for Electron (RobotJS)
+        if: matrix.os == 'macos-latest'
         env:
-          CXXFLAGS: ${{ matrix.os == 'macos-latest' && '-std=c++17 -stdlib=libc++' || '' }}
+          CXXFLAGS: '-std=c++17 -stdlib=libc++' 
           MACOSX_DEPLOYMENT_TARGET: ${{ matrix.os == 'macos-latest' && '11.0' || '' }}
-        run: |
-          if [[ "${{ matrix.os }}" == "macos-latest" ]]; then            
-            PYTHON=$PYTHON_EXEC yarn rebuild
+        run: PYTHON=$PYTHON_EXEC yarn rebuild
 
       - name: Build Project (macOS/Linux)
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
