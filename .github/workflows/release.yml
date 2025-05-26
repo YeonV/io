@@ -116,7 +116,7 @@ jobs:
 
       - name: Rebuild native modules for Electron (RobotJS)
         env:
-          CXXFLAGS: ${{ matrix.os == 'macos-latest' && '-std=c++20 -stdlib=libc++' || '' }}
+          CXXFLAGS: ${{ matrix.os == 'macos-latest' && '-std=c++17 -stdlib=libc++' || '' }}
           MACOSX_DEPLOYMENT_TARGET: ${{ matrix.os == 'macos-latest' && '11.0' || '' }}
         run: |
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
