@@ -25,8 +25,6 @@ on:
         default: true
         type: boolean
   push:
-    branches:
-      - main
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+*'
 
@@ -36,7 +34,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
-      is_manual_dispatch: ${{ github.event_name == 'workflow_dispatch' }}
       current_version: ${{ github.event.inputs.version_override || steps.package-version.outputs.current-version }}
       release_body_file: .release-notes.md
       build_matrix_json: ${{ steps.set-matrix.outputs.build_matrix_json }}
@@ -91,13 +88,11 @@ jobs:
           fi
           joined_includes=$(IFS=,; echo "${matrix_include_array[*]}")
           final_matrix_json="{\"include\": [${joined_includes}]}"
-          echo "Generated build matrix JSON: ${final_matrix_json}"
           echo "build_matrix_json=${final_matrix_json}" >> $GITHUB_OUTPUT
 
   build_app: 
     name: Build App (${{ matrix.platform_name }})
     needs: prepare_release_data
-    if: ${{ needs.prepare_release_data.outputs.build_matrix_json != '{"include": []}' }}
     runs-on: ${{ matrix.os_runner }}
     strategy:
       fail-fast: false
