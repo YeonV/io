@@ -97,12 +97,17 @@ jobs:
       - name: Rebuild native modules for Electron (RobotJS)
         if: matrix.os == 'macos-latest'
         env:
-          # Force C++ standard for node-gyp on macOS
+          # Try setting it via npm_config which node-gyp might pick up more directly
+          npm_config_clang_CXX_language_standard: 'c++20'
+          npm_config_mac_deployment_target: '11.0' # Also try this way
+          npm_config_clang_CXX_library: 'libc++'
+          
+          # Keep these as well, they might still be influential or needed by other parts of electron-rebuild
           GYP_DEFINES: "mac_deployment_target=11.0 clang_CXX_language_standard=c++20 clang_CXX_library=libc++"
-          # CXXFLAGS and CFLAGS might still be useful as fallbacks or for other modules
           CXXFLAGS: "-std=c++20 -stdlib=libc++"
-          CFLAGS: "-std=c17" # C standard for C parts if any
-          MACOSX_DEPLOYMENT_TARGET: '11.0' # Explicitly set deployment target
+          CFLAGS: "-std=c17"
+          MACOSX_DEPLOYMENT_TARGET: '11.0'
+        run: PYTHON=$(which python3) yarn rebuild
           # LDFLAGS: "-stdlib=libc++" # Sometimes needed too
         run: PYTHON=$(which python3) yarn rebuild # Ensure python3 is used
       - name: Build Project (macOS/Linux)
