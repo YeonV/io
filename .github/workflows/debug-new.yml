@@ -1,0 +1,114 @@
+name: Debug IO CI Environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_macos_intel:
+        description: 'Log env for macOS (Intel x64)'
+        default: false
+        type: boolean
+      build_macos_arm64:
+        description: 'Log env for macOS (ARM64/Silicon)'
+        default: true
+        type: boolean
+      build_ubuntu:
+        description: 'Log env for Ubuntu Linux (x64)'
+        default: false
+        type: boolean
+      build_windows:
+        description: 'Log env for Windows (x64)'
+        default: false
+        type: boolean
+
+jobs:
+  prepare_debug_matrix:
+    name: Prepare Debug Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix_config: ${{ steps.set-matrix.outputs.matrix_config }}
+    steps:
+      - name: Check Inputs and Prepare Matrix
+        id: set-matrix
+        shell: bash
+        run: |
+          matrix_include="["
+          needs_comma=false
+
+          if [[ "${{ github.event.inputs.build_macos_intel }}" == "true" ]]; then
+            matrix_include+='{"os_id": "macos_intel", "os_name": "macOS Intel", "os_runner": "macos-13"}'
+            needs_comma=true
+          fi
+          if [[ "${{ github.event.inputs.build_macos_arm64 }}" == "true" ]]; then
+            if [[ "$needs_comma" == "true" ]]; then matrix_include+=","; fi
+            matrix_include+='{"os_id": "macos_arm64", "os_name": "macOS ARM64", "os_runner": "macos-14"}'
+            needs_comma=true
+          fi
+          if [[ "${{ github.event.inputs.build_ubuntu }}" == "true" ]]; then
+            if [[ "$needs_comma" == "true" ]]; then matrix_include+=","; fi
+            matrix_include+='{"os_id": "linux", "os_name": "Ubuntu Linux", "os_runner": "ubuntu-latest"}'
+            needs_comma=true
+          fi
+          if [[ "${{ github.event.inputs.build_windows }}" == "true" ]]; then
+            if [[ "$needs_comma" == "true" ]]; then matrix_include+=","; fi
+            matrix_include+='{"os_id": "windows", "os_name": "Windows", "os_runner": "windows-latest"}'
+          fi
+          matrix_include+="]"
+          
+          matrix_json="{\"include\": ${matrix_include}}"
+          echo "Generated matrix JSON: ${matrix_json}"
+          echo "matrix_config=${matrix_json}" >> $GITHUB_OUTPUT
+
+  debug_environment:
+    name: Debug Environment (${{ matrix.os_name }})
+    needs: prepare_debug_matrix
+    if: ${{ needs.prepare_debug_matrix.outputs.matrix_config != '{"include": []}' }} # Only run if matrix is not empty
+    runs-on: ${{ matrix.os_runner }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare_debug_matrix.outputs.matrix_config) }}
+            
+    env:
+      NODE_VERSION: '22.x' # Specific to IO app for robotjs debugging
+      PYTHON_VERSION: '3.12'
+
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Log Initial System & Environment Info (${{ matrix.os_name }})
+        shell: bash
+        run: |
+          echo "================== INITIAL INFO (${{ matrix.os_name }}) =================="
+          # ... (your comprehensive logging commands from before) ...
+          echo "Node version: $(node --version)"
+          echo "Python3 version: $(python3 --version 2>&1 || echo 'python3 not found')"
+          if [[ "${{ matrix.os_id }}" == "macos_intel" || "${{ matrix.os_id }}" == "macos_arm64" ]]; then
+            echo "Clang version: $(clang --version || echo 'clang not found')"
+          fi
+          printenv | sort
+          echo "=========================================================="
+      
+      - name: Set C++ Voodoo Envs (macOS only)
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+        shell: bash
+        run: |
+          echo "Setting C++ voodoo environment variables for macOS..."
+          echo "GYP_DEFINES=OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++" >> $GITHUB_ENV
+          echo "CXXFLAGS=-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0" >> $GITHUB_ENV
+          # ... other envs ...
+
+      - name: Log Environment Info AFTER Setting Voodoo Envs (macOS only)
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+        shell: bash
+        run: |
+          echo "================== POST-VOODOO INFO (${{ matrix.os_name }}) ================"
+          # ... (your comprehensive logging commands from before, focusing on CXXFLAGS, GYP_DEFINES) ...
+          echo "GYP_DEFINES: $GYP_DEFINES"
+          echo "CXXFLAGS: $CXXFLAGS"
+          printenv | sort
+          echo "=========================================================="
