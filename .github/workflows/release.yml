@@ -3,55 +3,51 @@ name: Create App Release
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version'
-        required: true
-        default: '0.2.6'
-      release:
-        description: 'Create Release'
-        default: 'Yes'
+      version_override:
+        description: 'Version Override. Leave empty for package.json version.'
         required: false
-        type: choice
-        options:
-          - 'Yes'
-          - 'No'
-      macos:
-        description: 'MacOS (intel)'
+        type: string
+        default: ''
+      build_macos_intel:
+        description: 'Build macOS Intel (Electron 31)'
         default: true
-        required: false
         type: boolean
-      osxarm64:
-        description: 'MacOS (silicon)'
+      build_macos_arm64:
+        description: 'Build macOS ARM64 (Electron 31)'
         default: true
-        required: false
         type: boolean
-      ubuntu:
-        description: 'Ubuntu'
+      build_ubuntu:
+        description: 'Build Ubuntu Linux (Latest Electron)'
         default: true
-        required: false
         type: boolean
-      windows:
-        description: 'Windows'
+      build_windows:
+        description: 'Build Windows (Latest Electron)'
         default: true
-        required: false
         type: boolean
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+env:
+  PROJECT_MAIN_ELECTRON_VERSION: '36.3.1' # Your primary, latest Electron version for Win/Linux
+  MACOS_ROBOTJS_COMPATIBLE_ELECTRON_VERSION: '31.0.0' # Confirmed working for robotjs on macOS
 
 jobs:
-  prepare_release_info:
-    name: Prepare Release Info
+  prepare_release_data:
+    name: Prepare Release Data
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
-      is_manual_dispatch: ${{ github.event_name == 'workflow_dispatch' }}
-      current_version: ${{ steps.package-version.outputs.current-version }}
-      release_body_file: .release-notes.md
+      current_version: ${{ github.event.inputs.version_override || steps.package-version.outputs.current-version }}
+      build_matrix_json: ${{ steps.set-matrix.outputs.build_matrix_json }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 
-      - name: Get App Version
+          fetch-depth: 0
+      - name: Get App Version from package.json
         id: package-version
+        if: github.event.inputs.version_override == ''
         uses: martinbeentjes/npm-get-version-action@v1.3.0
       - name: Generate Release Notes
         id: generate_notes
@@ -61,126 +57,178 @@ jobs:
           else
             echo "+ Initial release or no previous tags found." > .release-notes.md
           fi
-          echo "Release notes generated in .release-notes.md:"
-          cat .release-notes.md
-      
       - name: Create GitHub Release
         id: create_release
-        if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.package-version.outputs.current-version }}
-          release_name: Release ${{ steps.package-version.outputs.current-version }}
+          tag_name: ${{ github.event.inputs.version_override || steps.package-version.outputs.current-version }}
+          release_name: Release ${{ github.event.inputs.version_override || steps.package-version.outputs.current-version }}
           body_path: .release-notes.md
           draft: false
-          prerelease: false
+          prerelease: contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'rc')
+      - name: Prepare Build Matrix
+        id: set-matrix
+        shell: bash
+        env:
+          PROJECT_MAIN_ELECTRON_VERSION: ${{ env.PROJECT_MAIN_ELECTRON_VERSION }}
+          MACOS_ROBOTJS_COMPATIBLE_ELECTRON_VERSION: ${{ env.MACOS_ROBOTJS_COMPATIBLE_ELECTRON_VERSION }}
+        run: |
+          matrix_include_array=()
+          if [[ "${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_macos_intel == true) }}" == "true" ]]; then
+            matrix_include_array+=('{"platform_id": "macos_intel", "platform_name": "macOS Intel", "os_runner": "macos-13", "electron_target_version": "'$MACOS_ROBOTJS_COMPATIBLE_ELECTRON_VERSION'", "asset_file_part_dmg": "Installer-Intel", "asset_file_part_zip": "Intel-mac", "asset_extension_dmg": "dmg", "asset_extension_zip": "zip", "asset_content_type_dmg": "application/x-apple-diskimage", "asset_content_type_zip": "application/zip", "needs_rebuild": true, "cxx_flags": "-std=c++20 -stdlib=libc++", "gyp_defines": "mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++", "deployment_target": "11.0", "python_path_command": "which python3"}')
+          fi
+          if [[ "${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_macos_arm64 == true) }}" == "true" ]]; then
+            matrix_include_array+=('{"platform_id": "macos_arm64", "platform_name": "macOS ARM64", "os_runner": "macos-14", "electron_target_version": "'$MACOS_ROBOTJS_COMPATIBLE_ELECTRON_VERSION'", "asset_file_part_dmg": "Installer-ARM64", "asset_file_part_zip": "ARM64-mac", "asset_extension_dmg": "dmg", "asset_extension_zip": "zip", "asset_content_type_dmg": "application/x-apple-diskimage", "asset_content_type_zip": "application/zip", "needs_rebuild": true, "cxx_flags": "-std=c++20 -stdlib=libc++", "gyp_defines": "mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++", "deployment_target": "11.0", "python_path_command": "which python3"}')
+          fi
+          if [[ "${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_ubuntu == true) }}" == "true" ]]; then
+            matrix_include_array+=('{"platform_id": "linux", "platform_name": "Linux", "os_runner": "ubuntu-latest", "electron_target_version": "'$PROJECT_MAIN_ELECTRON_VERSION'", "asset_file_part_appimage": "Installer", "asset_extension_appimage": "AppImage", "asset_content_type_appimage": "application/x-iso9660-appimage", "needs_rebuild": true, "cxx_flags": "", "gyp_defines": "", "deployment_target": "", "python_path_command": "which python3"}')
+          fi
+          if [[ "${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.build_windows == true) }}" == "true" ]]; then
+            matrix_include_array+=('{"platform_id": "windows", "platform_name": "Windows", "os_runner": "windows-latest", "electron_target_version": "'$PROJECT_MAIN_ELECTRON_VERSION'", "asset_file_part_exe": "Setup", "asset_extension_exe": "exe", "asset_content_type_exe": "application/vnd.microsoft.portable-executable", "needs_rebuild": true, "cxx_flags": "", "gyp_defines": "", "deployment_target": "", "python_path_command": "python"}')
+          fi
+          joined_includes=$(IFS=,; echo "${matrix_include_array[*]}")
+          final_matrix_json="{\"include\": [${joined_includes}]}"
+          echo "build_matrix_json=${final_matrix_json}" >> $GITHUB_OUTPUT
 
   build_app: 
-    name: Build App (${{ matrix.os }})
-    if: (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')) || github.event_name == 'workflow_dispatch'
-    needs: prepare_release_info
-    runs-on: ${{ matrix.os }}
+    name: Build App (${{ matrix.platform_name }} using Electron ${{ matrix.electron_target_version }})
+    needs: prepare_release_data
+    runs-on: ${{ matrix.os_runner }}
     strategy:
       fail-fast: false
-      matrix:
-        node-version: ['22.x']
-        python-version: ['3.12']
-        os: [macos-latest, ubuntu-latest, windows-latest]
-        include:
-          - os: macos-latest
-            OSNAME: mac
-            OSEND: dmg
-            FILEPART: Installer
-            ASSET_CONTENT_TYPE: application/x-apple-diskimage
-          - os: ubuntu-latest
-            OSNAME: linux
-            OSEND: AppImage
-            FILEPART: Installer
-            ASSET_CONTENT_TYPE: application/x-iso9660-appimage
-          - os: windows-latest
-            OSNAME: win
-            OSEND: exe
-            FILEPART: Setup
-            ASSET_CONTENT_TYPE: application/vnd.microsoft.portable-executable
+      matrix: ${{ fromJson(needs.prepare_release_data.outputs.build_matrix_json) }}
+    env:
+      NODE_VERSION: '20.x' 
+      PYTHON_VERSION: '3.11'
+      MACOSX_DEPLOYMENT_TARGET: ${{ matrix.deployment_target }}
+      GYP_DEFINES: ${{ matrix.gyp_defines }}
+      CXXFLAGS: ${{ matrix.cxx_flags }}
+      CFLAGS: '-std=c17'
+      ELECTRON_VERSION_TO_BUILD_WITH: ${{ matrix.electron_target_version }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Use Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.PYTHON_VERSION }}
       - name: Install Python build dependencies
         run: python -m pip install --upgrade pip setuptools wheel
-      - name: Install Linux dependencies for RobotJS & Electron build
-        if: matrix.os == 'ubuntu-latest'
+      
+      - name: Temporarily set Electron version in package.json
+        shell: bash
+        run: |
+          echo "Setting Electron version to ${{ env.ELECTRON_VERSION_TO_BUILD_WITH }} for this build job"
+          # Use jq if available and robust, otherwise node or sed
+          if command -v jq &> /dev/null
+          then
+            jq --arg version "${{ env.ELECTRON_VERSION_TO_BUILD_WITH }}" '.devDependencies.electron = $version' package.json > package.json.tmp && mv package.json.tmp package.json
+          else
+            node -e "let pkg = require('./package.json'); pkg.devDependencies.electron = '${{ env.ELECTRON_VERSION_TO_BUILD_WITH }}'; require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2));"
+          fi
+          echo "package.json now uses Electron:"
+          grep '"electron":' package.json
+
+      - name: Install Linux dependencies
+        if: matrix.platform_id == 'linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3          
-      - name: Install Node Modules
-        run: yarn install --ignore-scripts 
+      - name: Install Node Modules (with target Electron version)
+        run: yarn install --frozen-lockfile --ignore-scripts
+      
       - name: Rebuild native modules
-        if: matrix.needs_rebuild == true && matrix.platform_id == 'macos'
+        if: matrix.needs_rebuild == true
         env:
-          # These are set for the entire step's environment
-          MACOSX_DEPLOYMENT_TARGET: '11.0'
-          # Set the most critical ones here, GYP_DEFINES and CXXFLAGS
-          GYP_DEFINES: "OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++"
-          CXXFLAGS: "-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0"
-          CFLAGS: "-std=c17 -mmacosx-version-min=11.0" # For C parts
-          LDFLAGS: "-stdlib=libc++ -mmacosx-version-min=11.0" # For linker
+          PYTHON_FOR_REBUILD: ${{ matrix.python_path_command }}
         run: |
-          echo "--- Environment for Rebuild Step ---"
-          echo "PYTHON used: $(which python3)"
-          echo "Node version: $(node --version)"
-          echo "Electron Target Headers (approx based on path if available, electron-rebuild determines actual): from ~/.electron-gyp or similar"
-          echo "--- Effective Build Flags (from env) ---"
-          echo "GYP_DEFINES: $GYP_DEFINES"
-          echo "CXXFLAGS: $CXXFLAGS"
-          echo "CFLAGS: $CFLAGS"
-          echo "LDFLAGS: $LDFLAGS"
-          echo "MACOSX_DEPLOYMENT_TARGET: $MACOSX_DEPLOYMENT_TARGET"
-          echo "--------------------------------------"
-          
-          PYTHON=$(which python3) yarn rebuild
-        shell: bash
-      - name: Build Project (macOS/Linux)
-        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+          echo "Rebuilding native modules against Electron version specified in package.json (now ${{ env.ELECTRON_VERSION_TO_BUILD_WITH }})"
+          echo "Effective GYP_DEFINES: $GYP_DEFINES"
+          echo "Effective CXXFLAGS: $CXXFLAGS"
+          PYTHON=$($PYTHON_FOR_REBUILD) yarn rebuild
+      
+      - name: Build Project
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-          REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
+          REACT_APP_VERSION: ${{ needs.prepare_release_data.outputs.current_version }}
         run: yarn dist -p "never" 
-      - name: Build Project (Windows)
-        if: matrix.os == 'windows-latest'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
-        shell: pwsh
-        run: |
-          $env:GH_TOKEN = "${{ secrets.GH_TOKEN }}"
-          yarn dist -p "never"
-      - name: Upload Release Asset
-        if: needs.prepare_release_info.outputs.is_manual_dispatch == 'false' && needs.prepare_release_info.outputs.upload_url != ''
+      
+      - name: Upload macOS DMG Release Asset
+        if: (matrix.platform_id == 'macos_intel' || matrix.platform_id == 'macos_arm64') && startsWith(github.ref, 'refs/tags/v') && needs.prepare_release_data.outputs.upload_url != ''
         uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ needs.prepare_release_info.outputs.upload_url }}
-          asset_path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
-          asset_name: io-${{ matrix.OSNAME }}.${{ matrix.OSEND }}
-          asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE }}
-      - name: Upload Build Artifact
-        if: needs.prepare_release_info.outputs.is_manual_dispatch == 'true'
+          upload_url: ${{ needs.prepare_release_data.outputs.upload_url }}
+          asset_path: ./dist/io-${{ needs.prepare_release_data.outputs.current_version }}-${{ matrix.asset_file_part_dmg }}.${{ matrix.asset_extension_dmg }}
+          asset_name: io-${{ matrix.platform_id }}.${{ matrix.asset_extension_dmg }}
+          asset_content_type: ${{ matrix.asset_content_type_dmg }}
+
+      - name: Upload macOS ZIP Release Asset
+        if: (matrix.platform_id == 'macos_intel' || matrix.platform_id == 'macos_arm64') && startsWith(github.ref, 'refs/tags/v') && needs.prepare_release_data.outputs.upload_url != ''
+        uses: actions/upload-release-asset@v1
+        env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.prepare_release_data.outputs.upload_url }}
+          asset_path: ./dist/io-${{ needs.prepare_release_data.outputs.current_version }}-${{ matrix.asset_file_part_zip }}.zip 
+          asset_name: io-${{ matrix.platform_id }}.zip
+          asset_content_type: ${{ matrix.asset_content_type_zip }}
+
+      - name: Upload Linux AppImage Release Asset
+        if: matrix.platform_id == 'linux' && startsWith(github.ref, 'refs/tags/v') && needs.prepare_release_data.outputs.upload_url != ''
+        uses: actions/upload-release-asset@v1
+        env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.prepare_release_data.outputs.upload_url }}
+          asset_path: ./dist/io-${{ needs.prepare_release_data.outputs.current_version }}-${{ matrix.asset_file_part_appimage }}.${{ matrix.asset_extension_appimage }}
+          asset_name: io-${{ matrix.platform_id }}.${{ matrix.asset_extension_appimage }}
+          asset_content_type: ${{ matrix.asset_content_type_appimage }}
+
+      - name: Upload Windows EXE Release Asset
+        if: matrix.platform_id == 'windows' && startsWith(github.ref, 'refs/tags/v') && needs.prepare_release_data.outputs.upload_url != ''
+        uses: actions/upload-release-asset@v1
+        env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.prepare_release_data.outputs.upload_url }}
+          asset_path: ./dist/io-${{ needs.prepare_release_data.outputs.current_version }}-${{ matrix.asset_file_part_exe }}.${{ matrix.asset_extension_exe }}
+          asset_name: io-${{ matrix.platform_id }}.${{ matrix.asset_extension_exe }}
+          asset_content_type: ${{ matrix.asset_content_type_exe }}
+
+      - name: Upload macOS DMG Build Artifact
+        if: (matrix.platform_id == 'macos_intel' || matrix.platform_id == 'macos_arm64') && github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4 
         with:
-          name: io-${{ matrix.OSNAME }}-${{ needs.prepare_release_info.outputs.current_version }}
-          path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
+          name: io-${{ matrix.platform_id }}-${{ needs.prepare_release_data.outputs.current_version }}.dmg
+          path: ./dist/io-${{ needs.prepare_release_data.outputs.current_version }}-${{ matrix.asset_file_part_dmg }}.${{ matrix.asset_extension_dmg }}
+          retention-days: 7
+      - name: Upload macOS ZIP Build Artifact
+        if: (matrix.platform_id == 'macos_intel' || matrix.platform_id == 'macos_arm64') && github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: io-${{ matrix.platform_id }}-${{ needs.prepare_release_data.outputs.current_version }}.zip
+          path: ./dist/io-${{ needs.prepare_release_data.outputs.current_version }}-${{ matrix.asset_file_part_zip }}.zip
+          retention-days: 7
+      - name: Upload Linux AppImage Build Artifact
+        if: matrix.platform_id == 'linux' && github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: io-${{ matrix.platform_id }}-${{ needs.prepare_release_data.outputs.current_version }}.AppImage
+          path: ./dist/io-${{ needs.prepare_release_data.outputs.current_version }}-${{ matrix.asset_file_part_appimage }}.${{ matrix.asset_extension_appimage }}
+          retention-days: 7
+      - name: Upload Windows EXE Build Artifact
+        if: matrix.platform_id == 'windows' && github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: io-${{ matrix.platform_id }}-${{ needs.prepare_release_data.outputs.current_version }}.exe
+          path: ./dist/io-${{ needs.prepare_release_data.outputs.current_version }}-${{ matrix.asset_file_part_exe }}.${{ matrix.asset_extension_exe }}
           retention-days: 7
