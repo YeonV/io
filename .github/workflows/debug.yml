@@ -1,0 +1,160 @@
+name: Debug CI Environment
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (for naming)'
+        required: true
+        default: '0.2.6'
+      release:
+        description: 'Create Release (not used in this debug workflow)'
+        default: 'No'
+        required: false
+        type: choice
+        options:
+          - 'Yes'
+          - 'No'
+      build_macos_intel:
+        description: 'Log env for macOS (Intel)'
+        default: false # Default to false to save runner minutes unless specifically testing
+        required: false
+        type: boolean
+      build_macos_arm64:
+        description: 'Log env for macOS (ARM64/Silicon)'
+        default: true  # Let's default this one to true as it's our problem child
+        required: false
+        type: boolean
+      build_ubuntu:
+        description: 'Log env for Ubuntu'
+        default: false
+        required: false
+        type: boolean
+      build_windows:
+        description: 'Log env for Windows'
+        default: false
+        required: false
+        type: boolean
+
+jobs:
+  debug_environment:
+    name: Debug Environment (${{ matrix.os_name }})
+    if: >
+      (matrix.os_id == 'macos_intel' && github.event.inputs.build_macos_intel == true) ||
+      (matrix.os_id == 'macos_arm64' && github.event.inputs.build_macos_arm64 == true) ||
+      (matrix.os_id == 'windows' && github.event.inputs.build_windows == true) ||
+      (matrix.os_id == 'linux' && github.event.inputs.build_ubuntu == true)
+    runs-on: ${{ matrix.os_runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os_id: macos_intel
+            os_name: macOS Intel
+            os_runner: macos-13 # macos-latest is often ARM, macos-13 is Intel x86_64
+          - os_id: macos_arm64
+            os_name: macOS ARM64
+            os_runner: macos-14 # macos-14 is ARM64 (M1/M2 runners)
+          - os_id: linux
+            os_name: Ubuntu Linux
+            os_runner: ubuntu-latest
+          - os_id: windows
+            os_name: Windows
+            os_runner: windows-latest
+            
+    env:
+      NODE_VERSION: '22.x'
+      PYTHON_VERSION: '3.12'
+
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Log Initial System & Environment Info (${{ matrix.os_name }})
+        shell: bash
+        run: |
+          echo "=========================================================="
+          echo "DEBUGGING ENVIRONMENT FOR: ${{ matrix.os_name }}"
+          echo "Runner OS: $(uname -a)"
+          echo "=========================================================="
+          echo "--- PATH ---"
+          echo "$PATH"
+          echo "--- Node.js Info ---"
+          echo "Node version: $(node --version)"
+          echo "npm version: $(npm --version)"
+          echo "Yarn version: $(yarn --version || echo 'Yarn not found')"
+          echo "node-gyp location: $(which node-gyp || echo 'node-gyp not found')"
+          echo "npm config get msvs_version: $(npm config get msvs_version || echo 'Not set')"
+          echo "--- Python Info ---"
+          echo "Python version (python): $(python --version || echo 'python not found')"
+          echo "Python3 version (python3): $(python3 --version || echo 'python3 not found')"
+          echo "PYTHON env var: $PYTHON"
+          echo "which python: $(which python || echo 'python not found')"
+          echo "which python3: $(which python3 || echo 'python3 not found')"
+          echo "--- C/C++ Compiler Info ---"
+          if [[ "${{ matrix.os_id }}" == "macos_intel" || "${{ matrix.os_id }}" == "macos_arm64" ]]; then
+            echo "Clang version: $(clang --version || echo 'clang not found')"
+            echo "g++ version (should be clang alias): $(g++ --version || echo 'g++ not found')"
+            echo "Xcode version: $(xcodebuild -version || echo 'xcodebuild not found')"
+            echo "SDK Path: $(xcrun --sdk macosx --show-sdk-path || echo 'SDK path not found')"
+          elif [[ "${{ matrix.os_id }}" == "linux" ]]; then
+            echo "gcc version: $(gcc --version || echo 'gcc not found')"
+            echo "g++ version: $(g++ --version || echo 'g++ not found')"
+          elif [[ "${{ matrix.os_id }}" == "windows" ]]; then
+            echo "MSVC/Compiler info (difficult to get simple version string from cmd)"
+            echo "Checking for cl.exe in common VS paths (this might not work reliably)"
+            # This is a very rough check for MSVC, proper check is complex from bash
+            where cl.exe || echo "cl.exe (MSVC compiler) not found in PATH"
+          fi
+          echo "--- Key Environment Variables ---"
+          echo "GYP_DEFINES: $GYP_DEFINES"
+          echo "CFLAGS: $CFLAGS"
+          echo "CXXFLAGS: $CXXFLAGS"
+          echo "LDFLAGS: $LDFLAGS"
+          echo "MACOSX_DEPLOYMENT_TARGET: $MACOSX_DEPLOYMENT_TARGET"
+          echo "npm_config_clang_cxx_language_standard: $npm_config_clang_cxx_language_standard"
+          echo "npm_config_mac_deployment_target: $npm_config_mac_deployment_target"
+          echo "--- Full Environment ---"
+          printenv | sort
+          echo "=========================================================="
+      
+      - name: Set C++ Voodoo Envs (macOS only)
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+        run: |
+          echo "Setting C++ voodoo environment variables for macOS..."
+          echo "GYP_DEFINES=OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++" >> $GITHUB_ENV
+          echo "CXXFLAGS=-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0" >> $GITHUB_ENV
+          echo "CFLAGS=-std=c17 -mmacosx-version-min=11.0" >> $GITHUB_ENV
+          echo "LDFLAGS=-stdlib=libc++ -mmacosx-version-min=11.0" >> $GITHUB_ENV
+          echo "MACOSX_DEPLOYMENT_TARGET=11.0" >> $GITHUB_ENV
+          echo "npm_config_clang_cxx_language_standard=c++20" >> $GITHUB_ENV
+          echo "npm_config_clang_cxx_library=libc++" >> $GITHUB_ENV
+          echo "npm_config_mac_deployment_target=11.0" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Log Environment Info AFTER Setting Voodoo Envs (macOS only)
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+        shell: bash
+        run: |
+          echo "=========================================================="
+          echo "DEBUGGING ENVIRONMENT FOR: ${{ matrix.os_name }} (POST-VOODOO ENVS)"
+          echo "=========================================================="
+          echo "--- Key Environment Variables (After Setting) ---"
+          echo "GYP_DEFINES: $GYP_DEFINES"
+          echo "CFLAGS: $CFLAGS"
+          echo "CXXFLAGS: $CXXFLAGS"
+          echo "LDFLAGS: $LDFLAGS"
+          echo "MACOSX_DEPLOYMENT_TARGET: $MACOSX_DEPLOYMENT_TARGET"
+          echo "npm_config_clang_cxx_language_standard: $npm_config_clang_cxx_language_standard"
+          echo "npm_config_clang_cxx_library: $npm_config_clang_cxx_library"
+          echo "npm_config_mac_deployment_target: $npm_config_mac_deployment_target"
+          echo "--- Full Environment (After Setting) ---"
+          printenv | sort
+          echo "=========================================================="
