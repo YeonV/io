@@ -7,14 +7,6 @@ on:
         description: 'Version (for naming)'
         required: true
         default: '0.2.6'
-      release:
-        description: 'Create Release (not used)'
-        default: 'No'
-        required: false
-        type: choice
-        options:
-          - 'Yes'
-          - 'No'
       build_macos_intel:
         description: 'Log env for macOS (Intel)'
         default: false
@@ -47,56 +39,50 @@ jobs:
           - os_id: macos_intel
             os_name: macOS Intel
             os_runner: macos-13
+            run_job_input: ${{ github.event.inputs.build_macos_intel }}
           - os_id: macos_arm64
             os_name: macOS ARM64
             os_runner: macos-14
+            run_job_input: ${{ github.event.inputs.build_macos_arm64 }}
           - os_id: linux
             os_name: Ubuntu Linux
             os_runner: ubuntu-latest
+            run_job_input: ${{ github.event.inputs.build_ubuntu }}
           - os_id: windows
             os_name: Windows
             os_runner: windows-latest
+            run_job_input: ${{ github.event.inputs.build_windows }}
             
     env:
       NODE_VERSION: '22.x'
       PYTHON_VERSION: '3.12'
 
     steps:
-      - name: Check if build is selected for this OS
-        if: github.event_name == 'workflow_dispatch'
+      - name: Echo Selection (Always Runs for Started Jobs)
         shell: bash
         run: |
-          echo "Selected build_macos_intel: ${{ github.event.inputs.build_macos_intel }}"
-          echo "Selected build_macos_arm64: ${{ github.event.inputs.build_macos_arm64 }}"
-          echo "Selected build_windows: ${{ github.event.inputs.build_windows }}"
-          echo "Selected build_ubuntu: ${{ github.event.inputs.build_ubuntu }}"
-          echo "Current matrix platform_id: ${{ matrix.os_id }}"
-          if [[ "${{ matrix.os_id }}" == "macos_intel" && "${{ github.event.inputs.build_macos_intel }}" != "true" ]]; then
-            echo "macOS Intel build not selected, skipping job."
-            exit 78
-          elif [[ "${{ matrix.os_id }}" == "macos_arm64" && "${{ github.event.inputs.build_macos_arm64 }}" != "true" ]]; then
-            echo "macOS ARM64 build not selected, skipping job."
-            exit 78
-          elif [[ "${{ matrix.os_id }}" == "windows" && "${{ github.event.inputs.build_windows }}" != "true" ]]; then
-            echo "Windows build not selected, skipping job."
-            exit 78
-          elif [[ "${{ matrix.os_id }}" == "linux" && "${{ github.event.inputs.build_ubuntu }}" != "true" ]]; then
-            echo "Ubuntu build not selected, skipping job."
-            exit 78
+          echo "Job triggered for ${{ matrix.os_name }}."
+          echo "Input to run this job (matrix.run_job_input): ${{ matrix.run_job_input }}"
+          if [[ "${{ matrix.run_job_input }}" != "true" ]]; then
+            echo "This job for ${{ matrix.os_name }} was not selected to run via inputs. Subsequent steps will be skipped."
+          else
+            echo "This job for ${{ matrix.os_name }} IS selected to run. Proceeding with steps."
           fi
-          echo "Build selected for ${{ matrix.os_id }}, proceeding."
 
       - name: Set up Node.js
+        if: matrix.run_job_input == true
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Set up Python
+        if: matrix.run_job_input == true
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Log Initial System & Environment Info (${{ matrix.os_name }})
+        if: matrix.run_job_input == true
         shell: bash
         run: |
           echo "=========================================================="
@@ -145,7 +131,7 @@ jobs:
           echo "=========================================================="
       
       - name: Set C++ Voodoo Envs (macOS only)
-        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+        if: (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64') && matrix.run_job_input == true
         shell: bash
         run: |
           echo "Setting C++ voodoo environment variables for macOS..."
@@ -159,7 +145,7 @@ jobs:
           echo "npm_config_mac_deployment_target=11.0" >> $GITHUB_ENV
 
       - name: Log Environment Info AFTER Setting Voodoo Envs (macOS only)
-        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+        if: (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64') && matrix.run_job_input == true
         shell: bash
         run: |
           echo "=========================================================="
