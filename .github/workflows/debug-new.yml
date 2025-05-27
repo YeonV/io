@@ -54,7 +54,6 @@ jobs:
   debug_environment:
     name: Debug Environment (${{ matrix.os_name }})
     needs: prepare_debug_matrix
-    if: ${{ needs.prepare_debug_matrix.outputs.matrix_json != '{"include": []}' }}
     runs-on: ${{ matrix.os_runner }}
     strategy:
       fail-fast: false
@@ -101,7 +100,6 @@ jobs:
         if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
         shell: bash
         run: |
-          echo "Setting C++ build environment variables for macOS..."
           echo "GYP_DEFINES=OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++" >> $GITHUB_ENV
           echo "CXXFLAGS=-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0" >> $GITHUB_ENV
           echo "CFLAGS=-std=c17 -mmacosx-version-min=11.0" >> $GITHUB_ENV
