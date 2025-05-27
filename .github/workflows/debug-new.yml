@@ -61,14 +61,14 @@ jobs:
   debug_environment:
     name: Debug Environment (${{ matrix.os_name }})
     needs: prepare_debug_matrix
-    if: ${{ needs.prepare_debug_matrix.outputs.matrix_config != '{"include": []}' }} # Only run if matrix is not empty
+    if: ${{ needs.prepare_debug_matrix.outputs.matrix_config != '{"include": []}' }}
     runs-on: ${{ matrix.os_runner }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.prepare_debug_matrix.outputs.matrix_config) }}
             
     env:
-      NODE_VERSION: '22.x' # Specific to IO app for robotjs debugging
+      NODE_VERSION: '22.x'
       PYTHON_VERSION: '3.12'
 
     steps:
