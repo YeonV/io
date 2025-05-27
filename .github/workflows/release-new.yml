@@ -1,4 +1,4 @@
-name: Create App Release
+name: Create App Release NEW
 
 on:
   workflow_dispatch:
@@ -20,39 +20,39 @@ on:
         default: true
         required: false
         type: boolean
-      osxarm64:
-        description: 'MacOS (silicon)'
+      build_macos_arm64:
+        description: 'Log env for macOS (ARM64/Silicon)'
         default: true
-        required: false
         type: boolean
-      ubuntu:
-        description: 'Ubuntu'
-        default: true
-        required: false
+      build_ubuntu:
+        description: 'Log env for Ubuntu Linux (x64)'
+        default: false
         type: boolean
-      windows:
-        description: 'Windows'
-        default: true
-        required: false
+      build_windows:
+        description: 'Log env for Windows (x64)'
+        default: false
         type: boolean
 
 jobs:
-  prepare_release_info:
-    name: Prepare Release Info
+  prepare_debug_matrix:
+    name: Prepare Build Matrix
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
       is_manual_dispatch: ${{ github.event_name == 'workflow_dispatch' }}
       current_version: ${{ steps.package-version.outputs.current-version }}
       release_body_file: .release-notes.md
+      matrix_json: ${{ steps.set-matrix.outputs.matrix_json }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 
+          fetch-depth: 0
+
       - name: Get App Version
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.0
+
       - name: Generate Release Notes
         id: generate_notes
         run: |
@@ -77,104 +77,118 @@ jobs:
           draft: false
           prerelease: false
 
-  build_app: 
-    name: Build App (${{ matrix.os }})
-    if: (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')) || github.event_name == 'workflow_dispatch'
-    needs: prepare_release_info
-    runs-on: ${{ matrix.os }}
+      - name: Check Inputs and Prepare Matrix JSON
+        id: set-matrix
+        shell: bash
+        run: |
+          matrix_include_array=()
+          if [[ "${{ github.event.inputs.build_macos_intel }}" == "true" ]]; then
+            matrix_include_array+=('{"os_id": "macos_intel", "os_name": "macOS Intel", "os_runner": "macos-13"}')
+          fi
+          if [[ "${{ github.event.inputs.build_macos_arm64 }}" == "true" ]]; then
+            matrix_include_array+=('{"os_id": "macos_arm64", "os_name": "macOS ARM64", "os_runner": "macos-14"}')
+          fi
+          if [[ "${{ github.event.inputs.build_ubuntu }}" == "true" ]]; then
+            matrix_include_array+=('{"os_id": "linux", "os_name": "Ubuntu Linux", "os_runner": "ubuntu-latest"}')
+          fi
+          if [[ "${{ github.event.inputs.build_windows }}" == "true" ]]; then
+            matrix_include_array+=('{"os_id": "windows", "os_name": "Windows", "os_runner": "windows-latest"}')
+          fi
+          
+          joined_includes=$(IFS=,; echo "${matrix_include_array[*]}")
+          final_matrix_json="{\"include\": [${joined_includes}]}"
+          
+          echo "Generated matrix JSON: ${final_matrix_json}"
+          echo "matrix_json=${final_matrix_json}" >> $GITHUB_OUTPUT
+
+  build_app:
+    name: Build App ${{ matrix.os_name }}
+    needs: prepare_debug_matrix
+    runs-on: ${{ matrix.os_runner }}
     strategy:
       fail-fast: false
-      matrix:
-        node-version: ['22.x']
-        python-version: ['3.12']
-        os: [macos-latest, ubuntu-latest, windows-latest]
-        include:
-          - os: macos-latest
-            OSNAME: mac
-            OSEND: dmg
-            FILEPART: Installer
-            ASSET_CONTENT_TYPE: application/x-apple-diskimage
-          - os: ubuntu-latest
-            OSNAME: linux
-            OSEND: AppImage
-            FILEPART: Installer
-            ASSET_CONTENT_TYPE: application/x-iso9660-appimage
-          - os: windows-latest
-            OSNAME: win
-            OSEND: exe
-            FILEPART: Setup
-            ASSET_CONTENT_TYPE: application/vnd.microsoft.portable-executable
+      matrix: ${{ fromJson(needs.prepare_debug_matrix.outputs.matrix_json) }}
+            
+    env:
+      NODE_VERSION: '22.x'
+      PYTHON_VERSION: '3.12'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
-      - name: Set up Python ${{ matrix.python-version }}
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.PYTHON_VERSION }}
       - name: Install Python build dependencies
         run: python -m pip install --upgrade pip setuptools wheel
+      - name: Log Initial System & Environment Info (${{ matrix.os_name }})
+        shell: bash
+        run: |
+          echo "================== INITIAL INFO (${{ matrix.os_name }}) =================="
+          echo "Runner OS: $(uname -a || ver)"
+          echo "Node version: $(node --version)"
+          echo "Python3 version: $(python3 --version 2>&1 || echo 'python3 not found')"
+          echo "--- C/C++ Compiler Info ---"
+          if [[ "${{ matrix.os_id }}" == "macos_intel" || "${{ matrix.os_id }}" == "macos_arm64" ]]; then
+            echo "Clang version: $(clang --version || echo 'clang not found')"
+            echo "Xcode version: $(xcodebuild -version || echo 'xcodebuild not found')"
+            echo "SDK Path: $(xcrun --sdk macosx --show-sdk-path || echo 'SDK path not found')"
+          elif [[ "${{ matrix.os_id }}" == "linux" ]]; then
+            echo "gcc version: $(gcc --version || echo 'gcc not found')"
+          elif [[ "${{ matrix.os_id }}" == "windows" ]]; then
+            where cl.exe || echo "cl.exe (MSVC compiler) not found in PATH"
+          fi
+          echo "=========================================================="
+      
+      - name: Set C++ Build Envs for Rebuild (macOS only)
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+        shell: bash
+        run: |
+          echo "GYP_DEFINES=OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++" >> $GITHUB_ENV
+          echo "CXXFLAGS=-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0" >> $GITHUB_ENV
+          echo "CFLAGS=-std=c17 -mmacosx-version-min=11.0" >> $GITHUB_ENV
+          echo "LDFLAGS=-stdlib=libc++ -mmacosx-version-min=11.0" >> $GITHUB_ENV
+          echo "MACOSX_DEPLOYMENT_TARGET=11.0" >> $GITHUB_ENV
+
       - name: Install Linux dependencies for RobotJS & Electron build
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os_id == 'linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3          
+          sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3
       - name: Install Node Modules
-        run: yarn install --ignore-scripts 
-      - name: Rebuild native modules
-        if: matrix.os == 'macos-latest'
-        env:
-          # These are generally good to have and what we've been trying
-          MACOSX_DEPLOYMENT_TARGET: '11.0'
-          # CC: clang # Usually default on macOS
-          # CXX: clang++ # Usually default on macOS
+        run: yarn install --ignore-scripts
+      - name: Downgrade Electron (macOS) and Rebuild
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
         run: |
-          echo "Attempting to set npm config for node-gyp..."
-          npm config set clang_cxx_language_standard c++20
-          npm config set clang_library libc++
-          npm config set mac_deployment_target "11.0" # Should be string
-          
-          echo "Current npm config relevant to gyp:"
-          npm config ls -l | grep -E 'clang|gyp|mac_deployment_target|python' || echo "No relevant npm config found by grep"
-
-          echo "Running rebuild with PYTHON set and existing ENV VARS..."
-          echo "GYP_DEFINES currently: $GYP_DEFINES" # Check if it's inherited from job/workflow level if set there
-          echo "CXXFLAGS currently: $CXXFLAGS"
-          
-          # Explicitly set crucial env vars for this command execution as well
-          export GYP_DEFINES="OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++ ${GYP_DEFINES}"
-          export CXXFLAGS="-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0 ${CXXFLAGS}"
-          export CFLAGS="-std=c17 -mmacosx-version-min=11.0 ${CFLAGS}"
-          export LDFLAGS="-stdlib=libc++ -mmacosx-version-min=11.0 ${LDFLAGS}"
-          
-          echo "Updated GYP_DEFINES: $GYP_DEFINES"
-          echo "Updated CXXFLAGS: $CXXFLAGS"
-
-          PYTHON=$(which python3) yarn rebuild
-        shell: bash
+          yarn add -D electron@31
+      - name: Rebuild native modules
+        run: |
+          yarn rebuild
       - name: Build Project (macOS/Linux)
-        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64' || matrix.os_id == 'linux'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-          REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
-        run: yarn dist -p "never" 
+          REACT_APP_VERSION: ${{ needs.prepare_debug_matrix.outputs.current_version }}
+        run: yarn dist -p "never"
       - name: Build Project (Windows)
-        if: matrix.os == 'windows-latest'
+        if: matrix.os_id == 'windows'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REACT_APP_VERSION: ${{ needs.prepare_release_info.outputs.current_version }}
+          REACT_APP_VERSION: ${{ needs.prepare_debug_matrix.outputs.current_version }}
         shell: pwsh
         run: |
           $env:GH_TOKEN = "${{ secrets.GH_TOKEN }}"
           yarn dist -p "never"
+
       - name: Upload Release Asset
-        if: needs.prepare_release_info.outputs.is_manual_dispatch == 'false' && needs.prepare_release_info.outputs.upload_url != ''
+        if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -183,10 +197,11 @@ jobs:
           asset_path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
           asset_name: io-${{ matrix.OSNAME }}.${{ matrix.OSEND }}
           asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE }}
-      - name: Upload Build Artifact
-        if: needs.prepare_release_info.outputs.is_manual_dispatch == 'true'
-        uses: actions/upload-artifact@v4 
+
+      - name: Upload Build Artifacts
+        if: needs.prepare_debug_matrix.outputs.is_manual_dispatch == 'true'
+        uses: actions/upload-artifact@v4
         with:
-          name: io-${{ matrix.OSNAME }}-${{ needs.prepare_release_info.outputs.current_version }}
+          name: io-${{ matrix.os_id }}--${{ needs.prepare_release_info.outputs.current_version }}
           path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
           retention-days: 7
