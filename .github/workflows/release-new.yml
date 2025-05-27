@@ -22,11 +22,48 @@ on:
 
 jobs:
   prepare_debug_matrix:
-    name: Prepare Debug Matrix
+    name: Prepare Build Matrix
     runs-on: ubuntu-latest
     outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      is_manual_dispatch: ${{ github.event_name == 'workflow_dispatch' }}
+      current_version: ${{ steps.package-version.outputs.current-version }}
+      release_body_file: .release-notes.md
       matrix_json: ${{ steps.set-matrix.outputs.matrix_json }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get App Version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.0
+
+      - name: Generate Release Notes
+        id: generate_notes
+        run: |
+          if git describe --tags --abbrev=0 @^ > /dev/null 2>&1; then
+            git log --pretty=format:"+ %s" $(git describe --tags --abbrev=0 @^)..@ > .release-notes.md
+          else
+            echo "+ Initial release or no previous tags found." > .release-notes.md
+          fi
+          echo "Release notes generated in .release-notes.md:"
+          cat .release-notes.md
+      
+      - name: Create GitHub Release
+        id: create_release
+        if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.package-version.outputs.current-version }}
+          release_name: Release ${{ steps.package-version.outputs.current-version }}
+          body_path: .release-notes.md
+          draft: false
+          prerelease: false
+
       - name: Check Inputs and Prepare Matrix JSON
         id: set-matrix
         shell: bash
@@ -51,8 +88,8 @@ jobs:
           echo "Generated matrix JSON: ${final_matrix_json}"
           echo "matrix_json=${final_matrix_json}" >> $GITHUB_OUTPUT
 
-  debug_environment:
-    name: Debug Environment (${{ matrix.os_name }})
+  build_app:
+    name: Build App ${{ matrix.os_name }}
     needs: prepare_debug_matrix
     runs-on: ${{ matrix.os_runner }}
     strategy:
@@ -64,6 +101,10 @@ jobs:
       PYTHON_VERSION: '3.12'
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -72,6 +113,8 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install Python build dependencies
+        run: python -m pip install --upgrade pip setuptools wheel
       - name: Log Initial System & Environment Info (${{ matrix.os_name }})
         shell: bash
         run: |
@@ -89,11 +132,6 @@ jobs:
           elif [[ "${{ matrix.os_id }}" == "windows" ]]; then
             where cl.exe || echo "cl.exe (MSVC compiler) not found in PATH"
           fi
-          echo "--- Initial Key Environment Variables ---"
-          echo "GYP_DEFINES: $GYP_DEFINES"
-          echo "CXXFLAGS: $CXXFLAGS"
-          echo "MACOSX_DEPLOYMENT_TARGET: $MACOSX_DEPLOYMENT_TARGET"
-          printenv | sort
           echo "=========================================================="
       
       - name: Set C++ Build Envs for Rebuild (macOS only)
@@ -106,16 +144,58 @@ jobs:
           echo "LDFLAGS=-stdlib=libc++ -mmacosx-version-min=11.0" >> $GITHUB_ENV
           echo "MACOSX_DEPLOYMENT_TARGET=11.0" >> $GITHUB_ENV
 
-      - name: Log Environment Info AFTER Setting Build Envs (macOS only)
-        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
-        shell: bash
+      - name: Install Linux dependencies for RobotJS & Electron build
+        if: matrix.os_id == 'linux'
         run: |
-          echo "================== POST-SET-ENVS INFO (${{ matrix.os_name }}) ================"
-          echo "--- Key Environment Variables (After Setting via GITHUB_ENV) ---"
+          sudo apt-get update
+          sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3
+      - name: Install Node Modules
+        run: yarn install --ignore-scripts
+      - name: Rebuild native modules
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+        run: |
+          echo "--- Environment for Rebuild Step ---"
+          echo "PYTHON used: $(which python3)"
+          echo "Node version: $(node --version)"
+          echo "Electron Target Headers (approx based on path if available, electron-rebuild determines actual): from ~/.electron-gyp or similar"
+          echo "--- Effective Build Flags (from env) ---"
           echo "GYP_DEFINES: $GYP_DEFINES"
           echo "CXXFLAGS: $CXXFLAGS"
           echo "CFLAGS: $CFLAGS"
           echo "LDFLAGS: $LDFLAGS"
-          echo "MACOSX_DEPLOYMENT_TARGET: $MACOSX_DEPLOYMENT_TARGET"
-          printenv | sort
-          echo "=========================================================="
+          yarn rebuild
+        shell: bash
+      - name: Build Project (macOS/Linux)
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64' || matrix.os_id == 'linux'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          REACT_APP_VERSION: ${{ needs.prepare_debug_matrix.outputs.current_version }}
+        run: yarn dist -p "never"
+      - name: Build Project (Windows)
+        if: matrix.os_id == 'windows'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REACT_APP_VERSION: ${{ needs.prepare_debug_matrix.outputs.current_version }}
+        shell: pwsh
+        run: |
+          $env:GH_TOKEN = "${{ secrets.GH_TOKEN }}"
+          yarn dist -p "never"
+
+      - name: Upload Release Asset
+        if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.prepare_release_info.outputs.upload_url }}
+          asset_path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
+          asset_name: io-${{ matrix.OSNAME }}.${{ matrix.OSEND }}
+          asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE }}
+
+      - name: Upload Build Artifacts
+        if: needs.prepare_debug_matrix.outputs.is_manual_dispatch == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: io-${{ matrix.os_id }}--${{ needs.prepare_release_info.outputs.current_version }}
+          path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
+          retention-days: 7
