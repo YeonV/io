@@ -44,7 +44,7 @@
     "dev": "electron-vite dev || echo 'run yarn rebuild bro!' && exit 1",
     "build": "npm run typecheck && electron-vite build",
     "deck": "electron-vite build && electron-vite dev",
-    "__postinstall": "electron-builder install-app-deps",
+    "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
@@ -53,9 +53,7 @@
     "dist": "electron-vite build && yarn electron-builder",
     "sync-modules": "node scripts/sync-modules.js",
     "predev": "npm run sync-modules",
-    "prebuild": "npm run sync-modules",
-    "rebuild": "electron-rebuild -f -w robotjs || (echo 'Rebuild FAILED. Try: python.exe -m pip install --upgrade pip setuptools wheel' && exit 1)",
-    "rebuild-all": "electron-rebuild -f"
+    "prebuild": "npm run sync-modules"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
@@ -120,7 +118,6 @@
     "electron": "36.3.1",
     "electron-builder": "^26.0.12",
     "electron-devtools-installer": "^4.0.0",
-    "electron-rebuild": "^3.2.9",
     "electron-vite": "^3.1.0",
     "eslint": "^9.17.0",
     "eslint-plugin-react": "^7.37.2",
