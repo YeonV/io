@@ -128,34 +128,28 @@ jobs:
       - name: Install Node Modules
         run: yarn install --ignore-scripts 
       - name: Rebuild native modules
-        if: matrix.os == 'macos-latest'
+        if: matrix.needs_rebuild == true && matrix.platform_id == 'macos'
         env:
-          # These are generally good to have and what we've been trying
+          # These are set for the entire step's environment
           MACOSX_DEPLOYMENT_TARGET: '11.0'
-          # CC: clang # Usually default on macOS
-          # CXX: clang++ # Usually default on macOS
+          # Set the most critical ones here, GYP_DEFINES and CXXFLAGS
+          GYP_DEFINES: "OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++"
+          CXXFLAGS: "-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0"
+          CFLAGS: "-std=c17 -mmacosx-version-min=11.0" # For C parts
+          LDFLAGS: "-stdlib=libc++ -mmacosx-version-min=11.0" # For linker
         run: |
-          echo "Attempting to set npm config for node-gyp..."
-          npm config set clang_cxx_language_standard c++20
-          npm config set clang_library libc++
-          npm config set mac_deployment_target "11.0" # Should be string
+          echo "--- Environment for Rebuild Step ---"
+          echo "PYTHON used: $(which python3)"
+          echo "Node version: $(node --version)"
+          echo "Electron Target Headers (approx based on path if available, electron-rebuild determines actual): from ~/.electron-gyp or similar"
+          echo "--- Effective Build Flags (from env) ---"
+          echo "GYP_DEFINES: $GYP_DEFINES"
+          echo "CXXFLAGS: $CXXFLAGS"
+          echo "CFLAGS: $CFLAGS"
+          echo "LDFLAGS: $LDFLAGS"
+          echo "MACOSX_DEPLOYMENT_TARGET: $MACOSX_DEPLOYMENT_TARGET"
+          echo "--------------------------------------"
           
-          echo "Current npm config relevant to gyp:"
-          npm config ls -l | grep -E 'clang|gyp|mac_deployment_target|python' || echo "No relevant npm config found by grep"
-
-          echo "Running rebuild with PYTHON set and existing ENV VARS..."
-          echo "GYP_DEFINES currently: $GYP_DEFINES" # Check if it's inherited from job/workflow level if set there
-          echo "CXXFLAGS currently: $CXXFLAGS"
-          
-          # Explicitly set crucial env vars for this command execution as well
-          export GYP_DEFINES="OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++ ${GYP_DEFINES}"
-          export CXXFLAGS="-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0 ${CXXFLAGS}"
-          export CFLAGS="-std=c17 -mmacosx-version-min=11.0 ${CFLAGS}"
-          export LDFLAGS="-stdlib=libc++ -mmacosx-version-min=11.0 ${LDFLAGS}"
-          
-          echo "Updated GYP_DEFINES: $GYP_DEFINES"
-          echo "Updated CXXFLAGS: $CXXFLAGS"
-
           PYTHON=$(which python3) yarn rebuild
         shell: bash
       - name: Build Project (macOS/Linux)
