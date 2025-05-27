@@ -97,17 +97,21 @@ jobs:
       - name: Rebuild native modules for Electron (RobotJS)
         if: matrix.os == 'macos-latest'
         env:
-          # Try setting it via npm_config which node-gyp might pick up more directly
-          npm_config_clang_CXX_language_standard: 'c++20'
-          npm_config_mac_deployment_target: '11.0' # Also try this way
-          npm_config_clang_CXX_library: 'libc++'
-          
-          # Keep these as well, they might still be influential or needed by other parts of electron-rebuild
-          GYP_DEFINES: "mac_deployment_target=11.0 clang_CXX_language_standard=c++20 clang_CXX_library=libc++"
-          CXXFLAGS: "-std=c++20 -stdlib=libc++"
-          CFLAGS: "-std=c17"
-          MACOSX_DEPLOYMENT_TARGET: '11.0'
-        run: PYTHON=$(which python3) yarn rebuild
+          # These are standard environment variables node-gyp should respect for Clang
+          CC: clang
+          CXX: clang++
+          CFLAGS: "-std=c17 -mmacosx-version-min=11.0" # For C files
+          CXXFLAGS: "-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0" # For C++ files
+          LDFLAGS: "-stdlib=libc++ -mmacosx-version-min=11.0" # For linker
+          MACOSX_DEPLOYMENT_TARGET: '11.0' # Redundant if in CFLAGS/CXXFLAGS/LDFLAGS but doesn't hurt
+
+          # GYP_DEFINES is crucial. Let's ensure it's formatted exactly as gyp expects.
+          # Note: gyp defines are space separated, key=value. No quotes around value unless value has spaces.
+          # For flags with hyphens or pluses, sometimes quotes are needed IF gyp itself parses them.
+          # Let's try without quotes for the standard names first.
+          GYP_DEFINES: "OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++2a clang_cxx_library=libc++"
+          # Using 'c++2a' as sometimes that's the gyp/clang identifier for C++20 before it was fully finalized.
+          # Or try 'c++20' again if 'c++2a' fails.
           # LDFLAGS: "-stdlib=libc++" # Sometimes needed too
         run: PYTHON=$(which python3) yarn rebuild # Ensure python3 is used
       - name: Build Project (macOS/Linux)
