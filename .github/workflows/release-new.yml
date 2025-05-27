@@ -1,4 +1,4 @@
-name: Create App Release NEW
+name: Create App Release
 
 on:
   workflow_dispatch:
@@ -10,19 +10,19 @@ on:
         default: ''
       build_macos_intel:
         description: 'Build for macOS (Intel x64)'
-        default: true
+        default: true # Set to false if you want to opt-in
         type: boolean
       build_macos_arm64:
         description: 'Build for macOS (ARM64/Silicon)'
-        default: true
+        default: true # Set to false if you want to opt-in
         type: boolean
       build_ubuntu:
         description: 'Build for Ubuntu Linux (x64)'
-        default: true
+        default: true # Set to false if you want to opt-in
         type: boolean
       build_windows:
         description: 'Build for Windows (x64)'
-        default: true
+        default: true # Set to false if you want to opt-in
         type: boolean
   push:
     tags:
@@ -35,7 +35,6 @@ jobs:
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
       current_version: ${{ github.event.inputs.version_override || steps.package-version.outputs.current-version }}
-      release_body_file: .release-notes.md
       build_matrix_json: ${{ steps.set-matrix.outputs.build_matrix_json }}
     steps:
       - name: Checkout code
@@ -46,9 +45,6 @@ jobs:
         id: package-version
         if: github.event.inputs.version_override == ''
         uses: martinbeentjes/npm-get-version-action@v1.3.0
-      - name: Output overridden version if provided
-        if: github.event.inputs.version_override != ''
-        run: echo "Using overridden version ${{ github.event.inputs.version_override }}"
       - name: Generate Release Notes
         id: generate_notes
         run: |
@@ -129,7 +125,9 @@ jobs:
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Rebuild native modules
         if: matrix.needs_rebuild == true
-        run: PYTHON=$(${{ matrix.python_path_command }}) yarn rebuild
+        env:
+          PYTHON_FOR_REBUILD: ${{ matrix.python_path_command }}
+        run: PYTHON=$($PYTHON_FOR_REBUILD) yarn rebuild
       - name: Build Project (Unix)
         if: matrix.platform_id == 'macos_intel' || matrix.platform_id == 'macos_arm64' || matrix.platform_id == 'linux'
         env:
