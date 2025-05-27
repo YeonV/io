@@ -83,16 +83,16 @@ jobs:
         run: |
           matrix_include_array=()
           if [[ "${{ github.event.inputs.build_macos_intel }}" == "true" ]]; then
-            matrix_include_array+=('{"os_id": "macos_intel", "os_name": "macOS Intel", "os_runner": "macos-13", "FILEPART": "macos-intel", "OSNAME": "macos-intel", "OSEND": "dmg", "ASSET_CONTENT_TYPE": "application/x-apple-diskimage", "FILEPART2": "Installer-Intel", "OSEND2": "zip", "ASSET_CONTENT_TYPE2": "application/zip"}')
+            matrix_include_array+=('{"os_id": "macos_intel", "os_name": "macOS Intel", "os_runner": "macos-13","VERSION": "${{ steps.package-version.outputs.current-version }}", "FILEPART": "macos-intel", "OSNAME": "macos-intel", "OSEND": "dmg", "ASSET_CONTENT_TYPE": "application/x-apple-diskimage", "FILEPART2": "Installer-Intel", "OSEND2": "zip", "ASSET_CONTENT_TYPE2": "application/zip"}')
           fi
           if [[ "${{ github.event.inputs.build_macos_arm64 }}" == "true" ]]; then
-            matrix_include_array+=('{"os_id": "macos_arm64", "os_name": "macOS ARM64", "os_runner": "macos-14", "FILEPART": "macos-arm64", "OSNAME": "macos-arm64", "OSEND": "dmg", "ASSET_CONTENT_TYPE": "application/x-apple-diskimage", "FILEPART2": "Installer-ARM64", "OSEND2": "zip", "ASSET_CONTENT_TYPE2": "application/zip"}')
+            matrix_include_array+=('{"os_id": "macos_arm64", "os_name": "macOS ARM64", "os_runner": "macos-14","VERSION": "${{ steps.package-version.outputs.current-version }}", "FILEPART": "Installer", "OSNAME": "macos-arm64", "OSEND": "dmg", "ASSET_CONTENT_TYPE": "application/x-apple-diskimage", "FILEPART2": "Installer-ARM64", "OSEND2": "zip", "ASSET_CONTENT_TYPE2": "application/zip"}')
           fi
           if [[ "${{ github.event.inputs.build_ubuntu }}" == "true" ]]; then
-            matrix_include_array+=('{"os_id": "linux", "os_name": "Ubuntu Linux", "os_runner": "ubuntu-latest", "FILEPART": "linux-x64", "OSNAME": "linux-x64", "OSEND": "AppImage", "ASSET_CONTENT_TYPE": "application/x-x86-64-appimage"}')
+            matrix_include_array+=('{"os_id": "linux", "os_name": "Ubuntu Linux", "os_runner": "ubuntu-latest","VERSION": "${{ steps.package-version.outputs.current-version }}", "FILEPART": "linux-x64", "OSNAME": "linux-x64", "OSEND": "AppImage", "ASSET_CONTENT_TYPE": "application/x-x86-64-appimage"}')
           fi
           if [[ "${{ github.event.inputs.build_windows }}" == "true" ]]; then
-            matrix_include_array+=('{"os_id": "windows", "os_name": "Windows", "os_runner": "windows-latest", "FILEPART": "Setup", "OSNAME": "windows-x64", "OSEND": "exe", "ASSET_CONTENT_TYPE": "application/vnd.microsoft.portable-executable"}')
+            matrix_include_array+=('{"os_id": "windows", "os_name": "Windows", "os_runner": "windows-latest","VERSION": "${{ steps.package-version.outputs.current-version }}", "FILEPART": "Setup", "OSNAME": "windows-x64", "OSEND": "exe", "ASSET_CONTENT_TYPE": "application/vnd.microsoft.portable-executable"}')
           fi
           
           joined_includes=$(IFS=,; echo "${matrix_include_array[*]}")
@@ -164,8 +164,8 @@ jobs:
           sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3
       - name: Install Node Modules
         run: yarn install --ignore-scripts
-      - name: Downgrade Electron (macOS) and Rebuild
-        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+      - name: Downgrade Electron for robotjs compatibility
+        if: matrix.os_id != 'windows'
         run: |
           yarn add -D electron@31
       - name: Rebuild native modules
@@ -194,7 +194,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.prepare_release_info.outputs.upload_url }}
-          asset_path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
+          asset_path: ./dist/io-${{ matrix.VERSION }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
           asset_name: io-${{ matrix.OSNAME }}.${{ matrix.OSEND }}
           asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE }}
 
@@ -205,7 +205,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.prepare_release_info.outputs.upload_url }}
-          asset_path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART2 }}.${{ matrix.OSEND2 }}
+          asset_path: ./dist/io-${{ matrix.VERSION }}-${{ matrix.FILEPART2 }}.${{ matrix.OSEND2 }}
           asset_name: io-${{ matrix.OSNAME2 }}.${{ matrix.OSEND2 }}
           asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE2 }}
 
@@ -213,12 +213,12 @@ jobs:
         if: needs.prepare_debug_matrix.outputs.is_manual_dispatch == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: io-${{ matrix.os_id }}--${{ needs.prepare_release_info.outputs.current_version }}
-          path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
+          name: io-${{ matrix.os_id }}--${{ matrix.VERSION }}
+          path: ./dist/io-${{ matrix.VERSION }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
           retention-days: 7
 
       - name: Upload Build Artifacts2 for macOS
         if: needs.prepare_debug_matrix.outputs.is_manual_dispatch == 'true' && (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64')
         uses: actions/upload-artifact@v4
         with:
-          name: io-${{ matrix.os_id }}--${{ needs.prepare_release_info.outputs.current_version }}-Installer
+          name: io-${{ matrix.os_id }}--${{ matrix.VERSION }}-Installer
