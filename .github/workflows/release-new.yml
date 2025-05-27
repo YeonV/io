@@ -194,7 +194,7 @@ jobs:
 
       - name: Upload Build Artifacts
         if: needs.prepare_debug_matrix.outputs.is_manual_dispatch == 'true'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: io-${{ matrix.os_id }}--${{ needs.prepare_release_info.outputs.current_version }}
           path: ./dist/io-${{ needs.prepare_release_info.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
