@@ -2,6 +2,39 @@ name: Create App Release
 
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+        default: '0.2.6'
+      release:
+        description: 'Create Release'
+        default: 'Yes'
+        required: false
+        type: choice
+        options:
+          - 'Yes'
+          - 'No'
+      macos:
+        description: 'MacOS (intel)'
+        default: true
+        required: false
+        type: boolean
+      osxarm64:
+        description: 'MacOS (silicon)'
+        default: true
+        required: false
+        type: boolean
+      ubuntu:
+        description: 'Ubuntu'
+        default: true
+        required: false
+        type: boolean
+      windows:
+        description: 'Windows'
+        default: true
+        required: false
+        type: boolean
 
 jobs:
   prepare_release_info:
@@ -52,8 +85,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: ['22.x'] # Node 22 is very new, ensure compatibility or consider LTS like 20.x
-        python-version: ['3.11']
+        node-version: ['22.x']
+        python-version: ['3.12']
         os: [macos-latest, ubuntu-latest, windows-latest]
         include:
           - os: macos-latest
@@ -93,27 +126,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3          
       - name: Install Node Modules
-        run: yarn install --ignore-scripts # Install first, then rebuild
+        run: yarn install --ignore-scripts 
       - name: Rebuild native modules for Electron (RobotJS)
         if: matrix.os == 'macos-latest'
         env:
-          # These are standard environment variables node-gyp should respect for Clang
           CC: clang
           CXX: clang++
-          CFLAGS: "-std=c17 -mmacosx-version-min=11.0" # For C files
-          CXXFLAGS: "-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0" # For C++ files
-          LDFLAGS: "-stdlib=libc++ -mmacosx-version-min=11.0" # For linker
-          MACOSX_DEPLOYMENT_TARGET: '11.0' # Redundant if in CFLAGS/CXXFLAGS/LDFLAGS but doesn't hurt
-
-          # GYP_DEFINES is crucial. Let's ensure it's formatted exactly as gyp expects.
-          # Note: gyp defines are space separated, key=value. No quotes around value unless value has spaces.
-          # For flags with hyphens or pluses, sometimes quotes are needed IF gyp itself parses them.
-          # Let's try without quotes for the standard names first.
+          CFLAGS: "-std=c17 -mmacosx-version-min=11.0" 
+          CXXFLAGS: "-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0" 
+          LDFLAGS: "-stdlib=libc++ -mmacosx-version-min=11.0" 
+          MACOSX_DEPLOYMENT_TARGET: '11.0'
           GYP_DEFINES: "OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++2a clang_cxx_library=libc++"
-          # Using 'c++2a' as sometimes that's the gyp/clang identifier for C++20 before it was fully finalized.
-          # Or try 'c++20' again if 'c++2a' fails.
-          # LDFLAGS: "-stdlib=libc++" # Sometimes needed too
-        run: PYTHON=$(which python3) yarn rebuild # Ensure python3 is used
+        run: PYTHON=$(which python3) yarn rebuild 
       - name: Build Project (macOS/Linux)
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         env:
