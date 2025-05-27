@@ -16,20 +16,20 @@ on:
           - 'Yes'
           - 'No'
       build_macos_intel:
-        description: 'MacOS (intel)'
+        description: 'Build MacOS (intel)'
         default: true
         required: false
         type: boolean
       build_macos_arm64:
-        description: 'Log env for macOS (ARM64/Silicon)'
+        description: 'Build MacOS (ARM64/Silicon)'
         default: true
         type: boolean
       build_ubuntu:
-        description: 'Log env for Ubuntu Linux (x64)'
+        description: 'Build Ubuntu Linux (x64)'
         default: false
         type: boolean
       build_windows:
-        description: 'Log env for Windows (x64)'
+        description: 'Build Windows (x64)'
         default: false
         type: boolean
 
@@ -147,15 +147,15 @@ jobs:
           fi
           echo "=========================================================="
       
-      - name: Set C++ Build Envs for Rebuild (macOS only)
-        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
-        shell: bash
-        run: |
-          echo "GYP_DEFINES=OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++" >> $GITHUB_ENV
-          echo "CXXFLAGS=-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0" >> $GITHUB_ENV
-          echo "CFLAGS=-std=c17 -mmacosx-version-min=11.0" >> $GITHUB_ENV
-          echo "LDFLAGS=-stdlib=libc++ -mmacosx-version-min=11.0" >> $GITHUB_ENV
-          echo "MACOSX_DEPLOYMENT_TARGET=11.0" >> $GITHUB_ENV
+      # - name: Set C++ Build Envs for Rebuild (macOS only)
+      #   if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+      #   shell: bash
+      #   run: |
+      #     echo "GYP_DEFINES=OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++" >> $GITHUB_ENV
+      #     echo "CXXFLAGS=-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0" >> $GITHUB_ENV
+      #     echo "CFLAGS=-std=c17 -mmacosx-version-min=11.0" >> $GITHUB_ENV
+      #     echo "LDFLAGS=-stdlib=libc++ -mmacosx-version-min=11.0" >> $GITHUB_ENV
+      #     echo "MACOSX_DEPLOYMENT_TARGET=11.0" >> $GITHUB_ENV
 
       - name: Install Linux dependencies for RobotJS & Electron build
         if: matrix.os_id == 'linux'
@@ -163,25 +163,25 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3
       - name: Install Node Modules
-        run: yarn install --ignore-scripts
-      - name: Downgrade Electron for robotjs compatibility
-        if: matrix.os_id != 'windows'
-        run: |
-          yarn add -D electron@31
-      - name: Rebuild native modules
-        run: |
-          yarn rebuild
+        run: yarn install
+      # - name: Downgrade Electron for robotjs compatibility
+      #   if: matrix.os_id != 'windows'
+      #   run: |
+      #     yarn add -D electron@31
+      # - name: Rebuild native modules
+      #   run: |
+      #     yarn rebuild
       - name: Build Project (macOS/Linux)
         if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64' || matrix.os_id == 'linux'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-          REACT_APP_VERSION: ${{ needs.prepare_debug_matrix.outputs.current_version }}
+          REACT_APP_VERSION: ${{ matrix.VERSION }}
         run: yarn dist -p "never"
       - name: Build Project (Windows)
         if: matrix.os_id == 'windows'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REACT_APP_VERSION: ${{ needs.prepare_debug_matrix.outputs.current_version }}
+          REACT_APP_VERSION: ${{ matrix.VERSION }}
         shell: pwsh
         run: |
           $env:GH_TOKEN = "${{ secrets.GH_TOKEN }}"

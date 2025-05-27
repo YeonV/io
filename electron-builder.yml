@@ -37,7 +37,7 @@ linux:
   category: Utility
 appImage:
   artifactName: ${productName}-${version}-Installer.${ext}
-npmRebuild: false
+npmRebuild: true
 publish:
   provider: generic
   url: https://example.com/auto-updates
