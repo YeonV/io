@@ -7,14 +7,14 @@ on:
         description: 'Version'
         required: true
         default: '0.2.6'
-      release:
-        description: 'Create Release'
-        default: 'Yes'
-        required: false
-        type: choice
-        options:
-          - 'Yes'
-          - 'No'
+      # release:
+      #   description: 'Create Release'
+      #   default: 'Yes'
+      #   required: false
+      #   type: choice
+      #   options:
+      #     - 'Yes'
+      #     - 'No'
       build_macos_intel:
         description: 'MacOS (intel)'
         default: true
@@ -33,16 +33,34 @@ on:
         description: 'Windows (x64)'
         default: false
         type: boolean
+      build_robotjs_macos_intel:
+        description: 'robotjs MacOS (intel)'
+        default: false
+        required: false
+        type: boolean
+      build_robotjs_macos_arm64:
+        description: 'robotjs MacOS (ARM64/Silicon)'
+        default: false
+        required: false
+        type: boolean
+      build_robotjs_ubuntu:
+        description: 'robotjs Ubuntu Linux (x64)'
+        default: false
+        type: boolean
+      build_robotjs_windows:
+        description: 'robotjs Windows (x64)'
+        default: false
+        type: boolean
 
 jobs:
   prepare_debug_matrix:
     name: Prepare Build Matrix
     runs-on: ubuntu-latest
     outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
-      is_manual_dispatch: ${{ github.event_name == 'workflow_dispatch' }}
+      # upload_url: ${{ steps.create_release.outputs.upload_url }}
+      # is_manual_dispatch: ${{ github.event_name == 'workflow_dispatch' }}
       current_version: ${{ steps.package-version.outputs.current-version }}
-      release_body_file: .release-notes.md
+      # release_body_file: .release-notes.md
       matrix_json: ${{ steps.set-matrix.outputs.matrix_json }}
     steps:
       - name: Checkout code
@@ -54,29 +72,29 @@ jobs:
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.0
 
-      - name: Generate Release Notes
-        id: generate_notes
-        run: |
-          if git describe --tags --abbrev=0 @^ > /dev/null 2>&1; then
-            git log --pretty=format:"+ %s" $(git describe --tags --abbrev=0 @^)..@ > .release-notes.md
-          else
-            echo "+ Initial release or no previous tags found." > .release-notes.md
-          fi
-          echo "Release notes generated in .release-notes.md:"
-          cat .release-notes.md
+      # - name: Generate Release Notes
+      #   id: generate_notes
+      #   run: |
+      #     if git describe --tags --abbrev=0 @^ > /dev/null 2>&1; then
+      #       git log --pretty=format:"+ %s" $(git describe --tags --abbrev=0 @^)..@ > .release-notes.md
+      #     else
+      #       echo "+ Initial release or no previous tags found." > .release-notes.md
+      #     fi
+      #     echo "Release notes generated in .release-notes.md:"
+      #     cat .release-notes.md
       
-      - name: Create GitHub Release
-        id: create_release
-        if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.package-version.outputs.current-version }}
-          release_name: Release ${{ steps.package-version.outputs.current-version }}
-          body_path: .release-notes.md
-          draft: false
-          prerelease: false
+      # - name: Create GitHub Release
+      #   id: create_release
+      #   if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
+      #   uses: actions/create-release@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     tag_name: ${{ steps.package-version.outputs.current-version }}
+      #     release_name: Release ${{ steps.package-version.outputs.current-version }}
+      #     body_path: .release-notes.md
+      #     draft: false
+      #     prerelease: false
 
       - name: Check Inputs and Prepare Matrix JSON
         id: set-matrix
@@ -185,27 +203,27 @@ jobs:
           $env:GH_TOKEN = "${{ secrets.GH_TOKEN }}"
           yarn dist -p "never"
 
-      - name: Upload Release Asset
-        if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.prepare_release_info.outputs.upload_url }}
-          asset_path: ./dist/io-${{ matrix.VERSION }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
-          asset_name: io-${{ matrix.OSNAME }}.${{ matrix.OSEND }}
-          asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE }}
+      # - name: Upload Release Asset
+      #   if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ needs.prepare_release_info.outputs.upload_url }}
+      #     asset_path: ./dist/io-${{ matrix.VERSION }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
+      #     asset_name: io-${{ matrix.OSNAME }}.${{ matrix.OSEND }}
+      #     asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE }}
 
-      - name: Upload Release Asset2 for macOS
-        if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release') && (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64')
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ needs.prepare_release_info.outputs.upload_url }}
-          asset_path: ./dist/io-${{ matrix.VERSION }}-${{ matrix.FILEPART2 }}.${{ matrix.OSEND2 }}
-          asset_name: io-${{ matrix.OSNAME2 }}.${{ matrix.OSEND2 }}
-          asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE2 }}
+      # - name: Upload Release Asset2 for macOS
+      #   if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release') && (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64')
+      #   uses: actions/upload-release-asset@v1
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     upload_url: ${{ needs.prepare_release_info.outputs.upload_url }}
+      #     asset_path: ./dist/io-${{ matrix.VERSION }}-${{ matrix.FILEPART2 }}.${{ matrix.OSEND2 }}
+      #     asset_name: io-${{ matrix.OSNAME2 }}.${{ matrix.OSEND2 }}
+      #     asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE2 }}
 
       - name: Upload Build Artifacts
         if: needs.prepare_debug_matrix.outputs.is_manual_dispatch == 'true'
