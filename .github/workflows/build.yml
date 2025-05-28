@@ -13,12 +13,12 @@ on:
         required: false
         type: boolean
       build_macos_arm64:
-        description: 'IO macOS (ARM64/Silicon)'
+        description: 'IO macOS (Silicon)'
         default: true
         required: false
         type: boolean
       build_ubuntu:
-        description: 'IO Ubuntu Linux (x64)'
+        description: 'IO Linux (x64)'
         default: true
         type: boolean
       build_windows:
@@ -31,12 +31,12 @@ on:
         required: false
         type: boolean
       build_robotjs_macos_arm64:
-        description: 'robotjs macOS (ARM64)'
+        description: 'robotjs macOS (Silicon)'
         default: false
         required: false
         type: boolean
       build_robotjs_ubuntu:
-        description: 'robotjs Ubuntu Linux (x64)'
+        description: 'robotjs Linux (x64)'
         default: false
         type: boolean
       build_robotjs_windows:
