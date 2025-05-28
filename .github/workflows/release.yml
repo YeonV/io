@@ -53,7 +53,7 @@ jobs:
           - os_id: macos_intel
             os_name: macOS Intel
             os_runner: macos-13
-            ASSET_FILEPART_DMG: Installer-Intel
+            ASSET_FILEPART_DMG: Installer
             ASSET_EXTENSION_DMG: dmg
             ASSET_CONTENT_TYPE_DMG: application/x-apple-diskimage
             ASSET_FILEPART_ZIP: mac # Corresponds to FILEPART2
@@ -63,7 +63,7 @@ jobs:
           - os_id: macos_arm64
             os_name: macOS ARM64
             os_runner: macos-14
-            ASSET_FILEPART_DMG: Installer-ARM64
+            ASSET_FILEPART_DMG: Installer
             ASSET_EXTENSION_DMG: dmg
             ASSET_CONTENT_TYPE_DMG: application/x-apple-diskimage
             ASSET_FILEPART_ZIP: arm64-mac
