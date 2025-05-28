@@ -3,10 +3,6 @@ name: IO Builder
 on:
   workflow_dispatch:
     inputs:
-      # version:
-      #   description: 'Version'
-      #   required: true
-      #   default: '0.2.6'
       build_ubuntu:
         description: 'IO Linux'
         default: true
@@ -114,7 +110,6 @@ jobs:
       
       - name: Install Linux dependencies (for building robotjs from source if selected)
         if: matrix.os_id == 'linux'
-        # if: matrix.os_id == 'linux' && matrix.BUILD_ROBOTJS_FLAG == 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3
@@ -146,9 +141,15 @@ jobs:
           fi
       
       - name: Run Custom Postinstall (Builds Native Deps like robotjs if needed)
-        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64' || (matrix.os_id == 'linux'  && matrix.BUILD_ROBOTJS_FLAG == 'true') 
         shell: bash
         run: yarn run customPostinstall
+
+      - name: Build Project
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          REACT_APP_VERSION: ${{ matrix.VERSION }}
+        run: yarn dist -p "never"
 
       - name: Upload Compiled robotjs.node Artifact
         if: matrix.BUILD_ROBOTJS_FLAG == 'true'
@@ -158,12 +159,6 @@ jobs:
           path: ./node_modules/robotjs/build/Release/robotjs.node
           if-no-files-found: error 
           retention-days: 7
-
-      - name: Build Project
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-          REACT_APP_VERSION: ${{ matrix.VERSION }}
-        run: yarn dist -p "never"
 
       - name: Upload App Build Artifacts
         uses: actions/upload-artifact@v4
