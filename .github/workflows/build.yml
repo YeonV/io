@@ -3,10 +3,10 @@ name: IO Builder
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version'
-        required: true
-        default: '0.2.6'
+      # version:
+      #   description: 'Version'
+      #   required: true
+      #   default: '0.2.6'
       build_macos_intel:
         description: 'IO macOS (Intel)'
         default: true
@@ -19,11 +19,11 @@ on:
         type: boolean
       build_ubuntu:
         description: 'IO Ubuntu Linux (x64)'
-        default: false
+        default: true
         type: boolean
       build_windows:
         description: 'IO Windows (x64)'
-        default: false
+        default: true
         type: boolean
       build_robotjs_macos_intel:
         description: 'robotjs macOS (Intel)'
