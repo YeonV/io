@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  release_and_build:
+  prepare_release_data:
     name: Create Release & Build Apps
     if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
     runs-on: ubuntu-latest
