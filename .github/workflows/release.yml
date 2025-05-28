@@ -1,0 +1,183 @@
+name: IO Production Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release_and_build:
+    name: Create Release & Build Apps
+    if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'Release')
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      current_version: ${{ steps.package-version.outputs.current-version }}
+      build_matrix_json: ${{ steps.set-matrix.outputs.build_matrix_json }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get App Version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.0
+
+      - name: Generate Release Notes
+        id: generate_notes
+        run: |
+          if git describe --tags --abbrev=0 @^ > /dev/null 2>&1; then
+            git log --pretty=format:"+ %s" $(git describe --tags --abbrev=0 @^)..@ > .release-notes.md
+          else
+            echo "+ Release based on current changes." > .release-notes.md
+          fi
+          echo "Release notes generated:"
+          cat .release-notes.md
+      
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.package-version.outputs.current-version }}
+          release_name: Release v${{ steps.package-version.outputs.current-version }}
+          body_path: .release-notes.md
+          draft: false
+          prerelease: contains(steps.package-version.outputs.current-version, 'beta') || contains(steps.package-version.outputs.current-version, 'alpha') || contains(steps.package-version.outputs.current-version, 'rc')
+
+      - name: Prepare Static Build Matrix JSON
+        id: set-matrix
+        shell: bash
+        run: |
+          APP_VERSION="${{ steps.package-version.outputs.current-version }}"
+          matrix_include_array=(
+            '{"os_id": "macos_intel", "os_name": "macOS Intel", "os_runner": "macos-13", "VERSION": "'$APP_VERSION'", "FILEPART": "Installer", "OSNAME_ASSET": "macos-intel", "OSEND_DMG": "dmg", "ASSET_CONTENT_TYPE_DMG": "application/x-apple-diskimage", "FILEPART_ZIP": "mac", "OSEND_ZIP": "zip", "ASSET_CONTENT_TYPE_ZIP": "application/zip"}'
+            '{"os_id": "macos_arm64", "os_name": "macOS ARM64", "os_runner": "macos-14", "VERSION": "'$APP_VERSION'", "FILEPART": "Installer", "OSNAME_ASSET": "macos-arm64", "OSEND_DMG": "dmg", "ASSET_CONTENT_TYPE_DMG": "application/x-apple-diskimage", "FILEPART_ZIP": "arm64-mac", "OSEND_ZIP": "zip", "ASSET_CONTENT_TYPE_ZIP": "application/zip"}'
+            '{"os_id": "linux", "os_name": "Ubuntu Linux", "os_runner": "ubuntu-latest", "VERSION": "'$APP_VERSION'", "FILEPART": "Installer", "OSNAME_ASSET": "linux-x64", "OSEND_APPIMAGE": "AppImage", "ASSET_CONTENT_TYPE_APPIMAGE": "application/x-x86-64-appimage"}'
+            '{"os_id": "windows", "os_name": "Windows", "os_runner": "windows-latest", "VERSION": "'$APP_VERSION'", "FILEPART": "Setup", "OSNAME_ASSET": "windows-x64", "OSEND_EXE": "exe", "ASSET_CONTENT_TYPE_EXE": "application/vnd.microsoft.portable-executable"}'
+          )
+          joined_includes=$(IFS=,; echo "${matrix_include_array[*]}")
+          final_matrix_json="{\"include\": [${joined_includes}]}"
+          echo "matrix_json=${final_matrix_json}" >> $GITHUB_OUTPUT
+
+  build_and_upload_release_assets:
+    name: Build & Upload (${{ matrix.os_name }})
+    needs: prepare_release_data
+    if: needs.prepare_release_data.outputs.upload_url != ''
+    runs-on: ${{ matrix.os_runner }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare_release_data.outputs.build_matrix_json) }}
+            
+    env:
+      NODE_VERSION: '22.x'
+      PYTHON_VERSION: '3.12'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install Python build dependencies
+        run: python -m pip install --upgrade pip setuptools wheel
+      
+      - name: Install Linux system dependencies (for robotjs runtime)
+        if: matrix.os_id == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxtst-dev libpng++-dev # Minimal runtime deps for robotjs binary
+          # build-essential and compiler toolchain not needed if using prebuilt
+
+      - name: Install Node Modules (scripts ignored initially)
+        shell: bash
+        run: |
+          yarn config set network-timeout 120000
+          yarn config set registry https://registry.npmjs.org/
+          yarn install --frozen-lockfile --ignore-scripts
+
+      - name: Place Prebuilt robotjs.node
+        shell: bash
+        run: |
+          echo "Using prebuilt robotjs.node for ${{ matrix.os_id }}"
+          ROBOTJS_TARGET_DIR="./node_modules/robotjs/build/Release"
+          mkdir -p "$ROBOTJS_TARGET_DIR"
+          PREBUILT_SOURCE_PATH="./prebuilds/robotjs/${{ matrix.os_id }}/robotjs.node"
+          
+          if [[ -f "$PREBUILT_SOURCE_PATH" ]]; then
+            echo "Copying $PREBUILT_SOURCE_PATH to $ROBOTJS_TARGET_DIR/robotjs.node"
+            cp "$PREBUILT_SOURCE_PATH" "$ROBOTJS_TARGET_DIR/robotjs.node"
+            echo "Prebuilt robotjs.node placed."
+          else
+            echo "ERROR: Prebuilt robotjs binary not found at $PREBUILT_SOURCE_PATH."
+            echo "This release workflow requires prebuilt binaries. Generate them using the IO Builder workflow."
+            exit 1
+          fi
+      
+      - name: Run Custom Postinstall (for other native deps if any)
+        shell: bash
+        run: |
+          echo "Running custom postinstall script (electron-builder install-app-deps)..."
+          echo "This should use the pre-placed robotjs.node and build other native deps if present."
+          yarn run customPostinstall
+
+      - name: Build Project (Packaging App)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          REACT_APP_VERSION: ${{ needs.prepare_release_data.outputs.current_version }}
+        run: yarn dist -p "never"
+
+      - name: Upload macOS DMG Release Asset
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.prepare_release_data.outputs.upload_url }}
+          asset_path: ./dist/io-${{ needs.prepare_release_data.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND_DMG }}
+          asset_name: io-${{ matrix.OSNAME_ASSET }}.${{ matrix.OSEND_DMG }}
+          asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE_DMG }}
+
+      - name: Upload macOS ZIP Release Asset
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.prepare_release_data.outputs.upload_url }}
+          asset_path: ./dist/io-${{ needs.prepare_release_data.outputs.current_version }}-${{ matrix.FILEPART_ZIP }}.${{ matrix.OSEND_ZIP }}
+          asset_name: io-${{ matrix.OSNAME_ASSET }}.${{ matrix.OSEND_ZIP }}
+          asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE_ZIP }}
+
+      - name: Upload Linux AppImage Release Asset
+        if: matrix.os_id == 'linux'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.prepare_release_data.outputs.upload_url }}
+          asset_path: ./dist/io-${{ needs.prepare_release_data.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND_APPIMAGE }}
+          asset_name: io-${{ matrix.OSNAME_ASSET }}.${{ matrix.OSEND_APPIMAGE }}
+          asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE_APPIMAGE }}
+
+      - name: Upload Windows EXE Release Asset
+        if: matrix.os_id == 'windows'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.prepare_release_data.outputs.upload_url }}
+          asset_path: ./dist/io-${{ needs.prepare_release_data.outputs.current_version }}-${{ matrix.FILEPART }}.${{ matrix.OSEND_EXE }}
+          asset_name: io-${{ matrix.OSNAME_ASSET }}.${{ matrix.OSEND_EXE }}
+          asset_content_type: ${{ matrix.ASSET_CONTENT_TYPE_EXE }}
