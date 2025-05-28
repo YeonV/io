@@ -65,16 +65,16 @@ jobs:
         run: |
           matrix_include_array=()
           if [[ "${{ github.event.inputs.build_macos_intel }}" == "true" ]]; then
-            matrix_include_array+=("{\"os_id\": \"macos_intel\", \"os_name\": \"macOS Intel\", \"os_runner\": \"macos-13\", \"VERSION\": \"${{ steps.package-version.outputs.current-version }}\", \"FILEPART\": \"Installer\", \"OSNAME\": \"macos-intel\", \"OSEND\": \"dmg\", \"ASSET_CONTENT_TYPE\": \"application/x-apple-diskimage\", \"FILEPART2\": \"mac\", \"OSEND2": \"zip\", \"ASSET_CONTENT_TYPE2\": \"application/zip\", \"BUILD_ROBOTJS_FLAG\": \"${{ github.event.inputs.build_robotjs_macos_intel }}\"}")
+            matrix_include_array+=("{"os_id": "macos_intel", "os_name": "macOS Intel", "os_runner": "macos-13", "VERSION": "${{ steps.package-version.outputs.current-version }}", "FILEPART": "Installer", "OSNAME": "macos-intel", "OSEND": "dmg", "ASSET_CONTENT_TYPE": "application/x-apple-diskimage", "FILEPART2": "mac", "OSEND2": "zip", "ASSET_CONTENT_TYPE2": "application/zip", "BUILD_ROBOTJS_FLAG": "${{ github.event.inputs.build_robotjs_macos_intel }}"}")
           fi
           if [[ "${{ github.event.inputs.build_macos_arm64 }}" == "true" ]]; then
-            matrix_include_array+=("{\"os_id\": \"macos_arm64\", \"os_name\": \"macOS ARM64\", \"os_runner\": \"macos-14\", \"VERSION\": \"${{ steps.package-version.outputs.current-version }}\", \"FILEPART\": \"Installer\", \"OSNAME\": \"macos-arm64\", \"OSEND\": \"dmg\", \"ASSET_CONTENT_TYPE\": \"application/x-apple-diskimage\", \"FILEPART2\": \"arm64-mac\", \"OSEND2\": \"zip\", \"ASSET_CONTENT_TYPE2\": \"application/zip\", \"BUILD_ROBOTJS_FLAG\": \"${{ github.event.inputs.build_robotjs_macos_arm64 }}\"}")
+            matrix_include_array+=("{"os_id": "macos_arm64", "os_name": "macOS ARM64", "os_runner": "macos-14", "VERSION": "${{ steps.package-version.outputs.current-version }}", "FILEPART": "Installer", "OSNAME": "macos-arm64", "OSEND": "dmg", "ASSET_CONTENT_TYPE": "application/x-apple-diskimage", "FILEPART2": "arm64-mac", "OSEND2": "zip", "ASSET_CONTENT_TYPE2": "application/zip", "BUILD_ROBOTJS_FLAG": "${{ github.event.inputs.build_robotjs_macos_arm64 }}"}")
           fi
           if [[ "${{ github.event.inputs.build_ubuntu }}" == "true" ]]; then
-            matrix_include_array+=("{\"os_id\": \"linux\", \"os_name\": \"Ubuntu Linux\", \"os_runner\": \"ubuntu-latest\", \"VERSION\": \"${{ steps.package-version.outputs.current-version }}\", \"FILEPART\": \"Installer\", \"OSNAME\": \"linux-x64\", \"OSEND\": \"AppImage\", \"ASSET_CONTENT_TYPE\": \"application/x-x86-64-appimage\", \"BUILD_ROBOTJS_FLAG\": \"${{ github.event.inputs.build_robotjs_ubuntu }}\"}")
+            matrix_include_array+=("{"os_id": "linux", "os_name": "Ubuntu Linux", "os_runner": "ubuntu-latest", "VERSION": "${{ steps.package-version.outputs.current-version }}", "FILEPART": "Installer", "OSNAME": "linux-x64", "OSEND": "AppImage", "ASSET_CONTENT_TYPE": "application/x-x86-64-appimage", "BUILD_ROBOTJS_FLAG": "${{ github.event.inputs.build_robotjs_ubuntu }}"}")
           fi
           if [[ "${{ github.event.inputs.build_windows }}" == "true" ]]; then
-            matrix_include_array+=("{\"os_id\": \"windows\", \"os_name\": \"Windows\", \"os_runner\": \"windows-latest\", \"VERSION\": \"${{ steps.package-version.outputs.current-version }}\", \"FILEPART\": \"Setup\", \"OSNAME\": \"windows-x64\", \"OSEND\": \"exe\", \"ASSET_CONTENT_TYPE\": \"application/vnd.microsoft.portable-executable\", \"BUILD_ROBOTJS_FLAG\": \"${{ github.event.inputs.build_robotjs_windows }}\"}")
+            matrix_include_array+=("{"os_id": "windows", "os_name": "Windows", "os_runner": "windows-latest", "VERSION": "${{ steps.package-version.outputs.current-version }}", "FILEPART": "Setup", "OSNAME": "windows-x64", "OSEND": "exe", "ASSET_CONTENT_TYPE": "application/vnd.microsoft.portable-executable", "BUILD_ROBOTJS_FLAG": "${{ github.event.inputs.build_robotjs_windows }}"}")
           fi
           
           joined_includes=$(IFS=,; echo "${matrix_include_array[*]}")

@@ -44,7 +44,7 @@
     "dev": "electron-vite dev || echo 'run yarn rebuild bro!' && exit 1",
     "build": "npm run typecheck && electron-vite build",
     "deck": "electron-vite build && electron-vite dev",
-    "postinstall": "electron-builder install-app-deps",
+    "customPostinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
