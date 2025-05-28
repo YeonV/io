@@ -1,4 +1,4 @@
-name: Create App Release NEW
+name: Create App Release 02:58
 
 on:
   workflow_dispatch:
@@ -23,6 +23,7 @@ on:
       build_macos_arm64:
         description: 'MacOS (ARM64/Silicon)'
         default: true
+        required: false
         type: boolean
       build_ubuntu:
         description: 'Ubuntu Linux (x64)'
@@ -128,25 +129,24 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - name: Install Python build dependencies
         run: python -m pip install --upgrade pip setuptools wheel
-      - name: Log Initial System & Environment Info (${{ matrix.os_name }})
-        shell: bash
-        run: |
-          echo "================== INITIAL INFO (${{ matrix.os_name }}) =================="
-          echo "Runner OS: $(uname -a || ver)"
-          echo "Node version: $(node --version)"
-          echo "Python3 version: $(python3 --version 2>&1 || echo 'python3 not found')"
-          echo "--- C/C++ Compiler Info ---"
-          if [[ "${{ matrix.os_id }}" == "macos_intel" || "${{ matrix.os_id }}" == "macos_arm64" ]]; then
-            echo "Clang version: $(clang --version || echo 'clang not found')"
-            echo "Xcode version: $(xcodebuild -version || echo 'xcodebuild not found')"
-            echo "SDK Path: $(xcrun --sdk macosx --show-sdk-path || echo 'SDK path not found')"
-          elif [[ "${{ matrix.os_id }}" == "linux" ]]; then
-            echo "gcc version: $(gcc --version || echo 'gcc not found')"
-          elif [[ "${{ matrix.os_id }}" == "windows" ]]; then
-            where cl.exe || echo "cl.exe (MSVC compiler) not found in PATH"
-          fi
-          echo "=========================================================="
-
+      # - name: Log Initial System & Environment Info (${{ matrix.os_name }})
+      #   shell: bash
+      #   run: |
+      #     echo "================== INITIAL INFO (${{ matrix.os_name }}) =================="
+      #     echo "Runner OS: $(uname -a || ver)"
+      #     echo "Node version: $(node --version)"
+      #     echo "Python3 version: $(python3 --version 2>&1 || echo 'python3 not found')"
+      #     echo "--- C/C++ Compiler Info ---"
+      #     if [[ "${{ matrix.os_id }}" == "macos_intel" || "${{ matrix.os_id }}" == "macos_arm64" ]]; then
+      #       echo "Clang version: $(clang --version || echo 'clang not found')"
+      #       echo "Xcode version: $(xcodebuild -version || echo 'xcodebuild not found')"
+      #       echo "SDK Path: $(xcrun --sdk macosx --show-sdk-path || echo 'SDK path not found')"
+      #     elif [[ "${{ matrix.os_id }}" == "linux" ]]; then
+      #       echo "gcc version: $(gcc --version || echo 'gcc not found')"
+      #     elif [[ "${{ matrix.os_id }}" == "windows" ]]; then
+      #       where cl.exe || echo "cl.exe (MSVC compiler) not found in PATH"
+      #     fi
+      #     echo "=========================================================="
 
       - name: Install Linux dependencies for RobotJS & Electron build
         if: matrix.os_id == 'linux'
@@ -159,6 +159,15 @@ jobs:
           yarn config set network-timeout 120000
           yarn config set registry https://registry.npmjs.org/
           yarn install --frozen-lockfile
+
+      - name: Upload Compiled robotjs.node Artifact
+        # if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64' || matrix.os_id == 'linux' || matrix.os_id == 'windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: robotjs-node-${{ matrix.os_id }}
+          path: ./node_modules/robotjs/build/Release/robotjs.node
+          # if-no-files-found: error
+          retention-days: 7
 
       - name: Build Project (macOS/Linux)
         if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64' || matrix.os_id == 'linux'
