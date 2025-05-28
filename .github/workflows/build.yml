@@ -1,0 +1,196 @@
+name: IO Builder
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version'
+        required: true
+        default: '0.2.6'
+      build_macos_intel:
+        description: 'Build App for macOS (Intel)'
+        default: true
+        required: false
+        type: boolean
+      build_macos_arm64:
+        description: 'Build App for macOS (ARM64/Silicon)'
+        default: true
+        required: false
+        type: boolean
+      build_ubuntu:
+        description: 'Build App for Ubuntu Linux (x64)'
+        default: false
+        type: boolean
+      build_windows:
+        description: 'Build App for Windows (x64)'
+        default: false
+        type: boolean
+      build_robotjs_macos_intel:
+        description: 'Compile robotjs for macOS (Intel)? (Uncheck to use prebuilt)'
+        default: false
+        required: false
+        type: boolean
+      build_robotjs_macos_arm64:
+        description: 'Compile robotjs for macOS (ARM64)? (Uncheck to use prebuilt)'
+        default: false
+        required: false
+        type: boolean
+      build_robotjs_ubuntu:
+        description: 'Compile robotjs for Ubuntu Linux (x64)? (Uncheck to use prebuilt)'
+        default: false
+        type: boolean
+      build_robotjs_windows:
+        description: 'Compile robotjs for Windows (x64)? (Uncheck to use prebuilt)'
+        default: false
+        type: boolean
+
+jobs:
+  prepare_build_data:
+    name: Prepare Build Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      current_version: ${{ steps.package-version.outputs.current-version }}
+      matrix_json: ${{ steps.set-matrix.outputs.matrix_json }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get App Version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.0
+      - name: Check Inputs and Prepare Matrix JSON
+        id: set-matrix
+        shell: bash
+        run: |
+          matrix_include_array=()
+          if [[ "${{ github.event.inputs.build_macos_intel }}" == "true" ]]; then
+            matrix_include_array+=("{\"os_id\": \"macos_intel\", \"os_name\": \"macOS Intel\", \"os_runner\": \"macos-13\", \"VERSION\": \"${{ steps.package-version.outputs.current-version }}\", \"FILEPART\": \"Installer\", \"OSNAME\": \"macos-intel\", \"OSEND\": \"dmg\", \"ASSET_CONTENT_TYPE\": \"application/x-apple-diskimage\", \"FILEPART2\": \"mac\", \"OSEND2": \"zip\", \"ASSET_CONTENT_TYPE2\": \"application/zip\", \"BUILD_ROBOTJS_FLAG\": \"${{ github.event.inputs.build_robotjs_macos_intel }}\"}")
+          fi
+          if [[ "${{ github.event.inputs.build_macos_arm64 }}" == "true" ]]; then
+            matrix_include_array+=("{\"os_id\": \"macos_arm64\", \"os_name\": \"macOS ARM64\", \"os_runner\": \"macos-14\", \"VERSION\": \"${{ steps.package-version.outputs.current-version }}\", \"FILEPART\": \"Installer\", \"OSNAME\": \"macos-arm64\", \"OSEND\": \"dmg\", \"ASSET_CONTENT_TYPE\": \"application/x-apple-diskimage\", \"FILEPART2\": \"arm64-mac\", \"OSEND2\": \"zip\", \"ASSET_CONTENT_TYPE2\": \"application/zip\", \"BUILD_ROBOTJS_FLAG\": \"${{ github.event.inputs.build_robotjs_macos_arm64 }}\"}")
+          fi
+          if [[ "${{ github.event.inputs.build_ubuntu }}" == "true" ]]; then
+            matrix_include_array+=("{\"os_id\": \"linux\", \"os_name\": \"Ubuntu Linux\", \"os_runner\": \"ubuntu-latest\", \"VERSION\": \"${{ steps.package-version.outputs.current-version }}\", \"FILEPART\": \"Installer\", \"OSNAME\": \"linux-x64\", \"OSEND\": \"AppImage\", \"ASSET_CONTENT_TYPE\": \"application/x-x86-64-appimage\", \"BUILD_ROBOTJS_FLAG\": \"${{ github.event.inputs.build_robotjs_ubuntu }}\"}")
+          fi
+          if [[ "${{ github.event.inputs.build_windows }}" == "true" ]]; then
+            matrix_include_array+=("{\"os_id\": \"windows\", \"os_name\": \"Windows\", \"os_runner\": \"windows-latest\", \"VERSION\": \"${{ steps.package-version.outputs.current-version }}\", \"FILEPART\": \"Setup\", \"OSNAME\": \"windows-x64\", \"OSEND\": \"exe\", \"ASSET_CONTENT_TYPE\": \"application/vnd.microsoft.portable-executable\", \"BUILD_ROBOTJS_FLAG\": \"${{ github.event.inputs.build_robotjs_windows }}\"}")
+          fi
+          
+          joined_includes=$(IFS=,; echo "${matrix_include_array[*]}")
+          final_matrix_json="{\"include\": [${joined_includes}]}"
+          
+          echo "Generated matrix JSON: ${final_matrix_json}"
+          echo "matrix_json=${final_matrix_json}" >> $GITHUB_OUTPUT
+
+  build_app:
+    name: Build App ${{ matrix.os_name }}
+    needs: prepare_build_data
+    runs-on: ${{ matrix.os_runner }}
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare_build_data.outputs.matrix_json) }}
+            
+    env:
+      NODE_VERSION: '22.x'
+      PYTHON_VERSION: '3.12'
+      # CXXFLAGS, GYP_DEFINES etc. will be set conditionally for the robotjs build step if needed
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install Python build dependencies
+        run: python -m pip install --upgrade pip setuptools wheel
+      
+      - name: Install Linux dependencies (for building robotjs from source if selected)
+        if: matrix.os_id == 'linux' && matrix.BUILD_ROBOTJS_FLAG == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3
+
+      - name: Install Node Modules without scripts
+        shell: bash
+        run: |
+          yarn config set network-timeout 120000
+          yarn config set registry https://registry.npmjs.org/
+          yarn install --frozen-lockfile --ignore-scripts
+
+      - name: Place Prebuilt robotjs.node (if not building from source)
+        if: matrix.BUILD_ROBOTJS_FLAG == 'false'
+        shell: bash
+        run: |
+          echo "Using prebuilt robotjs.node for ${{ matrix.os_id }}"
+          ROBOTJS_TARGET_DIR="./node_modules/robotjs/build/Release"
+          mkdir -p "$ROBOTJS_TARGET_DIR"
+          PREBUILT_SOURCE_PATH="./prebuilds/robotjs/${{ matrix.os_id }}/robotjs.node"
+          
+          if [[ -f "$PREBUILT_SOURCE_PATH" ]]; then
+            echo "Copying $PREBUILT_SOURCE_PATH to $ROBOTJS_TARGET_DIR/robotjs.node"
+            cp "$PREBUILT_SOURCE_PATH" "$ROBOTJS_TARGET_DIR/robotjs.node"
+            echo "Prebuilt robotjs.node placed."
+          else
+            echo "ERROR: Prebuilt robotjs binary not found at $PREBUILT_SOURCE_PATH but build_robotjs was set to false."
+            echo "Please ensure prebuilt binary exists or select to build robotjs from source for this platform."
+            exit 1
+          fi
+      
+      - name: Run Custom Postinstall (Builds Native Deps like robotjs if needed)
+        # env:
+        #   # Conditionally set C++ flags ONLY if we are building robotjs from source on macOS
+        #   MACOSX_DEPLOYMENT_TARGET: ${{ (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64') && matrix.BUILD_ROBOTJS_FLAG == 'true' && '11.0' || '' }}
+        #   GYP_DEFINES: ${{ (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64') && matrix.BUILD_ROBOTJS_FLAG == 'true' && 'OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++' || '' }}
+        #   CXXFLAGS: ${{ (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64') && matrix.BUILD_ROBOTJS_FLAG == 'true' && '-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0' || '' }}
+        #   CFLAGS: ${{ (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64') && matrix.BUILD_ROBOTJS_FLAG == 'true' && '-std=c17 -mmacosx-version-min=11.0' || '' }}
+        #   LDFLAGS: ${{ (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64') && matrix.BUILD_ROBOTJS_FLAG == 'true' && '-stdlib=libc++ -mmacosx-version-min=11.0' || '' }}
+        shell: bash
+        run: |
+          echo "Running custom postinstall script (electron-builder install-app-deps)..."
+          if [[ "${{ matrix.BUILD_ROBOTJS_FLAG }}" == "true" && ("${{ matrix.os_id }}" == "macos_intel" || "${{ matrix.os_id }}" == "macos_arm64") ]]; then
+            echo "Building robotjs from source with specific C++ flags for macOS."
+          elif [[ "${{ matrix.BUILD_ROBOTJS_FLAG }}" == "true" ]]; then
+            echo "Building robotjs from source for ${{ matrix.os_id }}."
+          else
+            echo "Using prebuilt robotjs for ${{ matrix.os_id }} (build from source not selected)."
+          fi
+          yarn run customPostinstall
+
+      - name: Upload Compiled robotjs.node Artifact
+        if: matrix.BUILD_ROBOTJS_FLAG == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: robotjs-node-${{ matrix.os_id }}
+          path: ./node_modules/robotjs/build/Release/robotjs.node
+          if-no-files-found: error 
+          retention-days: 7
+
+      - name: Build Project
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          REACT_APP_VERSION: ${{ matrix.VERSION }}
+        run: yarn dist -p "never"
+
+      - name: Upload App Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: io-${{ matrix.os_id }}--${{ matrix.VERSION }}
+          path: ./dist/io-${{ matrix.VERSION }}-${{ matrix.FILEPART }}.${{ matrix.OSEND }}
+          retention-days: 7
+
+      - name: Upload macOS ZIP App Build Artifact
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: io-${{ matrix.os_id }}--${{ matrix.VERSION }}-Installer
+          path: ./dist/io-${{ matrix.VERSION }}-${{ matrix.FILEPART2 }}.${{ matrix.OSEND2 }}
+          retention-days: 7
