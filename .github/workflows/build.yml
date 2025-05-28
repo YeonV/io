@@ -8,39 +8,39 @@ on:
         required: true
         default: '0.2.6'
       build_macos_intel:
-        description: 'Build App for macOS (Intel)'
+        description: 'IO macOS (Intel)'
         default: true
         required: false
         type: boolean
       build_macos_arm64:
-        description: 'Build App for macOS (ARM64/Silicon)'
+        description: 'IO macOS (ARM64/Silicon)'
         default: true
         required: false
         type: boolean
       build_ubuntu:
-        description: 'Build App for Ubuntu Linux (x64)'
+        description: 'IO Ubuntu Linux (x64)'
         default: false
         type: boolean
       build_windows:
-        description: 'Build App for Windows (x64)'
+        description: 'IO Windows (x64)'
         default: false
         type: boolean
       build_robotjs_macos_intel:
-        description: 'Compile robotjs for macOS (Intel)? (Uncheck to use prebuilt)'
+        description: 'robotjs macOS (Intel)'
         default: false
         required: false
         type: boolean
       build_robotjs_macos_arm64:
-        description: 'Compile robotjs for macOS (ARM64)? (Uncheck to use prebuilt)'
+        description: 'robotjs macOS (ARM64)'
         default: false
         required: false
         type: boolean
       build_robotjs_ubuntu:
-        description: 'Compile robotjs for Ubuntu Linux (x64)? (Uncheck to use prebuilt)'
+        description: 'robotjs Ubuntu Linux (x64)'
         default: false
         type: boolean
       build_robotjs_windows:
-        description: 'Compile robotjs for Windows (x64)? (Uncheck to use prebuilt)'
+        description: 'robotjs Windows (x64)'
         default: false
         type: boolean
 
