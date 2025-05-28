@@ -1,4 +1,4 @@
-name: Create Web Release
+name: IO Web Release
 
 on:
   push:
