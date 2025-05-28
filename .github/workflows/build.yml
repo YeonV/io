@@ -94,7 +94,6 @@ jobs:
     env:
       NODE_VERSION: '22.x'
       PYTHON_VERSION: '3.12'
-      # CXXFLAGS, GYP_DEFINES etc. will be set conditionally for the robotjs build step if needed
 
     steps:
       - name: Checkout code
@@ -146,24 +145,9 @@ jobs:
           fi
       
       - name: Run Custom Postinstall (Builds Native Deps like robotjs if needed)
-        # env:
-        #   # Conditionally set C++ flags ONLY if we are building robotjs from source on macOS
-        #   MACOSX_DEPLOYMENT_TARGET: ${{ (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64') && matrix.BUILD_ROBOTJS_FLAG == 'true' && '11.0' || '' }}
-        #   GYP_DEFINES: ${{ (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64') && matrix.BUILD_ROBOTJS_FLAG == 'true' && 'OS=mac mac_deployment_target=11.0 clang_cxx_language_standard=c++20 clang_cxx_library=libc++' || '' }}
-        #   CXXFLAGS: ${{ (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64') && matrix.BUILD_ROBOTJS_FLAG == 'true' && '-std=c++20 -stdlib=libc++ -mmacosx-version-min=11.0' || '' }}
-        #   CFLAGS: ${{ (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64') && matrix.BUILD_ROBOTJS_FLAG == 'true' && '-std=c17 -mmacosx-version-min=11.0' || '' }}
-        #   LDFLAGS: ${{ (matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64') && matrix.BUILD_ROBOTJS_FLAG == 'true' && '-stdlib=libc++ -mmacosx-version-min=11.0' || '' }}
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64'
         shell: bash
-        run: |
-          echo "Running custom postinstall script (electron-builder install-app-deps)..."
-          if [[ "${{ matrix.BUILD_ROBOTJS_FLAG }}" == "true" && ("${{ matrix.os_id }}" == "macos_intel" || "${{ matrix.os_id }}" == "macos_arm64") ]]; then
-            echo "Building robotjs from source with specific C++ flags for macOS."
-          elif [[ "${{ matrix.BUILD_ROBOTJS_FLAG }}" == "true" ]]; then
-            echo "Building robotjs from source for ${{ matrix.os_id }}."
-          else
-            echo "Using prebuilt robotjs for ${{ matrix.os_id }} (build from source not selected)."
-          fi
-          yarn run customPostinstall
+        run: yarn run customPostinstall
 
       - name: Upload Compiled robotjs.node Artifact
         if: matrix.BUILD_ROBOTJS_FLAG == 'true'
