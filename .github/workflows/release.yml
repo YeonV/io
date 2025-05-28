@@ -121,6 +121,7 @@ jobs:
           yarn install --frozen-lockfile --ignore-scripts
 
       - name: Place Prebuilt robotjs.node
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64' || matrix.os_id == 'linux'
         shell: bash
         run: |
           ROBOTJS_TARGET_DIR="./node_modules/robotjs/build/Release"
@@ -136,7 +137,7 @@ jobs:
           fi
       
       - name: Run Custom Postinstall (for other native deps if any)
-        # if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64' || matrix.os_id == 'linux'
+        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64' || matrix.os_id == 'linux'
         env:
           DEBUG: "electron-builder,electron-builder:deps,node-gyp,prebuild-install,electron-rebuild,gyp"
         shell: bash
