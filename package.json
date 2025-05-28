@@ -86,7 +86,7 @@
     "react-json-editor-ajrm": "^2.5.14",
     "react-rnd": "^10.4.14",
     "react-router-dom": "^7.1.0",
-    "robotjs": "^0.6.0",
+    "robotjs": "github:zorban/robotjs#nan-to-napi-migration",
     "serve": "^14.2.4",
     "url": "^0.11.4",
     "use-long-press": "^3.2.0",
