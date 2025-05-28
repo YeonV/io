@@ -153,8 +153,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libxtst-dev libpng++-dev libx11-dev libxkbfile-dev libsecret-1-dev build-essential python3
+
       - name: Install Node Modules
-        run: yarn install
+        run: |
+          yarn config set network-timeout 120000
+          yarn config set registry https://registry.npmjs.org/
+          yarn install --frozen-lockfile
+
       - name: Build Project (macOS/Linux)
         if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64' || matrix.os_id == 'linux'
         env:
