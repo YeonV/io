@@ -136,7 +136,7 @@ jobs:
           fi
       
       - name: Run Custom Postinstall (for other native deps if any)
-        if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64' || matrix.os_id == 'linux'
+        # if: matrix.os_id == 'macos_intel' || matrix.os_id == 'macos_arm64' || matrix.os_id == 'linux'
         shell: bash
         run: yarn run customPostinstall
 
