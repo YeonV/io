@@ -313,7 +313,7 @@ export const useInputActions = (row: Row) => {
       if (detail.type === 'noteon') {
         if (detail.noteIdentifier === row.input.data.value) {
           log.info(`MIDI Row ${row.id}: Matched note ${detail.noteIdentifier}. Triggering action.`)
-          window.dispatchEvent(new CustomEvent('io_input', { detail: row.id }))
+          window.dispatchEvent(new CustomEvent('io_input', { detail: { rowId: row.id } }))
         }
       }
     }

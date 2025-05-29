@@ -186,137 +186,135 @@ export const useOutputActions = (row: Row) => {
     }
 
     const ioListener = async (event: Event) => {
-      if (
-        event instanceof CustomEvent &&
-        typeof event.detail === 'string' &&
-        event.detail === rowId
-      ) {
-        const eventRowId = event.detail
-        if (!outputData.audioId) {
-          console.warn(
-            `[PlaySoundModule useOutputActions] Row ${eventRowId} triggered, but no audioId configured.`
-          )
-          return
-        }
+      const eventRowId = event instanceof CustomEvent && event.detail.rowId
+      if (eventRowId !== rowId) {
+        return
+      }
 
-        console.info(
-          `[PlaySoundModule useOutputActions] Row ${eventRowId} triggered for ${outputData.originalFileName || 'Unknown Audio'}`,
-          outputData
+      if (!outputData.audioId) {
+        console.warn(
+          `[PlaySoundModule useOutputActions] Row ${eventRowId} triggered, but no audioId configured.`
         )
+        return
+      }
 
-        if (outputData.cancelPrevious === undefined || outputData.cancelPrevious === true) {
-          activeAudioPlayers.forEach((_player, key) => {
-            if (key !== eventRowId) stopPlayer(key)
-          })
-        }
+      console.info(
+        `[PlaySoundModule useOutputActions] Row ${eventRowId} triggered for ${outputData.originalFileName || 'Unknown Audio'}`,
+        outputData
+      )
 
-        let playerEntry = activeAudioPlayers.get(eventRowId)
-
-        if (playerEntry && !playerEntry.audio.paused) {
-          if (playerEntry.isLooping) {
-            console.debug(
-              `[PlaySoundModule useOutputActions] Row ${eventRowId} is looping and re-triggered. Stopping loop.`
-            )
-            stopPlayer(eventRowId)
-            return
-          } else {
-            console.debug(
-              `[PlaySoundModule useOutputActions] Row ${eventRowId} is playing (not loop) and re-triggered. Restarting.`
-            )
-            playerEntry.audio.currentTime = 0
-            playerEntry.audio.volume = outputData.volume ?? 1.0
-            playerEntry.audio.loop = outputData.loop || false
-            playerEntry.isLooping = outputData.loop || false
-            playerEntry.audio
-              .play()
-              .catch((e) =>
-                console.error('[PlaySoundModule useOutputActions] Error restarting audio:', e)
-              )
-            return
-          }
-        }
-
-        const blobUrl = await playAudioFromDb(outputData.audioId)
-        if (!blobUrl) {
-          console.error(
-            `[PlaySoundModule useOutputActions] Could not get blobUrl for audioId ${outputData.audioId} on row ${eventRowId}`
-          )
-          return
-        }
-
-        let audioToPlay: HTMLAudioElement
-        if (playerEntry && playerEntry.audio.paused) {
-          console.debug(
-            `[PlaySoundModule useOutputActions] Row ${eventRowId} reusing/updating existing audio element for ${outputData.originalFileName}`
-          )
-          if (playerEntry.audio.src !== blobUrl) playerEntry.audio.src = blobUrl
-          audioToPlay = playerEntry.audio
-        } else {
-          console.debug(
-            `[PlaySoundModule useOutputActions] Row ${eventRowId} creating new audio element for ${outputData.originalFileName}`
-          )
-          if (playerEntry) stopPlayer(eventRowId) // Stop and remove any old entry for this rowId
-          audioToPlay = new Audio(blobUrl)
-          playerEntry = {
-            audio: audioToPlay,
-            rowId: eventRowId,
-            isLooping: false,
-            audioId: outputData.audioId,
-            originalFileName: outputData.originalFileName
-          }
-          activeAudioPlayers.set(eventRowId, playerEntry)
-        }
-
-        audioToPlay.volume = outputData.volume ?? 1.0
-        audioToPlay.loop = outputData.loop || false
-        playerEntry.isLooping = audioToPlay.loop
-        playerEntry.originalFileName = outputData.originalFileName
-        playerEntry.audioId = outputData.audioId // Ensure audioId is current on playerEntry
-
-        // Define listeners with stable references for this audioToPlay instance
-        const onAudioError = () => {
-          console.error(
-            `[PlaySoundModule useOutputActions] Error with audio: ${playerEntry?.originalFileName}`,
-            audioToPlay.error
-          )
-          stopPlayer(eventRowId)
-        }
-        const onAudioEnded = () => {
-          console.debug(
-            `[PlaySoundModule useOutputActions] Audio ended: ${playerEntry?.originalFileName}`
-          )
-          if (!playerEntry?.isLooping) stopPlayer(eventRowId)
-        }
-        const onAudioCanPlay = () =>
-          console.debug(
-            `[PlaySoundModule useOutputActions] Audio can play through: ${playerEntry?.originalFileName}`
-          )
-
-        // Clean up any previous, potentially identical, listeners attached via this mechanism
-        if ((audioToPlay as any)._io_onerror_playSound)
-          audioToPlay.removeEventListener('error', (audioToPlay as any)._io_onerror_playSound)
-        if ((audioToPlay as any)._io_onended_playSound)
-          audioToPlay.removeEventListener('ended', (audioToPlay as any)._io_onended_playSound)
-        if ((audioToPlay as any)._io_oncanplay_playSound)
-          audioToPlay.removeEventListener(
-            'canplaythrough',
-            (audioToPlay as any)._io_oncanplay_playSound
-          )
-        ;(audioToPlay as any)._io_onerror_playSound = onAudioError
-        ;(audioToPlay as any)._io_onended_playSound = onAudioEnded
-        ;(audioToPlay as any)._io_oncanplay_playSound = onAudioCanPlay
-
-        audioToPlay.addEventListener('error', onAudioError)
-        audioToPlay.addEventListener('ended', onAudioEnded)
-        audioToPlay.addEventListener('canplaythrough', onAudioCanPlay)
-
-        if (audioToPlay.src !== blobUrl) audioToPlay.src = blobUrl // Ensure src is set if new/changed
-        audioToPlay.load() // Call load() if src was just set or to re-evaluate
-        audioToPlay.play().catch((e) => {
-          console.error('[PlaySoundModule useOutputActions] Error playing audio:', e)
-          stopPlayer(eventRowId)
+      if (outputData.cancelPrevious === undefined || outputData.cancelPrevious === true) {
+        activeAudioPlayers.forEach((_player, key) => {
+          if (key !== eventRowId) stopPlayer(key)
         })
       }
+
+      let playerEntry = activeAudioPlayers.get(eventRowId)
+
+      if (playerEntry && !playerEntry.audio.paused) {
+        if (playerEntry.isLooping) {
+          console.debug(
+            `[PlaySoundModule useOutputActions] Row ${eventRowId} is looping and re-triggered. Stopping loop.`
+          )
+          stopPlayer(eventRowId)
+          return
+        } else {
+          console.debug(
+            `[PlaySoundModule useOutputActions] Row ${eventRowId} is playing (not loop) and re-triggered. Restarting.`
+          )
+          playerEntry.audio.currentTime = 0
+          playerEntry.audio.volume = outputData.volume ?? 1.0
+          playerEntry.audio.loop = outputData.loop || false
+          playerEntry.isLooping = outputData.loop || false
+          playerEntry.audio
+            .play()
+            .catch((e) =>
+              console.error('[PlaySoundModule useOutputActions] Error restarting audio:', e)
+            )
+          return
+        }
+      }
+
+      const blobUrl = await playAudioFromDb(outputData.audioId)
+      if (!blobUrl) {
+        console.error(
+          `[PlaySoundModule useOutputActions] Could not get blobUrl for audioId ${outputData.audioId} on row ${eventRowId}`
+        )
+        return
+      }
+
+      let audioToPlay: HTMLAudioElement
+      if (playerEntry && playerEntry.audio.paused) {
+        console.debug(
+          `[PlaySoundModule useOutputActions] Row ${eventRowId} reusing/updating existing audio element for ${outputData.originalFileName}`
+        )
+        if (playerEntry.audio.src !== blobUrl) playerEntry.audio.src = blobUrl
+        audioToPlay = playerEntry.audio
+      } else {
+        console.debug(
+          `[PlaySoundModule useOutputActions] Row ${eventRowId} creating new audio element for ${outputData.originalFileName}`
+        )
+        if (playerEntry) stopPlayer(eventRowId) // Stop and remove any old entry for this rowId
+        audioToPlay = new Audio(blobUrl)
+        playerEntry = {
+          audio: audioToPlay,
+          rowId: eventRowId,
+          isLooping: false,
+          audioId: outputData.audioId,
+          originalFileName: outputData.originalFileName
+        }
+        activeAudioPlayers.set(eventRowId, playerEntry)
+      }
+
+      audioToPlay.volume = outputData.volume ?? 1.0
+      audioToPlay.loop = outputData.loop || false
+      playerEntry.isLooping = audioToPlay.loop
+      playerEntry.originalFileName = outputData.originalFileName
+      playerEntry.audioId = outputData.audioId // Ensure audioId is current on playerEntry
+
+      // Define listeners with stable references for this audioToPlay instance
+      const onAudioError = () => {
+        console.error(
+          `[PlaySoundModule useOutputActions] Error with audio: ${playerEntry?.originalFileName}`,
+          audioToPlay.error
+        )
+        stopPlayer(eventRowId)
+      }
+      const onAudioEnded = () => {
+        console.debug(
+          `[PlaySoundModule useOutputActions] Audio ended: ${playerEntry?.originalFileName}`
+        )
+        if (!playerEntry?.isLooping) stopPlayer(eventRowId)
+      }
+      const onAudioCanPlay = () =>
+        console.debug(
+          `[PlaySoundModule useOutputActions] Audio can play through: ${playerEntry?.originalFileName}`
+        )
+
+      // Clean up any previous, potentially identical, listeners attached via this mechanism
+      if ((audioToPlay as any)._io_onerror_playSound)
+        audioToPlay.removeEventListener('error', (audioToPlay as any)._io_onerror_playSound)
+      if ((audioToPlay as any)._io_onended_playSound)
+        audioToPlay.removeEventListener('ended', (audioToPlay as any)._io_onended_playSound)
+      if ((audioToPlay as any)._io_oncanplay_playSound)
+        audioToPlay.removeEventListener(
+          'canplaythrough',
+          (audioToPlay as any)._io_oncanplay_playSound
+        )
+      ;(audioToPlay as any)._io_onerror_playSound = onAudioError
+      ;(audioToPlay as any)._io_onended_playSound = onAudioEnded
+      ;(audioToPlay as any)._io_oncanplay_playSound = onAudioCanPlay
+
+      audioToPlay.addEventListener('error', onAudioError)
+      audioToPlay.addEventListener('ended', onAudioEnded)
+      audioToPlay.addEventListener('canplaythrough', onAudioCanPlay)
+
+      if (audioToPlay.src !== blobUrl) audioToPlay.src = blobUrl // Ensure src is set if new/changed
+      audioToPlay.load() // Call load() if src was just set or to re-evaluate
+      audioToPlay.play().catch((e) => {
+        console.error('[PlaySoundModule useOutputActions] Error playing audio:', e)
+        stopPlayer(eventRowId)
+      })
     }
 
     window.addEventListener('io_input', ioListener)

@@ -115,7 +115,7 @@ export const useOutputActions = (row: Row) => {
   useEffect(() => {
     const listener = async (e: any) => {
       log.success2('row output triggered', row, e.detail)
-      if (e.detail === row.id) {
+      if (e.detail.rowId === row.id) {
         await fetch(`${row.output.data.host || 'http://localhost:8888'}/api/scenes`, {
           method: 'PUT',
           body: JSON.stringify({

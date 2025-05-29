@@ -182,7 +182,7 @@ const Home: FC = () => {
     const triggerRowListener = (_event: Electron.IpcRendererEvent, data: { id: string }) => {
       if (data.id) {
         console.debug(`Home: IPC 'trigger-row' received for ID: ${data.id}`)
-        window.dispatchEvent(new CustomEvent('io_input', { detail: data.id }))
+        window.dispatchEvent(new CustomEvent('io_input', { detail: { rowId: data.id } }))
       }
     }
 
@@ -338,18 +338,12 @@ const Home: FC = () => {
     const logRowTrigger = (event: Event) => {
       if (!(event instanceof CustomEvent) || !event.detail) return
 
-      const eventDetail = event.detail
-      // Determine rowId and potential payload from the event detail
-      const rowId =
-        typeof eventDetail === 'object' && eventDetail.rowId
-          ? eventDetail.rowId
-          : typeof eventDetail === 'string'
-            ? eventDetail
-            : null
+      const rowId = event instanceof CustomEvent && event.detail.rowId
+
       if (!rowId) {
         console.warn(
           '[History Logger] io_input event dispatched without a clear rowId in detail:',
-          eventDetail
+          event
         )
         return
       }

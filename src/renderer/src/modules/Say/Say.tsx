@@ -63,41 +63,27 @@ export const useOutputActions = (row: Row) => {
       `Say.tsx: Attaching 'io_input' listener for row ${rowId} (Text: "${textFromOutputData}")`
     )
 
-    const listener = (event: CustomEvent) => {
-      const eventDetail = event.detail
-      let triggerRowId: string | undefined
-      // let receivedPayload: any = undefined
-
-      if (typeof eventDetail === 'string') {
-        triggerRowId = eventDetail
-      } else if (
-        typeof eventDetail === 'object' &&
-        eventDetail !== null &&
-        Object.prototype.hasOwnProperty.call(eventDetail, 'rowId')
-      ) {
-        triggerRowId = eventDetail.rowId
-        // receivedPayload = eventDetail.payload
-      } else {
+    const listener = (event: Event) => {
+      const triggerRowId = event instanceof CustomEvent && event.detail.rowId
+      if (triggerRowId !== rowId) {
         return
       }
 
-      if (triggerRowId === rowId) {
-        log.success(`Say.tsx: Action for row ${rowId} TRIGGERED! Detail:`, eventDetail)
-        window.speechSynthesis.cancel()
+      log.success(`Say.tsx: Action for row ${rowId} TRIGGERED! Detail:`, event)
+      window.speechSynthesis.cancel()
 
-        const textToSpeak = textFromOutputData || 'Error: No text configured'
+      const textToSpeak = textFromOutputData || 'Error: No text configured'
 
-        log.info(`Say.tsx: Row ${rowId} speaking: "${textToSpeak}"`)
-        const utterance = new SpeechSynthesisUtterance(textToSpeak)
-        window.speechSynthesis.speak(utterance)
-      }
+      log.info(`Say.tsx: Row ${rowId} speaking: "${textToSpeak}"`)
+      const utterance = new SpeechSynthesisUtterance(textToSpeak)
+      window.speechSynthesis.speak(utterance)
     }
 
-    window.addEventListener('io_input', listener as EventListener)
+    window.addEventListener('io_input', listener)
 
     return () => {
       log.info2(`Say.tsx: Removing 'io_input' listener for row ${rowId}. Also cancelling speech.`)
-      window.removeEventListener('io_input', listener as EventListener)
+      window.removeEventListener('io_input', listener)
       window.speechSynthesis.cancel()
     }
   }, [rowId, textFromOutputData, rowEnabled])

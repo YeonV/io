@@ -91,7 +91,7 @@ export const useOutputActions = (row: Row) => {
     const listener = (e: any) => {
       log.success2('row output triggered', row, e.detail)
       const out = row.output.data.command || row.output.data.text
-      if (e.detail === row.id) {
+      if (e.detail.rowId === row.id) {
         enqueueSnackbar(out, {
           autoHideDuration: 3000,
           variant: row.output.data.variant

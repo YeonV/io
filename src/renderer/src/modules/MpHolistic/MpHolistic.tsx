@@ -271,7 +271,7 @@ export const useInputActions = (row: Row) => {
         log.info(
           `Holistic Row ${row.id}: Matched event "${detectedEventDetail}". Triggering action.`
         )
-        window.dispatchEvent(new CustomEvent('io_input', { detail: row.id }))
+        window.dispatchEvent(new CustomEvent('io_input', { detail: { rowId: row.id } }))
       }
     }
 

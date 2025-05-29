@@ -143,22 +143,7 @@ export const useOutputActions = (row: Row) => {
     )
 
     const listener = (event: CustomEvent) => {
-      const eventDetail = event.detail
-      let triggerRowId: string | undefined
-
-      if (typeof eventDetail === 'string') {
-        triggerRowId = eventDetail
-      } else if (
-        typeof eventDetail === 'object' &&
-        eventDetail !== null &&
-        Object.prototype.hasOwnProperty.call(eventDetail, 'rowId')
-      ) {
-        triggerRowId = eventDetail.rowId
-      } else {
-        return // Unknown event structure
-      }
-
-      if (triggerRowId === rowId) {
+      if (event.detail.rowId === rowId) {
         const targetProfileId = outputData.targetProfileId
         if (targetProfileId) {
           log.success(

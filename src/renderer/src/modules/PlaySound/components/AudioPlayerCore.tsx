@@ -246,7 +246,7 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
               {displayName}
               <LinearProgress
                 variant="determinate"
-                value={!audioSrc ? 0 : progress}
+                value={progress}
                 sx={{
                   opacity: progress > 0 ? 1 : 0,
                   height: 6,

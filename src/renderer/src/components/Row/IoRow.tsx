@@ -90,7 +90,7 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
   const handleCloseDeleteDialog = () => setOpenDeleteDialog(false)
 
   const handleManualTrigger = () => {
-    window.dispatchEvent(new CustomEvent('io_input', { detail: row.id }))
+    window.dispatchEvent(new CustomEvent('io_input', { detail: { rowId: row.id } }))
     handleMenuClose()
   }
 

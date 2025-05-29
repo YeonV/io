@@ -65,7 +65,7 @@ export const useOutputActions = (row: Row) => {
       return // Do not attach listener or perform actions if not active
     }
     const listener = (e: any) => {
-      if (e.detail === row.id) {
+      if (e.detail.rowId === row.id) {
         log.success2('row output triggered', row, e.detail)
         ipcRenderer.sendSync('run-shell', row.output.data.command)
       }
