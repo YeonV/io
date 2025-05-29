@@ -74,7 +74,7 @@ export const useOutputActions = (row: Row) => {
   useEffect(() => {
     const listener = async (e: any) => {
       log.success2('row output triggered', row, e.detail)
-      if (e.detail === row.id) {
+      if (e.detail.rowId === row.id) {
         await fetch(`${row.output.data.host}/json`, {
           method: 'POST',
           body: JSON.stringify(row.output.data.config?.state)

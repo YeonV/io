@@ -128,5 +128,5 @@ export const log = new ConsoleLogger()
 
 export const debouncedTrigger = debounce((rowId: string) => {
   console.log(`Debounced Trigger run for row: ${rowId}`)
-  window.dispatchEvent(new CustomEvent('io_input', { detail: rowId }))
+  window.dispatchEvent(new CustomEvent('io_input', { detail: { rowId } }))
 }, 750)

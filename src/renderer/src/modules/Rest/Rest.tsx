@@ -103,76 +103,70 @@ export const useOutputActions = (row: Row) => {
     )
 
     const listener = async (event: Event) => {
-      if (!(event instanceof CustomEvent)) return
       // Ensure detail has rowId, handle object or direct string for compatibility
-      const triggerRowId =
-        typeof event.detail === 'object' && event.detail !== null
-          ? event.detail.rowId
-          : event.detail
+      const triggerRowId = event instanceof CustomEvent && event.detail.rowId
+      if (triggerRowId !== rowId) {
+        return
+      }
 
-      if (triggerRowId === rowId) {
-        // Validate again, as config might have changed if not properly handled by deps
-        if (!outputData.host || !outputData.options?.method) {
-          console.warn(
-            `[REST Output] Row ${rowId} triggered but host/method is missing post-init. Aborting.`
-          )
-          return
-        }
+      // Validate again, as config might have changed if not properly handled by deps
+      if (!outputData.host || !outputData.options?.method) {
+        console.warn(
+          `[REST Output] Row ${rowId} triggered but host/method is missing post-init. Aborting.`
+        )
+        return
+      }
 
-        console.log(`[REST Output] Row ${rowId} TRIGGERED! Config:`, {
-          host: outputData.host,
-          method: outputData.options.method,
-          headers: outputData.options.headers || {},
-          body: outputData.options.body || null
-        })
+      console.log(`[REST Output] Row ${rowId} TRIGGERED! Config:`, {
+        host: outputData.host,
+        method: outputData.options.method,
+        headers: outputData.options.headers || {},
+        body: outputData.options.body || null
+      })
 
-        try {
-          if (isElectron() && ipcRenderer) {
-            console.debug(`[REST Output Electron] Invoking 'rest-request' for row ${rowId}`)
-            const result = await ipcRenderer.invoke('rest-request', {
-              url: outputData.host,
-              method: outputData.options.method,
-              headers: outputData.options.headers || {},
-              body: outputData.options.body || null
-            })
-            console.log(
-              `[REST Output Electron] IPC 'rest-request' result for row ${rowId}:`,
-              result
-            )
-          } else {
-            console.debug(`[REST Output Web] Performing direct fetch for row ${rowId}`)
-            const fetchOptions: RequestInit = {
-              method: outputData.options.method,
-              headers: outputData.options.headers || {}
-            }
-
-            if (
-              outputData.options.method !== 'GET' &&
-              outputData.options.method !== 'HEAD' &&
-              outputData.options.body
-            ) {
-              fetchOptions.body = outputData.options.body
-              // Content-Type is expected to be in outputData.options.headers if needed
-            }
-
-            const response = await fetch(outputData.host, fetchOptions)
-            console.log(`[REST Output Web] Fetch status for row ${rowId}: ${response.status}`)
-
-            if (!response.ok) {
-              const errorBody = await response.text()
-              throw new Error(
-                `HTTP error ${response.status}: ${response.statusText}. Body: ${errorBody}`
-              )
-            }
-            // Optional: Process response data
-            // const responseData = response.headers.get('Content-Type')?.includes('application/json')
-            //   ? await response.json()
-            //   : await response.text();
-            // console.log(`[REST Output Web] Fetch response data for row ${rowId}:`, responseData);
+      try {
+        if (isElectron() && ipcRenderer) {
+          console.debug(`[REST Output Electron] Invoking 'rest-request' for row ${rowId}`)
+          const result = await ipcRenderer.invoke('rest-request', {
+            url: outputData.host,
+            method: outputData.options.method,
+            headers: outputData.options.headers || {},
+            body: outputData.options.body || null
+          })
+          console.log(`[REST Output Electron] IPC 'rest-request' result for row ${rowId}:`, result)
+        } else {
+          console.debug(`[REST Output Web] Performing direct fetch for row ${rowId}`)
+          const fetchOptions: RequestInit = {
+            method: outputData.options.method,
+            headers: outputData.options.headers || {}
           }
-        } catch (error) {
-          console.error(`[REST Output] Error during REST request for row ${rowId}:`, error)
+
+          if (
+            outputData.options.method !== 'GET' &&
+            outputData.options.method !== 'HEAD' &&
+            outputData.options.body
+          ) {
+            fetchOptions.body = outputData.options.body
+            // Content-Type is expected to be in outputData.options.headers if needed
+          }
+
+          const response = await fetch(outputData.host, fetchOptions)
+          console.log(`[REST Output Web] Fetch status for row ${rowId}: ${response.status}`)
+
+          if (!response.ok) {
+            const errorBody = await response.text()
+            throw new Error(
+              `HTTP error ${response.status}: ${response.statusText}. Body: ${errorBody}`
+            )
+          }
+          // Optional: Process response data
+          // const responseData = response.headers.get('Content-Type')?.includes('application/json')
+          //   ? await response.json()
+          //   : await response.text();
+          // console.log(`[REST Output Web] Fetch response data for row ${rowId}:`, responseData);
         }
+      } catch (error) {
+        console.error(`[REST Output] Error during REST request for row ${rowId}:`, error)
       }
     }
 

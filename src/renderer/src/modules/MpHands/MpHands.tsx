@@ -294,7 +294,7 @@ export const useInputActions = (row: Row) => {
         log.info(
           `Hands Row ${row.id}: Matched gesture "${detectedGestureString}". Triggering action.`
         )
-        window.dispatchEvent(new CustomEvent('io_input', { detail: row.id }))
+        window.dispatchEvent(new CustomEvent('io_input', { detail: { rowId: row.id } }))
       }
     }
 

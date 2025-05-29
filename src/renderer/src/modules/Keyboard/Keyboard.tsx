@@ -112,7 +112,7 @@ export const useInputActions = (row: Row) => {
     if (isActive) {
       // Double check isActive within the callback
       console.log(`[Keyboard Web] Hotkey "${shortcut}" pressed for row ${rowId}`)
-      window.dispatchEvent(new CustomEvent('io_input', { detail: rowId }))
+      window.dispatchEvent(new CustomEvent('io_input', { detail: { rowId } }))
     } else {
       console.debug(`[Keyboard Web] Hotkey "${shortcut}" pressed for INACTIVE row ${rowId}`)
     }
@@ -159,7 +159,7 @@ export const useOutputActions = (row: Row) => {
 
     const ioListener = (event: Event) => {
       // Changed to Event
-      if (event instanceof CustomEvent && event.detail === row.id) {
+      if (event instanceof CustomEvent && event.detail.rowId === row.id) {
         console.info(
           `[Keyboard Output] Row ${row.id} triggered. Sending shortcut: "${shortcutToSend}" to main process (if Electron).`
         )

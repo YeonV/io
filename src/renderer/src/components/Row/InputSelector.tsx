@@ -80,9 +80,12 @@ export const InputSelector: FC<{
       disabled={disabled}
       getOptionLabel={(option) => option.label}
       renderOption={(props, option) => {
+        // eslint-disable-next-line react/prop-types
+        const { key, ...propsWithoutkey } = props
         return (
           <ListItem
-            {...props}
+            key={key}
+            {...propsWithoutkey}
             style={{
               display: 'flex',
               padding: '5px 15px',

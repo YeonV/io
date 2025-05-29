@@ -3,6 +3,7 @@
 import * as activateprofileModule from './ActivateProfile/ActivateProfile'
 import * as alertModule from './Alert/Alert'
 import * as alexaModule from './Alexa/Alexa'
+import * as gamepadModule from './Gamepad/Gamepad'
 import * as homeassistantModule from './HomeAssistant/HomeAssistant'
 import * as keyboardModule from './Keyboard/Keyboard'
 import * as ledfxModule from './LedFx/LedFx'
@@ -25,6 +26,7 @@ export default {
   [activateprofileModule.id]: activateprofileModule,
   [alertModule.id]: alertModule,
   [alexaModule.id]: alexaModule,
+  [gamepadModule.id]: gamepadModule,
   [homeassistantModule.id]: homeassistantModule,
   [keyboardModule.id]: keyboardModule,
   [ledfxModule.id]: ledfxModule,

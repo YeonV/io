@@ -310,7 +310,7 @@ export const useGlobalActions = () => {
         console.debug(`${id} Global: IPC 'time-trigger-fired' received for Row ID: ${data.rowId}`)
 
         // Dispatch the local io_input event which output modules listen to
-        window.dispatchEvent(new CustomEvent('io_input', { detail: data.rowId }))
+        window.dispatchEvent(new CustomEvent('io_input', { detail: { rowId: data.rowId } }))
 
         // Handle one-shot logic: if the row was configured as one-shot, disable it.
         // We need to get the row's current configuration from the store.

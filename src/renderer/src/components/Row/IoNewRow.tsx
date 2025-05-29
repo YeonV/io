@@ -374,7 +374,7 @@ export const IoNewRow: FC<IoNewRowProps> = ({
         )}
 
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={{ xs: 3, md: 2 }}>
-        <Box sx={{ flexBasis: { md: '50%' } }}>
+        <Box sx={{ flexBasis: { md: '50%', maxWidth: '50%' } }}>
           <Typography
             variant="overline"
             display="block"
@@ -413,13 +413,12 @@ export const IoNewRow: FC<IoNewRowProps> = ({
           )}
           {!templateRow.inputModule && !isInputTypeLocked && (
             <Typography sx={{ mt: 1, color: 'text.disabled', fontSize: '0.8rem' }}>
-              
               Select an input module.
             </Typography>
           )}
         </Box>
 
-        <Box sx={{ flexBasis: { md: '50%' } }}>
+        <Box sx={{ flexBasis: { md: '50%', maxWidth: '50%' } }}>
           <Typography
             variant="overline"
             display="block"
@@ -458,7 +457,6 @@ export const IoNewRow: FC<IoNewRowProps> = ({
           )}
           {!templateRow.outputModule && !isOutputTypeLocked && (
             <Typography sx={{ mt: 1, color: 'text.disabled', fontSize: '0.8rem' }}>
-              
               Select an output module.
             </Typography>
           )}

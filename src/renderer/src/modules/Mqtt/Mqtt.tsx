@@ -920,11 +920,9 @@ export const useOutputActions = (row: Row) => {
 
     const effectiveConfig = resolveBrokerConfigForRow(outputData, brokerProfiles)
 
-    const ioListener = (event: CustomEvent) => {
-      const eventRowId =
-        typeof event.detail === 'object' && event.detail !== null
-          ? event.detail.rowId
-          : event.detail
+    const ioListener = (event: Event) => {
+      const eventRowId = event instanceof CustomEvent && event.detail.rowId
+
       if (eventRowId === row.id) {
         if (!effectiveConfig || !outputData.topic || outputData.payload === undefined) {
           log.error(
@@ -951,9 +949,9 @@ export const useOutputActions = (row: Row) => {
           .catch((err) => log.error(`MQTT Output Row ${row.id}: Publish IPC error:`, err))
       }
     }
-    window.addEventListener('io_input', ioListener as EventListener)
+    window.addEventListener('io_input', ioListener)
     return () => {
-      window.removeEventListener('io_input', ioListener as EventListener)
+      window.removeEventListener('io_input', ioListener)
     }
   }, [
     row.id,
