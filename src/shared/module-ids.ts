@@ -4,6 +4,7 @@ export type ModuleId =
   | 'activateprofile-module'
   | 'alert-module'
   | 'alexa-module'
+  | 'gamepad-module'
   | 'homeassistant-module'
   | 'keyboard-module'
   | 'ledfx-module'
@@ -26,6 +27,7 @@ export const ALL_MODULE_IDS: ModuleId[] = [
   'activateprofile-module',
   'alert-module',
   'alexa-module',
+  'gamepad-module',
   'homeassistant-module',
   'keyboard-module',
   'ledfx-module',

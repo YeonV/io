@@ -194,6 +194,7 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
         <Box
           sx={{
             flexBasis: desktop ? '50%' : 'calc(50% - 48px)',
+            maxWidth: desktop ? '50%' : '100%',
             minHeight: '50px',
             display: 'flex',
             alignItems: 'center',
@@ -265,7 +266,6 @@ const IoRow: FC<{ row: Row }> = ({ row }) => {
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
               <MenuItem onClick={handleManualTrigger} disabled={!isActive}>
-                
                 {/* Disable if row isn't active */}
                 <ListItemIcon>
                   <PlayCircleOutline fontSize="small" />
