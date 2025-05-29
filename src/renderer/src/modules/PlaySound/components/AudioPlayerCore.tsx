@@ -255,6 +255,9 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
                   bottom: 0,
                   bgcolor: !audioSrc ? 'action.disabledBackground' : 'transparent',
                   position: 'absolute'
+                  // '& .MuiLinearProgress-bar': {
+                  //   transition: 'none' // Disable transition for instant feedback if preferred
+                  // }
                 }}
               />
             </Button>
