@@ -300,7 +300,12 @@ const GamepadSvgPs5 = ({
         </g>
         <g id="L2">
           <path
-            fill="none"
+            // pad.buttons[6]?.value for fill alpha
+            fill={
+              pad.buttons[6]?.value
+                ? `${Color(theme.palette.primary.main).alpha(pad.buttons[6]?.value)}`
+                : 'transparent'
+            }
             stroke={pad.buttons[6]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
@@ -311,7 +316,11 @@ const GamepadSvgPs5 = ({
         </g>
         <g id="L1">
           <path
-            fill="none"
+            fill={
+              pad.buttons[6]?.value
+                ? `${Color(theme.palette.primary.main).alpha(pad.buttons[6]?.value)}`
+                : 'transparent'
+            }
             stroke={pad.buttons[4]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
@@ -395,7 +404,12 @@ const GamepadSvgPs5 = ({
         </g>
         <g id="R1">
           <path
-            fill="none"
+            // fill="none"
+            fill={
+              pad.buttons[7]?.value
+                ? `${Color(theme.palette.primary.main).alpha(pad.buttons[7]?.value)}`
+                : 'transparent'
+            }
             stroke={pad.buttons[5]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
@@ -462,7 +476,7 @@ const GamepadSvgPs5 = ({
         <g id="POLYLINE_138_">
           <path
             fill="none"
-            stroke={stroke}
+            stroke={pad.buttons[17]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"

@@ -21,7 +21,7 @@ const DisplayButtons = ({
         ? data?.data?.text
         : []
 
-  console.log('yz2', parts)
+  // console.log('yz2', parts)
   return desktop ? (
     <>
       <Button
