@@ -1,20 +1,11 @@
 // src/renderer/src/modules/Gamepad/Gamepad.tsx
+import type { GamepadInputRowData, GamepadInputEventPayload } from './Gamepad.types'
+import type { ModuleConfig, InputData, Row } from '@shared/types'
 import { useEffect, useRef, useState, type FC } from 'react'
-import type { ModuleConfig, InputData, Row, ModuleDefaultConfig } from '@shared/types'
-import { Box, Typography, Alert } from '@mui/material' // Basic imports
-import IoIcon from '@/components/IoIcon/IoIcon' // Assuming path
-import DisplayButtons from '@/components/Row/DisplayButtons' // For a simple InputDisplay
-import { useGamepads } from 'react-gamepads' // Key hook!
-
-// Import types for this module
-import type {
-  GamepadInputRowData,
-  GamepadInputEventPayload,
-  GamepadInputTriggerType
-} from './Gamepad.types'
-import { useRowActivation } from '@/hooks/useRowActivation' // If needed for per-row actions
-import { useMainStore } from '@/store/mainStore' // For dispatching history or other actions
+import { useGamepads } from 'react-gamepads'
+import { useMainStore } from '@/store/mainStore'
 import { GamepadInputEdit } from './components/GamepadInputEdit'
+import DisplayButtons from '@/components/Row/DisplayButtons'
 
 // --- Module Definition ---
 export const id = 'gamepad-module' // Unique ID for this module
@@ -36,134 +27,51 @@ export const moduleConfig: ModuleConfig<GamepadModuleCustomConfig> = {
       supportedContexts: ['electron', 'web']
     }
   ],
-  outputs: [], // No outputs defined for this module
+  outputs: [],
   config: {
-    enabled: true // Default state for the module's availability
+    enabled: true
     // Add any default custom config values here
     // globalDeadzone: 0.1,
   }
 }
 
 // --- InputEdit Component Placeholder ---
-// This will be a complex component, likely in its own file: GamepadInputEdit.tsx
 export const InputEdit: FC<{
-  input: InputData // data can be partial during config
+  input: InputData
   onChange: (data: Partial<GamepadInputRowData>) => void
-  // We might need to pass down the specific input type ('Gamepad Button Event' vs 'Gamepad Axis Movement')
-  // if the UI needs to adapt, or it can infer from existing input.data.triggerType
 }> = ({ input, onChange }) => {
-  // This component will:
-  // 1. Allow selecting a gamepad index (0-3 or 'any').
-  // 2. Display "Press any button or move any stick..."
-  // 3. Use `useGamepads` hook to monitor inputs.
-  // 4. When an event is detected:
-  //    - Populate its internal state with detected button/axis, gamepad index.
-  //    - Update the UI to show what was detected.
-  //    - Offer options (e.g., for button: "Trigger on Press" or "Trigger on Release";
-  //      for axis: "Condition (>, <, etc.)", "Threshold").
-  // 5. Call `onChange` with the complete GamepadInputRowData.
-  // 6. Display your awesome SVG gamepad visualizer.
-
-  //   const [gamepads, setGamepads] = useState<Record<number, Gamepad>>({})
-  //   useGamepads((_gamepads) => {
-  //     console.log('Detected gamepads:', _gamepads)
-  //     return setGamepads(_gamepads)
-  //   }) // Hook to get live gamepad data
-
-  //   const currentInputType = input.name // "Gamepad Button Event" or "Gamepad Axis Movement"
-
-  //   //   console.log(
-  //   //     'Gamepad Input Edit',
-  //   //     {
-  //   //       input,
-  //   //       currentInputType,
-  //   //       gamepads
-  //   //     }
-  //   //     // Use a custom hook or logic to handle gamepad input detection and state updat
-  //   //   )
-
   return (
     <GamepadInputEdit
-      inputData={input.data as GamepadInputRowData} // Cast to our specific type
+      inputData={input.data as GamepadInputRowData}
       onChange={(updatedData: Partial<GamepadInputRowData>) => {
-        // Call onChange with the updated data
         onChange(updatedData)
       }}
     />
-    // <Box
-    //   sx={{
-    //     p: 1,
-    //     minHeight: 200,
-    //     border: '1px dashed grey',
-    //     borderRadius: 1,
-    //     display: 'flex',
-    //     flexDirection: 'column',
-    //     alignItems: 'center',
-    //     justifyContent: 'center'
-    //   }}
-    // >
-    //   <Typography variant="h6" gutterBottom>
-    //     Gamepad Input Configuration
-    //   </Typography>
-    //   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-    //     (Interactive Editor Coming Soon!)
-    //   </Typography>
-    //   <Typography variant="caption">Input Type: {currentInputType}</Typography>
-    //   <Typography variant="caption">
-    //     Selected Gamepad: {input.data.gamepadIndex ?? 'Any (detect first)'}
-    //   </Typography>
-    //   {currentInputType === 'Gamepad Button Event' && (
-    //     <Typography variant="caption">
-    //       Button: {input.data.buttonIndex ?? 'Press to assign'}, Event:{' '}
-    //       {input.data.triggerType?.replace('button_', '')}{' '}
-    //     </Typography>
-    //   )}
-    //   {currentInputType === 'Gamepad Axis Movement' && (
-    //     <Typography variant="caption">
-    //       Axis: {input.data.axisIndex ?? 'Move to assign'}, Condition: {input.data.axisCondition},
-    //       Threshold: {input.data.axisThreshold}
-    //     </Typography>
-    //   )}
-    //   <Alert severity="info" sx={{ mt: 2 }}>
-    //     Connect a gamepad and interact with it. The UI will guide you to map buttons or analog stick
-    //     movements.
-    //   </Alert>
-    //   {/* Placeholder for Gamepad Selection Dropdown */}
-    //   {/* Placeholder for "Press button/move stick to assign" UI */}
-    //   {/* Placeholder for your SVG Gamepad Visualizer */}
-    // </Box>
   )
 }
 
 // --- InputDisplay Component ---
 export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
   const data = input.data
-  let summary = 'Gamepad: Not Configured'
+  let summary: string | string[] = 'Gamepad: Not Configured'
 
   if (data.triggerType === 'button_press' || data.triggerType === 'button_release') {
-    summary = `Pad ${data.gamepadIndex !== undefined ? data.gamepadIndex + 1 : 'Any'}: Btn ${data.buttonIndex ?? '?'} (${data.triggerType === 'button_press' ? 'Press' : 'Release'})`
+    summary = [
+      `Button ${data.buttonIndex ?? '?'}`,
+      `${data.triggerType === 'button_press' ? 'Press' : 'Release'}`
+    ]
   } else if (data.triggerType === 'axis_move') {
-    summary = `Pad ${data.gamepadIndex !== undefined ? data.gamepadIndex + 1 : 'Any'}: Axis ${data.axisIndex ?? '?'} ${data.axisCondition || ''} ${data.axisThreshold ?? ''}`
-  }
-
-  // Use gamepadNameFilter if available for more specific display
-  if (data.gamepadNameFilter) {
-    summary += ` (${data.gamepadNameFilter.substring(0, 15)}...)`
+    summary = `Axis ${data.axisIndex ?? '?'} ${data.axisCondition || ''} ${data.axisThreshold ?? ''}`
   }
 
   return (
     <DisplayButtons
-      data={{ ...input, name: summary }} // Override name with our dynamic summary
-      // icon prop is already on input from moduleConfig
+      data={{ ...input, name: `Gamepad ${data.gamepadIndex + 1 || '?'}`, data: { text: summary } }}
     />
   )
 }
 
 // --- useInputActions Hook (or useGlobalActions) ---
-// This will contain the core logic for listening to gamepads and dispatching io_input
-// For now, a placeholder. We'll need to decide if it's per-row or global.
-// Given multiple rows can listen to different buttons/axes on different gamepads,
-// a useGlobalActions that iterates through all "Gamepad Input" rows seems most efficient.
 export const useGlobalActions = () => {
   const [gamepads, setGamepads] = useState<Record<number, Gamepad>>({}) // Use Gamepad or GamepadInstance
   useGamepads((_gamepads: Record<number, Gamepad>) => setGamepads(_gamepads))
@@ -194,8 +102,8 @@ export const useGlobalActions = () => {
 
     if (gamepadInputRows.length === 0) {
       // Clean up refs if no rows are listening to prevent stale data if rows are re-added
-      // prevButtonStatesRef.current = {};
-      // prevAxisStatesRef.current = {};
+      prevButtonStatesRef.current = {}
+      prevAxisStatesRef.current = {}
       return
     }
 

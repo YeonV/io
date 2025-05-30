@@ -213,7 +213,7 @@ const GamepadSvgPs5 = ({
             style={{
               transform: `translateX(${pad.axes[0] * 10}px) translateY(${pad.axes[1] * 10}px)`
             }}
-            stroke={pad.buttons[10].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[10]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -235,7 +235,7 @@ const GamepadSvgPs5 = ({
         <g id="D-RIGHT">
           <path
             fill="none"
-            stroke={pad.buttons[15].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[15]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -246,7 +246,7 @@ const GamepadSvgPs5 = ({
         <g id="D-Up">
           <path
             fill="none"
-            stroke={pad.buttons[12].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[12]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -257,7 +257,7 @@ const GamepadSvgPs5 = ({
         <g id="D-LEFT">
           <path
             fill="none"
-            stroke={pad.buttons[14].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[14]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -268,7 +268,7 @@ const GamepadSvgPs5 = ({
         <g id="D-Down">
           <path
             fill="none"
-            stroke={pad.buttons[13].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[13]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -279,7 +279,7 @@ const GamepadSvgPs5 = ({
         <g id="BTN-SELECT">
           <path
             fill="none"
-            stroke={pad.buttons[8].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[8]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -301,7 +301,7 @@ const GamepadSvgPs5 = ({
         <g id="L2">
           <path
             fill="none"
-            stroke={pad.buttons[6].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[6]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -312,7 +312,7 @@ const GamepadSvgPs5 = ({
         <g id="L1">
           <path
             fill="none"
-            stroke={pad.buttons[4].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[4]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -323,7 +323,7 @@ const GamepadSvgPs5 = ({
         <g id="BTN-PS">
           <path
             fill="none"
-            stroke={pad.buttons[16].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[16]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -341,7 +341,7 @@ const GamepadSvgPs5 = ({
             style={{
               transform: `translateX(${pad.axes[2] * 10}px) translateY(${pad.axes[3] * 10}px)`
             }}
-            stroke={pad.buttons[11].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[11]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -363,7 +363,7 @@ const GamepadSvgPs5 = ({
         <g id="BTN-START">
           <path
             fill="none"
-            stroke={pad.buttons[9].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[9]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -385,7 +385,7 @@ const GamepadSvgPs5 = ({
         <g id="R2">
           <path
             fill="none"
-            stroke={pad.buttons[7].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[7]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -396,7 +396,7 @@ const GamepadSvgPs5 = ({
         <g id="R1">
           <path
             fill="none"
-            stroke={pad.buttons[5].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[5]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -407,7 +407,7 @@ const GamepadSvgPs5 = ({
         <g id="BTN-SQUARE">
           <path
             fill="none"
-            stroke={pad.buttons[2].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[2]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -418,7 +418,7 @@ const GamepadSvgPs5 = ({
         <g id="BTN-Circle">
           <path
             fill="none"
-            stroke={pad.buttons[1].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[1]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -429,7 +429,7 @@ const GamepadSvgPs5 = ({
         <g id="BTN-X">
           <path
             fill="none"
-            stroke={pad.buttons[0].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[0]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -440,7 +440,7 @@ const GamepadSvgPs5 = ({
         <g id="BTN-Triangle">
           <path
             fill="none"
-            stroke={pad.buttons[3].pressed ? theme.palette.primary.main : stroke}
+            stroke={pad.buttons[3]?.pressed ? theme.palette.primary.main : stroke}
             strokeWidth={strokeWidth2}
             strokeLinecap="round"
             strokeLinejoin="round"

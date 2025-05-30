@@ -53,7 +53,7 @@ IO connects your world with a growing list of modules. Here's a snapshot:
 | [MQTT Message Received](./src/renderer/src/modules/Mqtt/Mqtt.tsx)     | [Press Keys (Keyboard Output)](./src/renderer/src/modules/Keyboard/Keyboard.tsx) |
 | [Hand Gesture (MediaPipe)](./src/renderer/src/modules/MpHands/MpHands.tsx) | [Activate Profile](./src/renderer/src/modules/ActivateProfile/ActivateProfile.tsx) |
 | [Holistic Pose (MediaPipe)](./src/renderer/src/modules/MpHolistic/MpHolistic.tsx) | [REST Call (HTTP/S)](./src/renderer/src/modules/Rest/Rest.tsx) |
-|                                                   | [Publish MQTT Message](./src/renderer/src/modules/Mqtt/Mqtt.tsx)       |
+| [Gamepad Events](./src/renderer/src/modules/Gamepad/Gamepad.tsx)| [Publish MQTT Message](./src/renderer/src/modules/Mqtt/Mqtt.tsx)       |
 |                                                   | [WLED Control](./src/renderer/src/modules/Wled/Wled.tsx)                 |
 |                                                   | [LedFx Control](./src/renderer/src/modules/LedFx/LedFx.tsx)              |
 
