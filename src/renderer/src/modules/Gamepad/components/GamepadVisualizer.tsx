@@ -1,6 +1,6 @@
 // src/renderer/src/modules/Gamepad/components/GamepadVisualizer.tsx
 import type { FC, MouseEvent } from 'react'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { Box, Typography, ToggleButton, ToggleButtonGroup, Paper } from '@mui/material'
 
 // import { GamepadSvgXbox } from './GamepadSvgXbox'; // Future
@@ -89,7 +89,7 @@ export const GamepadVisualizer: FC<GamepadVisualizerProps> = ({ pad }) => {
   }, [userSelectedType, autoDetectedType])
 
   const handleUserSelectionChange = (
-    event: MouseEvent<HTMLElement>,
+    _event: MouseEvent<HTMLElement>,
     newSelection: PadVisualizerType | null
   ) => {
     if (newSelection !== null) {

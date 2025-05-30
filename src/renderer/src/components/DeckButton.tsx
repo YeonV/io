@@ -84,7 +84,8 @@ const DeckButton: FC<DeckButtonProps> = ({
   const [label, setLabel] = useState(
     row.output.label ||
       row.output.settings?.label ||
-      row.output.data.text ||
+      row.output.data?.text ||
+      row.output.data?.originalFileName?.replace('.mp3', '') ||
       row.output.name ||
       row.id.substring(0, 8)
   )
@@ -102,10 +103,10 @@ const DeckButton: FC<DeckButtonProps> = ({
     setIconColor(deckButtonSpecifics?.iconColor || row.output.settings?.iconColor)
     setIcon(row.output.settings?.icon || row.output.icon || 'help_outline')
     setLabel(
-      row.output.label ||
-        row.output.settings?.label ||
+      row.output.settings?.label ||
+        row.output.data?.text ||
+        row.output.data?.originalFileName?.replace('.mp3', '') ||
         row.output.name ||
-        row.output.data.text ||
         row.id.substring(0, 8)
     )
     setVariant(deckButtonSpecifics?.variant || row.output.settings?.variant || 'outlined')
@@ -181,6 +182,7 @@ const DeckButton: FC<DeckButtonProps> = ({
         row.output.label ||
         row.output.settings?.label ||
         row.output.data?.text ||
+        row.output.data?.data?.text ||
         row.output.name ||
         row.id.substring(0, 8)
 

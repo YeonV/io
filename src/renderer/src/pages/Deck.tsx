@@ -19,6 +19,7 @@ import 'react-resizable/css/styles.css'
 
 import { useWindowDimensions } from '@/utils' // Assuming path
 import { useShallow } from 'zustand/react/shallow'
+import { ALL_ROWS_LAYOUT_KEY } from '@/store/deckStore' // Import the special key
 
 const DEFAULT_MAGIC_NUMBER_RENDER = 120 // Base size for calculations
 
@@ -100,7 +101,10 @@ const Deck = () => {
     console.log('Deck State: deckLayouts changed:', deckLayouts)
   }, [deckLayouts])
 
-  const currentProfileLayout = currentIoProfileId ? deckLayouts[currentIoProfileId] || [] : []
+  const currentProfileLayout = useMemo(() => {
+    const layoutKey = currentIoProfileId === null ? ALL_ROWS_LAYOUT_KEY : currentIoProfileId
+    return deckLayouts[layoutKey] || []
+  }, [currentIoProfileId, deckLayouts])
 
   const handleToggleDarkmode = () => {
     toggleDeckTheme()
@@ -229,7 +233,7 @@ const Deck = () => {
               }}
               // onClick={(e) => e.preventDefault()} // Already handled by useLongPress in DeckButton for short press
               onDragStop={(_e, d) => {
-                if (currentIoProfileId && showSettings) {
+                if (showSettings) {
                   const layoutChanges = {
                     // x, y are pixels
                     x: d.x, // Rnd provides final pixel position snapped to dragGrid
@@ -240,7 +244,7 @@ const Deck = () => {
                 }
               }}
               onResizeStop={(_e, _direction, refElement, _delta, position) => {
-                if (currentIoProfileId && showSettings) {
+                if (showSettings) {
                   const newLayoutChanges = {
                     // x,y are pixels; w,h are GRID UNITS
                     x: position.x,

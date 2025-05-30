@@ -42,8 +42,8 @@ const DeckButtonBase = ({
                 width: '100%',
                 height: '100%',
                 background: buttonColor,
-                '&:hover .MuiTypography-root': { color: buttonColor },
-                '&:hover .MuiIcon-root': { color: buttonColor }
+                '&:hover .MuiTypography-root': { color: textColor },
+                '&:hover .MuiIcon-root': { color: iconColor }
               }
             : {
                 padding: 0,

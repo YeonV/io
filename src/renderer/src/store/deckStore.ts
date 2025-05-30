@@ -49,7 +49,7 @@ export interface DeckState {
 
   // Action for Rnd drag/resize to update local layout AND sync the tile's full state
   updateAndSyncDeckTileLayout: (
-    profileId: string,
+    profileId: string | null, // Allow profileId to be null for "View All" mode
     rowId: string,
     layoutChanges: Partial<Pick<DeckTileLayout, 'x' | 'y' | 'w' | 'h'>> // x,y in px; w,h in grid units
   ) => void
@@ -83,6 +83,7 @@ export interface DeckState {
 let sseEventSource: EventSource | null = null
 
 const DEFAULT_MAGIC_NUMBER = 120 // Default grid cell size
+export const ALL_ROWS_LAYOUT_KEY = '__ALL_ROWS_LAYOUT__' // Define the special key
 
 export const useDeckStore = create<DeckState>()(
   persist(
@@ -186,58 +187,54 @@ export const useDeckStore = create<DeckState>()(
 
       // Called by Rnd onDragStop/onResizeStop
       updateAndSyncDeckTileLayout: (
-        profileId: string,
+        profileId: string | null,
         rowId: string,
-        layoutChanges: Partial<Pick<DeckTileLayout, 'x' | 'y' | 'w' | 'h'>> // x,y in PX; w,h in GRID UNITS
+        layoutChanges: Partial<Pick<DeckTileLayout, 'x' | 'y' | 'w' | 'h'>>
       ) => {
+        const layoutKey = profileId === null ? ALL_ROWS_LAYOUT_KEY : profileId
         let finalTileState: DeckTileLayout | undefined = undefined
+
         set((state) => {
-          const currentProfileLayout = state.deckLayouts[profileId] || []
-          const tileIndex = currentProfileLayout.findIndex((tile) => tile.id === rowId)
-          let newFullLayoutForProfile: DeckProfileLayoutConfig
+          const currentLayoutForKey = state.deckLayouts[layoutKey] || []
+          const tileIndex = currentLayoutForKey.findIndex((tile) => tile.id === rowId)
+          let newFullLayoutForKey: DeckProfileLayoutConfig
 
           if (tileIndex > -1) {
-            finalTileState = { ...currentProfileLayout[tileIndex], ...layoutChanges, id: rowId }
-            newFullLayoutForProfile = currentProfileLayout.map(
+            finalTileState = { ...currentLayoutForKey[tileIndex], ...layoutChanges, id: rowId }
+            newFullLayoutForKey = currentLayoutForKey.map(
               (t, i): DeckTileLayout => (i === tileIndex ? (finalTileState as DeckTileLayout) : t)
             )
           } else {
-            // New tile being added to layout (e.g. first drag)
-            // It should have default appearance from DeckButton if not already in deckLayouts
-            // For now, let's assume it might need some basic defaults here if not already set.
             finalTileState = {
               id: rowId,
               x: layoutChanges.x ?? 0,
               y: layoutChanges.y ?? 0,
-              w: layoutChanges.w ?? 1, // Default 1 grid unit width
-              h: layoutChanges.h ?? 1 // Default 1 grid unit height
-              // Default appearance if not set (DeckButton should initialize its own state from row first)
-              // variant: 'outlined',
-              // label: 'New Action', // This should come from the row
+              w: layoutChanges.w ?? 1,
+              h: layoutChanges.h ?? 1
             }
-            newFullLayoutForProfile = [...currentProfileLayout, finalTileState]
+            newFullLayoutForKey = [...currentLayoutForKey, finalTileState]
           }
           return {
-            deckLayouts: { ...state.deckLayouts, [profileId]: newFullLayoutForProfile }
+            deckLayouts: { ...state.deckLayouts, [layoutKey]: newFullLayoutForKey }
           }
         })
 
         if (finalTileState) {
-          get().syncSingleDeckTileOverride(profileId, rowId, finalTileState)
+          get().syncSingleDeckTileOverride(layoutKey, rowId, finalTileState)
         }
       },
 
-      // Called by DeckButton settings dialog to save appearance changes
       saveAndSyncDeckButtonAppearance: (
-        profileId: string,
+        profileId: string | null,
         rowId: string,
         appearanceChanges: Partial<
           Omit<DeckTileLayout, 'id' | 'x' | 'y' | 'w' | 'h' | 'icon' | 'label'>
         >
       ) => {
+        const layoutKey = profileId === null ? ALL_ROWS_LAYOUT_KEY : profileId
         let finalTileState: DeckTileLayout | undefined = undefined
         set((state) => {
-          const currentProfileLayout = state.deckLayouts[profileId] || []
+          const currentProfileLayout = state.deckLayouts[layoutKey] || []
           const tileIndex = currentProfileLayout.findIndex((tile) => tile.id === rowId)
           let newFullLayoutForProfile: DeckProfileLayoutConfig
 
@@ -259,34 +256,36 @@ export const useDeckStore = create<DeckState>()(
             newFullLayoutForProfile = [...currentProfileLayout, finalTileState]
           }
           return {
-            deckLayouts: { ...state.deckLayouts, [profileId]: newFullLayoutForProfile }
+            deckLayouts: { ...state.deckLayouts, [layoutKey]: newFullLayoutForProfile }
           }
         })
-
         if (finalTileState) {
-          get().syncSingleDeckTileOverride(profileId, rowId, finalTileState)
+          get().syncSingleDeckTileOverride(layoutKey, rowId, finalTileState)
         }
       },
 
-      // Internal helper to POST a single tile's full Deck override state (layout + appearance) to main app
+      // syncSingleDeckTileOverride might need to know if it's the special key
       syncSingleDeckTileOverride: async (
-        profileId: string,
+        layoutStorageKey: string, // This is now profileId OR ALL_ROWS_LAYOUT_KEY
         rowId: string,
         tileData: DeckTileLayout
       ) => {
         try {
-          console.debug(`DeckStore: Syncing full tile override for ${profileId}/${rowId}`, tileData)
+          console.debug(
+            `DeckStore: Syncing full tile override for ${layoutStorageKey}/${rowId}`,
+            tileData
+          )
           const res = await fetch(`http://${location.hostname}:1337/api/deck/tile-override`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              profileId,
+              profileId: layoutStorageKey,
               rowId,
-              overrideData: tileData // Send the whole DeckTileLayout object
+              overrideData: tileData
             })
           })
           if (!res.ok) throw new Error('Failed to sync Deck tile override')
-          console.debug(`DeckStore: Full tile override synced for ${profileId}/${rowId}`)
+          console.debug(`DeckStore: Full tile override synced for ${layoutStorageKey}/${rowId}`)
         } catch (error) {
           console.error('DeckStore: Failed to sync Deck tile override', error)
         }
