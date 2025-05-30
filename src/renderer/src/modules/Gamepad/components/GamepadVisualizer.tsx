@@ -1,44 +1,75 @@
 // src/renderer/src/modules/Gamepad/components/GamepadVisualizer.tsx
 import type { FC, MouseEvent } from 'react'
 import { useState, useEffect, useMemo } from 'react'
-import { Box, Typography, ToggleButton, ToggleButtonGroup, Paper, Alert } from '@mui/material'
+import { Box, Typography, ToggleButton, ToggleButtonGroup, Paper } from '@mui/material'
 
 // import { GamepadSvgXbox } from './GamepadSvgXbox'; // Future
 import { GenericPadDisplay } from './GenericPadDisplay' // Our new generic display
 import GamepadSvgPs5 from './GamepadSvgPs5'
 import GamepadSvgPs3 from './GamepadSvgPs3'
+import GamepadSvgPs4 from './GamepadSvgPs4'
+import GamepadSvgXbox from './GamepadSvgXbox'
 
 // Define supported visualizer types
-type PadVisualizerType = 'auto' | 'ps3' | 'ps5' | 'generic' // Add 'xbox', etc. as you create SVGs
+type PadVisualizerType = 'auto' | 'ps3' | 'ps4' | 'ps5' | 'xbox' | 'generic' // Add 'xbox', etc. as you create SVGs
 
 interface GamepadVisualizerProps {
   pad: Gamepad | null // The live gamepad object
 }
 
-const detectGamepadType = (pad: Gamepad | null): Exclude<PadVisualizerType, 'auto'> => {
+const detectGamepadType = (pad: Gamepad | null): Exclude<PadVisualizerType, 'auto' | 'xbox'> => {
+  // Assuming 'xbox' type exists or will soon
   if (!pad || !pad.id) return 'generic'
 
   const idLower = pad.id.toLowerCase()
+  const vendorId = pad.id.match(/Vendor: ([0-9a-fA-F]{4})/)?.[1]?.toLowerCase()
+  const productId = pad.id.match(/Product: ([0-9a-fA-F]{4})/)?.[1]?.toLowerCase()
 
   // PlayStation Controllers
-  if (idLower.includes('dualsense') || pad.id.includes('0ce6')) return 'ps5' // Vendor 054c, Product 0ce6 for DualSense
-  if (idLower.includes('dualshock') || idLower.includes('ps3') || pad.id.includes('0268'))
-    return 'ps3' // Vendor 054c, Product 0268 for DS3
+  if (vendorId === '054c') {
+    // Sony Vendor ID
+    if (idLower.includes('dualsense') || productId === '0ce6') return 'ps5'
+    if (idLower.includes('dualshock 4') || productId === '05c4' || productId === '09cc')
+      return 'ps4' // Added PS4 detection
+    if (idLower.includes('ps3') || productId === '0268') return 'ps3' // Keep PS3 detection
+  }
 
-  // Xbox Controllers (Add more specific vendor/product IDs if known)
+  // More generic check if vendor/product not easily parsed but name is clear
+  if (idLower.includes('dualsense wireless controller')) return 'ps5'
   if (
-    idLower.includes('xbox wireless controller') ||
-    idLower.includes('xbox one') ||
-    idLower.includes('02e0') ||
-    idLower.includes('0b05')
+    idLower.includes('dualshock®4 wireless controller') ||
+    idLower.includes('ds4 wireless controller')
   )
-    return 'generic' // Fallback to generic until Xbox SVG
+    return 'ps4' // Added more PS4 name checks
 
-  // Nintendo Switch Pro Controller
-  if (idLower.includes('wireless gamepad') && pad.id.includes('057e') && pad.id.includes('2009'))
-    return 'generic' // Fallback
+  // Xbox Controllers (Example: You'd add 'xbox' to PadVisualizerType when SVG is ready)
+  // For now, they will fall through to generic if not specifically PS3/4/5
+  if (vendorId === '045e') {
+    // Microsoft Vendor ID
+    if (
+      productId === '02e0' ||
+      productId === '02dd' ||
+      productId === '0b05' ||
+      productId === '0b12' ||
+      idLower.includes('xbox wireless controller') ||
+      idLower.includes('xbox one controller')
+    ) {
+      // return 'xbox'; // When you have an Xbox SVG
+      return 'generic' // Fallback for now
+    }
+  }
+  if (idLower.includes('xbox wireless controller') || idLower.includes('xbox one')) {
+    // return 'xbox';
+    return 'generic'
+  }
 
-  // Default to generic
+  // Nintendo Switch Pro Controller (Example)
+  if (vendorId === '057e' && productId === '2009' && idLower.includes('wireless gamepad')) {
+    // return 'switch_pro'; // When you have a Switch Pro SVG
+    return 'generic' // Fallback for now
+  }
+
+  // Default to generic if no specific match
   return 'generic'
 }
 
@@ -88,8 +119,9 @@ export const GamepadVisualizer: FC<GamepadVisualizerProps> = ({ pad }) => {
   const visualizerOptions: Array<{ value: PadVisualizerType; label: string }> = [
     { value: 'auto', label: `Auto (${autoDetectedType.toUpperCase()})` },
     { value: 'ps5', label: 'PS5' },
+    { value: 'ps4', label: 'PS4' },
     { value: 'ps3', label: 'PS3' },
-    // {value: 'xbox', label: 'Xbox'}, // When you have GamepadSvgXbox
+    { value: 'xbox', label: 'Xbox' }, // When you have GamepadSvgXbox
     { value: 'generic', label: 'Generic Data' }
   ]
 
@@ -117,13 +149,16 @@ export const GamepadVisualizer: FC<GamepadVisualizerProps> = ({ pad }) => {
         sx={{
           width: '100%',
           maxWidth: displayType === 'generic' ? '450px' : '400px', // Generic might need more width for text
-          minHeight: displayType === 'generic' ? '200px' : '240px' // Adjust based on content
+          minHeight: displayType === 'generic' ? '200px' : '260px', // Adjust based on content
+          maxHeight: displayType === 'generic' ? '100%' : '260px', // Adjust based on content
+          overflow: 'hidden'
           // border: '1px solid green', // For debugging layout
         }}
       >
         {displayType === 'ps5' && <GamepadSvgPs5 pad={pad} />}
+        {displayType === 'ps4' && <GamepadSvgPs4 pad={pad} />}
         {displayType === 'ps3' && <GamepadSvgPs3 pad={pad} />}
-        {/* {displayType === 'xbox' && <GamepadSvgXbox pad={pad} />} */}
+        {displayType === 'xbox' && <GamepadSvgXbox pad={pad} />}
         {displayType === 'generic' && <GenericPadDisplay pad={pad} />}
       </Box>
     </Box>
