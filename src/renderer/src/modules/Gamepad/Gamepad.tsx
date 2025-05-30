@@ -73,21 +73,17 @@ export const InputDisplay: FC<{ input: InputData }> = ({ input }) => {
 
 // --- useInputActions Hook (or useGlobalActions) ---
 export const useGlobalActions = () => {
-  const [gamepads, setGamepads] = useState<Record<number, Gamepad>>({}) // Use Gamepad or GamepadInstance
+  const [gamepads, setGamepads] = useState<Record<number, Gamepad>>({})
   useGamepads((_gamepads: Record<number, Gamepad>) => setGamepads(_gamepads))
 
   const allRows = useMainStore((state) => state.rows)
   const activeProfileId = useMainStore((state) => state.activeProfileId)
   const profiles = useMainStore((state) => state.profiles)
-  // const addRowHistoryEntry = useMainStore((state) => state.addRowHistoryEntry); // If you want to log raw gamepad events here
 
-  // Store previous button states { [padIndex]: boolean[] }
   const prevButtonStatesRef = useRef<Record<number, readonly boolean[]>>({})
-  // Store previous axis states { [padIndex]: readonly number[] }
   const prevAxisStatesRef = useRef<Record<number, readonly number[]>>({})
 
   useEffect(() => {
-    // Filter for active rows configured for this gamepad module
     const activeIoRows = Object.values(allRows).filter((row) => {
       if (row.inputModule !== id || !row.enabled) return false
       if (activeProfileId && profiles[activeProfileId]) {
@@ -96,60 +92,76 @@ export const useGlobalActions = () => {
       return true
     })
 
-    const gamepadInputRows = activeIoRows.filter(
-      (row) => row.input.data // Ensure data exists
-    ) as Array<Row> // Assert type for row.input.data
+    const gamepadInputRows = activeIoRows.filter((row) => row.input.data) as Array<Row> // Assert type for row.input.data
 
     if (gamepadInputRows.length === 0) {
-      // Clean up refs if no rows are listening to prevent stale data if rows are re-added
-      prevButtonStatesRef.current = {}
+      prevButtonStatesRef.current = {} // Clear refs if no rows are listening
       prevAxisStatesRef.current = {}
       return
     }
 
-    // Process each connected gamepad
-    Object.values(gamepads).forEach((gamepad) => {
-      if (!gamepad || !gamepad.connected) {
-        // If a gamepad disconnects, clear its previous state from refs
-        if (prevButtonStatesRef.current[gamepad.index])
-          delete prevButtonStatesRef.current[gamepad.index]
-        if (prevAxisStatesRef.current[gamepad.index])
-          delete prevAxisStatesRef.current[gamepad.index]
+    // For rows configured for "Any Gamepad", we need to track if they've been triggered
+    // in this frame to avoid multiple triggers from different gamepads for the same row.
+    const triggeredForAnyGamepadInThisFrame: Record<string, boolean> = {}
+
+    Object.values(gamepads).forEach((connectedGamepad) => {
+      if (!connectedGamepad || !connectedGamepad.connected) {
+        if (prevButtonStatesRef.current[connectedGamepad.index])
+          delete prevButtonStatesRef.current[connectedGamepad.index]
+        if (prevAxisStatesRef.current[connectedGamepad.index])
+          delete prevAxisStatesRef.current[connectedGamepad.index]
         return
       }
 
-      const padIndex = gamepad.index
-      const currentButtons = gamepad.buttons.map((b) => b.pressed)
-      const currentAxes = [...gamepad.axes] // Important: make a copy for comparison
+      const livePadIndex = connectedGamepad.index
+      const currentButtons = connectedGamepad.buttons.map((b) => b.pressed)
+      const currentAxes = [...connectedGamepad.axes]
 
-      // Initialize or get previous states for this specific gamepad
-      if (!prevButtonStatesRef.current[padIndex]) {
-        prevButtonStatesRef.current[padIndex] = Array(currentButtons.length).fill(false)
+      if (!prevButtonStatesRef.current[livePadIndex]) {
+        prevButtonStatesRef.current[livePadIndex] = Array(currentButtons.length).fill(false)
       }
-      if (!prevAxisStatesRef.current[padIndex]) {
-        prevAxisStatesRef.current[padIndex] = Array(currentAxes.length).fill(0) // Init axes to 0
+      if (!prevAxisStatesRef.current[livePadIndex]) {
+        prevAxisStatesRef.current[livePadIndex] = Array(currentAxes.length).fill(0)
       }
 
-      const previousButtons = prevButtonStatesRef.current[padIndex]
-      const previousAxes = prevAxisStatesRef.current[padIndex]
+      const previousButtons = prevButtonStatesRef.current[livePadIndex]
+      const previousAxes = prevAxisStatesRef.current[livePadIndex]
 
-      // Check each configured IO row against this gamepad's current state
       gamepadInputRows.forEach((row) => {
-        const config = row.input.data // This is GamepadInputRowData
+        const config = row.input.data // GamepadInputRowData
+        let shouldUseThisGamepad = false
 
-        // Match gamepad index:
-        // Row configured for "Any Gamepad" (config.gamepadIndex is undefined)
-        // OR Row configured for this specific gamepad (config.gamepadIndex === padIndex)
-        if (config.gamepadIndex !== undefined && config.gamepadIndex !== padIndex) {
-          return // This row isn't interested in this particular gamepad
+        if (config.gamepadNameFilter) {
+          // Priority 1: Match by specific Gamepad ID
+          if (connectedGamepad.id === config.gamepadNameFilter) {
+            shouldUseThisGamepad = true
+          }
+        } else if (config.gamepadIndex === undefined) {
+          // Priority 2: Row is for "Any Gamepad"
+          // Only trigger once per frame for "Any Gamepad" rows, even if multiple pads meet criteria
+          if (!triggeredForAnyGamepadInThisFrame[row.id]) {
+            shouldUseThisGamepad = true
+            // We will mark it as triggered later if a button/axis condition actually met
+          }
+        } else if (config.gamepadIndex === livePadIndex) {
+          // Priority 3: Fallback to stored index (less reliable)
+          // This case is for rows configured before gamepadNameFilter was introduced, or if ID match failed.
+          // It's good to log a warning if this path is taken often, encouraging re-configuration.
+          console.warn(
+            `[Gamepad] Row ${row.id} is matching on gamepadIndex ${livePadIndex} as fallback. Consider re-saving its config to capture gamepad ID.`
+          )
+          shouldUseThisGamepad = true
         }
 
-        let shouldTrigger = false
+        if (!shouldUseThisGamepad) {
+          return // This row isn't interested in this physical gamepad in this iteration
+        }
+
+        let eventDidOccur = false // Flag if any configured event on this pad for this row happened
         const eventPayloadBase: Omit<GamepadInputEventPayload, 'triggerType'> = {
-          // Base payload
-          gamepadIndex: padIndex,
-          gamepadId: gamepad.id,
-          timestamp: gamepad.timestamp || Date.now()
+          gamepadIndex: livePadIndex,
+          gamepadId: connectedGamepad.id,
+          timestamp: connectedGamepad.timestamp || Date.now()
         }
         let specificEventPayload: Partial<
           Pick<
@@ -158,27 +170,23 @@ export const useGlobalActions = () => {
           >
         > = {}
 
-        // --- Button Event Logic ---
+        // Button Event Logic
         if (
           (config.triggerType === 'button_press' || config.triggerType === 'button_release') &&
           config.buttonIndex !== undefined
         ) {
           const btnIdx = config.buttonIndex
           if (btnIdx >= 0 && btnIdx < currentButtons.length) {
-            // Bounds check
             const isPressed = currentButtons[btnIdx]
             const wasPressed = previousButtons[btnIdx]
-
             specificEventPayload = { buttonIndex: btnIdx, buttonPressed: isPressed }
-
-            if (config.triggerType === 'button_press' && isPressed && !wasPressed) {
-              shouldTrigger = true
-            } else if (config.triggerType === 'button_release' && !isPressed && wasPressed) {
-              shouldTrigger = true
-            }
+            if (config.triggerType === 'button_press' && isPressed && !wasPressed)
+              eventDidOccur = true
+            else if (config.triggerType === 'button_release' && !isPressed && wasPressed)
+              eventDidOccur = true
           }
         }
-        // --- Axis Event Logic ---
+        // Axis Event Logic
         else if (
           config.triggerType === 'axis_move' &&
           config.axisIndex !== undefined &&
@@ -187,65 +195,55 @@ export const useGlobalActions = () => {
         ) {
           const axisIdx = config.axisIndex
           if (axisIdx >= 0 && axisIdx < currentAxes.length) {
-            // Bounds check
             const currentValue = currentAxes[axisIdx]
             const prevValue = previousAxes[axisIdx]
             const threshold = config.axisThreshold
-
             specificEventPayload = { axisIndex: axisIdx, axisValue: currentValue }
-
             switch (config.axisCondition) {
               case 'greater_than':
-                // Trigger only when crossing the threshold from below or equal
-                if (currentValue > threshold && prevValue <= threshold) shouldTrigger = true
+                if (currentValue > threshold && prevValue <= threshold) eventDidOccur = true
                 break
               case 'less_than':
-                // Trigger only when crossing the threshold from above or equal
-                if (currentValue < threshold && prevValue >= threshold) shouldTrigger = true
+                if (currentValue < threshold && prevValue >= threshold) eventDidOccur = true
                 break
               case 'equals':
-                // Trigger if current value is at threshold and previous was not (or different way)
-                // This is tricky with float precision. Better to use a small range.
-                // For simplicity, let's say it triggers if it just became equal.
                 if (
                   Math.abs(currentValue - threshold) < 0.01 &&
                   Math.abs(prevValue - threshold) >= 0.01
                 )
-                  shouldTrigger = true
+                  eventDidOccur = true
                 break
               case 'deadzone_exit':
-                // Trigger if it moves from inside the deadzone to outside
                 if (Math.abs(currentValue) > threshold && Math.abs(prevValue) <= threshold)
-                  shouldTrigger = true
+                  eventDidOccur = true
                 break
             }
           }
         }
 
-        if (shouldTrigger) {
+        if (eventDidOccur) {
+          // If this row was for "Any Gamepad", mark it as triggered for this frame
+          if (config.gamepadIndex === undefined) {
+            triggeredForAnyGamepadInThisFrame[row.id] = true
+          }
+
           const finalPayload: GamepadInputEventPayload = {
             ...eventPayloadBase,
-            ...specificEventPayload, // Add button/axis specific parts
-            triggerType: config.triggerType // The type of event that matched from config
-          } as GamepadInputEventPayload // Assert to full type
+            ...specificEventPayload,
+            triggerType: config.triggerType
+          } as GamepadInputEventPayload
 
-          // console.log(`[Gamepad] IO_INPUT Triggering Row ${row.id} for Pad ${padIndex}`, finalPayload);
           window.dispatchEvent(
-            new CustomEvent('io_input', {
-              detail: {
-                rowId: row.id,
-                payload: finalPayload
-              }
-            })
+            new CustomEvent('io_input', { detail: { rowId: row.id, payload: finalPayload } })
           )
         }
       })
 
-      // Update previous states for this gamepad for the next frame's comparison
-      prevButtonStatesRef.current[padIndex] = currentButtons // Already a new array from .map()
-      prevAxisStatesRef.current[padIndex] = currentAxes // Was already a copy
+      // Update previous states for this physical gamepad AFTER checking all rows against it
+      prevButtonStatesRef.current[livePadIndex] = currentButtons
+      prevAxisStatesRef.current[livePadIndex] = currentAxes
     })
-  }, [gamepads, allRows, activeProfileId, profiles]) // Key dependencies
+  }, [gamepads, allRows, activeProfileId, profiles])
 
   return null
 }

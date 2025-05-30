@@ -45,12 +45,9 @@ export const GenericPadDisplay: FC<GenericPadDisplayProps> = ({ pad }) => {
   }
 
   return (
-    <Paper
-      variant="outlined"
-      sx={{ p: { xs: 1, sm: 2 }, width: '100%', maxWidth: 450, margin: '0 auto' }}
-    >
+    <Paper elevation={0} sx={{ p: 0, width: '100%', maxWidth: 450, margin: 0 }}>
       <Typography variant="overline" display="block" sx={{ mb: 1.5, textAlign: 'center' }}>
-        Generic Gamepad State ({pad.id.substring(0, 25)}...)
+        Generic Gamepad State <br /> ({pad.id.substring(0, 45)}...)
       </Typography>
 
       {/* Buttons Section */}

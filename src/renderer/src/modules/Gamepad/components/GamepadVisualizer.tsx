@@ -103,7 +103,6 @@ export const GamepadVisualizer: FC<GamepadVisualizerProps> = ({ pad }) => {
         variant="outlined"
         sx={{
           p: 2,
-          mt: 2,
           textAlign: 'center',
           minHeight: 200,
           display: 'flex',
@@ -126,10 +125,9 @@ export const GamepadVisualizer: FC<GamepadVisualizerProps> = ({ pad }) => {
   ]
 
   return (
-    <Box
-      sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', mt: 1 }}
-    >
+    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <ToggleButtonGroup
+        fullWidth
         color="primary"
         value={userSelectedType}
         exclusive
@@ -138,8 +136,13 @@ export const GamepadVisualizer: FC<GamepadVisualizerProps> = ({ pad }) => {
         size="small"
         sx={{ mb: 2.5 }}
       >
-        {visualizerOptions.map((opt) => (
-          <ToggleButton key={opt.value} value={opt.value} aria-label={opt.label}>
+        {visualizerOptions.map((opt, i) => (
+          <ToggleButton
+            key={opt.value}
+            value={opt.value}
+            aria-label={opt.label}
+            sx={{ whiteSpace: 'nowrap', flexGrow: i === 0 ? 1 : 0 }}
+          >
             {opt.label}
           </ToggleButton>
         ))}

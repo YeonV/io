@@ -207,6 +207,11 @@ export const GamepadInputEdit: FC<GamepadInputEditProps> = ({ inputData, onChang
       return gamepads[idx]
     }
     // If "Any" is selected, maybe show first connected for visualizer, or none
+    setSelectedGamepadDisplayIndex(
+      connectedGamepadsArray.length > 0
+        ? String(connectedGamepadsArray[0].index)
+        : String(ANY_GAMEPAD_INDEX)
+    )
     return connectedGamepadsArray.length > 0 ? connectedGamepadsArray[0] : null
   }, [selectedGamepadDisplayIndex, gamepads, connectedGamepadsArray])
 
@@ -219,54 +224,52 @@ export const GamepadInputEdit: FC<GamepadInputEditProps> = ({ inputData, onChang
   }
 
   return (
-    <Stack spacing={2.5} sx={{ p: 0 }}>
+    <Stack spacing={2} sx={{ p: 0, pt: 0.5 }}>
       {/* --- Gamepad Selection & Visualizer --- */}
-      <Paper variant="outlined" sx={{ p: 2, borderRadius: 1.5 }}>
-        <FormControl fullWidth size="small" sx={{ mb: 2 }}>
-          <InputLabel id="gamepad-select-label">Target Gamepad</InputLabel>
-          <Select
-            labelId="gamepad-select-label"
-            label="Target Gamepad"
-            size="small"
-            value={selectedGamepadDisplayIndex}
-            sx={{ maxWidth: '100%' }}
-            onChange={handleGamepadSelectionChange}
-            renderValue={(selectedIndex) => {
-              if (selectedIndex === String(ANY_GAMEPAD_INDEX)) return <em>Any Connected Gamepad</em>
-              const gp = gamepads[parseInt(selectedIndex, 10)]
-              return gp ? (
-                <Typography variant="body2" noWrap>
-                  {gp.id}
-                </Typography>
-              ) : (
-                <em>Unknown Gamepad</em>
-              )
-            }}
-          >
-            <MenuItem value={String(ANY_GAMEPAD_INDEX)}>
-              <IoIcon name="mdi:gamepad-variant-outline" style={{ marginRight: 8, opacity: 0.7 }} />
-              <em>Any Connected Gamepad</em>
+
+      <FormControl fullWidth size="small">
+        <InputLabel id="gamepad-select-label">Target Gamepad</InputLabel>
+        <Select
+          labelId="gamepad-select-label"
+          label="Target Gamepad"
+          size="medium"
+          value={selectedGamepadDisplayIndex}
+          sx={{ maxWidth: '100%' }}
+          onChange={handleGamepadSelectionChange}
+          renderValue={(selectedIndex) => {
+            if (selectedIndex === String(ANY_GAMEPAD_INDEX)) return <em>Any Connected Gamepad</em>
+            const gp = gamepads[parseInt(selectedIndex, 10)]
+            return gp ? (
+              <Typography variant="body2" noWrap>
+                {gp.id}
+              </Typography>
+            ) : (
+              <em>Unknown Gamepad</em>
+            )
+          }}
+        >
+          <MenuItem value={String(ANY_GAMEPAD_INDEX)}>
+            <IoIcon name="mdi:gamepad-variant-outline" style={{ marginRight: 8, opacity: 0.7 }} />
+            <em>Any Connected Gamepad</em>
+          </MenuItem>
+          {connectedGamepadsArray.map((gp) => (
+            <MenuItem key={gp.index} value={String(gp.index)}>
+              <IoIcon name="mdi:gamepad-variant" style={{ marginRight: 8 }} />
+              <ListItemText primary={gp.id} sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }} />
             </MenuItem>
-            {connectedGamepadsArray.map((gp) => (
-              <MenuItem key={gp.index} value={String(gp.index)}>
-                <IoIcon name="mdi:gamepad-variant" style={{ marginRight: 8 }} />
-                <ListItemText
-                  primary={gp.id}
-                  sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
-                />
-              </MenuItem>
-            ))}
-            {connectedGamepadsArray.length === 0 && (
-              <MenuItem value="" disabled>
-                No gamepads connected
-              </MenuItem>
-            )}
-          </Select>
-        </FormControl>
-        {currentlySelectedGamepadForVisualizer && (
+          ))}
+          {connectedGamepadsArray.length === 0 && (
+            <MenuItem value="" disabled>
+              No gamepads connected
+            </MenuItem>
+          )}
+        </Select>
+      </FormControl>
+      {currentlySelectedGamepadForVisualizer && (
+        <Paper variant="outlined" sx={{ p: 0, borderRadius: 1.5 }}>
           <GamepadVisualizer pad={currentlySelectedGamepadForVisualizer} />
-        )}
-      </Paper>
+        </Paper>
+      )}
 
       {/* --- Capture Instruction / Configuration Area --- */}
       {!isInputCaptured ? (
