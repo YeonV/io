@@ -9,6 +9,7 @@
     "src/renderer/src/modules/modules.main.ts",
     "src/renderer/src/modules/**/*.main.ts",
     "src/renderer/src/integrations/**/*.main.ts",
+    "src/renderer/src/integrations/**/*.types.ts",
     "src/renderer/src/modules/**/*.types.ts",
     "src/renderer/src/modules/**/*.helper.ts",
   ],

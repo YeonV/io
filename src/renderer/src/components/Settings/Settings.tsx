@@ -37,7 +37,7 @@ import SettingsHistory from './SettingsHistory'
 import { TransitionProps } from '@mui/material/transitions'
 import SettingsAllModulePanels from './SettingsAllModules'
 import SettingsProfiles from './SettingsProfiles'
-import HomeAssistantSettings from '@/integrations/HomeAssistant/HomeAssistant.settings'
+import SettingsIntegrations from './SettingsIntegrations'
 
 type SettingsCategory =
   | 'general'
@@ -73,7 +73,7 @@ const SettingsDialogContent: FC<{ category: SettingsCategory }> = ({ category })
     case 'allModulePanels':
       return <SettingsAllModulePanels />
     case 'integrations':
-      return <HomeAssistantSettings />
+      return <SettingsIntegrations />
     case 'history':
       return <SettingsHistory />
     case 'about':

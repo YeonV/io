@@ -5,30 +5,12 @@ import Store from 'electron-store'
 import mqtt from 'mqtt'
 import pkg from '../../../../../package.json' with { type: 'json' }
 import { IOMainIntegrationPart } from '@shared/integration-types'
+import type { integrationsState } from './HomeAssistant.types'
 
 const homeAssistantMainPart: IOMainIntegrationPart = {
   integrationId: 'home-assistant', // MUST match!
   initialize: initializeHomeAssistantIntegration,
   cleanup: cleanupHomeAssistantIntegration
-}
-
-export interface integrationsState {
-  // This interface definition is fine here as per your structure
-  homeAssistant: {
-    config: {
-      enabled: boolean
-      mqttHost?: string
-      mqttPort?: number
-      mqttUsername?: string
-      mqttPassword?: string
-      discoveryPrefix?: string
-      deviceName?: string
-      ioInstanceId?: string
-    }
-    mqttConnected: boolean
-    haRegistered: boolean
-  }
-  setHomeAssistantConfig: (config: integrationsState['homeAssistant']['config']) => void
 }
 
 let mqttClient: mqtt.MqttClient | null = null
