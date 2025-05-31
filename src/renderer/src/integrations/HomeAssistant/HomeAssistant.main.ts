@@ -4,6 +4,13 @@ import type { Row } from '../../../../shared/types'
 import Store from 'electron-store'
 import mqtt from 'mqtt'
 import pkg from '../../../../../package.json' with { type: 'json' }
+import { IOMainIntegrationPart } from '@shared/integration-types'
+
+const homeAssistantMainPart: IOMainIntegrationPart = {
+  integrationId: 'home-assistant', // MUST match!
+  initialize: initializeHomeAssistantIntegration,
+  cleanup: cleanupHomeAssistantIntegration
+}
 
 export interface integrationsState {
   // This interface definition is fine here as per your structure
@@ -403,3 +410,5 @@ export async function cleanupHomeAssistantIntegration(): Promise<void> {
   }
   console.log('HA Main: HA Integration cleanup complete.')
 }
+
+export default homeAssistantMainPart
