@@ -102,7 +102,7 @@ export const AudioPlayerCore: FC<AudioPlayerCoreProps> = ({
       }
     }
     const handleError = () => {
-      console.error('[AudioPlayerCore] Error on audio element:', audio.error)
+      // console.error('[AudioPlayerCore] Error on audio element:', audio.error)
       setIsPlaying(false)
       setProgress(0)
     }

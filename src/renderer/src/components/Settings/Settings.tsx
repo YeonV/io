@@ -24,7 +24,8 @@ import {
   HistoryOutlined as HistoryIcon, // History icon
   InfoOutlined as AboutIcon,
   Settings as SettingsIcon,
-  ViewAgendaOutlined as AllSettingsPanelsIcon
+  ViewAgendaOutlined as AllSettingsPanelsIcon,
+  Extension
   // Icons for specific settings will be imported as needed
 } from '@mui/icons-material'
 
@@ -36,9 +37,11 @@ import SettingsHistory from './SettingsHistory'
 import { TransitionProps } from '@mui/material/transitions'
 import SettingsAllModulePanels from './SettingsAllModules'
 import SettingsProfiles from './SettingsProfiles'
+import HomeAssistantSettings from '@/integrations/HomeAssistant/HomeAssistant.settings'
 
 type SettingsCategory =
   | 'general'
+  | 'integrations'
   | 'appearance'
   | 'profiles'
   | 'modules'
@@ -53,6 +56,7 @@ const settingsCategories: Array<{ id: SettingsCategory; label: string; icon: Rea
   { id: 'modules', label: 'Module Browser', icon: <ModulesIcon /> },
   { id: 'allModulePanels', label: 'Module Settings', icon: <AllSettingsPanelsIcon /> },
   { id: 'history', label: 'Row History', icon: <HistoryIcon /> },
+  { id: 'integrations', label: 'integrations', icon: <Extension /> },
   { id: 'about', label: 'About', icon: <AboutIcon /> }
 ]
 
@@ -68,6 +72,8 @@ const SettingsDialogContent: FC<{ category: SettingsCategory }> = ({ category })
       return <SettingsModule />
     case 'allModulePanels':
       return <SettingsAllModulePanels />
+    case 'integrations':
+      return <HomeAssistantSettings />
     case 'history':
       return <SettingsHistory />
     case 'about':

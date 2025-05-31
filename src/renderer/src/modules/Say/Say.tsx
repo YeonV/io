@@ -59,9 +59,9 @@ export const useOutputActions = (row: Row) => {
       return // Do not attach listener or perform actions if not active
     }
 
-    log.info2(
-      `Say.tsx: Attaching 'io_input' listener for row ${rowId} (Text: "${textFromOutputData}")`
-    )
+    // log.info2(
+    //   `Say.tsx: Attaching 'io_input' listener for row ${rowId} (Text: "${textFromOutputData}")`
+    // )
 
     const listener = (event: Event) => {
       const triggerRowId = event instanceof CustomEvent && event.detail.rowId
@@ -90,5 +90,5 @@ export const useOutputActions = (row: Row) => {
 }
 
 export const useGlobalActions = () => {
-  log.info1('useGlobalActions:', 'say')
+  // log.info1('useGlobalActions:', 'say')
 }

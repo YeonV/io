@@ -15,6 +15,10 @@ import { installDevTools } from './devtools'
 import iconAsset from '../../resources/icon.png?asset'
 
 import { loadAndInitializeAllMainModules, cleanupAllMainModules } from './moduleLoader'
+import {
+  cleanupAllMainIntegrations,
+  loadAndInitializeAllMainIntegrations
+} from './integrationLoader'
 
 performEarlyAppSetup()
 enforceSingleInstanceLock()
@@ -33,6 +37,7 @@ app.whenReady().then(async () => {
     // The 'set' handler will call notifyMainModulesOnRowsUpdate
 
     await loadAndInitializeAllMainModules() // This loads and initializes Keyboard.main, Alexa.main, Shell.main etc.
+    await loadAndInitializeAllMainIntegrations()
 
     mainWindowInstance.webContents.once('did-finish-load', () => {
       console.log("Main (index.ts): Renderer 'did-finish-load'. Starting Express API.")
@@ -59,6 +64,7 @@ app.whenReady().then(async () => {
         // Re-initialize main modules as they might depend on window/store which are fresh
         // Or ensure their internal logic correctly uses getMainWindow/getStore for fresh instances
         await loadAndInitializeAllMainModules()
+        await loadAndInitializeAllMainIntegrations()
       }
     }
   })
@@ -66,6 +72,7 @@ app.whenReady().then(async () => {
 
 app.on('will-quit', async () => {
   await cleanupAllMainModules() // Calls cleanup on keyboard.main, alexa.main, etc.
+  await cleanupAllMainIntegrations()
   destroyTray()
   console.log('Main (index.ts): App is about to quit.')
 })

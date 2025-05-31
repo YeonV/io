@@ -20,7 +20,7 @@ export const moduleConfig: ModuleConfig<PlaySoundModuleCustomConfig> = {
   outputs: [
     {
       name: 'Play Sound',
-      icon: 'audiotrack',
+      icon: 'mdi:music-note',
       editable: true,
       supportedContexts: ['electron', 'web']
     }

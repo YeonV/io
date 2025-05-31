@@ -9,7 +9,6 @@ import Wrapper from '@/components/utils/Wrapper'
 import { log } from '@/utils'
 import type { ModuleId, OutputData, Row } from '@shared/types'
 import { moduleImplementations, ModuleImplementationMap } from '@/modules/moduleRegistry'
-import ProfileManagerSettings from '@/components/Settings/ProfileManagerSettings'
 import {
   BlueprintDefinition,
   RestModuleCustomConfig,
@@ -61,24 +60,24 @@ const Home: FC = () => {
   const rowsToDisplay = useMemo(() => {
     const allRowsArray = Object.values(rows)
     if (!activeProfileId) {
-      console.log(
-        "No profile active, display all rows (IoRow will handle opacity for its 'enabled' state)"
-      )
+      // console.log(
+      //   "No profile active, display all rows (IoRow will handle opacity for its 'enabled' state)"
+      // )
       return allRowsArray
     }
 
     const activeProfile = profiles[activeProfileId]
     if (!activeProfile) {
-      console.log(
-        "Active profile ID set, but profile definition not found (shouldn't happen ideally)"
-      )
+      // console.log(
+      //   "Active profile ID set, but profile definition not found (shouldn't happen ideally)"
+      // )
       return allRowsArray
     }
-    console.log(
-      'Profile is active, filter rows to only those included in the profile',
-      activeProfile,
-      rows
-    )
+    // console.log(
+    //   'Profile is active, filter rows to only those included in the profile',
+    //   activeProfile,
+    //   rows
+    // )
     return allRowsArray.filter((row) => activeProfile.includedRowIds.includes(row.id))
   }, [rows, activeProfileId, profiles])
 
@@ -258,6 +257,32 @@ const Home: FC = () => {
     console.debug(
       'Home: Core IPC listeners (trigger-row, update-row, deck-update-row-display) attached.'
     )
+    const handleTriggerRowFromMainHA = (
+      _event: Electron.IpcRendererEvent,
+      data: { rowId: string; command: string } // command is "ON" or "OFF"
+    ) => {
+      if (data.rowId) {
+        console.log(
+          `Home: IPC 'trigger-row-from-main-ha' received for Row ID: ${data.rowId}, Command: ${data.command}`
+        )
+        // Dispatch the standard io_input event.
+        // The payload can be the command ("ON"/"OFF") or any other relevant data from HA if needed later.
+        window.dispatchEvent(
+          new CustomEvent('io_input', {
+            detail: {
+              rowId: data.rowId,
+              payload: data.command, // Pass the HA command as payload
+              dispatcherModuleId: 'homeassistant-integration' // Identify the source
+            }
+          })
+        )
+      } else {
+        console.warn("Home: IPC 'trigger-row-from-main-ha' received without rowId.", data)
+      }
+    }
+
+    ipcRenderer.on('trigger-row-from-main-ha', handleTriggerRowFromMainHA)
+    console.debug("Home: IPC listener 'trigger-row-from-main-ha' attached.")
 
     return () => {
       console.debug('Home: Cleaning up core IPC listeners.')
@@ -265,6 +290,7 @@ const Home: FC = () => {
         ipcRenderer.removeListener('trigger-row', triggerRowListener)
         ipcRenderer.removeListener('update-row', legacyUpdateRowListener)
         ipcRenderer.removeListener('deck-update-row-display', handleDeckUpdateRowDisplay)
+        ipcRenderer.removeListener('trigger-row-from-main-ha', handleTriggerRowFromMainHA)
       }
     }
   }, [editRow])
@@ -398,7 +424,7 @@ const Home: FC = () => {
             flexWrap: 'wrap'
           }}
         >
-          <ProfileManagerSettings key="profile-manager" />
+          {/* <ProfileManagerSettings key="profile-manager" /> */}
           {SettingsWidgets.length > 0 &&
             SettingsWidgets.map((widget, index) => (
               <div key={(widget as any)?.key || index} style={{ padding: '8px' }}>
@@ -407,11 +433,14 @@ const Home: FC = () => {
             ))}
         </div>
 
-        <div style={{ maxHeight: 'calc(100vh - 356px)', overflowY: 'auto' }}>
-          {rowsToDisplay.map((row) => (
-            <IoRow key={row.id} row={row} />
-          ))}
-        </div>
+        <Button
+          disabled={showAddRow}
+          variant="contained"
+          onClick={handleAddNewRowClick}
+          style={{ margin: '1rem auto', display: 'flex' }}
+        >
+          <Add /> Add New IO Row
+        </Button>
 
         <Collapse in={showAddRow} timeout={500} unmountOnExit>
           <Box sx={{ mt: 2, mb: 2 }}>
@@ -423,14 +452,17 @@ const Home: FC = () => {
             />
           </Box>
         </Collapse>
-        <Button
-          disabled={showAddRow}
-          variant="contained"
-          onClick={handleAddNewRowClick}
-          style={{ margin: '1rem auto', display: 'flex' }}
+        <div
+          style={{
+            maxHeight: 'calc(100vh - 356px - 5rem)',
+            overflowY: 'auto',
+            marginBottom: '5rem'
+          }}
         >
-          <Add /> Add New IO Row
-        </Button>
+          {rowsToDisplay.map((row) => (
+            <IoRow key={row.id} row={row} />
+          ))}
+        </div>
       </Wrapper>
       {blueprintForRunner && (
         <BlueprintRunnerDialog

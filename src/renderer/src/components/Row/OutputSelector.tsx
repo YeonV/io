@@ -82,19 +82,17 @@ export const OutputSelector: FC<{
       disableClearable
       getOptionLabel={(option) => option?.label ?? ''}
       renderOption={(props, option) => {
-        // props includes key, pass it down
-        // The props passed by Autocomplete already include a key.
-        // We spread props onto ListItem, which will use that key.
+        // eslint-disable-next-line react/prop-types
+        const { key, ...restProps } = props
         return (
           <ListItem
-            {...props}
-            // key={option.id + option.moduleActualId} // Key is handled by Autocomplete's props
+            key={key}
+            {...restProps}
             style={{
               display: 'flex',
               padding: '5px 15px',
               minWidth: '100px',
               justifyContent: 'space-between'
-              // background: isWebEnvironment && !option.isWebCompatible ? 'red' : 'transparent'
             }}
             // Disable the option visually and functionally if not web compatible in web env
             // disabled={isWebEnvironment && !option.isWebCompatible}

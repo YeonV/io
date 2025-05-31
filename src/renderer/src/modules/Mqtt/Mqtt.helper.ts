@@ -1,3 +1,4 @@
+// src/renderer/src/modules/Mqtt/Mqtt.helper.ts
 export function mqttTopicMatch(topic: string, pattern: string): boolean {
   if (pattern === '#') {
     // '#' wildcard matches everything, except for topics starting with '$' (system topics)

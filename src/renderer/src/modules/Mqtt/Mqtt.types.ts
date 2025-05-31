@@ -1,3 +1,4 @@
+// src/renderer/src/modules/Mqtt/Mqtt.types.ts
 export interface MqttBrokerConfig {
   id: string
   name: string

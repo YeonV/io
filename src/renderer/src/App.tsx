@@ -57,9 +57,9 @@ const App = () => {
     } else {
       currentMode = themeChoice
     }
-    console.log(
-      `[App.tsx] Creating MUI theme with mode: ${currentMode} (Choice: ${themeChoice}, OS Dark: ${osShouldUseDark})`
-    )
+    // console.log(
+    //   `[App.tsx] Creating MUI theme with mode: ${currentMode} (Choice: ${themeChoice}, OS Dark: ${osShouldUseDark})`
+    // )
 
     return createTheme({
       components: {
