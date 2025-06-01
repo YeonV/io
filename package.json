@@ -53,8 +53,8 @@
     "dist": "electron-vite build && yarn electron-builder",
     "sync-modules": "node scripts/sync-modules.js",
     "sync-integrations": "node scripts/sync-integrations.js",
-    "predev": "npm run sync-modules",
-    "prebuild": "npm run sync-modules"
+    "predev": "npm run sync-modules && npm run sync-integrations",
+    "prebuild": "npm run sync-modules && npm run sync-integrations"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
