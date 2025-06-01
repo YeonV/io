@@ -131,7 +131,25 @@ export function updateHaConfigFromExternal(
   }
 
   currentDeps?.getStore().set('integrationsHomeAssistantConfig', currentHaConfig.config)
-
+  if (currentDeps?.getMainWindow()) {
+    console.log('HA Main: Notifying renderer that HA config was updated by main process.')
+    currentDeps
+      .getMainWindow()!
+      .webContents.send('ha-config-changed-in-main', currentHaConfig!.config)
+    // Send the new inner config object
+  }
+  if (currentDeps?.broadcastSseEvent) {
+    currentDeps.broadcastSseEvent({
+      type: 'ha-config-updated', // New SSE event type
+      payload: currentHaConfig!.config // Send the new config object
+    })
+    // Also, if the updateEntitiesBasedOnProfile call changes registration status or MQTT status,
+    // those existing SSE events will fire. This 'ha-config-updated' is specifically for the config data itself.
+  }
+  if (currentHaConfig!.config.enabled && mqttClientInstance?.connected && isHaRegisteredGlobally) {
+    console.log('HA Main: Config updated (potentially exposedRowIds), re-syncing entities with HA.')
+    updateEntitiesBasedOnProfile() // This is your renamed updateHaEntitiesForCurrentProfile
+  }
   if (!currentHaConfig.config.enabled) {
     if (isHaRegisteredGlobally) unregisterDeviceAndAllExposedEntities()
     disconnectMqtt()

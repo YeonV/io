@@ -167,8 +167,16 @@ const IntegrationSettingsPage: FC = () => {
         setIsRegistering(false)
       }
     })
-    sse.addEventListener('ping', (event: MessageEvent) => {
-      console.log('SSE Ping received:', JSON.parse(event.data))
+    sse.addEventListener('ha-config-updated', (event: MessageEvent) => {
+      const data = JSON.parse(event.data)
+      console.log('SSE: ha-config-updated', data)
+      if (data.payload && typeof data.payload === 'object') {
+        // data.payload is the new config object from the backend
+        setConfig((prevConfig) => ({
+          ...(prevConfig || ({} as HomeAssistantConfigData)), // Keep existing if any, or start fresh
+          ...data.payload // Merge new config, ensuring exposedRowIds is updated
+        }))
+      }
     })
 
     sse.onerror = (err) => {
@@ -208,7 +216,7 @@ const IntegrationSettingsPage: FC = () => {
       if (!response.ok || !result.success) {
         throw new Error(result.error || `Failed to save config (${response.status})`)
       }
-      showInfo('Configuration Saved', 'Settings have been saved successfully.')
+      // showInfo('Configuration Saved', 'Settings have been saved successfully.')
       fetchConfig()
       fetchStatus(false) // Refresh status silently
     } catch (err: any) {
@@ -301,7 +309,7 @@ const IntegrationSettingsPage: FC = () => {
         if (!actionResponse.ok || !actionResult.success) {
           throw new Error(actionResult.error || `Failed to ${actionVerb} row ${rowId}.`)
         }
-        showInfo('Success', `Row ${actionVerb}d. Saving updated exposure list...`)
+        // showInfo('Success', `Row ${actionVerb}d. Saving updated exposure list...`)
 
         // Step 2: Persist the entire updated config (with the new exposedRowIds list)
         const saveResponse = await fetch(`${apiBaseUrl}/config`, {
@@ -315,7 +323,7 @@ const IntegrationSettingsPage: FC = () => {
             saveResult.error || 'Failed to save updated exposed rows list to backend.'
           )
         }
-        showInfo('Configuration Saved', 'List of exposed automations has been updated and saved.')
+        // showInfo('Configuration Saved', 'List of exposed automations has been updated and saved.')
         // Optionally re-fetch config to be absolutely sure, though optimistic update + save should be fine
         // fetchConfig();
       } catch (err: any) {

@@ -1,4 +1,5 @@
 // src/renderer/src/integrations/HomeAssistant/components/HomeAssistant.discovery.main.ts
+import os from 'os'
 import type mqtt from 'mqtt'
 import type { Row, ProfileDefinition } from '../../../../../shared/types'
 import type { integrationsState } from '../HomeAssistant.types'
@@ -12,6 +13,48 @@ import {
 const PROFILE_SELECTOR_OBJECT_ID = 'io_profile_selector' // Keep consistent
 const NO_PROFILE_ACTIVE_HA_OPTION = 'None (All Rows Active)' // Keep consistent
 
+export function getLocalLanIp(): string | null {
+  const interfaces = os.networkInterfaces()
+  for (const name of Object.keys(interfaces)) {
+    const ifaceDetails = interfaces[name]
+    if (ifaceDetails) {
+      for (const iface of ifaceDetails) {
+        // Skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
+        // Also skip over Docker/VM interfaces if possible (can be tricky)
+        if (iface.family === 'IPv4' && !iface.internal) {
+          // Prioritize common LAN IP ranges, but this is not foolproof
+          if (
+            iface.address.startsWith('192.168.') ||
+            iface.address.startsWith('10.') ||
+            (iface.address.startsWith('172.') &&
+              parseInt(iface.address.split('.')[1], 10) >= 16 &&
+              parseInt(iface.address.split('.')[1], 10) <= 31)
+          ) {
+            return iface.address
+          }
+        }
+      }
+    }
+  }
+  // Fallback if no ideal private IP found, could return a placeholder or localhost
+  // For configuration_url, a real LAN IP is best. If not found, localhost is a guess.
+  // Or, we could make this configurable by the user if discovery fails.
+  // For now, let's try to find one, and if not, the user might need to adjust.
+  // A more robust solution might involve user input if auto-detection is tricky.
+  // Fallback to first non-internal IPv4 if no private range matched
+  for (const name of Object.keys(interfaces)) {
+    const ifaceDetails = interfaces[name]
+    if (ifaceDetails) {
+      for (const iface of ifaceDetails) {
+        if (iface.family === 'IPv4' && !iface.internal) {
+          return iface.address // Return the first one found
+        }
+      }
+    }
+  }
+  return 'localhost' // Last resort fallback
+}
+
 export function getDeviceConfigPayloadForHa(
   haConfig: integrationsState['homeAssistant']['config']
 ): any | null {
@@ -19,29 +62,19 @@ export function getDeviceConfigPayloadForHa(
     console.error('HA Discovery: ioInstanceId missing for device config.')
     return null
   }
-  let configUrlString = `http://localhost:1337/integrations/?id=home-assistant` // Use query param
-  try {
-    const hostIsUrlLike = haConfig.mqttHost?.includes('://')
-    const baseUrl = hostIsUrlLike ? haConfig.mqttHost : `http://${haConfig.mqttHost || 'localhost'}`
-    const tempUrl = new URL(baseUrl!) // baseUrl should not be null here due to earlier checks
-    tempUrl.port = '1337'
-    tempUrl.pathname = '/integrations/' // Base path for integrations page
-    tempUrl.search = '?id=home-assistant' // Query param
-    configUrlString = tempUrl.toString()
-  } catch (e) {
-    console.warn('HA Discovery: Could not parse mqttHost for configuration_url, using default.', e)
-  }
+  const detectedIp = getLocalLanIp() // Get the LAN IP
 
+  // The port 1337 is for IO's Express server
+  const configUrlString = `http://${detectedIp}:1337/integrations/?id=home-assistant&yz=1`
   return {
     identifiers: [`io_hub_${haConfig.ioInstanceId}`],
     name: haConfig.deviceName || 'IO Hub',
     model: 'IO Automation Hub',
     manufacturer: 'YeonV/Blade',
     sw_version: pkg.version,
-    configuration_url: configUrlString
+    configuration_url: configUrlString // Use the new URL
   }
 }
-
 export function registerSingleSwitchEntity(
   row: Row,
   haConfig: integrationsState['homeAssistant']['config'],

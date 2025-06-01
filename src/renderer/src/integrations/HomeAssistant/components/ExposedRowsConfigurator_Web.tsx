@@ -1,5 +1,5 @@
 // src/renderer/src/integrations/HomeAssistant/components/ExposedRowsConfigurator_Web.tsx
-import { FC, useMemo } from 'react'
+import { FC, useMemo, useState } from 'react'
 import {
   Typography,
   List,
@@ -12,17 +12,19 @@ import {
   Stack,
   CircularProgress
 } from '@mui/material'
-import type { Row } from '@shared/types' // Assuming Row type is available
-import IoIcon from '@/components/IoIcon/IoIcon' // Assuming IoIcon is web-compatible or you have an alternative
-import { PlaylistAddCheckCircleOutlined } from '@mui/icons-material'
+import type { Row } from '@shared/types'
+import IoIcon from '@/components/IoIcon/IoIcon' // Ensure this path is correct for your web context
+// If IoIcon is Electron-specific, you might need a web alternative
+// or ensure it degrades gracefully (e.g., shows nothing or a placeholder).
+import { PlaylistAddCheckCircleOutlined as SectionIcon } from '@mui/icons-material'
 
 interface ExposedRowsConfiguratorWebProps {
-  allIoRows: Record<string, Row>
-  exposedRowIdsFromConfig: string[] | undefined // From the HA config object
-  onToggleRowExposure: (rowId: string, newIsExposedState: boolean) => Promise<void> // Async for API call
+  allIoRows: Record<string, Row> | null // Can be null initially
+  exposedRowIdsFromConfig: string[] | undefined
+  onToggleRowExposure: (rowId: string, newIsExposedState: boolean) => Promise<void>
   isHaIntegrationEnabled: boolean
   isMqttConnected: boolean
-  isLoadingRows: boolean // To show a loader while rows are being fetched
+  isLoadingRows: boolean
 }
 
 export const ExposedRowsConfigurator_Web: FC<ExposedRowsConfiguratorWebProps> = ({
@@ -39,20 +41,32 @@ export const ExposedRowsConfigurator_Web: FC<ExposedRowsConfiguratorWebProps> = 
   )
   const allIoRowsArray = useMemo(() => Object.values(allIoRows || {}), [allIoRows])
 
-  // Local loading state for individual row toggles, if needed for UX
-  // const [togglingRowId, setTogglingRowId] = useState<string | null>(null);
+  // Local state to indicate which row's toggle is currently being processed by an API call
+  const [togglingRowId, setTogglingRowId] = useState<string | null>(null)
 
   const handleToggle = async (rowId: string, currentIsExposed: boolean) => {
-    // setTogglingRowId(rowId);
-    await onToggleRowExposure(rowId, !currentIsExposed) // Tell parent to flip the state
-    // setTogglingRowId(null);
+    if (togglingRowId) return // Prevent multiple rapid toggles on the same row
+
+    setTogglingRowId(rowId)
+    try {
+      await onToggleRowExposure(rowId, !currentIsExposed)
+    } catch (error) {
+      // Error handling is done in the parent (IntegrationSettingsPage)
+      // which will show an InfoDialog and revert optimistic UI if needed.
+      console.error(`ExposedRowsConfigurator_Web: Error during toggle for row ${rowId}`, error)
+    } finally {
+      setTogglingRowId(null)
+    }
   }
+
+  const paperStyles = { p: 2.5, mt: 3 } // Consistent padding and margin
 
   if (!isHaIntegrationEnabled) {
     return (
-      <Paper elevation={2} sx={{ p: 2.5, mt: 3 }}>
+      <Paper elevation={2} sx={paperStyles}>
         <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-          Enable the Home Assistant integration above to configure exposed automations.
+          Enable the Home Assistant integration (and save configuration) to manage exposed
+          automations.
         </Typography>
       </Paper>
     )
@@ -60,27 +74,27 @@ export const ExposedRowsConfigurator_Web: FC<ExposedRowsConfiguratorWebProps> = 
 
   if (isLoadingRows) {
     return (
-      <Paper elevation={2} sx={{ p: 2.5, mt: 3, textAlign: 'center' }}>
+      <Paper elevation={2} sx={{ ...paperStyles, textAlign: 'center' }}>
         <CircularProgress size={24} sx={{ mr: 1 }} />
         <Typography variant="body2" color="text.secondary" component="span">
-          Loading automations...
+          Loading automations list...
         </Typography>
       </Paper>
     )
   }
 
   return (
-    <Paper elevation={2} sx={{ p: 2.5, mt: 3 }}>
+    <Paper elevation={2} sx={paperStyles}>
       <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2 }}>
-        <PlaylistAddCheckCircleOutlined color="primary" />
+        <SectionIcon color="primary" />
         <Typography variant="h6" component="div">
           Expose Automations to Home Assistant
         </Typography>
       </Stack>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         Select which IO automations (rows) should appear as controllable entities within Home
-        Assistant. Changes take effect immediately if connected and registered. The list of exposed
-        automations is saved when you click &quot;Save Configuration&quot; above.
+        Assistant. Changes are applied immediately if connected & registered. The list of exposed
+        automations is saved when you click &quot;Save Configuration&quot; for the integration.
       </Typography>
       {allIoRowsArray.length === 0 ? (
         <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
@@ -92,8 +106,10 @@ export const ExposedRowsConfigurator_Web: FC<ExposedRowsConfiguratorWebProps> = 
           sx={{
             maxHeight: 300,
             overflowY: 'auto',
-            backgroundColor: 'action.hover',
-            borderRadius: 1
+            backgroundColor: 'background.paper',
+            borderRadius: 1,
+            border: '1px solid',
+            borderColor: 'divider'
           }}
         >
           {allIoRowsArray.map((row: Row) => {
@@ -108,8 +124,9 @@ export const ExposedRowsConfigurator_Web: FC<ExposedRowsConfiguratorWebProps> = 
               row.output.name ||
               `Row ${row.id.substring(0, 4)}`
 
-            // For display, keep it concise, focusing on output as per your earlier note
-            // const inputName = row.input.name || `Input ${row.inputModule.replace('-module','').substring(0,10)}`;
+            const inputModuleName = row.inputModule.replace('-module', '')
+            const outputModuleName = row.outputModule.replace('-module', '')
+            const secondaryText = `Input: ${row.input.name || inputModuleName} → Output: ${outputModuleName}`
 
             return (
               <ListItem
@@ -123,23 +140,42 @@ export const ExposedRowsConfigurator_Web: FC<ExposedRowsConfiguratorWebProps> = 
                         edge="end"
                         checked={isExposed}
                         onChange={() => handleToggle(row.id, isExposed)}
-                        disabled={!isHaIntegrationEnabled || !isMqttConnected}
+                        disabled={
+                          !isHaIntegrationEnabled || !isMqttConnected || togglingRowId === row.id
+                        }
                         size="small"
-                        // disabled={togglingRowId === row.id} // Optional: disable while processing
                       />
                     </span>
                   </Tooltip>
                 }
                 disablePadding
-                sx={{ py: 0.5, px: 1 }}
+                sx={{
+                  py: 0.75,
+                  px: 1.5,
+                  '&:not(:last-child)': { borderBottom: '1px solid', borderColor: 'divider' }
+                }}
               >
-                <ListItemIcon sx={{ minWidth: 36, mr: 1 }}>
-                  <IoIcon name={row.output.icon || 'mdi:puzzle-outline'} />
+                <ListItemIcon sx={{ minWidth: 36, mr: 1.5, display: 'flex', alignItems: 'center' }}>
+                  {togglingRowId === row.id ? (
+                    <CircularProgress size={20} />
+                  ) : (
+                    <IoIcon name={row.output.icon || 'mdi:puzzle-outline'} />
+                  )}
                 </ListItemIcon>
                 <ListItemText
                   primary={outputName}
-                  // secondary={`Input: ${inputName}`} // Removed input details as per your note
-                  primaryTypographyProps={{ noWrap: true, title: outputName, fontSize: '0.9rem' }}
+                  secondary={secondaryText}
+                  primaryTypographyProps={{
+                    noWrap: true,
+                    title: outputName,
+                    fontSize: '0.9rem',
+                    fontWeight: 500
+                  }}
+                  secondaryTypographyProps={{
+                    noWrap: true,
+                    title: secondaryText,
+                    fontSize: '0.75rem'
+                  }}
                 />
               </ListItem>
             )

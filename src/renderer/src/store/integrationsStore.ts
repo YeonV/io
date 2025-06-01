@@ -3,6 +3,7 @@ import { produce } from 'immer'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
+import type { integrationsState } from '../integrations/HomeAssistant/HomeAssistant.types'
 export type { integrationsState } from '../integrations/HomeAssistant/HomeAssistant.types'
 
 export const integrationsStore = () => ({
@@ -25,18 +26,22 @@ export const integrationsStore = () => ({
 })
 
 export const integrationsStoreActions = (set: any) => ({
-  setHomeAssistantConfig: (config) => {
+  setHomeAssistantConfig: (
+    config: integrationsState['homeAssistant']['config'],
+    suppressIpcSend = false
+  ) => {
     set(
-      produce((state: any) => {
+      produce((state: { integrations: integrationsState }) => {
+        // Ensure state type for produce
         state.integrations.homeAssistant.config = config
       }),
       false,
       'setHomeAssistantConfig'
     )
-    // Send updated config to main process if needed
-    if (ipcRenderer) {
+    if (ipcRenderer && !suppressIpcSend) {
       ipcRenderer.send('update-home-assistant-config', config)
     }
   }
+
   // ... other actions for different integrations
 })
