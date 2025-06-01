@@ -1,3 +1,4 @@
+// src/renderer/src/components/utils/InfoDialog.tsx
 import { FC } from 'react'
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'

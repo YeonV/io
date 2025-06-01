@@ -38,7 +38,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { debounce } from 'lodash-es' // For debouncing color input
 import IoIcon from '../IoIcon/IoIcon'
 
-// Default colors from your storeUI.ts for reset functionality
+// Default colors from your uiStore.ts for reset functionality
 const defaultThemeColorsFromStore = {
   primaryLight: '#333333',
   primaryDark: '#CCCCCC',
@@ -56,7 +56,7 @@ const SettingsAppearance: FC = () => {
   const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null)
 
   const themeColors = useMainStore(useShallow((state) => state.ui.themeColors))
-  const setThemeColorsAction = useMainStore((state) => state.setThemeColors) // From your storeUIActions
+  const setThemeColorsAction = useMainStore((state) => state.setThemeColors) // From your uiStoreActions
 
   const homeWidgets = useMainStore((state) => state.ui.homeWidgets || {})
   const setHomeWidgetsConfig = useMainStore((state) => state.setHomeWidgets)

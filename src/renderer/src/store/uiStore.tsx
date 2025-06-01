@@ -1,10 +1,10 @@
-// src/renderer/src/store/storeUI.tsx
+// src/renderer/src/store/uiStore.tsx
 import { ModuleId } from '@shared/module-ids'
 import { produce } from 'immer'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
-export const storeUI = () => ({
+export const uiStore = () => ({
   themeColors: {
     primaryLight: '#333333',
     primaryDark: '#CCCCCC',
@@ -14,7 +14,8 @@ export const storeUI = () => ({
   themeChoice: 'system' as 'system' | 'dark' | 'light',
   homeWidgets: {} as Record<ModuleId, boolean>
 })
-export const storeUIActions = (set: any) => ({
+
+export const uiStoreActions = (set: any) => ({
   setThemeChoice: (choice) => {
     // Renamed and updated action
     set(

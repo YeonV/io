@@ -6,9 +6,11 @@ import { devtools, persist } from 'zustand/middleware'
 import type { Row, ModuleId, ModuleConfig, IOModule, ProfileDefinition } from '@shared/types'
 import { v4 as uuidv4 } from 'uuid'
 import modulesFromFile from '@/modules/modules'
-import { storeUI, storeUIActions } from './storeUI'
+import { uiStore, uiStoreActions } from './uiStore'
 import { BlueprintDefinition } from '@/modules/Rest/Rest.types'
 import { LogEntry } from '@/components/LogViewer/LogViewer.types'
+import { integrationsStore, integrationsStoreActions } from './integrationsStore'
+// Import the specific type that includes .config.exposedRowIds
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
@@ -26,12 +28,12 @@ for (const moduleId in modulesFromFile) {
   }
 }
 
-// --- Zustand State Definition ---
 type State = {
   modules: Record<ModuleId, ModuleConfig<any>>
   rows: Record<string, Row>
   edit: boolean
-  ui: ReturnType<typeof storeUI>
+  ui: ReturnType<typeof uiStore>
+  integrations: ReturnType<typeof integrationsStore>
   profiles: Record<string, ProfileDefinition>
   activeProfileId: string | null
   globalAudioCommandTimestamp: string | null
@@ -39,15 +41,13 @@ type State = {
   dropMessage: string | null
   blueprintToRunFromDrop: BlueprintDefinition | null
   rowHistory: LogEntry[]
-
-  // Actions
   enableModule: (moduleId: ModuleId) => void
   disableModule: (moduleId: ModuleId) => void
   addRow: (row: Row) => void
   editRow: (rowId: string, updatedRowData: Partial<Row>) => void
   deleteRow: (row: Row) => void
   setEdit: (edit: boolean) => void
-  setThemeChoice: ReturnType<typeof storeUIActions>['setThemeChoice']
+  setThemeChoice: ReturnType<typeof uiStoreActions>['setThemeChoice']
   setModuleConfigValue: (moduleId: ModuleId, key: string, value: any) => void
   addProfile: (name: string, icon?: string, includedRowIds?: string[]) => string
   updateProfile: (profileId: string, updates: Partial<Omit<ProfileDefinition, 'id'>>) => void
@@ -61,6 +61,7 @@ type State = {
   addRowHistoryEntry: (entryData: Omit<LogEntry, 'id' | 'timestamp'>) => void
   setHomeWidgets: (newHomeWidgets: Record<ModuleId, boolean>) => void
   setThemeColors: (key: string, color: string) => void
+  setHomeAssistantConfig: ReturnType<typeof integrationsStoreActions>['setHomeAssistantConfig']
 }
 
 const MAX_HISTORY_ENTRIES = 200
@@ -72,7 +73,8 @@ export const useMainStore = create<State>()(
         modules: initialModulesState,
         rows: {},
         edit: false,
-        ui: storeUI(),
+        ui: uiStore(),
+        integrations: integrationsStore(),
         profiles: {},
         activeProfileId: null,
         globalAudioCommandTimestamp: null,
@@ -80,8 +82,8 @@ export const useMainStore = create<State>()(
         dropMessage: 'Drop .ioProfile file',
         blueprintToRunFromDrop: null,
         rowHistory: [],
-        ...storeUIActions(set),
-
+        ...uiStoreActions(set),
+        ...integrationsStoreActions(set),
         enableModule: (moduleId: ModuleId) => {
           set(
             produce((state: State) => {
@@ -109,7 +111,7 @@ export const useMainStore = create<State>()(
             produce((state: State) => {
               const targetConfig = state.modules[moduleId]?.config
               if (targetConfig) {
-                ;(targetConfig as any)[key] = value // Keep as any for flexibility
+                ;(targetConfig as any)[key] = value
               } else {
                 console.warn(
                   `mainStore: Module config object not found for ${moduleId} when trying to set ${String(key)}`
@@ -123,10 +125,7 @@ export const useMainStore = create<State>()(
         addRow: (newRowData) => {
           set(
             produce((state: State) => {
-              state.rows[newRowData.id] = {
-                ...newRowData,
-                enabled: true
-              }
+              state.rows[newRowData.id] = { ...newRowData, enabled: true }
             }),
             false,
             'addRow'
@@ -213,7 +212,6 @@ export const useMainStore = create<State>()(
             'addProfile'
           )
           if (ipcRenderer) ipcRenderer.send('set', ['profiles', get().profiles])
-          console.log(`Profile added: ${newProfile.name} (ID: ${newProfileId})`) // Using console.log as per your utils
           return newProfileId
         },
         updateProfile: (profileId: string, updates: Partial<Omit<ProfileDefinition, 'id'>>) => {
@@ -251,14 +249,9 @@ export const useMainStore = create<State>()(
         },
         setActiveProfile: (profileId: string | null) => {
           const currentActiveId = get().activeProfileId
-          if (currentActiveId === profileId) {
-            console.log(`setActiveProfile: Profile ${profileId} is already active.`) // Using console.log
-            return
-          }
+          if (currentActiveId === profileId) return
           set({ activeProfileId: profileId }, false, `setActiveProfile/${profileId || 'none'}`)
-          console.log(`Active profile set in Zustand to: ${profileId || 'None'}`) // Using console.log
           if (ipcRenderer) {
-            console.log(`setActiveProfile: Sending 'set' IPC for activeProfileId: ${profileId}`) // Using console.log
             ipcRenderer.send('set', ['activeProfileId', profileId])
             const newActiveProfile = profileId ? get().profiles[profileId] : null
             ipcRenderer.send('active-profile-changed-for-main', {
@@ -269,7 +262,6 @@ export const useMainStore = create<State>()(
         },
         setGlobalAudioCommandTimestamp: () => {
           const newTimestamp = new Date().toISOString()
-          console.log(`[mainStore] Setting globalAudioCommandTimestamp to: ${newTimestamp}`)
           set(
             { globalAudioCommandTimestamp: newTimestamp },
             false,
@@ -277,11 +269,9 @@ export const useMainStore = create<State>()(
           )
         },
         setIsWindowBeingDraggedOver: (isDragging: boolean) => {
-          // console.debug(`[mainStore] Setting isWindowBeingDraggedOver to: ${isDragging}`); // Optional: can be spammy
           set({ isWindowBeingDraggedOver: isDragging }, false, 'setIsWindowBeingDraggedOver')
         },
         setDropMessage: (message: string | null) => {
-          // console.debug(`[mainStore] Setting dropMessage to: ${message}`); // Optional: can be spammy
           set({ dropMessage: message }, false, 'setDropMessage')
         },
         setBlueprintToRunFromDrop: (blueprint) =>
@@ -295,11 +285,7 @@ export const useMainStore = create<State>()(
         addRowHistoryEntry: (entryData) => {
           set(
             produce((state: State) => {
-              const newEntry: LogEntry = {
-                id: uuidv4(),
-                timestamp: Date.now(),
-                ...entryData
-              }
+              const newEntry: LogEntry = { id: uuidv4(), timestamp: Date.now(), ...entryData }
               state.rowHistory.unshift(newEntry)
               if (state.rowHistory.length > MAX_HISTORY_ENTRIES) {
                 state.rowHistory.pop()
@@ -312,24 +298,31 @@ export const useMainStore = create<State>()(
       }),
       {
         name: 'io-v2-storage',
-        partialize: (state: State) => ({
-          rows: state.rows,
-          ui: {
-            // Persist relevant parts of UI state
-            themeChoice: state.ui.themeChoice,
-            homeWidgets: state.ui.homeWidgets // If you persist this
-            // Do NOT persist darkMode if it's derived, only themeChoice
-          },
-          moduleStoredConfigs: Object.fromEntries(
-            Object.entries(state.modules).map(([id, moduleFullConfig]) => [
-              id,
-              moduleFullConfig.config
-            ])
-          ),
-          profiles: state.profiles,
-          activeProfileId: state.activeProfileId,
-          globalAudioCommandTimestamp: state.globalAudioCommandTimestamp // Persist this new state
-        }),
+        partialize: (state: State) => {
+          const partialState: any = {
+            // Start with any to allow flexible property addition
+            rows: state.rows,
+            ui: {
+              themeChoice: state.ui.themeChoice,
+              homeWidgets: state.ui.homeWidgets
+            },
+            moduleStoredConfigs: Object.fromEntries(
+              Object.entries(state.modules).map(([id, moduleFullConfig]) => [
+                id,
+                moduleFullConfig.config
+              ])
+            ),
+            profiles: state.profiles,
+            activeProfileId: state.activeProfileId,
+            globalAudioCommandTimestamp: state.globalAudioCommandTimestamp
+          }
+
+          // Persist Home Assistant config object (which includes exposedRowIds)
+          if (state.integrations?.homeAssistant?.config) {
+            partialState.integrationsHomeAssistantConfig = state.integrations.homeAssistant.config
+          }
+          return partialState
+        },
         merge: (persistedState: any, currentState: State): State => {
           const mergedState = { ...currentState }
           if (persistedState.rows) mergedState.rows = persistedState.rows
@@ -355,14 +348,12 @@ export const useMainStore = create<State>()(
           }
           if (persistedState.profiles) {
             mergedState.profiles = persistedState.profiles
-            // Optional: Data integrity check for profiles if structure might change
             for (const pid in mergedState.profiles) {
               if (Object.prototype.hasOwnProperty.call(mergedState.profiles, pid)) {
                 if (!Array.isArray(mergedState.profiles[pid].includedRowIds)) {
                   mergedState.profiles[pid].includedRowIds = []
                 }
                 if (mergedState.profiles[pid].icon === undefined) {
-                  // Example: ensure new fields have defaults
                   mergedState.profiles[pid].icon = 'people'
                 }
               }
@@ -370,31 +361,44 @@ export const useMainStore = create<State>()(
           } else {
             mergedState.profiles = currentState.profiles || {}
           }
-          if (persistedState.activeProfileId !== undefined) {
+          if (persistedState.activeProfileId !== undefined)
             mergedState.activeProfileId = persistedState.activeProfileId
-          } else {
-            mergedState.activeProfileId = currentState.activeProfileId || null
-          }
-          if (persistedState.ui) {
-            if (persistedState.ui.themeChoice) {
-              // Check for the new persisted key
-              mergedState.ui.themeChoice = persistedState.ui.themeChoice
-            }
-            if (persistedState.ui.homeWidgets) {
-              mergedState.ui.homeWidgets = {
-                ...(currentState.ui.homeWidgets || {}),
-                ...persistedState.ui.homeWidgets
-              }
-            }
-          }
+          else mergedState.activeProfileId = currentState.activeProfileId || null
 
-          // Merge the new state
           if (persistedState.globalAudioCommandTimestamp !== undefined) {
             mergedState.globalAudioCommandTimestamp = persistedState.globalAudioCommandTimestamp
           } else {
             mergedState.globalAudioCommandTimestamp =
               currentState.globalAudioCommandTimestamp || null
           }
+
+          // Ensure integrations and homeAssistant parts exist before merging
+          mergedState.integrations = currentState.integrations || integrationsStore()
+          mergedState.integrations.homeAssistant =
+            currentState.integrations.homeAssistant || integrationsStore().homeAssistant
+
+          // Merge Home Assistant config object (which includes exposedRowIds)
+          if (persistedState.integrationsHomeAssistantConfig) {
+            mergedState.integrations.homeAssistant.config = {
+              ...mergedState.integrations.homeAssistant.config, // Start with defaults from integrationsStore()
+              ...persistedState.integrationsHomeAssistantConfig // Override with persisted values
+            }
+          }
+
+          // Ensure ioInstanceId is generated if it's missing
+          if (!mergedState.integrations.homeAssistant.config.ioInstanceId) {
+            mergedState.integrations.homeAssistant.config.ioInstanceId = uuidv4()
+            console.log(
+              '[mainStore] Generated new ioInstanceId for Home Assistant:',
+              mergedState.integrations.homeAssistant.config.ioInstanceId
+            )
+          }
+
+          // Ensure exposedRowIds is an array within the config object after merge
+          if (!Array.isArray(mergedState.integrations.homeAssistant.config.exposedRowIds)) {
+            mergedState.integrations.homeAssistant.config.exposedRowIds = []
+          }
+
           return mergedState
         }
       }

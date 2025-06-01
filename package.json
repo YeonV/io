@@ -52,6 +52,7 @@
     "build:web": "cross-env BUILD_TARGET=web electron-vite build",
     "dist": "electron-vite build && yarn electron-builder",
     "sync-modules": "node scripts/sync-modules.js",
+    "sync-integrations": "node scripts/sync-integrations.js",
     "predev": "npm run sync-modules",
     "prebuild": "npm run sync-modules"
   },

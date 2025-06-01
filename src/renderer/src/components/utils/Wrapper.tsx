@@ -1,18 +1,17 @@
 // src/renderer/src/components/utils/Wrapper.tsx
 
-import { Box, Typography } from '@mui/material'
+import { Box, Typography, useTheme } from '@mui/material'
 import styles from '@/styles/app.module.css'
 import logo from '@/assets/icon.png'
 import logoTitle from '@/assets/logo-cropped.svg'
 import pkg from '../../../../../package.json'
 import FiledropProvider from './FiledropProvider'
 import Footer from '../Footer'
-import { useMainStore } from '@/store/mainStore'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
 const Wrapper = ({ children }: any) => {
-  const themeChoice = useMainStore((state) => state.ui.themeChoice)
+  const theme = useTheme()
 
   return (
     <FiledropProvider>
@@ -36,13 +35,19 @@ const Wrapper = ({ children }: any) => {
           <header className={styles.logos}>
             <img
               src={logo}
-              style={{ width: '100px', filter: `invert(${themeChoice === 'dark' ? '0' : '1'})` }}
+              style={{
+                width: '100px',
+                filter: `invert(${theme.palette.mode === 'dark' ? '0' : '1'})`
+              }}
               alt="logoIO"
             />
             <div className={styles.imgBox}>
               <img
                 src={logoTitle}
-                style={{ width: '480px', filter: `invert(${themeChoice === 'dark' ? '0' : '1'})` }}
+                style={{
+                  width: '480px',
+                  filter: `invert(${theme.palette.mode === 'dark' ? '0' : '1'})`
+                }}
                 alt="InputOutput"
               />
             </div>
