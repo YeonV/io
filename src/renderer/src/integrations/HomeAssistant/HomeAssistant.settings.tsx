@@ -96,10 +96,10 @@ export const HomeAssistantSettings: FC = () => {
     try {
       const result = await ipcRenderer?.invoke('ha-register-device')
       if (result && result.success) {
-        showInfo(
-          'Registration Initiated',
-          'Home Assistant registration process initiated. Status will update shortly.'
-        )
+        // showInfo(
+        //   'Registration Initiated',
+        //   'Home Assistant registration process initiated. Status will update shortly.'
+        // )
         // Don't set setIsRegistering(false) here; wait for IPC 'ha-registration-status-updated'
       } else if (result && !result.success) {
         showInfo(
@@ -129,10 +129,10 @@ export const HomeAssistantSettings: FC = () => {
     try {
       const result = await ipcRenderer?.invoke('ha-unregister-device')
       if (result && result.success) {
-        showInfo(
-          'Unregistration Initiated',
-          'Home Assistant unregistration process initiated. Status will update shortly.'
-        )
+        // showInfo(
+        //   'Unregistration Initiated',
+        //   'Home Assistant unregistration process initiated. Status will update shortly.'
+        // )
         // Don't set setIsRegistering(false) here; wait for IPC 'ha-registration-status-updated'
       } else if (result && !result.success && result.error) {
         showInfo('Unregistration Failed', `Failed to unregister: ${result.error}`)

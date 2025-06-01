@@ -48,7 +48,7 @@ export function setupHomeAssistantRoutes(
 
   webapp.post(`${haBaseApi}/action-connect-mqtt`, async (_req: any, res: any) => {
     try {
-      ipcMain.emit('ha-connect-mqtt', {} as Electron.IpcMainEvent)
+      ipcMain.emit('ha-connect-mqtt-web', {} as Electron.IpcMainEvent)
       res.json({ success: true, message: 'Action emitted: connect-mqtt' })
     } catch (e: any) {
       res.status(500).json({ success: false, error: e.message })
@@ -56,7 +56,7 @@ export function setupHomeAssistantRoutes(
   })
   webapp.post(`${haBaseApi}/action-disconnect-mqtt`, async (_req: any, res: any) => {
     try {
-      ipcMain.emit('ha-disconnect-mqtt', {} as Electron.IpcMainEvent)
+      ipcMain.emit('ha-disconnect-mqtt-web', {} as Electron.IpcMainEvent)
       res.json({ success: true, message: 'Action emitted: disconnect-mqtt' })
     } catch (e: any) {
       res.status(500).json({ success: false, error: e.message })
@@ -72,7 +72,7 @@ export function setupHomeAssistantRoutes(
   })
   webapp.post(`${haBaseApi}/action-unregister-device`, async (_req: any, res: any) => {
     try {
-      ipcMain.emit('ha-unregister-device', {} as Electron.IpcMainEvent)
+      ipcMain.emit('ha-unregister-device-web', {} as Electron.IpcMainEvent)
       res.json({ success: true, message: 'Action emitted: unregister-device' })
     } catch (e: any) {
       res.status(500).json({ success: false, error: e.message })

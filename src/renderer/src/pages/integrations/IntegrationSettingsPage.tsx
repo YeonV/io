@@ -236,7 +236,7 @@ const IntegrationSettingsPage: FC = () => {
       if (!response.ok || !result.success) {
         throw new Error(result.error || `Action ${actionPath} failed (${response.status}).`)
       }
-      if (successMessage) showInfo('Success', successMessage)
+      if (successMessage) console.log('Success', successMessage)
       fetchStatus(false) // Refresh status silently after action
       // Loading state will be reset by SSE or finally block
     } catch (err: any) {
@@ -269,63 +269,63 @@ const IntegrationSettingsPage: FC = () => {
 
   const handleToggleRowExposureWeb = useCallback(
     async (rowId: string, newIsExposedState: boolean) => {
-      if (!config || !apiBaseUrl) return
+      if (!config || !apiBaseUrl) {
+        showInfo('Error', 'Configuration not loaded or API not available.')
+        return
+      }
 
       const actionPath = newIsExposedState ? 'action-expose-row' : 'action-unexpose-row'
-      const successMessage = `Row exposure for "${allIoRows[rowId]?.output.name || rowId}" updated.`
+      const actionVerb = newIsExposedState ? 'expose' : 'unexpose'
 
-      // Optimistically update local config state for immediate UI feedback on the switch
+      // Optimistically update UI first (the config state in IntegrationSettingsPage)
       const oldExposedRowIds = config.exposedRowIds || []
-      let tempNewExposedRowIds: string[]
+      let updatedExposedRowIds: string[]
       if (newIsExposedState) {
-        tempNewExposedRowIds = [...new Set([...oldExposedRowIds, rowId])]
+        updatedExposedRowIds = [...new Set([...oldExposedRowIds, rowId])]
       } else {
-        tempNewExposedRowIds = oldExposedRowIds.filter((id) => id !== rowId)
+        updatedExposedRowIds = oldExposedRowIds.filter((id) => id !== rowId)
       }
-      setConfig((prev) =>
-        prev ? { ...prev, config: { ...prev, exposedRowIds: tempNewExposedRowIds } } : null
-      )
+
+      // Update local config state that's passed to HomeAssistantSettingsBase and ExposedRowsConfigurator_Web
+      const newConfig = { ...config, exposedRowIds: updatedExposedRowIds }
+      setConfig(newConfig) // This updates the UI for the toggles
 
       try {
-        await performAction(actionPath, { rowId }, successMessage)
-        // After the action, the main config (including exposedRowIds) needs to be saved
-        // to ensure the backend's view of exposedRowIds (in electron-store) is updated.
-        // The performAction already calls fetchStatus. We also need to ensure the config is saved.
-        // The most robust way is to make setConfig trigger a save, or have a dirty flag.
-        // For now, let's assume the user will click "Save Configuration" to persist the list.
-        // OR, we can call handleSaveConfig here if each toggle should be an immediate save.
-        // Let's make each toggle also trigger a save of the config.
-        if (config) {
-          // config should be updated by setConfig above
-          const updatedConfigForSave = {
-            ...config,
-            exposedRowIds: tempNewExposedRowIds
-          }
-          // Call a lightweight save that only POSTs the config
-          const response = await fetch(`${apiBaseUrl}/config`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(updatedConfigForSave)
-          })
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}))
-            throw new Error(
-              `Failed to save updated exposed rows list: ${response.statusText} - ${errorData.error || ''}`
-            )
-          }
-          console.log('Exposed rows list updated and saved via config POST.')
-          fetchConfig() // Re-fetch config to confirm and get latest state
+        // Step 1: Tell the backend to perform the immediate MQTT action for this single row
+        const actionResponse = await fetch(`${apiBaseUrl}/${actionPath}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rowId })
+        })
+        const actionResult = await actionResponse.json()
+        if (!actionResponse.ok || !actionResult.success) {
+          throw new Error(actionResult.error || `Failed to ${actionVerb} row ${rowId}.`)
         }
-      } catch (err) {
-        // Revert optimistic update on error
-        setConfig((prev) =>
-          prev ? { ...prev, config: { ...prev, exposedRowIds: oldExposedRowIds } } : null
-        )
-        console.error('Error toggling row exposure:', err)
-        // showInfo is already called by performAction on error
+        showInfo('Success', `Row ${actionVerb}d. Saving updated exposure list...`)
+
+        // Step 2: Persist the entire updated config (with the new exposedRowIds list)
+        const saveResponse = await fetch(`${apiBaseUrl}/config`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newConfig) // Send the already updated local config
+        })
+        const saveResult = await saveResponse.json()
+        if (!saveResponse.ok || !saveResult.success) {
+          throw new Error(
+            saveResult.error || 'Failed to save updated exposed rows list to backend.'
+          )
+        }
+        showInfo('Configuration Saved', 'List of exposed automations has been updated and saved.')
+        // Optionally re-fetch config to be absolutely sure, though optimistic update + save should be fine
+        // fetchConfig();
+      } catch (err: any) {
+        showInfo('Error Updating Exposure', err.message || 'An unknown error occurred.')
+        // Revert optimistic UI update
+        setConfig((prev) => (prev ? { ...prev, exposedRowIds: oldExposedRowIds } : null))
+        console.error(`Error toggling row ${rowId} exposure to ${newIsExposedState}:`, err)
       }
     },
-    [config, apiBaseUrl, performAction, allIoRows, fetchConfig]
+    [config, apiBaseUrl, showInfo, setConfig]
   )
 
   if (!integrationName) {
@@ -387,8 +387,8 @@ const IntegrationSettingsPage: FC = () => {
   }
 
   return (
-    <Box sx={{ maxWidth: 900, margin: 'auto', py: 2, px: { xs: 1, sm: 2 } }}>
-      <Typography variant="h4" component="h1" gutterBottom sx={{ textAlign: 'center', mb: 3 }}>
+    <Box sx={{ maxWidth: 900, margin: 'auto', px: { xs: 1, sm: 2 } }}>
+      <Typography variant="h4" component="h1" gutterBottom sx={{ textAlign: 'center', mb: 1 }}>
         Home Assistant Integration Management
       </Typography>
 
@@ -408,7 +408,7 @@ const IntegrationSettingsPage: FC = () => {
 
       {/* NEW: Render ExposedRowsConfigurator_Web */}
       {config && ( // Only render if config is loaded
-        <Box mt={0} /* Adjusted margin, as Paper in child has mt now */>
+        <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, pt: 0, mt: 0 }}>
           <ExposedRowsConfigurator_Web
             allIoRows={allIoRows}
             exposedRowIdsFromConfig={config.exposedRowIds}

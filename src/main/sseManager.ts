@@ -29,26 +29,26 @@ export function initializeSseEndpoint(app: any): void {
 
     sseClients.push(res)
 
-    const intervalId = setInterval(() => {
-      try {
-        if (!res.writableEnded) {
-          // Check if connection is still open
-          res.write(`event: ping\ndata: ${JSON.stringify({ time: Date.now() })}\n\n`)
-          console.log('SSE Manager: Sent ping')
-        } else {
-          clearInterval(intervalId)
-        }
-      } catch (e) {
-        console.error('SSE Manager: Error writing ping, client likely gone:', e)
-        clearInterval(intervalId)
-        // Remove client from sseClients if not already handled by 'close'
-        const index = sseClients.indexOf(res)
-        if (index !== -1) sseClients.splice(index, 1)
-      }
-    }, 5000)
+    // const intervalId = setInterval(() => {
+    //   try {
+    //     if (!res.writableEnded) {
+    //       // Check if connection is still open
+    //       res.write(`event: ping\ndata: ${JSON.stringify({ time: Date.now() })}\n\n`)
+    //       console.log('SSE Manager: Sent ping')
+    //     } else {
+    //       clearInterval(intervalId)
+    //     }
+    //   } catch (e) {
+    //     console.error('SSE Manager: Error writing ping, client likely gone:', e)
+    //     clearInterval(intervalId)
+    //     // Remove client from sseClients if not already handled by 'close'
+    //     const index = sseClients.indexOf(res)
+    //     if (index !== -1) sseClients.splice(index, 1)
+    //   }
+    // }, 5000)
 
     req.on('close', () => {
-      clearInterval(intervalId)
+      // clearInterval(intervalId)
       const index = sseClients.indexOf(res)
       if (index !== -1) {
         sseClients.splice(index, 1)

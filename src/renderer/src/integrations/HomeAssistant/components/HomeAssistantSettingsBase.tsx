@@ -28,6 +28,8 @@ import ExposedRowsConfigurator from './ExposedRowsConfigurator'
 
 type HomeAssistantConfig = integrationsState['homeAssistant']['config']
 
+const ipcRenderer = window.electron?.ipcRenderer || false
+
 export interface HomeAssistantSettingsBaseProps {
   config: HomeAssistantConfig
   onConfigChange: (
@@ -71,7 +73,7 @@ export const HomeAssistantSettingsBase: FC<HomeAssistantSettingsBaseProps> = ({
   }
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, ...sx }} className={className}>
+    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, pb: 0, mb: 0, ...sx }} className={className}>
       <Paper elevation={2} sx={{ p: 2.5 }}>
         <Stack
           direction="row"
@@ -320,10 +322,12 @@ export const HomeAssistantSettingsBase: FC<HomeAssistantSettingsBaseProps> = ({
           </Paper>
         </Stack>
       </Paper>
-      <ExposedRowsConfigurator
-        isHaIntegrationEnabled={config.enabled}
-        isMqttConnected={mqttConnected}
-      />
+      {ipcRenderer && (
+        <ExposedRowsConfigurator
+          isHaIntegrationEnabled={config.enabled}
+          isMqttConnected={mqttConnected}
+        />
+      )}
     </Box>
   )
 }
