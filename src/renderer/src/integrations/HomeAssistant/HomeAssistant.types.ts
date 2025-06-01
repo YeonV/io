@@ -10,10 +10,10 @@ export interface integrationsState {
       discoveryPrefix?: string
       deviceName?: string
       ioInstanceId?: string
+      exposedRowIds?: string[]
     }
     mqttConnected: boolean
     haRegistered: boolean
-    exposedRowIds?: string[]
   }
   setHomeAssistantConfig: (config: integrationsState['homeAssistant']['config']) => void
 }

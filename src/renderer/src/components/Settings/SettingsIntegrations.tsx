@@ -1,18 +1,15 @@
 // src/renderer/src/components/Settings/SettingsIntegrations.tsx
-import { useState, type FC, useCallback, useEffect } from 'react'
+import { useState, type FC } from 'react'
 import {
   Box,
   Button,
   Typography,
   Stack,
   IconButton,
-  Tooltip,
-  Switch,
-  FormControlLabel,
   ToggleButton,
   ToggleButtonGroup
 } from '@mui/material' // Added Switch, FormControlLabel, Tooltip
-import { ArrowBack as ArrowBackIcon, EditOff, Edit } from '@mui/icons-material' // Example icons for toggle
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material' // Example icons for toggle
 import IntegrationsBrowser from './IntegrationsBrowser'
 import { integrationsMap } from '@/integrations/integrations'
 import type { IntegrationId, FullIntegrationDefinition } from '@shared/integration-types'

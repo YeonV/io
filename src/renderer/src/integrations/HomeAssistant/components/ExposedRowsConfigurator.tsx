@@ -1,7 +1,6 @@
 // src/renderer/src/integrations/HomeAssistant/components/ExposedRowsConfigurator.tsx
 import { FC, useMemo } from 'react'
 import {
-  Box,
   Typography,
   List,
   ListItem,
@@ -118,7 +117,7 @@ export const ExposedRowsConfigurator: FC<ExposedRowsConfiguratorProps> = ({
               `Row ${row.id.substring(0, 4)}`
             const inputName =
               row.input.name || `Input ${row.inputModule.replace('-module', '').substring(0, 10)}`
-            const rowDisplayName = `${inputName} → ${outputName}`
+            // const rowDisplayName = `${inputName} → ${outputName}`
 
             return (
               <ListItem

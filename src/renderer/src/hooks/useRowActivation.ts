@@ -1,8 +1,7 @@
 // src/renderer/src/hooks/useRowActivation.ts
-import { useMemo, useEffect } from 'react'
+import { useMemo } from 'react'
 import { useMainStore } from '@/store/mainStore'
 import type { Row, ProfileDefinition } from '@shared/types'
-import { log } from '@/utils' // Your log utility
 
 export interface RowActivationStatus {
   /** Is this row's individual toggle switch ON? */

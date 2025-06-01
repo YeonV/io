@@ -1,6 +1,7 @@
 // src/main/integrationLoader.ts
 import { ipcMain } from 'electron'
 import { getMainWindow, getStore } from './windowManager'
+import { broadcastSseEvent } from './sseManager' // Import it here
 import {
   // initializeHomeAssistantIntegration,
   cleanupHomeAssistantIntegration
@@ -12,6 +13,7 @@ export interface MainIntegrationDeps {
   ipcMain: typeof Electron.ipcMain
   getMainWindow: () => Electron.BrowserWindow | null
   getStore: () => any // ElectronStore instance
+  broadcastSseEvent: (eventData: { type: string; payload: any }) => void
 }
 
 // In the future, this could be an array of integration handlers like mainModuleHandlers
@@ -23,7 +25,8 @@ export async function loadAndInitializeAllMainIntegrations(): Promise<void> {
   const deps: MainIntegrationDeps = {
     ipcMain,
     getMainWindow,
-    getStore
+    getStore,
+    broadcastSseEvent
   }
   for (const integrationPart of mainIntegrationHandlers) {
     if (integrationPart && typeof integrationPart.initialize === 'function') {

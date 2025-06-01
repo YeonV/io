@@ -9,7 +9,7 @@ import {
 import { createMainWindow, getMainWindow, loadElectronStore } from './windowManager'
 import { createTray, destroyTray } from './trayManager'
 import { initializeBaseIpcHandlers } from './ipcManager'
-import { startExpressApi } from './expressApi'
+import { startExpressApi } from './api/expressApi'
 import { installDevTools } from './devtools'
 
 import iconAsset from '../../resources/icon.png?asset'

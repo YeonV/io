@@ -10,6 +10,7 @@ import ErrorBoundary from './components/utils/ErrorBoundary'
 import Deck from './pages/Deck'
 import { SnackbarProvider } from 'notistack'
 import { useShallow } from 'zustand/react/shallow'
+import IntegrationSettingsPage from './pages/integrations/IntegrationSettingsPage'
 
 const ipcRenderer = window.electron?.ipcRenderer || false
 
@@ -95,10 +96,16 @@ const App = () => {
             <Routes>
               {window.location.pathname === '/deck/' ? (
                 <Route path="/" element={<Deck />} />
+              ) : window.location.pathname.startsWith('/integrations') ? (
+                <Route path="/" element={<IntegrationSettingsPage />} />
               ) : (
                 <>
                   <Route path="/" element={<Home />} />
                   <Route path="/deck" element={<Deck />} />
+                  <Route
+                    path="/integrations/:integrationName"
+                    element={<IntegrationSettingsPage />}
+                  />
                 </>
               )}
             </Routes>
